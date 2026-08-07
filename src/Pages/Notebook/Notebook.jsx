@@ -231,6 +231,50 @@ const Notebook = () => {
     setTitle(target.title || DEFAULT_NOTEBOOK_TITLE);
   };
 
+  const handleDeleteNotebook = (id) => {
+    const target = notebooks.find((nb) => nb.id === id);
+    if (!target) return;
+
+    swal({
+      title: "Delete Notebook?",
+      text: `"${
+        target.title || DEFAULT_NOTEBOOK_TITLE
+      }" will be permanently deleted. This can't be undone.`,
+      icon: "warning",
+      buttons: ["Cancel", "Delete"],
+      dangerMode: true,
+    }).then((willDelete) => {
+      if (!willDelete) return;
+
+      const remaining = notebooks.filter((nb) => nb.id !== id);
+      const wasActive = id === activeNotebookId;
+
+      if (remaining.length === 0) {
+        // Never leave the notebook with nothing to show — spin up a
+        // fresh default notebook in its place.
+        const fresh = {
+          id: genId(),
+          title: DEFAULT_NOTEBOOK_TITLE,
+          content: "",
+          updatedAt: Date.now(),
+        };
+        setNotebooks([fresh]);
+        setActiveNotebookId(fresh.id);
+        setText("");
+        setTitle(fresh.title);
+        return;
+      }
+
+      setNotebooks(remaining);
+      if (wasActive) {
+        const next = remaining[0];
+        setActiveNotebookId(next.id);
+        setText(next.content || "");
+        setTitle(next.title || DEFAULT_NOTEBOOK_TITLE);
+      }
+    });
+  };
+
   useEffect(() => {
     document.body.style.overflow = isZenMode ? "hidden" : "";
     return () => {
@@ -530,6 +574,7 @@ const Notebook = () => {
               activeNotebookId={activeNotebookId}
               onNewNotebook={handleNewNotebook}
               onSwitchNotebook={handleSwitchNotebook}
+              onDeleteNotebook={handleDeleteNotebook}
               onOpenVirtualKeyboard={handleOpenVirtualKeyboard}
               searchOpen={searchOpen}
               onToggleSearch={handleToggleSearch}

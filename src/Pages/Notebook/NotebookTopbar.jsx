@@ -138,6 +138,7 @@ const NotebookTopbar = ({
   activeNotebookId,
   onNewNotebook,
   onSwitchNotebook,
+  onDeleteNotebook,
   onOpenVirtualKeyboard,
   searchOpen,
   onToggleSearch,
@@ -473,23 +474,36 @@ const NotebookTopbar = ({
                 {notebookListOpen && (
                   <div className={Style.notebookList}>
                     {notebooks.map((nb) => (
-                      <button
-                        type="button"
-                        key={nb.id}
-                        className={`${Style.notebookListItem} ${
-                          nb.id === activeNotebookId
-                            ? Style.notebookListItemActive
-                            : ""
-                        }`}
-                        onClick={() => {
-                          onSwitchNotebook(nb.id);
-                          setTitleMenuOpen(false);
-                          setNotebookListOpen(false);
-                        }}
-                      >
-                        <i className="fa-solid fa-book"></i>
-                        <span>{nb.title || "Stiknex Notebook"}</span>
-                      </button>
+                      <div key={nb.id} className={Style.notebookListRow}>
+                        <button
+                          type="button"
+                          className={`${Style.notebookListItem} ${
+                            nb.id === activeNotebookId
+                              ? Style.notebookListItemActive
+                              : ""
+                          }`}
+                          onClick={() => {
+                            onSwitchNotebook(nb.id);
+                            setTitleMenuOpen(false);
+                            setNotebookListOpen(false);
+                          }}
+                        >
+                          <i className="fa-solid fa-book"></i>
+                          <span>{nb.title || "Stiknex Notebook"}</span>
+                        </button>
+                        <span>
+
+                        <button
+                          type="button"
+                          className={Style.notebookDeleteBtn}
+                          data-tip="Delete Notebook"
+                          aria-label={`Delete ${nb.title || "Stiknex Notebook"}`}
+                          onClick={() => onDeleteNotebook(nb.id)}
+                          >
+                          <i className="fa-solid fa-trash-can"></i>
+                        </button>
+                          </span>
+                      </div>
                     ))}
                   </div>
                 )}

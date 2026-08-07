@@ -292,8 +292,15 @@
   gap: 0.15rem;
 }
 
+.notebookListRow {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
 .notebookListItem {
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: 0.6em;
@@ -323,6 +330,28 @@
   background: rgba(139, 44, 245, 0.16);
   color: #cbb4ff;
 }
+
+.notebookDeleteBtn {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: #9a9aa2;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.notebookDeleteBtn:hover {
+  background: #ef4444;
+  color: white;
+}
+
 
 .timerControls {
   display: flex;
