@@ -1,0 +1,88 @@
+.display {
+  width: 100%;
+  border-radius: 1rem;
+  padding: 1.2rem 1.2rem;
+  margin-bottom: 1rem;
+  text-align: right;
+  background: #b6b6b6;
+  overflow-x: auto;
+}
+
+.darkDisplay {
+  background: #2e2f35;
+  border: 1px solid #4a4b53;
+}
+
+.expr {
+  font-size: 0.85rem;
+  opacity: 0.6;
+  min-height: 1.1rem;
+  word-break: break-all;
+}
+
+.result {
+  font-size: 1.9rem;
+  font-weight: 700;
+  word-break: break-all;
+}
+
+.pad {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.6rem;
+}
+
+.sciPad {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+}
+
+.btn {
+  padding: 0.85rem 0;
+  border-radius: 0.85rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: #e8e8e8;
+  border: none;
+  transition: all 0.2s ease;
+  box-shadow:
+    4px 4px 10px #c5c5c5,
+    -4px -4px 10px #ffffff;
+}
+
+.btn:active {
+  box-shadow:
+    inset 3px 3px 8px #c5c5c5,
+    inset -3px -3px 8px #ffffff;
+}
+
+.darkBtn {
+  background: #2a2a30;
+  color: #f5f5f5;
+  box-shadow:
+    4px 4px 10px #111,
+    -3px -3px 10px #3a3a40;
+}
+
+.darkBtn:active {
+  box-shadow:
+    inset 3px 3px 8px #111,
+    inset -3px -3px 8px #3a3a40;
+}
+
+.opBtn {
+  color: white;
+  background: linear-gradient(135deg, #8b2cf5, #4f5cff, #2eb8ff);
+}
+
+.equalBtn {
+  color: white;
+  background: #0b856c;
+}
+
+.sciBtn {
+  font-size: 0.85rem;
+}

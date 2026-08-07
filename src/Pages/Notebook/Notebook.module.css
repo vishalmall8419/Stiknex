@@ -1,0 +1,257 @@
+.notebookPage {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #fdfbf3;
+}
+
+.darkNotebookPage {
+  background: #1c1c20;
+}
+
+.zenMode {
+  height: 100vh;
+  overflow: hidden;
+}
+
+.paperArea {
+  flex: 1;
+  width: 100%;
+  padding: 1px clamp(0.85rem, 2.3vw, 4rem);
+  background-color: #fdfbf3;
+  background-position: 0 4.5rem;
+}
+
+.darkPaperArea {
+  background-color: #1c1c20;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent calc(var(--nb-line-height, 34px) - 1px),
+    #2c2c33 calc(var(--nb-line-height, 34px) - 1px),
+    #2c2c33 var(--nb-line-height, 34px)
+  );
+  background-position: 0 4.5rem;
+}
+
+.paperColumn {
+  display: contents;
+  width: 100%;
+  position: relative;
+  max-width: var(--nb-writing-width, 820px);
+  margin: 0 auto;
+  padding-left: 2.4rem;
+  min-height: calc(100vh - 200px);
+}
+
+.marginLine {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0.9rem;
+  width: 1px;
+  background: #eec3c3;
+}
+
+.darkNotebookPage .marginLine {
+  background: #5a3a3a;
+}
+
+.editorWrap {
+  position: relative;
+  width: 100%;
+}
+
+.editor {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  min-height: calc(100vh - 70px);
+  padding: 0;
+  border: none;
+  outline: none;
+  resize: none;
+  background: transparent;
+  font-family: var(--nb-font-family, "'Caveat', cursive");
+  font-size: var(--nb-font-size, 19px);
+  line-height: var(--nb-line-height, 34px);
+  color: #2a2a30;
+  caret-color: #4f5cff;
+}
+
+.darkNotebookPage .editor {
+  color: #eceef2;
+}
+
+.editor::placeholder {
+  color: #a8a8a8;
+}
+
+.darkNotebookPage .editor::placeholder {
+  color: #6b6b74;
+}
+
+/* Search highlight layer — a non-interactive mirror of the textarea
+   used only to paint match highlights. It never receives focus and
+   never touches the textarea's real selection/cursor. */
+.editorHighlightLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  width: 100%;
+  min-height: calc(100vh - 70px);
+  padding: 0;
+  border: none;
+  margin: 0;
+  font-family: var(--nb-font-family, "'Caveat', cursive");
+  font-size: var(--nb-font-size, 19px);
+  line-height: var(--nb-line-height, 34px);
+  color: transparent;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  pointer-events: none;
+  user-select: none;
+}
+
+.searchMatch {
+  background: rgba(255, 214, 92, 0.55);
+  border-radius: 2px;
+  color: transparent;
+}
+
+.searchMatchActive {
+  background: rgba(255, 149, 55, 0.75);
+  border-radius: 2px;
+  color: transparent;
+}
+
+.darkEditorHighlightLayer .searchMatch {
+  background: rgba(255, 214, 92, 0.35);
+}
+
+.darkEditorHighlightLayer .searchMatchActive {
+  background: rgba(255, 149, 55, 0.55);
+}
+
+.statusPill {
+  position: fixed;
+  right: 3.95rem;
+  bottom: 1.65rem;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.6em 1.1em;
+  border-radius: 999px;
+  font-size: 0.57rem;
+  font-weight: 600;
+  color: #2a2a30;
+  background: rgba(255, 255, 255, 0.409);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 207, 207, 0.413);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.201);
+}
+
+.darkStatusPill {
+  color: #f4f4f5;
+  background: rgba(35, 35, 39, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.dot {
+  opacity: 0.4;
+}
+
+.saveIndicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  color: #16a34a;
+}
+
+.zenExit {
+  position: fixed;
+  top: 1.25rem;
+  right: 1.25rem;
+  z-index: 90;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  color: #2a2a30;
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+}
+
+.darkZenExit {
+  color: #f4f4f5;
+  background: rgba(40, 40, 45, 0.65);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+}
+
+.zenExit:hover {
+  transform: scale(1.08);
+}
+
+@media (min-width: 1800px) {
+  .paperArea {
+    padding-left: 8vw;
+    padding-right: 8vw;
+  }
+}
+
+@media (max-width: 900px) {
+  .paperArea {
+    padding: 2rem 1.5rem;
+  }
+
+  .paperColumn {
+    padding-left: 1.8rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .paperArea {
+    padding: 1.5rem 1rem;
+    background-position: 0 3.5rem;
+  }
+
+  .paperColumn {
+    padding-left: 1.4rem;
+    min-height: calc(100vh - 160px);
+  }
+
+  .marginLine {
+    left: 0.6rem;
+  }
+
+  .editor {
+    min-height: calc(100vh - 50px);
+  }
+
+  .statusPill {
+    right: 3.47rem;
+    bottom: 1.25rem;
+    padding: 0.5em 0.85em;
+    font-size: 0.54rem;
+    gap: 0.4rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .statusPill span:not(.saveIndicator) {
+    display: none;
+  }
+
+  .statusPill .dot {
+    display: none;
+  }
+}

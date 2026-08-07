@@ -1,0 +1,143 @@
+
+@import "tailwindcss";
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+body,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+}
+
+*::-webkit-scrollbar{
+  display: none;
+}
+
+html {
+  scroll-behavior: smooth;
+  max-width: 100vw;
+}
+
+body {
+  font-family: "Poppins", sans-serif;
+  background: #fff;
+  color: #222;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+#root {
+  overflow-x: hidden;
+}
+
+@media (min-width: 1800px) {
+  #root {
+    max-width: 2600px;
+    margin: 0 auto;
+  }
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+ul {
+  list-style: none;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+.whiteButton {
+  color: #090909;
+  padding: 0.7em 1.7em;
+  font-size: 18px;
+  border-radius: 0.5em;
+  background: #e8e8e8;
+  cursor: pointer;
+  border: 1px solid #e8e8e8;
+  transition: all 0.3s;
+  box-shadow:
+    6px 6px 12px #c5c5c5,
+    -6px -6px 12px #ffffff;
+}
+.whiteButton:active {
+  color: #666;
+  box-shadow:
+    inset 4px 4px 12px #c5c5c5,
+    inset -4px -4px 12px #ffffff;
+}
+@font-face {
+  font-family: "ROMA";
+  src: url("/Fonts/ROMA.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+.greenButton {
+  border: none;
+  outline: none;
+  color: white;
+  cursor: pointer;
+  padding: 4px 20px;
+  border-radius: 144px;
+  background: #0b856c;
+  box-shadow:
+    inset 25px 25px 50px #085e4d,
+    inset -25px -25px 50px #0eac8b;
+  transition: all 0.3s ease;
+}
+.greenButton:hover {
+  background: #17ab8d;
+
+  transform: translateY(-2px);
+
+  box-shadow:
+    12px 12px 22px rgba(0, 0, 0, 0.22),
+    -6px -6px 12px rgba(255, 255, 255, 0.18);
+}
+.greenButton:active {
+  transform: scale(0.97);
+
+  box-shadow:
+    inset 4px 4px 10px rgba(0, 0, 0, 0.18),
+    inset -4px -4px 10px rgba(255, 255, 255, 0.1);
+}
+
+.bubblegum-sans-regular {
+  font-family: "Bubblegum Sans", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.bubblegum-sans-regular {
+  font-family: "Bubblegum Sans", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+.caveat-card {
+  font-family: "Caveat", cursive;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://stiknex.vercel.app/sitemap.xml
