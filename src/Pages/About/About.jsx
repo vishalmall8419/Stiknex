@@ -37,7 +37,7 @@ const features = [
   },
   {
     icon: "fa-solid fa-lock",
-    title: "Local Storage",
+    title: "Secure",
     desc: "Everything you write stays on your own device — private by default.",
   },
   {
