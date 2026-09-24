@@ -1,15 +1,20 @@
 import { useState, useEffect } from "react";
-import { HexColorPicker } from "react-colorful";
+import { HexAlphaColorPicker } from "react-colorful";
 import ToolsStyle from "../Tools.module.css";
 
 const hexToRgb = (hex) => {
-  const clean = hex.replace("#", "");
-  const bigint = parseInt(clean, 16);
-  return {
-    r: (bigint >> 16) & 255,
-    g: (bigint >> 8) & 255,
-    b: bigint & 255,
-  };
+  let clean = hex.replace("#", "");
+  if (clean.length === 3 || clean.length === 4) {
+    clean = clean.split("").map(c => c + c).join("");
+  }
+  if (clean.length === 6) clean += "ff";
+  if (clean.length !== 8) return { r: 0, g: 0, b: 0, a: 1 };
+
+  const r = parseInt(clean.substring(0, 2), 16);
+  const g = parseInt(clean.substring(2, 4), 16);
+  const b = parseInt(clean.substring(4, 6), 16);
+  const a = Math.round((parseInt(clean.substring(6, 8), 16) / 255) * 100) / 100;
+  return { r, g, b, a };
 };
 
 const rgbToHsl = ({ r, g, b }) => {
@@ -44,14 +49,22 @@ const ColorPicker = ({ darkMode }) => {
     if (window.EyeDropper) setIsSupported(true);
   }, []);
 
-  const isValidHex = /^#[0-9A-Fa-f]{6}$/i.test(hex) || /^#[0-9A-Fa-f]{3}$/i.test(hex);
-  const safeHex = isValidHex ? (hex.length === 4 ? "#" + hex[1]+hex[1]+hex[2]+hex[2]+hex[3]+hex[3] : hex) : "#000000";
+  const isValidHex = /^#[0-9A-Fa-f]{6,8}$/i.test(hex) || /^#[0-9A-Fa-f]{3,4}$/i.test(hex);
+  
+  let safeHex = "#000000ff";
+  if (isValidHex) {
+    let clean = hex.replace("#", "");
+    if (clean.length === 3 || clean.length === 4) {
+      clean = clean.split("").map(c => c + c).join("");
+    }
+    safeHex = "#" + clean;
+  }
   
   const rgb = hexToRgb(safeHex);
   const hsl = rgbToHsl(rgb);
 
-  const rgbString = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
-  const hslString = `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`;
+  const rgbString = rgb.a === 1 ? `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})` : `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${rgb.a})`;
+  const hslString = rgb.a === 1 ? `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)` : `hsla(${hsl.h}, ${hsl.s}%, ${hsl.l}%, ${rgb.a})`;
   const tailwindBg = `bg-[${safeHex}]`;
   const tailwindText = `text-[${safeHex}]`;
 
@@ -88,7 +101,7 @@ const ColorPicker = ({ darkMode }) => {
       {/* Visual Color Picker (React Colorful) */}
       <div className="flex flex-col sm:flex-row gap-6 items-start">
         <div className="w-full sm:w-auto flex-shrink-0 mx-auto sm:mx-0">
-          <HexColorPicker color={safeHex} onChange={setHex} style={{ width: "240px", height: "240px" }} />
+          <HexAlphaColorPicker color={safeHex} onChange={setHex} style={{ width: "240px", height: "240px" }} />
         </div>
         
         <div className="flex flex-col gap-4 w-full flex-1">
