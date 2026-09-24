@@ -1,0 +1,363 @@
+.parent {
+  column-count: 5;
+  column-gap: 20px;
+  margin: 1rem 1rem 1rem 7rem;
+}
+
+.card {
+  display: inline-block;
+  width: 100%;
+  margin-bottom: 30px;
+  break-inside: avoid;
+
+  border-radius: 1rem;
+  position: relative;
+
+  padding-top: 3.75rem;
+  padding-right: 1.75rem;
+  padding-bottom: 2rem;
+  padding-left: 1.75rem;
+
+  transition: all 300ms ease-in-out;
+
+  box-shadow:
+    5px 5px 12px #9e9e9e,
+    -5px -5px 12px #ffffff;
+}
+
+@media (max-width: 1600px) {
+  .parent {
+    column-count: 5;
+  }
+}
+
+@media (max-width: 1300px) {
+  .parent {
+    column-count: 4;
+  }
+}
+
+@media (max-width: 1000px) {
+  .parent {
+    column-count: 3;
+  }
+}
+
+@media (max-width: 900px) {
+  .parent {
+    margin: 1rem 1rem 1rem 5rem;
+  }
+}
+
+@media (max-width: 700px) {
+  .parent {
+    column-count: 2;
+    margin: 1rem 1rem 1rem 4.25rem;
+  }
+}
+
+@media (max-width: 500px) {
+  .parent {
+    column-count: 1;
+    margin: 0.75rem 0.75rem 0.75rem 3.5rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .parent {
+    margin: 0.6rem 0.6rem 0.6rem 3rem;
+  }
+}
+
+.card button {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(-5px);
+  transition:
+    opacity 0.35s ease,
+    transform 0.35s ease,
+    visibility 0s linear 0.35s;
+}
+
+.card:hover button {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0);
+  transition:
+    opacity 0.35s ease,
+    transform 0.35s ease;
+}
+.card input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+
+  width: 20px;
+  height: 20px;
+
+  border-radius: 6px;
+  border: 2px solid #bdbdbd;
+  background-color: #ececec;
+
+  cursor: pointer;
+
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+
+  transform: translateY(-5px);
+
+  transition: all 0.35s ease;
+}
+
+.card:hover input[type="checkbox"] {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.card input[type="checkbox"]:checked::after {
+  content: "✓";
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  width: 100%;
+  height: 100%;
+}
+.card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow:
+    12px 12px 24px #9b9b9b,
+    -12px -12px 24px #ffffff;
+}
+
+.card:active {
+  transform: translateY(0) scale(0.95);
+
+  box-shadow:
+    inset 5px 5px 12px #9e9e9e,
+    inset -5px -5px 12px #ffffff;
+}
+
+.whiteCard {
+  background: #d5d5d5;
+}
+
+.whiteCard input[type="checkbox"]:checked {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0);
+  background-color: #939393;
+  border-color: #c0c0c0;
+}
+
+.orangeCard {
+  background: linear-gradient(
+    180deg,
+    #f8f1ea 0%,
+    #fdc78d 30%,
+    #f6c891 65%,
+    #f89a2c 100%
+  );
+}
+.orangeCard  input[type="checkbox"]:checked {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0);
+  background-color: #f89a2c;
+  border-color: #f6c891;
+}
+.greenCard {
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px;
+  color: white;
+
+  background: linear-gradient(
+    160deg,
+    #11795f 0%,
+    #0d715a 18%,
+    #0a634e 40%,
+    #084f3e 70%,
+    #076f54 100%
+  );
+}
+.greenCard  input[type="checkbox"]:checked {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0);
+  background-color: #084f3e;
+  border-color: #0a634e;
+}
+.greenCard button {
+  border-color: white;
+  color: white;
+}
+.greenCard::before {
+  content: "";
+  position: absolute;
+
+  width: 160%;
+  height: 220px;
+
+  left: -30%;
+  bottom: -60px;
+
+  border-radius: 30%;
+
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(77, 255, 218, 0.15) 30%,
+    rgba(86, 255, 228, 0.95) 50%,
+    rgba(77, 255, 218, 0.15) 70%,
+    transparent 100%
+  );
+
+  transform: rotate(-15deg);
+
+  filter: blur(8px);
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background: rgba(0, 0, 0, 0.12);
+
+  border-radius: inherit;
+}
+
+.redCard {
+  color: whitesmoke;
+  background: linear-gradient(
+    135deg,
+    #ff8a80 0%,
+    #ff5252 25%,
+    #f44336 55%,
+    #d32f2f 80%,
+    #b71c1c 100%
+  );
+}
+.redCard button {
+  border-color: white;
+  color: white;
+}
+
+.redCard   input[type="checkbox"]:checked {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0);
+  background-color: #d32f2f;
+  border-color: #b71c1c;
+}
+
+.darkWhiteCard{
+    background:#2A2A30;
+    color:#F5F5F5;
+
+    box-shadow:
+        6px 6px 14px #111,
+        -4px -4px 12px #3A3A40;
+}
+.darkGreenCard{
+
+    color:white;
+
+    background:
+    linear-gradient(
+    160deg,
+    #146C58,
+    #115949,
+    #0D4A3D,
+    #09352B
+    );
+    box-shadow:
+        6px 6px 14px #111,
+        -4px -4px 12px #3A3A40;
+
+}
+
+.darkOrangeCard{
+
+background:
+linear-gradient(
+180deg,
+#7A4A12,
+#A45D10,
+#C77718,
+#E69525
+);
+box-shadow:
+        6px 6px 14px #111,
+        -4px -4px 12px #3A3A40;
+
+color:white;
+
+}
+.darkRedCard{
+
+background:
+linear-gradient(
+135deg,
+#8B2020,
+#A52B2B,
+#C0392B,
+#DC4B3E
+);
+box-shadow:
+        6px 6px 14px #111,
+        -4px -4px 12px #3A3A40;
+
+color:white;
+
+}
+.darkCard button:hover{
+
+background:#EF4444;
+
+color:white;
+
+}
+.darkCard input[type="checkbox"]{
+
+background:#33343A;
+
+border-color:#666;
+
+}
+.darkCard input[type="checkbox"]:checked{
+
+background:#4F8CFF;
+
+border-color:#4F8CFF;
+
+}
+.darkCard:hover{
+
+transform:translateY(-8px) scale(1.02);
+
+box-shadow:
+12px 12px 30px rgba(0,0,0,.45),
+-6px -6px 20px rgba(255,255,255,.03);
+
+}
+.darkCard h1{
+    color:#FFFFFF;
+}
+
+.darkCard p{
+    color:#D1D5DB;
+}

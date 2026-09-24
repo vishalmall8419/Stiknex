@@ -1,0 +1,70 @@
+.darkInput{
+    background:#2E2F35;
+    border:1px solid #4A4B53;
+    color:white;
+}
+
+.darkInput::placeholder{
+    color:#8E8E98;
+}
+
+.darkInput:focus{
+    border-color:#4F8CFF;
+    box-shadow:0 0 0 4px rgba(79,140,255,.18);
+}
+.saveBtn{
+    background:linear-gradient(
+        135deg,
+        #8B5CF6,
+        #4F8CFF
+    );
+
+    padding:12px 28px;
+    border-radius:12px;
+}
+
+.cancelBtn{
+    background:#31323A;
+    color:white;
+    padding:12px 28px;
+    border-radius:12px;
+}
+
+.darkModal{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.82);
+    backdrop-filter:blur(14px);
+}
+
+.darkForm{
+    background:#1E1E22;
+    color:#fff;
+    border:1px solid #34343b;
+}
+
+.closeBtn{
+    background:#32333A;
+    color:white;
+}
+
+.closeBtn:hover{
+    background:#ef4444;
+}
+
+.priorityGreen{
+    background:#22c55e;
+}
+
+.priorityOrange{
+    background:#f59e0b;
+}
+
+.priorityRed{
+    background:#ef4444;
+}
+
+.priorityWhite{
+    background:#d4d4d8;
+    border:1px solid #666;
+}
