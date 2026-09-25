@@ -13,6 +13,7 @@ const AppShell = ({ children, hideNav = false, fullWidth = false }) => {
     { name: "Notebook", path: "/notebook", icon: "fa-solid fa-book" },
     { name: "Whiteboards", path: "/whiteboard", icon: "fa-solid fa-pen-nib" },
     { name: "Tools", path: "/tools", icon: "fa-solid fa-screwdriver-wrench" },
+    { name: "Blog", path: "/blog", icon: "fa-solid fa-blog" },
   ];
 
   if (hideNav) {
@@ -35,7 +36,7 @@ const AppShell = ({ children, hideNav = false, fullWidth = false }) => {
             <div className="flex items-center gap-8">
               <Link to="/" className="flex items-center gap-2 group">
                 <img src="/logo.png" alt="Stiknex Logo" className="w-8 h-8 sm:w-10 sm:h-10 object-contain group-hover:scale-105 transition-transform drop-shadow-sm" />
-                <span className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400 hidden sm:block">
+                <span className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-linear-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400 hidden sm:block">
                   Stiknex
                 </span>
               </Link>
@@ -107,7 +108,7 @@ const AppShell = ({ children, hideNav = false, fullWidth = false }) => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="md:hidden fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm" 
+              className="md:hidden fixed inset-0 z-100 bg-black/60 backdrop-blur-sm" 
               onClick={() => setMobileMenuOpen(false)}
             />
             <motion.div 
@@ -115,11 +116,11 @@ const AppShell = ({ children, hideNav = false, fullWidth = false }) => {
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", bounce: 0, duration: 0.4 }}
-              className="md:hidden fixed top-0 left-0 bottom-0 w-[280px] max-w-[85vw] z-[101] bg-white dark:bg-slate-900 shadow-2xl p-6 flex flex-col border-r border-gray-200 dark:border-slate-800"
+              className="md:hidden fixed top-0 left-0 bottom-0 w-70 max-w-[85vw] z-101 bg-white dark:bg-slate-900 shadow-2xl p-6 flex flex-col border-r border-gray-200 dark:border-slate-800"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between mb-8">
-                <span className="font-bold text-xl bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-600">Menu</span>
+                <span className="font-bold text-xl bg-clip-text text-transparent bg-linear-to-r from-indigo-500 to-purple-600">Menu</span>
                 <button onClick={() => setMobileMenuOpen(false)} className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 transition-colors text-slate-600 dark:text-slate-300">
                   <i className="fa-solid fa-xmark"></i>
                 </button>

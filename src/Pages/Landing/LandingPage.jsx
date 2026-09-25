@@ -7,15 +7,16 @@ import Lenis from "lenis";
 import PageSEO from "../../Component/SEO/PageSEO";
 import { ArrowRight, Sparkles, Layers, PenTool, LayoutDashboard, Code2, Mail, Zap, Terminal, Coffee } from "lucide-react";
 import { useAppContext } from "../../context/AppContext";
+import HomeBlogSection from "./HomeBlogSection";
 
 gsap.registerPlugin(ScrollTrigger);
 
 const AuroraBackground = () => (
   <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10 bg-slate-50 dark:bg-slate-950 transition-colors duration-500">
-    <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-indigo-500/20 dark:bg-indigo-600/20 blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-blob"></div>
-    <div className="absolute top-[10%] -right-[10%] w-[50%] h-[50%] rounded-full bg-purple-500/20 dark:bg-purple-600/20 blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-blob animation-delay-2000"></div>
-    <div className="absolute -bottom-[20%] left-[20%] w-[50%] h-[50%] rounded-full bg-blue-500/20 dark:bg-blue-600/20 blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-blob animation-delay-4000"></div>
-    <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1.5px,transparent_1.5px)] dark:bg-[radial-gradient(#334155_1.5px,transparent_1.5px)] [background-size:40px_40px] opacity-40"></div>
+    <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-500/20 dark:bg-indigo-600/20 blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-blob"></div>
+    <div className="absolute top-[10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-purple-500/20 dark:bg-purple-600/20 blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-blob animation-delay-2000"></div>
+    <div className="absolute bottom-[-20%] left-[20%] w-[50%] h-[50%] rounded-full bg-blue-500/20 dark:bg-blue-600/20 blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-blob animation-delay-4000"></div>
+    <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1.5px,transparent_1.5px)] dark:bg-[radial-gradient(#334155_1.5px,transparent_1.5px)] bg-size-[40px_40px] opacity-40"></div>
     
     <style>{`
       @keyframes blob {
@@ -75,18 +76,6 @@ const LandingPage = () => {
 
       gsap.from(".hero-sub", { y: 30, opacity: 0, duration: 1, delay: 0.8, ease: "power3.out" });
       gsap.from(".hero-btn", { scale: 0.8, opacity: 0, duration: 0.8, delay: 1, ease: "elastic.out(1, 0.5)", stagger: 0.2 });
-      
-      gsap.from(".feature-card", {
-        scrollTrigger: {
-          trigger: "#features",
-          start: "top 70%",
-        },
-        y: 50,
-        opacity: 0,
-        stagger: 0.2,
-        duration: 0.8,
-        ease: "power3.out"
-      });
 
       gsap.from(".creator-element", {
         scrollTrigger: {
@@ -117,13 +106,14 @@ const LandingPage = () => {
       <nav className="fixed top-4 sm:top-6 left-1/2 -translate-x-1/2 z-50 px-3 min-[350px]:px-4 py-2 sm:px-6 sm:py-3 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.1)] flex items-center gap-2 min-[350px]:gap-3 sm:gap-8 w-max max-w-[95vw]">
         <Link to="/" className="flex items-center gap-1.5 sm:gap-2 group">
           <img src="/logo.png" alt="Stiknex Logo" className="w-6 h-6 sm:w-8 sm:h-8 object-contain group-hover:scale-105 transition-transform drop-shadow-sm" />
-          <span className="font-extrabold text-base min-[350px]:text-lg sm:text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-600">Stiknex</span>
+          <span className="font-extrabold text-base min-[350px]:text-lg sm:text-xl tracking-tight bg-clip-text text-transparent bg-linear-to-r from-indigo-500 to-purple-600">Stiknex</span>
         </Link>
         <div className="flex gap-2 min-[350px]:gap-3 sm:gap-4 items-center">
           <button onClick={toggleDarkMode} className="text-slate-600 dark:text-slate-400 hover:text-indigo-500 transition-colors">
-            {darkMode ? <Sparkles size={14} className="min-[350px]:w-[16px] min-[350px]:h-[16px] sm:w-[18px] sm:h-[18px]" /> : <Zap size={14} className="min-[350px]:w-[16px] min-[350px]:h-[16px] sm:w-[18px] sm:h-[18px]" />}
+            {darkMode ? <Sparkles size={14} className="min-[350px]:w-4 min-[350px]:h-4 sm:w-4.5 sm:h-4.5" /> : <Zap size={14} className="min-[350px]:w-4 min-[350px]:h-4 sm:w-4.5 sm:h-4.5" />}
           </button>
           <a href="#creator" className="hidden min-[350px]:block text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-indigo-500 transition-colors">Creator</a>
+          <Link to="/blog" className="hidden min-[350px]:block text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-indigo-500 transition-colors">Blog</Link>
           <Link to="/notes" className="px-2.5 py-1 min-[350px]:px-3 min-[350px]:py-1.5 sm:px-4 sm:py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full text-[10px] min-[350px]:text-xs sm:text-sm font-semibold transition-transform hover:scale-105 shadow-md whitespace-nowrap">
             Launch App
           </Link>
@@ -133,7 +123,7 @@ const LandingPage = () => {
       <section className="relative pt-40 pb-20 px-6 min-h-screen flex items-center justify-center">
         <motion.div style={{ y }} className="max-w-5xl mx-auto text-center z-10 w-full">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-medium text-xs sm:text-sm mb-6 sm:mb-8 border border-indigo-100 dark:border-indigo-500/20 hero-sub whitespace-normal sm:whitespace-nowrap mx-auto max-w-full">
-            <Sparkles size={16} className="flex-shrink-0" /> Welcome to the new standard of ideation
+            <Sparkles size={16} className="shrink-0" /> Welcome to the new standard of ideation
           </div>
           
           <h1 className="text-5xl sm:text-6xl md:text-8xl font-black tracking-tight mb-6 sm:mb-8 leading-[1.1] overflow-hidden flex flex-wrap justify-center gap-y-2 sm:gap-y-4" ref={textRef}>
@@ -147,7 +137,7 @@ const LandingPage = () => {
               </span>
             ))}
             <div className="w-full basis-full h-0"></div>
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hero-sub inline-block whitespace-nowrap">
+            <span className="bg-clip-text text-transparent bg-linear-to-r from-indigo-500 via-purple-500 to-pink-500 hero-sub inline-block whitespace-nowrap">
               Create Boundlessly.
             </span>
           </h1>
@@ -174,7 +164,7 @@ const LandingPage = () => {
         <motion.div 
           animate={{ y: [20, -20, 20], rotate: [0, -10, 5, 0] }} 
           transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
-          className="hidden lg:block absolute bottom-1/4 right-[10%] w-40 h-40 bg-pink-200 dark:bg-pink-600/80 rounded-sm shadow-2xl rotate-6 backdrop-blur-md border border-white/40 flex items-center justify-center"
+          className="hidden lg:flex absolute bottom-1/4 right-[10%] w-40 h-40 bg-pink-200 dark:bg-pink-600/80 rounded-sm shadow-2xl rotate-6 backdrop-blur-md border border-white/40 items-center justify-center"
         >
            <Code2 className="text-pink-400 dark:text-pink-200/50 w-16 h-16" />
         </motion.div>
@@ -186,7 +176,7 @@ const LandingPage = () => {
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-medium text-sm border border-indigo-100 dark:border-indigo-500/20 mb-6">
               <Sparkles size={16} /> Powerful Features
             </motion.div>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black mb-6 tracking-tight text-slate-900 dark:text-white">Designed for <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-600">Deep Work</span></h2>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black mb-6 tracking-tight text-slate-900 dark:text-white">Designed for <span className="text-transparent bg-clip-text bg-linear-to-r from-indigo-500 to-purple-600">Deep Work</span></h2>
             <p className="text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">Everything you need to capture ideas before they slip away. Built for speed, flexibility, and absolute focus.</p>
           </div>
           
@@ -216,13 +206,13 @@ const LandingPage = () => {
       </section>
 
       <section className="py-32 px-6 relative z-10 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-indigo-50/50 dark:via-indigo-950/20 to-transparent pointer-events-none"></div>
+        <div className="absolute inset-0 bg-linear-to-b from-transparent via-indigo-50/50 dark:via-indigo-950/20 to-transparent pointer-events-none"></div>
         <div className="max-w-7xl mx-auto relative">
           <div className="flex flex-col lg:flex-row items-center gap-16">
             <div className="w-full lg:w-1/2 space-y-8">
               <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white leading-tight">
                 Your brain's new <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-indigo-500">operating system.</span>
+                <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-500 to-indigo-500">operating system.</span>
               </h2>
               <p className="text-xl text-slate-600 dark:text-slate-400 leading-relaxed">
                 Stiknex isn't just another note-taking app. It's a complete productivity suite designed to adapt to how your mind actually works. Visual, unstructured, and infinitely flexible.
@@ -262,13 +252,13 @@ const LandingPage = () => {
                 transition={{ duration: 0.8, type: "spring" }}
                 className="relative z-10 rounded-2xl overflow-hidden shadow-2xl border border-slate-200/50 dark:border-slate-700/50 bg-slate-100 dark:bg-slate-800 p-2 perspective-1000"
               >
-                <div className="aspect-[4/3] rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden relative">
+                <div className="aspect-4/3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden relative">
                    <div className="h-10 border-b border-slate-200 dark:border-slate-800 flex items-center px-4 gap-2 bg-slate-50 dark:bg-slate-950/50">
                       <div className="w-3 h-3 rounded-full bg-red-400"></div>
                       <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
                       <div className="w-3 h-3 rounded-full bg-green-400"></div>
                    </div>
-                   <div className="flex-1 relative bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] dark:bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:20px_20px]">
+                   <div className="flex-1 relative bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] dark:bg-[radial-gradient(#334155_1px,transparent_1px)] bg-size-[20px_20px]">
                       <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 4, repeat: Infinity }} className="absolute top-10 left-10 w-32 h-32 bg-yellow-200 dark:bg-yellow-500/80 rounded-sm shadow-lg p-3 rotate-3 border border-black/5">
                         <div className="w-16 h-2 bg-black/10 rounded-full mb-2"></div>
                         <div className="w-full h-2 bg-black/10 rounded-full mb-2"></div>
@@ -282,14 +272,14 @@ const LandingPage = () => {
                 </div>
               </motion.div>
               
-              <div className="absolute -inset-10 bg-gradient-to-r from-blue-500/20 to-purple-500/20 blur-3xl -z-10 rounded-full"></div>
+              <div className="absolute -inset-10 bg-linear-to-r from-blue-500/20 to-purple-500/20 blur-3xl -z-10 rounded-full"></div>
             </div>
           </div>
         </div>
       </section>
 
       <section className="py-24 px-6 relative z-10">
-        <div className="max-w-5xl mx-auto bg-gradient-to-br from-indigo-600 to-purple-700 rounded-[3rem] p-12 md:p-20 text-center relative overflow-hidden shadow-2xl">
+        <div className="max-w-5xl mx-auto bg-linear-to-br from-indigo-600 to-purple-700 rounded-[3rem] p-12 md:p-20 text-center relative overflow-hidden shadow-2xl">
           <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay"></div>
           <div className="relative z-10 text-white">
             <h2 className="text-4xl md:text-6xl font-black mb-6 leading-tight">Ready to transform <br/>your workflow?</h2>
@@ -309,7 +299,7 @@ const LandingPage = () => {
             </div>
             
             <h2 className="creator-element text-4xl md:text-5xl font-black">
-              Hi, I'm <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-indigo-500">Vishal Mall</span>
+              Hi, I'm <span className="text-transparent bg-clip-text bg-linear-to-r from-purple-500 to-indigo-500">Vishal Mall</span>
             </h2>
             
             <p className="creator-element text-lg text-slate-600 dark:text-slate-400 leading-relaxed">
@@ -360,6 +350,8 @@ const LandingPage = () => {
         </div>
       </section>
 
+      <HomeBlogSection />
+
       <footer className="py-12 px-6 border-t border-slate-200/50 dark:border-slate-800/50 bg-white/50 dark:bg-slate-950/50 text-center relative z-10">
         <p className="text-slate-500 dark:text-slate-400 font-medium">
           Crafted with <Coffee size={16} className="inline mx-1 text-amber-600" /> and passion by 
@@ -372,3 +364,5 @@ const LandingPage = () => {
 };
 
 export default LandingPage;
+
+

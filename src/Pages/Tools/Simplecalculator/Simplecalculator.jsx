@@ -23,7 +23,7 @@ const SimpleCalculator = () => {
         return "";
       }
 
-      // eslint-disable-next-line no-new-func
+       
       const value = Function(`"use strict"; return (${sanitized})`)();
       if (typeof value !== "number" || !isFinite(value)) return "Error";
       return Math.round(value * 1e10) / 1e10;

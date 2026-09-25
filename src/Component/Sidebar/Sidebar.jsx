@@ -94,6 +94,12 @@ const Sidebar = ({
             </Link>
           </li>
 
+          <li className={Style.tooltipWrap} data-tooltip="Blog">
+            <Link to="/blog">
+              <i className="fa-solid fa-blog"></i>
+            </Link>
+          </li>
+
           <li className={Style.tooltipWrap} data-tooltip="Portfolio">
             <a
               href="https://vishalmall.vercel.app/"

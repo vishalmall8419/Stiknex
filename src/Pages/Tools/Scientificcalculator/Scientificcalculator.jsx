@@ -28,7 +28,7 @@ const ScientificCalculator = () => {
 
       if (!/^[0-9+\-*/.() ]*$/.test(sanitized) || sanitized.trim() === "") return "";
       
-      // eslint-disable-next-line no-new-func
+       
       const value = Function(`"use strict"; return (${sanitized})`)();
       if (typeof value !== "number" || !isFinite(value)) return "Error";
       return Math.round(value * 1e10) / 1e10;
