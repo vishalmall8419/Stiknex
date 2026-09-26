@@ -1,78 +1,117 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <!-- =========================================================
+         BASIC HTML CONFIGURATION
+    ========================================================== -->
+
     <meta charset="UTF-8" />
+
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     />
+
+    <!-- Favicon -->
     <link rel="icon" type="image/png" href="/Stiknex.png" />
 
+    <!-- Apple Touch Icon -->
     <link rel="apple-touch-icon" href="/Stiknex.png" />
+
+    <!-- PWA Manifest -->
     <link rel="manifest" href="/manifest.json" />
 
-    <!-- google verification  -->
+    <!-- =========================================================
+         GOOGLE SITE VERIFICATION
+    ========================================================== -->
 
     <meta
       name="google-site-verification"
       content="LDEwXJMsI7-nOyTSYSdHWiVsLuxudBbJm3V5BBuvrsk"
     />
 
-    <!-- google analytics Google tag (gtag.js) -->
-    
+    <!-- =========================================================
+         GOOGLE ANALYTICS
+         
+         IMPORTANT:
+         Keep only ONE Google Analytics tag.
+    ========================================================== -->
+
     <script
       async
       src="https://www.googletagmanager.com/gtag/js?id=G-NQDW0GE2E3"
     ></script>
+
     <script>
       window.dataLayer = window.dataLayer || [];
+
       function gtag() {
         dataLayer.push(arguments);
       }
+
       gtag("js", new Date());
 
       gtag("config", "G-NQDW0GE2E3");
     </script>
 
+    <!-- =========================================================
+         GOOGLE FONTS
+    ========================================================== -->
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <link
+      rel="preconnect"
+      href="https://fonts.gstatic.com"
+      crossorigin
+    />
+
     <link
       href="https://fonts.googleapis.com/css2?family=Bubblegum+Sans&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
       rel="stylesheet"
     />
+
     <link
       href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
       rel="stylesheet"
     />
+
     <link
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&family=Nunito:wght@300;400;500;600;700;800&family=Kalam:wght@300;400;700&family=Patrick+Hand&family=Oswald:wght@300;400;500&family=Merriweather:wght@300;400;700&family=Playfair+Display:wght@400;600&family=Fira+Code:wght@400;500&display=swap"
       rel="stylesheet"
     />
 
     <!-- =========================================================
-     STIKNEX — SEO & META CONFIGURATION
-========================================================= -->
+         STIKNEX — SEO & META CONFIGURATION
+    ========================================================== -->
 
-    <!-- Basic -->
-    <meta charset="UTF-8" />
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Page Title -->
 
     <title>
       Stiknex – Free Sticky Notes, Online Notebook & Productivity Tools
     </title>
+
+    <!-- Meta Description -->
 
     <meta
       name="description"
       content="Stiknex is a free online sticky notes and notebook app with useful productivity tools, calculators, converters, QR code generator, password generator and more. Fast, simple and easy to use with no sign-up."
     />
 
+    <!-- Author -->
+
     <meta name="author" content="Vishal Mall" />
+
     <meta name="creator" content="Vishal Mall" />
+
     <meta name="publisher" content="Stiknex" />
+
     <meta name="application-name" content="Stiknex" />
 
-    <!-- Search Engine -->
+    <!-- =========================================================
+         SEARCH ENGINE CONFIGURATION
+    ========================================================== -->
+
     <meta
       name="robots"
       content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
@@ -85,83 +124,92 @@
 
     <meta name="bingbot" content="index, follow" />
 
-    <!-- Canonical -->
-    <link rel="canonical" href="https://stiknex.vercel.app/" />
+    <!-- Canonical URL -->
+
+    <link
+      rel="canonical"
+      href="https://stiknex.vercel.app/"
+    />
 
     <!-- =========================================================
-     BRAND / APPLICATION
-========================================================= -->
+         BRAND / APPLICATION
+    ========================================================== -->
 
     <meta name="category" content="Productivity" />
+
     <meta
       name="classification"
       content="Productivity, Notes, Utilities, Online Tools"
     />
 
+    <!-- =========================================================
+         KEYWORDS
+    ========================================================== -->
+
     <meta
       name="keywords"
       content="
-    Stiknex,
-    Stiknex app,
-    Stiknex notes,
-    Stiknex productivity,
-    free sticky notes,
-    online sticky notes,
-    sticky notes app,
-    sticky note app,
-    digital sticky notes,
-    sticky notes online,
-    free notes app,
-    online notes,
-    quick notes,
-    personal notes,
-    study notes,
-    daily notes,
-    meeting notes,
-    todo notes,
-    online notebook,
-    free online notebook,
-    digital notebook,
-    online notepad,
-    free notepad,
-    digital notepad,
-    quick notepad,
-    writing app,
-    online writing app,
-    productivity app,
-    productivity tools,
-    free productivity tools,
-    online productivity tools,
-    free online tools,
-    student productivity tools,
-    study tools,
-    calculator,
-    online calculator,
-    free calculator,
-    scientific calculator,
-    percentage calculator,
-    age calculator,
-    date calculator,
-    time calculator,
-    unit converter,
-    online unit converter,
-    currency converter,
-    data converter,
-    QR code generator,
-    online QR code generator,
-    password generator,
-    online password generator,
-    color picker,
-    digital workspace,
-    online workspace,
-    free web tools,
-    useful online tools
-  "
+        Stiknex,
+        Stiknex app,
+        Stiknex notes,
+        Stiknex productivity,
+        free sticky notes,
+        online sticky notes,
+        sticky notes app,
+        sticky note app,
+        digital sticky notes,
+        sticky notes online,
+        free notes app,
+        online notes,
+        quick notes,
+        personal notes,
+        study notes,
+        daily notes,
+        meeting notes,
+        todo notes,
+        online notebook,
+        free online notebook,
+        digital notebook,
+        online notepad,
+        free notepad,
+        digital notepad,
+        quick notepad,
+        writing app,
+        online writing app,
+        productivity app,
+        productivity tools,
+        free productivity tools,
+        online productivity tools,
+        free online tools,
+        student productivity tools,
+        study tools,
+        calculator,
+        online calculator,
+        free calculator,
+        scientific calculator,
+        percentage calculator,
+        age calculator,
+        date calculator,
+        time calculator,
+        unit converter,
+        online unit converter,
+        currency converter,
+        data converter,
+        QR code generator,
+        online QR code generator,
+        password generator,
+        online password generator,
+        color picker,
+        digital workspace,
+        online workspace,
+        free web tools,
+        useful online tools
+      "
     />
 
     <!-- =========================================================
-     THEME / BROWSER
-========================================================= -->
+         THEME / BROWSER
+    ========================================================== -->
 
     <meta
       name="theme-color"
@@ -171,39 +219,64 @@
 
     <meta
       name="theme-color"
-      content="#18181B"
+      content="#18181Z"
       media="(prefers-color-scheme: dark)"
     />
 
     <meta name="color-scheme" content="light dark" />
 
-    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta
+      name="referrer"
+      content="strict-origin-when-cross-origin"
+    />
 
-    <meta name="format-detection" content="telephone=no" />
-
-    <!-- =========================================================
-     PWA / MOBILE
-========================================================= -->
-
-    <meta name="mobile-web-app-capable" content="yes" />
-
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-
-    <meta name="apple-mobile-web-app-title" content="Stiknex" />
+    <meta
+      name="format-detection"
+      content="telephone=no"
+    />
 
     <!-- =========================================================
-     ICONS
-========================================================= -->
+         PWA / MOBILE
+    ========================================================== -->
 
-    <link rel="icon" type="image/png" href="/Stiknex.png" />
+    <meta
+      name="mobile-web-app-capable"
+      content="yes"
+    />
 
-    <link rel="apple-touch-icon" href="/Stiknex.png" />
+    <meta
+      name="apple-mobile-web-app-capable"
+      content="yes"
+    />
+
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="default"
+    />
+
+    <meta
+      name="apple-mobile-web-app-title"
+      content="Stiknex"
+    />
 
     <!-- =========================================================
-     FONT AWESOME
-========================================================= -->
+         ICONS
+    ========================================================== -->
+
+    <link
+      rel="icon"
+      type="image/png"
+      href="/Stiknex.png"
+    />
+
+    <link
+      rel="apple-touch-icon"
+      href="/Stiknex.png"
+    />
+
+    <!-- =========================================================
+         FONT AWESOME
+    ========================================================== -->
 
     <link
       rel="stylesheet"
@@ -222,10 +295,13 @@
     />
 
     <!-- =========================================================
-     OPEN GRAPH / FACEBOOK / WHATSAPP / LINK SHARING
-========================================================= -->
+         OPEN GRAPH / FACEBOOK / WHATSAPP / LINK SHARING
+    ========================================================== -->
 
-    <meta property="og:type" content="website" />
+    <meta
+      property="og:type"
+      content="website"
+    />
 
     <meta
       property="og:title"
@@ -237,11 +313,20 @@
       content="Create sticky notes, write in an online notebook, and use useful calculators, converters, QR tools and productivity utilities — free and easy to use."
     />
 
-    <meta property="og:url" content="https://stiknex.vercel.app/" />
+    <meta
+      property="og:url"
+      content="https://stiknex.vercel.app/"
+    />
 
-    <meta property="og:site_name" content="Stiknex" />
+    <meta
+      property="og:site_name"
+      content="Stiknex"
+    />
 
-    <meta property="og:locale" content="en_US" />
+    <meta
+      property="og:locale"
+      content="en_US"
+    />
 
     <meta
       property="og:image"
@@ -253,11 +338,20 @@
       content="https://stiknex.vercel.app/Stiknex.png"
     />
 
-    <meta property="og:image:type" content="image/png" />
+    <meta
+      property="og:image:type"
+      content="image/png"
+    />
 
-    <meta property="og:image:width" content="512" />
+    <meta
+      property="og:image:width"
+      content="512"
+    />
 
-    <meta property="og:image:height" content="512" />
+    <meta
+      property="og:image:height"
+      content="512"
+    />
 
     <meta
       property="og:image:alt"
@@ -265,10 +359,13 @@
     />
 
     <!-- =========================================================
-     TWITTER / X
-========================================================= -->
+         TWITTER / X
+    ========================================================== -->
 
-    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:card"
+      content="summary_large_image"
+    />
 
     <meta
       name="twitter:title"
@@ -285,11 +382,14 @@
       content="https://stiknex.vercel.app/Stiknex.png"
     />
 
-    <meta name="twitter:image:alt" content="Stiknex – Productivity Tools" />
+    <meta
+      name="twitter:image:alt"
+      content="Stiknex – Productivity Tools"
+    />
 
     <!-- =========================================================
-     STRUCTURED DATA
-========================================================= -->
+         STRUCTURED DATA / JSON-LD
+    ========================================================== -->
 
     <script type="application/ld+json">
       {
@@ -311,7 +411,6 @@
               "@id": "https://stiknex.vercel.app/#organization"
             }
           },
-
           {
             "@type": "Organization",
             "@id": "https://stiknex.vercel.app/#organization",
@@ -328,7 +427,6 @@
               "name": "Vishal Mall"
             }
           },
-
           {
             "@type": "WebApplication",
             "@id": "https://stiknex.vercel.app/#application",
@@ -349,7 +447,6 @@
               "@id": "https://stiknex.vercel.app/#organization"
             }
           },
-
           {
             "@type": "WebPage",
             "@id": "https://stiknex.vercel.app/#webpage",
@@ -368,8 +465,13 @@
       }
     </script>
   </head>
+
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+
+    <script
+      type="module"
+      src="/src/main.jsx"
+    ></script>
   </body>
 </html>
