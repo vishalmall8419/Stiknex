@@ -7,31 +7,39 @@ export default async function handler(req, res) {
     try {
         await connectToDatabase();
         
-        // SECURITY FIX: Only allow setup if NO admin exists in the database.
-        // If an admin already exists, someone might be trying to hijack the system.
-        const adminCount = await Admin.countDocuments();
-        if (adminCount > 0) {
+        const adminEmail = "vishal.mall02@outlook.com";
+        
+        // Check if this specific admin exists
+        let admin = await Admin.findOne({ email: adminEmail });
+        
+        if (admin && admin.twoFactorSecret) {
             return res.status(403).json({ 
                 success: false, 
-                message: 'Forbidden. An admin account already exists. For security reasons, 2FA setup is locked.' 
+                message: 'Forbidden. 2FA is already setup for vishal.mall02@outlook.com. For security reasons, setup is locked.' 
             });
         }
 
-        const adminEmail = "admin@stiknex.com";
-        
+        // Wipe old admins to avoid conflicts and keep only the owner
+        await Admin.deleteMany({ email: { $ne: adminEmail } });
+
         // Generate a new TOTP secret for Microsoft Authenticator
         const secret = speakeasy.generateSecret({ 
             name: 'Stiknex Admin Panel',
             issuer: 'Stiknex' 
         });
 
-        // Create the admin
-        const admin = new Admin({
-            email: adminEmail,
-            role: 'admin',
-            twoFactorSecret: secret.base32,
-            failedLoginAttempts: 0
-        });
+        if (!admin) {
+            admin = new Admin({
+                email: adminEmail,
+                role: 'admin',
+                twoFactorSecret: secret.base32,
+                failedLoginAttempts: 0
+            });
+        } else {
+            admin.twoFactorSecret = secret.base32;
+            admin.failedLoginAttempts = 0;
+            admin.lockUntil = undefined;
+        }
 
         await admin.save();
 
