@@ -1,14 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Cloud, Users, Zap, LayoutDashboard, StickyNote, FileText, Book, Settings, PenTool } from 'lucide-react';
-import { useLocation } from 'react-router-dom';
+
 import QRCode from 'react-qr-code';
 import gsap from 'gsap';
 
 export default function DownloadAppModal() {
   const [isOpen, setIsOpen] = useState(false);
   const [scale, setScale] = useState(1);
-  const location = useLocation();
+  
   
   const lightPhoneRef = useRef(null);
   const darkPhoneRef = useRef(null);
@@ -35,7 +35,7 @@ export default function DownloadAppModal() {
     if (isWebView) return;
     const timer = setTimeout(() => { setIsOpen(true); }, 2500);
     return () => { clearTimeout(timer); setIsOpen(false); };
-  }, [location.pathname]);
+  }, []);
 
   // GSAP Animations
   useEffect(() => {
