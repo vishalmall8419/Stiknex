@@ -46,6 +46,7 @@ const Blog = lazy(
   () => import("./Pages/Blog/Blog")
 );
 
+const AdminLayout = lazy(() => import('./Pages/Admin2/AdminLayout'));
 const BlogDetail = lazy(
   () => import("./Pages/Blog/BlogDetail")
 );
@@ -92,6 +93,7 @@ const App = () => {
 
         {/* Application Routes */}
         <Routes>
+          <Route path="/dashboard/*" element={<AdminLayout />} />
           {/* Landing Page */}
           <Route
             path="/"
