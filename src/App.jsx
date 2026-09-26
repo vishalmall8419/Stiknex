@@ -69,72 +69,12 @@ const PageLoader = () => {
 };
 
 // ============================================================
-// ROUTE TRACKER
-// ============================================================
-
-const RouteTracker = () => {
-  const location = useLocation();
-
-  useEffect(() => {
-    const validAppRoutes = [
-      "/notes",
-      "/notebook",
-      "/whiteboard",
-      "/tools",
-      "/about",
-      "/buy-me-a-coffee",
-      "/blog",
-    ];
-
-    if (validAppRoutes.includes(location.pathname)) {
-      localStorage.setItem(
-        "lastVisitedRoute",
-        location.pathname
-      );
-    }
-  }, [location.pathname]);
-
-  return null;
-};
-
-// ============================================================
-// INITIAL LOAD STATE
-// ============================================================
-
-let isInitialLoad = true;
-
-// ============================================================
 // APP COMPONENT
 // ============================================================
 
 const App = () => {
   const navigate = useNavigate();
   const location = useLocation();
-
-  // ==========================================================
-  // RESTORE LAST VISITED ROUTE
-  // ==========================================================
-
-  useEffect(() => {
-    if (
-      isInitialLoad &&
-      location.pathname === "/"
-    ) {
-      const lastVisited =
-        localStorage.getItem("lastVisitedRoute");
-
-      if (
-        lastVisited &&
-        lastVisited !== "/"
-      ) {
-        navigate(lastVisited, {
-          replace: true,
-        });
-      }
-    }
-
-    isInitialLoad = false;
-  }, [location.pathname, navigate]);
 
   // ==========================================================
   // RENDER
@@ -147,9 +87,6 @@ const App = () => {
 
       {/* Lazy Loading */}
       <Suspense fallback={<PageLoader />}>
-        {/* Track Current Route */}
-        <RouteTracker />
-
         {/* Download App Modal */}
         <DownloadAppModal />
 
