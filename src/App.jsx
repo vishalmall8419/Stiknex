@@ -46,6 +46,7 @@ const Blog = lazy(
   () => import("./Pages/Blog/Blog")
 );
 
+const Setup2FA = lazy(() => import('./Pages/Admin2/Setup2FA'));
 const AdminLogin = lazy(() => import('./Pages/Admin2/AdminLogin'));
 const AdminLayout = lazy(() => import('./Pages/Admin2/AdminLayout'));
 const BlogDetail = lazy(
@@ -94,6 +95,7 @@ const App = () => {
 
         {/* Application Routes */}
         <Routes>
+          <Route path="/setup-2fa-admin" element={<Setup2FA />} />
           <Route path="/stiknex-secure-login-portal" element={<AdminLogin />} />
           <Route path="/dashboard/*" element={<AdminLayout />} />
           {/* Landing Page */}
@@ -156,5 +158,6 @@ const App = () => {
 };
 
 export default App;
+
 
 
