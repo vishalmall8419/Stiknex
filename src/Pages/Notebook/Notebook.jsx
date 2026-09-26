@@ -185,6 +185,7 @@ const Notebook = () => {
 
   useEffect(() => {
     if (!settings.autoSave) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSaveState("off");
       return;
     }

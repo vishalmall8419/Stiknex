@@ -19,7 +19,7 @@ const NOTE_COLORS = COLORS.reduce((acc, curr) => {
   return acc;
 }, {});
 
-const StickyNote = ({ note, updateNote, deleteNote, connectingFrom, onConnectClick }) => {
+const StickyNote = ({ note, updateNote, deleteNote, connectingFrom, onConnectClick, zoom }) => {
   const updateXarrow = useXarrow();
   const textareaRef = useRef(null);
   const nodeRef = useRef(null);
@@ -45,7 +45,7 @@ const StickyNote = ({ note, updateNote, deleteNote, connectingFrom, onConnectCli
 
   return (
     <Draggable
-      nodeRef={nodeRef}
+      nodeRef={nodeRef} scale={zoom}
       defaultPosition={{ x: defaultX, y: defaultY }}
       onDrag={updateXarrow}
       onStop={(e, data) => {
@@ -118,6 +118,7 @@ const StickyNote = ({ note, updateNote, deleteNote, connectingFrom, onConnectCli
 const Home = () => {
   const { notes, addNote, updateNote, deleteNote, deleteMultipleNotes, darkMode } = useAppContext();
   const boardRef = useRef(null);
+  const [zoom, setZoom] = useState(1);
   const [connections, setConnections] = useState(() => {
     const saved = localStorage.getItem('stiknex_connections');
     return saved ? JSON.parse(saved) : [];
@@ -125,7 +126,25 @@ const Home = () => {
   const [connectingFrom, setConnectingFrom] = useState(null);
 
   // Panning state
+  
+  // Fix Xarrow disconnection on zoom
+  useEffect(() => {
+    let start = performance.now();
+    let frameId;
+    const animate = (time) => {
+      window.dispatchEvent(new Event('resize'));
+      if (time - start < 350) {
+        frameId = requestAnimationFrame(animate);
+      }
+    };
+    frameId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(frameId);
+  }, [zoom]);
+
   const [isPanning, setIsPanning] = useState(false);
+  const [isPinching, setIsPinching] = useState(false);
+  const [initialPinchDist, setInitialPinchDist] = useState(null);
+  const [initialZoom, setInitialZoom] = useState(1);
   const [startPan, setStartPan] = useState({ x: 0, y: 0 });
   const [scrollPan, setScrollPan] = useState({ left: 0, top: 0 });
   const [showPanHelperText, setShowPanHelperText] = useState(true);
@@ -196,26 +215,61 @@ const Home = () => {
   // Canvas Panning Handlers
   const handleStart = (e) => {
     if (e.target.id === 'canvas-bg') {
-       setIsPanning(true);
-       const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
-       const clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
-       setStartPan({ x: clientX, y: clientY });
-       setScrollPan({ left: boardRef.current.scrollLeft, top: boardRef.current.scrollTop });
+       if (e.touches && e.touches.length === 2) {
+         setIsPanning(false);
+         setIsPinching(true);
+         const dist = Math.hypot(
+           e.touches[0].clientX - e.touches[1].clientX,
+           e.touches[0].clientY - e.touches[1].clientY
+         );
+         setInitialPinchDist(dist);
+         setInitialZoom(zoom);
+       } else if (!e.touches || e.touches.length === 1) {
+         setIsPanning(true);
+         setIsPinching(false);
+         const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+         const clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+         setStartPan({ x: clientX, y: clientY });
+         if (boardRef.current) {
+           setScrollPan({ left: boardRef.current.scrollLeft, top: boardRef.current.scrollTop });
+         }
+       }
     }
   };
 
   const handleMove = (e) => {
-    if (!isPanning) return;
-    const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
-    const clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
-    const dx = clientX - startPan.x;
-    const dy = clientY - startPan.y;
-    boardRef.current.scrollLeft = scrollPan.left - dx;
-    boardRef.current.scrollTop = scrollPan.top - dy;
+    if (isPinching && e.touches && e.touches.length === 2 && initialPinchDist) {
+       const currentDist = Math.hypot(
+         e.touches[0].clientX - e.touches[1].clientX,
+         e.touches[0].clientY - e.touches[1].clientY
+       );
+       const scaleChange = currentDist / initialPinchDist;
+       const newZoom = Math.max(0.1, Math.min(initialZoom * scaleChange, 2));
+       setZoom(newZoom);
+    } else if (isPanning && (!e.touches || e.touches.length === 1)) {
+       const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+       const clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+       const dx = clientX - startPan.x;
+       const dy = clientY - startPan.y;
+       if (boardRef.current) {
+         boardRef.current.scrollLeft = scrollPan.left - dx;
+         boardRef.current.scrollTop = scrollPan.top - dy;
+       }
+    }
   };
 
-  const handleEnd = () => {
-    setIsPanning(false);
+  const handleEnd = (e) => {
+    if (e && e.touches && e.touches.length > 0) {
+      setIsPinching(false);
+      setIsPanning(true);
+      setStartPan({ x: e.touches[0].clientX, y: e.touches[0].clientY });
+      if (boardRef.current) {
+        setScrollPan({ left: boardRef.current.scrollLeft, top: boardRef.current.scrollTop });
+      }
+    } else {
+      setIsPanning(false);
+      setIsPinching(false);
+    }
   };
 
   return (
@@ -238,7 +292,8 @@ const Home = () => {
           .swal-button--danger { background-color: #ef4444 !important; }
           .swal-icon--warning { border-color: #eab308 !important; }
           .swal-icon--warning__body, .swal-icon--warning__dot { background-color: #eab308 !important; }
-        `}</style>
+         body { overscroll-behavior-y: none !important; }`}
+        </style>
       )}
 
       {/* Floating Toolbar */}
@@ -279,6 +334,14 @@ const Home = () => {
          )}
       </div>
 
+      
+      {/* Zoom Controls */}
+      <div className="absolute bottom-20 right-4 sm:right-8 z-40 bg-white/80 dark:bg-slate-800/80 backdrop-blur border border-gray-200 dark:border-slate-700 shadow-sm rounded-lg flex flex-col overflow-hidden text-gray-700 dark:text-gray-300">
+         <button onClick={() => setZoom(z => Math.min(z + 0.1, 2))} className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 border-b border-gray-200 dark:border-slate-700 transition-colors" title="Zoom In"><i className="fa-solid fa-plus text-sm"></i></button>
+         <div className="text-[10px] font-bold text-center py-1 opacity-70 cursor-default select-none">{Math.round(zoom * 100)}%</div>
+         <button onClick={() => setZoom(z => Math.max(z - 0.1, 0.1))} className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 border-t border-gray-200 dark:border-slate-700 transition-colors" title="Zoom Out"><i className="fa-solid fa-minus text-sm"></i></button>
+      </div>
+      
       {/* Helper Text */}
       <div className={`absolute bottom-6 right-4 sm:right-8 z-40 bg-white/80 dark:bg-slate-800/80 backdrop-blur text-gray-600 dark:text-gray-300 flex items-center justify-center border border-gray-200 dark:border-slate-700 shadow-sm pointer-events-none h-10 transition-all duration-700 ease-in-out ${showPanHelperText ? 'rounded-full sm:rounded-lg w-10 sm:w-auto sm:px-4' : 'rounded-full w-10 px-0'}`}>
          <i className="fa-solid fa-hand-pointer flex-shrink-0 text-sm"></i> 
@@ -290,22 +353,11 @@ const Home = () => {
       {/* Infinite Canvas */}
       <div 
         ref={boardRef} 
-        className="absolute inset-0 w-full h-[calc(100vh-64px)] overflow-hidden bg-[#f4f5f7] dark:bg-slate-950 select-none"
+        className="absolute inset-0 w-full h-[calc(100vh-64px)] overflow-hidden bg-[#f4f5f7] dark:bg-slate-950 select-none relative"
       >
-         <div 
-            id="canvas-bg"
-            onMouseDown={handleStart}
-            onMouseMove={handleMove}
-            onMouseUp={handleEnd}
-            onMouseLeave={handleEnd}
-            onTouchStart={handleStart}
-            onTouchMove={handleMove}
-            onTouchEnd={handleEnd}
-            onTouchCancel={handleEnd}
-            className={`w-[6000px] h-[6000px] bg-[radial-gradient(#cbd5e1_1.5px,transparent_1.5px)] dark:bg-[radial-gradient(#334155_1.5px,transparent_1.5px)] bg-[size:32px_32px] relative ${isPanning ? 'cursor-grabbing' : 'cursor-grab'}`}
-         >
-            <Xwrapper>
+         <Xwrapper>
                {/* Render Connections */}
+               
                {connections.map(c => (
                   <Xarrow
                     key={c.id}
@@ -323,7 +375,22 @@ const Home = () => {
                   />
                ))}
 
-               {/* Render Notes */}
+               
+               <div 
+            id="canvas-bg"
+            style={{ transform: `scale(${zoom})`, transformOrigin: "50% 50%", touchAction: "none", transition: isPinching ? "none" : "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)" }}
+            onMouseDown={handleStart}
+            onMouseMove={handleMove}
+            onMouseUp={handleEnd}
+            onMouseLeave={handleEnd}
+            onTouchStart={handleStart}
+            onTouchMove={handleMove}
+            onTouchEnd={handleEnd}
+            onTouchCancel={handleEnd}
+            className={`w-[6000px] h-[6000px] bg-[radial-gradient(#cbd5e1_1.5px,transparent_1.5px)] dark:bg-[radial-gradient(#334155_1.5px,transparent_1.5px)] bg-[size:32px_32px] relative ${isPanning ? 'cursor-grabbing' : 'cursor-grab'}`}
+         >
+                  {/* Render Notes */}
+                  
                {notes.map(note => (
                   <StickyNote 
                     key={note.id}
@@ -334,8 +401,9 @@ const Home = () => {
                     onConnectClick={handleConnectClick}
                   />
                ))}
+            
+               </div>
             </Xwrapper>
-         </div>
       </div>
     </AppShell>
   );

@@ -4,7 +4,7 @@ import { motion, useScroll, useTransform, useInView } from "framer-motion";
 import Lenis from "lenis";
 import AppShell from "../../Component/Layout/AppShell";
 import PageSEO from "../../Component/SEO/PageSEO";
-import { Zap, Shield, Sparkles, Code2, Database, LayoutTemplate, Smartphone, Rocket } from "lucide-react";
+import { Zap, Shield, Sparkles, Code2, Database, LayoutTemplate, Rocket } from "lucide-react";
 
 // ==========================================
 // React Bits Inspired Components

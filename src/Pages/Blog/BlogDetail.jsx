@@ -58,7 +58,7 @@ const BlogDetail = () => {
         briefDescription: tDesc,
         fullDescription: tParagraphs.join('\n')
       });
-    } catch (error) {
+    } catch {
       alert("Translation failed. Please try again.");
     } finally {
       setIsTranslating(false);
@@ -199,4 +199,5 @@ const BlogDetail = () => {
 };
 
 export default BlogDetail;
+
 

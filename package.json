@@ -11,7 +11,6 @@
   },
   "dependencies": {
     "@excalidraw/excalidraw": "^0.18.1",
-    "@gsap/react": "^2.1.2",
     "@tailwindcss/vite": "^4.3.3",
     "framer-motion": "^13.4.3",
     "gsap": "^3.15.0",
@@ -21,9 +20,9 @@
     "react-colorful": "^5.8.1",
     "react-dom": "^19.2.7",
     "react-draggable": "^4.7.2",
+    "react-qr-code": "^2.2.0",
     "react-router-dom": "^7.18.2",
     "react-xarrows": "^2.2.0",
-    "react-zoom-pan-pinch": "^4.2.0",
     "sweetalert": "^2.1.2",
     "tailwindcss": "^4.3.3"
   },

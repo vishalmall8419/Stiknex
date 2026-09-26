@@ -1,5 +1,6 @@
 import { Suspense, lazy, useEffect } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import DownloadAppModal from './Component/DownloadAppModal';
 
 const LandingPage = lazy(() => import('./Pages/Landing/LandingPage'));
 const Home = lazy(() => import('./Pages/Home/Home'));
@@ -52,6 +53,7 @@ const App = () => {
   return (
     <Suspense fallback={<PageLoader />}>
       <RouteTracker />
+      <DownloadAppModal />
       <Routes>
         <Route path='/' element={<LandingPage />} />
         <Route path='/notes' element={<Home />} />
@@ -68,3 +70,4 @@ const App = () => {
 };
 
 export default App;
+

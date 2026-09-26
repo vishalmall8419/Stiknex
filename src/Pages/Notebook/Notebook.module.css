@@ -1,5 +1,5 @@
 .notebookPage {
-  min-height: 100vh;
+  height: 100dvh; overflow: hidden;
   display: flex;
   flex-direction: column;
   background: #fdfbf3;
@@ -15,6 +15,7 @@
 }
 
 .paperArea {
+  overflow-y: auto;
   flex: 1;
   width: 100%;
   padding: 0 clamp(0.85rem, 2.3vw, 4rem);

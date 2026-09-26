@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { HexAlphaColorPicker } from "react-colorful";
-import ToolsStyle from "../Tools.module.css";
 
 const hexToRgb = (hex) => {
   let clean = hex.replace("#", "");
@@ -40,12 +39,13 @@ const rgbToHsl = ({ r, g, b }) => {
   return { h: Math.round(h * 360), s: Math.round(s * 100), l: Math.round(l * 100) };
 };
 
-const ColorPicker = ({ darkMode }) => {
+const ColorPicker = () => {
   const [hex, setHex] = useState("#4F5CFF");
   const [copiedField, setCopiedField] = useState("");
   const [isSupported, setIsSupported] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (window.EyeDropper) setIsSupported(true);
   }, []);
 
@@ -66,7 +66,7 @@ const ColorPicker = ({ darkMode }) => {
   const rgbString = rgb.a === 1 ? `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})` : `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${rgb.a})`;
   const hslString = rgb.a === 1 ? `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)` : `hsla(${hsl.h}, ${hsl.s}%, ${hsl.l}%, ${rgb.a})`;
   const tailwindBg = `bg-[${safeHex}]`;
-  const tailwindText = `text-[${safeHex}]`;
+  
 
   const handleCopy = async (value, field) => {
     try {
@@ -84,7 +84,7 @@ const ColorPicker = ({ darkMode }) => {
       const eyeDropper = new window.EyeDropper();
       const result = await eyeDropper.open();
       setHex(result.sRGBHex);
-    } catch (e) {
+    } catch {
       // User canceled or error
     }
   };
@@ -180,3 +180,4 @@ const ColorPicker = ({ darkMode }) => {
 };
 
 export default ColorPicker;
+

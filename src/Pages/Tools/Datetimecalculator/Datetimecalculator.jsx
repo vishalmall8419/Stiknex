@@ -276,7 +276,7 @@ const AddDays = ({ darkMode }) => {
 
 const Countdown = ({ darkMode }) => {
   const [target, setTarget] = useState("");
-  const [now, setNow] = useState(Date.now());
+  const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 1000);

@@ -77,6 +77,7 @@ const useAnchoredRect = (ref, isOpen) => {
 
   useEffect(() => {
     if (!isOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setRect(null);
       return undefined;
     }
@@ -121,7 +122,7 @@ const formatClock = (date, format) => {
 
 const NotebookTopbar = ({
   darkMode,
-  toggleDarkMode,
+
   title,
   onTitleChange,
   onDelete,
@@ -131,7 +132,6 @@ const NotebookTopbar = ({
   onShare,
   settingsOpen,
   onToggleSettings,
-  isZenMode,
   onToggleZenMode,
   wordCount,
   charCount,
@@ -143,7 +143,6 @@ const NotebookTopbar = ({
   onNewNotebook,
   onSwitchNotebook,
   onDeleteNotebook,
-  onOpenVirtualKeyboard,
   searchOpen,
   onToggleSearch,
   searchQuery,
@@ -219,7 +218,7 @@ const NotebookTopbar = ({
   const clockRect = useAnchoredRect(clockRef, clockMenuOpen);
   const searchRect = useAnchoredRect(searchRef, searchOpen);
   const shortcutsRect = useAnchoredRect(shortcutsRef, shortcutsOpen);
-  const snapshotsRect = useAnchoredRect(snapshotsBtnRef, snapshotsOpen);
+  useAnchoredRect(snapshotsBtnRef, snapshotsOpen);
   const unicodeRect = useAnchoredRect(unicodeBtnRef, unicodeOpen);
 
   // Tooltips were pure-CSS (::after on hover), which meant they were
@@ -1083,3 +1082,4 @@ const NotebookTopbar = ({
 };
 
 export default NotebookTopbar;
+

@@ -47,8 +47,7 @@ const WhiteboardEditor = ({ whiteboard, onClose, onUpdate }) => {
       a.download = `${title}.png`;
       a.click();
       URL.revokeObjectURL(url);
-    } catch (e) {
-      console.error(e);
+    } catch (e) { console.error(e);
       swal("Export Failed", "Could not export as PNG", "error");
     }
   };
@@ -131,7 +130,7 @@ const SvgPreview = ({ elements, appState, files }) => {
           svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
           containerRef.current.appendChild(svg);
         }
-      } catch (e) {
+      } catch {
         // Fallback silently if SVG generation fails for corrupted data
       }
     };
@@ -250,3 +249,5 @@ const WhiteboardDashboard = () => {
 };
 
 export default WhiteboardDashboard;
+
+

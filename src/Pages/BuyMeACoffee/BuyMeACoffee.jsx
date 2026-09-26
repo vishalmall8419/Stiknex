@@ -7,7 +7,7 @@ import AppShell from "../../Component/Layout/AppShell";
 import { loadRazorpayScript } from "../../utils/loadRazorpay";
 import { API_BASE_URL } from "../../config/api";
 import PageSEO from "../../Component/SEO/PageSEO";
-import { Heart, Code2, Sparkles, Coffee, ShieldCheck, Zap } from "lucide-react";
+import { Heart, Coffee, ShieldCheck, Zap } from "lucide-react";
 
 gsap.registerPlugin(ScrollTrigger);
 

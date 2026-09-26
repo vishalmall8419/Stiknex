@@ -126,7 +126,7 @@ const LandingPage = () => {
             <Sparkles size={16} className="shrink-0" /> Welcome to the new standard of ideation
           </div>
           
-          <h1 className="text-5xl sm:text-6xl md:text-8xl font-black tracking-tight mb-6 sm:mb-8 leading-[1.1] overflow-hidden flex flex-wrap justify-center gap-y-2 sm:gap-y-4" ref={textRef}>
+          <h1 className="text-[2.8rem] min-[400px]:text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tight mb-6 sm:mb-8 leading-[1.1] overflow-hidden flex flex-wrap justify-center gap-y-2 sm:gap-y-4" ref={textRef}>
             {heroWords.map((word, wordIdx) => (
               <span key={wordIdx} className="inline-block whitespace-nowrap mr-4 last:mr-0">
                 {word.split("").map((char, charIdx) => (
@@ -137,7 +137,7 @@ const LandingPage = () => {
               </span>
             ))}
             <div className="w-full basis-full h-0"></div>
-            <span className="bg-clip-text text-transparent bg-linear-to-r from-indigo-500 via-purple-500 to-pink-500 hero-sub inline-block whitespace-nowrap">
+            <span className="bg-clip-text text-transparent bg-linear-to-r from-indigo-500 via-purple-500 to-pink-500 hero-sub inline-block whitespace-normal leading-tight">
               Create Boundlessly.
             </span>
           </h1>

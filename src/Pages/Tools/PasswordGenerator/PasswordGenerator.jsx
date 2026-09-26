@@ -54,7 +54,9 @@ const PasswordGenerator = ({ darkMode }) => {
   const regenerate = () => setPassword(generatePassword(length, options));
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     regenerate();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [length, options]);
 
   const handleCopy = async () => {
