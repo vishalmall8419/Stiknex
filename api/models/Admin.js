@@ -13,7 +13,21 @@ const AdminSchema = new mongoose.Schema({
   role: {
     type: String,
     default: 'admin'
+  },
+  // Anti-Brute Force fields
+  failedLoginAttempts: {
+    type: Number,
+    required: true,
+    default: 0
+  },
+  lockUntil: {
+    type: Date
   }
 }, { timestamps: true });
+
+// Virtual to check if currently locked
+AdminSchema.virtual('isLocked').get(function() {
+  return !!(this.lockUntil && this.lockUntil > Date.now());
+});
 
 export default mongoose.models.Admin || mongoose.model('Admin', AdminSchema);

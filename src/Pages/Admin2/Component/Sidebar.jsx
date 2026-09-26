@@ -24,7 +24,7 @@ const Sidebar = ({ isSidebarOpen, onClose }) => {
   const handleLogout = () => {
     debugger
     console.log("logout triggering");
-    sessionStorage.removeItem("Role");
+    sessionStorage.removeItem("Role");`n    localStorage.removeItem("stkx_admin_token");
     sessionStorage.removeItem("DummyToken");
 
     onClose?.();
@@ -206,3 +206,4 @@ const Sidebar = ({ isSidebarOpen, onClose }) => {
 };
 
 export default Sidebar;
+

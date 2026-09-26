@@ -1,5 +1,6 @@
 import connectToDatabase from './utils/db.js';
 import Trend from './models/Trend.js';
+import googleTrends from 'google-trends-api';
 
 // Simple manual relevance filter based on keywords
 function isRelevant(keyword) {
@@ -25,48 +26,46 @@ export default async function handler(req, res) {
     try {
         await connectToDatabase();
 
-        // Updated Google Trends public RSS feed URL
-        const response = await fetch('https://trends.google.com/trending/rss?geo=US');
+        // 1. Fetch Daily Trends (Worldwide or specific region)
+        const results = await googleTrends.dailyTrends({
+            geo: 'US', // Can change to IN or worldwide if available
+        });
         
-        if (!response.ok) {
-            throw new Error(`Google RSS returned status: ${response.status}`);
-        }
+        const parsedResults = JSON.parse(results);
+        const days = parsedResults.default.trendingSearchesDays;
         
-        const xml = await response.text();
-        
-        // Regex to extract items, titles, and traffic from XML (handles with or without CDATA)
-        const itemRegex = /<item>[\s\S]*?<title>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?<\/title>[\s\S]*?<ht:approx_traffic>(.*?)<\/ht:approx_traffic>[\s\S]*?<\/item>/gi;
-        
-        let match;
         let addedCount = 0;
         let totalProcessed = 0;
 
-        while ((match = itemRegex.exec(xml)) !== null) {
-            totalProcessed++;
-            const keyword = match[1];
-            const traffic = match[2] || '10K+';
-            
-            // Apply Relevance Filter
-            if (isRelevant(keyword)) {
-                // Save to Database
-                try {
-                    await Trend.updateOne(
-                        { keyword },
-                        { 
-                            $setOnInsert: { keyword, traffic, date: new Date() } 
-                        },
-                        { upsert: true }
-                    );
-                    addedCount++;
-                } catch (dbErr) {
-                    console.error('DB Error:', dbErr);
+        // 2. Loop through recent trends
+        for (const day of days) {
+            for (const search of day.trendingSearches) {
+                totalProcessed++;
+                const keyword = search.title.query;
+                const traffic = search.formattedTraffic;
+                
+                // 3. Apply Relevance Filter
+                if (isRelevant(keyword)) {
+                    // 4. Save to Database
+                    try {
+                        await Trend.updateOne(
+                            { keyword },
+                            { 
+                                $setOnInsert: { keyword, traffic, date: new Date() } 
+                            },
+                            { upsert: true }
+                        );
+                        addedCount++;
+                    } catch (dbErr) {
+                        console.error('DB Error:', dbErr);
+                    }
                 }
             }
         }
 
         res.status(200).json({ 
             success: true, 
-            message: `Processed ${totalProcessed} trends from Google RSS. Added/Updated ${addedCount} relevant trends.` 
+            message: `Processed ${totalProcessed} trends. Added/Updated ${addedCount} relevant trends.` 
         });
 
     } catch (error) {

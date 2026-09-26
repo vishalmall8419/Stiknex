@@ -7,27 +7,32 @@ export default async function handler(req, res) {
     try {
         await connectToDatabase();
         
-        const adminEmail = "admin@stiknex.com";
-        
-        // Find existing admin or create a new one
-        let admin = await Admin.findOne({ email: adminEmail });
-        
-        if (!admin) {
-            // If the user hasn't run the original setup script, create the admin
-            admin = new Admin({
-                email: adminEmail,
-                role: 'admin'
+        // SECURITY FIX: Only allow setup if NO admin exists in the database.
+        // If an admin already exists, someone might be trying to hijack the system.
+        const adminCount = await Admin.countDocuments();
+        if (adminCount > 0) {
+            return res.status(403).json({ 
+                success: false, 
+                message: 'Forbidden. An admin account already exists. For security reasons, 2FA setup is locked.' 
             });
         }
 
+        const adminEmail = "admin@stiknex.com";
+        
         // Generate a new TOTP secret for Microsoft Authenticator
         const secret = speakeasy.generateSecret({ 
             name: 'Stiknex Admin Panel',
             issuer: 'Stiknex' 
         });
 
-        // Save secret to database
-        admin.twoFactorSecret = secret.base32;
+        // Create the admin
+        const admin = new Admin({
+            email: adminEmail,
+            role: 'admin',
+            twoFactorSecret: secret.base32,
+            failedLoginAttempts: 0
+        });
+
         await admin.save();
 
         // Generate QR code data URL (Base64 image)
@@ -36,7 +41,7 @@ export default async function handler(req, res) {
         res.status(200).json({ 
             success: true, 
             message: '2FA Setup Complete. Please scan the QR code with Microsoft Authenticator.',
-            secretBase32: secret.base32, // For manual entry if needed
+            secretBase32: secret.base32,
             qrCodeUrl: qrCodeDataUrl
         });
 
