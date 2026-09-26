@@ -4,14 +4,15 @@ import Button from "./Button";
 import {
   BarChart3,
   LayoutDashboard,
+  LogOut,
   MessageSquare,
   Package,
+  ShoppingBag,
+  ShoppingCart,
   Store,
+  Tag,
   UserRound,
   Users,
-  TrendingUp,
-  FileText,
-  LogOut
 } from "lucide-react";
 
 const Sidebar = ({ isSidebarOpen, onClose }) => {
@@ -21,15 +22,18 @@ const Sidebar = ({ isSidebarOpen, onClose }) => {
   // LOGOUT HANDLER
   // =====================================
   const handleLogout = () => {
+    debugger
     console.log("logout triggering");
     sessionStorage.removeItem("Role");
     sessionStorage.removeItem("DummyToken");
+
     onClose?.();
-    navigate("/", { replace: true });
+
+    navigate("/login", { replace: true });
   };
 
   // =====================================
-  // MENU ITEMS (Customized for Stiknex)
+  // MENU ITEMS
   // =====================================
   const menuItems = [
     {
@@ -38,19 +42,29 @@ const Sidebar = ({ isSidebarOpen, onClose }) => {
       icon: LayoutDashboard,
     },
     {
-      name: "SEO Trends",
-      path: "/dashboard/orders",
-      icon: TrendingUp,
-    },
-    {
-      name: "Content",
+      name: "Products",
       path: "/dashboard/products",
-      icon: FileText,
+      icon: Package,
     },
     {
-      name: "Users",
+      name: "Categories",
+      path: "/dashboard/categories",
+      icon: Tag,
+    },
+    {
+      name: "Orders",
+      path: "/dashboard/orders",
+      icon: ShoppingBag,
+    },
+    {
+      name: "Customers",
       path: "/dashboard/customers",
       icon: Users,
+    },
+    {
+      name: "Cart Overview",
+      path: "/dashboard/cart",
+      icon: ShoppingCart,
     },
     {
       name: "Analytics",
@@ -58,30 +72,45 @@ const Sidebar = ({ isSidebarOpen, onClose }) => {
       icon: BarChart3,
     },
     {
-      name: "Settings",
+      name: "Messages",
+      path: "/dashboard/messages",
+      icon: MessageSquare,
+    },
+    {
+      name: "Admin Profile",
+      path: "/dashboard/profile",
+      icon: UserRound,
+    },
+    {
+      name: "Store Settings",
       path: "/dashboard/store-settings",
       icon: Store,
-    }
+    },
   ];
 
   return (
     <aside
       aria-label="Admin sidebar"
       className={`
-        sidebarBg
-        fixed inset-y-0 left-0 z-50
-        flex h-dvh w-[min(82vw,280px)] flex-col
-        overflow-hidden
-        border-r border-slate-200 dark:border-slate-800
-        shadow-[8px_0_30px_rgba(40,70,80,0.08)]
-        backdrop-blur-2xl
-        transition-transform duration-300 ease-in-out
-        ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
-        lg:w-60
-        lg:translate-x-0
-        lg:backdrop-blur-none
-        lg:shadow-[8px_0_32px_rgba(78,108,125,0.12)]
-      `}
+  
+
+    fixed inset-y-0 left-0 z-50
+    flex h-dvh w-[min(82vw,280px)] flex-col
+    overflow-hidden
+
+    border-r border-white/50
+
+    shadow-[8px_0_30px_rgba(40,70,80,0.08)]
+    backdrop-blur-2xl
+
+    transition-transform duration-300 ease-in-out
+
+    ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
+
+    lg:w-60
+    lg:backdrop-blur-none
+    lg:shadow-[8px_0_32px_rgba(78,108,125,0.12)]
+  `}
     >
       {/* =====================================
           LOGO
@@ -90,24 +119,25 @@ const Sidebar = ({ isSidebarOpen, onClose }) => {
         <div
           className="
             flex min-h-[88px] items-center
-            border-b border-slate-200 dark:border-slate-800
+            border-b border-white/40
             lg:min-h-[96px]
           "
         >
           <h1
             className="
               w-full text-2xl font-bold tracking-tight
-              text-indigo-600 dark:text-indigo-400 sm:text-3xl lg:text-left
+              text-orange-400 sm:text-3xl lg:text-left
             "
           >
-            <span>STIK</span>
+            <span>E</span>
+
             <span
               className="
-                bg-[radial-gradient(circle,rgba(34,193,195,1)_0%,rgba(99,102,241,1)_100%)]
+                bg-[radial-gradient(circle,rgba(34,193,195,1)_0%,rgba(253,187,45,1)_100%)]
                 bg-clip-text text-transparent
               "
             >
-              NEX
+              COM
             </span>
           </h1>
         </div>
@@ -131,6 +161,7 @@ const Sidebar = ({ isSidebarOpen, onClose }) => {
         <div className="flex flex-col gap-1.5">
           {menuItems.map((item) => {
             const Icon = item.icon;
+
             return (
               <Button
                 key={item.path}
@@ -154,21 +185,20 @@ const Sidebar = ({ isSidebarOpen, onClose }) => {
           left-0
           w-full
           border-t
-          border-slate-200 dark:border-slate-800
-          logout-button
+          border-white/40
+         logout-button
           p-3
           backdrop-blur-2xl
           sm:p-4
           lg:backdrop-blur-none
+          
+        
         "
       >
-         <button 
-           type="button" 
-           onClick={handleLogout} 
-           style={{fontWeight: "800"}} 
-           className="text-white sidebar-link w-full text-left flex items-center gap-2"
-         >
-          <LogOut size={19} /> LogOut
+       
+         <button type="button" onClick={handleLogout}  style={{fontWeight:"800 !important" }} className="text-white sidebar-link ">
+          
+          LogOut
         </button>
       </div>
     </aside>
@@ -176,4 +206,3 @@ const Sidebar = ({ isSidebarOpen, onClose }) => {
 };
 
 export default Sidebar;
-
