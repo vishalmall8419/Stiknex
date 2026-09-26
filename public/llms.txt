@@ -1,0 +1,3 @@
+# Stiknex AI Documentation
+
+Stiknex is a modern web application providing sticky notes, an online notebook, whiteboards, calculators, and other productivity tools. This file helps AI agents understand how to interact with the site.

@@ -239,7 +239,7 @@ const About = () => {
                     </p>
                     
                     <div className="flex gap-4 justify-center lg:justify-start w-full">
-                      <a href="https://github.com/vishalmall8419" target="_blank" rel="noreferrer" className="w-12 h-12 rounded-2xl bg-slate-200 dark:bg-white/10 hover:bg-slate-300 dark:hover:bg-white/20 flex items-center justify-center text-xl transition-all hover:-translate-y-1 hover:shadow-lg backdrop-blur-md text-slate-700 dark:text-white">
+                      <a aria-label="GitHub Profile" href="https://github.com/vishalmall8419" target="_blank" rel="noreferrer" className="w-12 h-12 rounded-2xl bg-slate-200 dark:bg-white/10 hover:bg-slate-300 dark:hover:bg-white/20 flex items-center justify-center text-xl transition-all hover:-translate-y-1 hover:shadow-lg backdrop-blur-md text-slate-700 dark:text-white">
                         <i className="fa-brands fa-github"></i>
                       </a>
                       <a href="https://www.linkedin.com/in/vishal-mall-536506302/" target="_blank" rel="noreferrer" className="w-12 h-12 rounded-2xl bg-[#0a66c2]/10 dark:bg-[#0a66c2]/20 hover:bg-[#0a66c2]/20 dark:hover:bg-[#0a66c2]/40 text-[#0a66c2] hover:text-[#0a66c2] dark:hover:text-white flex items-center justify-center text-xl transition-all hover:-translate-y-1 hover:shadow-lg backdrop-blur-md">

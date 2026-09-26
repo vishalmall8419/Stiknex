@@ -128,6 +128,7 @@ export default function DownloadAppModal() {
               <motion.button 
                 onClick={handleDismiss}
                 whileHover={{ scale: 1.1, rotate: 90 }} whileTap={{ scale: 0.9 }}
+                aria-label="Close modal"
                 className="absolute top-5 right-5 w-10 h-10 flex items-center justify-center bg-white/60 hover:bg-white backdrop-blur-md text-slate-500 hover:text-slate-800 rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.08),0_0_0_1px_rgba(255,255,255,0.5)_inset] z-50 transition-colors"
               >
                 <X size={18} strokeWidth={2.5} />
