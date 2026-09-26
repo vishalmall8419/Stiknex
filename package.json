@@ -13,6 +13,7 @@
     "@excalidraw/excalidraw": "^0.18.1",
     "@tailwindcss/vite": "^4.3.3",
     "@vercel/analytics": "^2.0.1",
+    "bcryptjs": "^3.0.3",
     "dotenv": "^18.0.4",
     "framer-motion": "^13.4.3",
     "google-trends-api": "^4.9.2",
