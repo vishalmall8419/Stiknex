@@ -85,7 +85,7 @@ const App = () => {
   return (
     <>
       {/* Vercel Analytics */}
-      <Analytics />
+      <Analytics debug={false} />
 
       {/* Lazy Loading */}
       <Suspense fallback={<PageLoader />}>
@@ -156,4 +156,5 @@ const App = () => {
 };
 
 export default App;
+
 
