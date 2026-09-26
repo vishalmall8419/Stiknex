@@ -25,8 +25,8 @@ export default async function handler(req, res) {
     try {
         await connectToDatabase();
 
-        // Using Google Trends public RSS feed to avoid bot-blocking issues on Vercel
-        const response = await fetch('https://trends.google.com/trends/trendingsearches/daily/rss?geo=US');
+        // Updated Google Trends public RSS feed URL
+        const response = await fetch('https://trends.google.com/trending/rss?geo=US');
         
         if (!response.ok) {
             throw new Error(`Google RSS returned status: ${response.status}`);
@@ -34,8 +34,8 @@ export default async function handler(req, res) {
         
         const xml = await response.text();
         
-        // Regex to extract items, titles, and traffic from XML
-        const itemRegex = /<item>[\s\S]*?<title><!\[CDATA\[(.*?)\]\]><\/title>[\s\S]*?<ht:approx_traffic>(.*?)<\/ht:approx_traffic>[\s\S]*?<\/item>/gi;
+        // Regex to extract items, titles, and traffic from XML (handles with or without CDATA)
+        const itemRegex = /<item>[\s\S]*?<title>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?<\/title>[\s\S]*?<ht:approx_traffic>(.*?)<\/ht:approx_traffic>[\s\S]*?<\/item>/gi;
         
         let match;
         let addedCount = 0;
