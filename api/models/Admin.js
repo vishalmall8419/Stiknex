@@ -6,9 +6,9 @@ const AdminSchema = new mongoose.Schema({
     required: true,
     unique: true
   },
-  password: {
+  twoFactorSecret: {
     type: String,
-    required: true
+    required: false
   },
   role: {
     type: String,

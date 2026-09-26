@@ -1,22 +1,38 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Lock, Mail, ShieldAlert } from "lucide-react";
+import { Lock, Mail, ShieldAlert, KeyRound } from "lucide-react";
 
 const AdminLogin = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("admin@stiknex.com");
+  const [totpToken, setTotpToken] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    
-    // Default secret credentials (change these later for production!)
-    if (email === "admin@stiknex.com" && password === "Stiknex@2026") {
-      sessionStorage.setItem("Role", "admin");
-      navigate("/dashboard");
-    } else {
-      setError("Invalid secure credentials.");
+    setLoading(true);
+    setError("");
+
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, totpToken })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        sessionStorage.setItem("Role", "admin");
+        navigate("/dashboard");
+      } else {
+        setError(data.message || "Invalid authentication code.");
+      }
+    } catch (err) {
+      setError("Failed to connect to authentication server.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -35,7 +51,7 @@ const AdminLogin = () => {
             <Lock className="text-indigo-500" /> Secure Portal
           </h1>
           <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-            Authorized personnel only.
+            2FA Authenticator Access Only
           </p>
         </div>
 
@@ -66,26 +82,29 @@ const AdminLogin = () => {
 
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-              Passcode
+              6-Digit Authenticator Code
             </label>
             <div className="relative">
-              <Lock className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
+              <KeyRound className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
               <input
-                type="password"
+                type="text"
                 required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white/50 dark:bg-slate-800/50 py-2.5 pl-10 pr-4 text-slate-800 dark:text-slate-100 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
-                placeholder="••••••••"
+                maxLength="6"
+                pattern="\d{6}"
+                value={totpToken}
+                onChange={(e) => setTotpToken(e.target.value)}
+                className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white/50 dark:bg-slate-800/50 py-2.5 pl-10 pr-4 text-slate-800 dark:text-slate-100 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all text-center tracking-[0.5em] font-mono font-bold"
+                placeholder="000000"
               />
             </div>
           </div>
 
           <button
             type="submit"
-            className="w-full rounded-xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-lg hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all"
+            disabled={loading}
+            className="w-full rounded-xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-lg hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all disabled:opacity-70"
           >
-            Authenticate
+            {loading ? "Authenticating..." : "Verify & Login"}
           </button>
         </form>
       </div>

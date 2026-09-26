@@ -1,6 +1,6 @@
 import connectToDatabase from '../utils/db.js';
 import Admin from '../models/Admin.js';
-import bcrypt from 'bcryptjs';
+import speakeasy from 'speakeasy';
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
@@ -10,25 +10,30 @@ export default async function handler(req, res) {
     try {
         await connectToDatabase();
         
-        const { email, password } = req.body;
+        const { email, totpToken } = req.body;
         
-        if (!email || !password) {
-            return res.status(400).json({ success: false, message: 'Please provide email and password.' });
+        if (!email || !totpToken) {
+            return res.status(400).json({ success: false, message: 'Please provide email and authenticator code.' });
         }
 
         // Check if admin exists
         const admin = await Admin.findOne({ email });
-        if (!admin) {
-            return res.status(401).json({ success: false, message: 'Invalid credentials.' });
+        if (!admin || !admin.twoFactorSecret) {
+            return res.status(401).json({ success: false, message: 'Invalid credentials or 2FA not setup.' });
         }
 
-        // Verify password
-        const isMatch = await bcrypt.compare(password, admin.password);
-        if (!isMatch) {
-            return res.status(401).json({ success: false, message: 'Invalid credentials.' });
+        // Verify TOTP token from Microsoft Authenticator
+        const isVerified = speakeasy.totp.verify({
+            secret: admin.twoFactorSecret,
+            encoding: 'base32',
+            token: totpToken,
+            window: 1 // allows a tiny bit of time drift (30 seconds before/after)
+        });
+
+        if (!isVerified) {
+            return res.status(401).json({ success: false, message: 'Invalid or expired authenticator code.' });
         }
 
-        // Success (In a full app we would use JWT, but here we just return success for sessionStorage)
         res.status(200).json({ 
             success: true, 
             message: 'Login successful.',
