@@ -1,25 +1,31 @@
+import redisClient from './utils/redis.js';
 import connectToDatabase from './utils/db.js';
 import { verifyAdminToken } from './utils/auth.js';
 import Trend from './models/Trend.js';
 
 export default async function handler(req, res) {
     try {
-                await connectToDatabase();
+        await connectToDatabase();
 
-        // SECURITY FIX: Protect endpoint with JWT Verification
         const auth = verifyAdminToken(req);
         if (!auth.valid) {
             return res.status(401).json({ success: false, message: auth.message });
         }
         
-        // Fetch the 50 most recent relevant trends that haven't been ignored
-        const trends = await Trend.find({ status: { $ne: 'ignored' } })
-                                  .sort({ date: -1 })
-                                  .limit(50);
+        const cacheKey = 'seo_opportunities_all';
+        const cached = await redisClient.get(cacheKey);
+        if (cached) {
+            return res.status(200).json({ success: true, source: 'redis', data: JSON.parse(cached) });
+        }
+
+        // Fetch up to 500 non-ignored trends, sorted by relevance and trend score
+        const trends = await Trend.find()
+                                  .sort({ relevanceScore: -1, trendScore: -1, date: -1 })
+                                  .limit(500);
                                   
-        res.status(200).json({ success: true, data: trends });
+        await redisClient.setex(cacheKey, 3600, JSON.stringify(trends)); // Cache 1 hour
+        res.status(200).json({ success: true, source: 'db', data: trends });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }
 }
-

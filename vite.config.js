@@ -7,10 +7,18 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom', 'framer-motion', 'gsap'],
-          ui: ['lucide-react'],
-          whiteboard: ['@excalidraw/excalidraw']
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('@excalidraw/excalidraw')) {
+              return 'whiteboard';
+            }
+            if (id.includes('lucide-react')) {
+              return 'ui';
+            }
+            if (id.includes('react') || id.includes('framer-motion') || id.includes('gsap')) {
+              return 'vendor';
+            }
+          }
         }
       }
     }

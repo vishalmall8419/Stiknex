@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -64,7 +65,7 @@ button:focus-visible {
   @apply px-5 py-2 bg-indigo-600 text-white rounded-xl font-medium transition-all hover:bg-indigo-700 active:scale-95 shadow-sm;
 }
 
-@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap");
+
 
 @import "tailwindcss";
 

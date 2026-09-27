@@ -15,7 +15,7 @@ export default async function handler(req, res) {
         if (admin && admin.twoFactorSecret) {
             return res.status(403).json({ 
                 success: false, 
-                message: 'Forbidden. 2FA is already setup for vishal.mall02@outlook.com. For security reasons, setup is locked.' 
+                message: 'Forbidden. 2FA is already setup. For security reasons, setup is locked.' 
             });
         }
 

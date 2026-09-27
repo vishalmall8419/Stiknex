@@ -4,15 +4,10 @@ import Button from "./Button";
 import {
   BarChart3,
   LayoutDashboard,
-  LogOut,
   MessageSquare,
-  Package,
-  ShoppingBag,
-  ShoppingCart,
-  Store,
-  Tag,
-  UserRound,
-  Users,
+  TrendingUp, Target,
+  PenTool,
+  Settings,
 } from "lucide-react";
 
 const Sidebar = ({ isSidebarOpen, onClose }) => {
@@ -22,13 +17,10 @@ const Sidebar = ({ isSidebarOpen, onClose }) => {
   // LOGOUT HANDLER
   // =====================================
   const handleLogout = () => {
-    debugger
-    console.log("logout triggering");
-    sessionStorage.removeItem("Role");`n    localStorage.removeItem("stkx_admin_token");
+    sessionStorage.removeItem("Role");
+    localStorage.removeItem("stkx_admin_token");
     sessionStorage.removeItem("DummyToken");
-
     onClose?.();
-
     navigate("/login", { replace: true });
   };
 
@@ -42,49 +34,34 @@ const Sidebar = ({ isSidebarOpen, onClose }) => {
       icon: LayoutDashboard,
     },
     {
-      name: "Products",
-      path: "/dashboard/products",
-      icon: Package,
-    },
-    {
-      name: "Categories",
-      path: "/dashboard/categories",
-      icon: Tag,
-    },
-    {
-      name: "Orders",
-      path: "/dashboard/orders",
-      icon: ShoppingBag,
-    },
-    {
-      name: "Customers",
-      path: "/dashboard/customers",
-      icon: Users,
-    },
-    {
-      name: "Cart Overview",
-      path: "/dashboard/cart",
-      icon: ShoppingCart,
-    },
-    {
       name: "Analytics",
       path: "/dashboard/analytics",
       icon: BarChart3,
     },
     {
-      name: "Messages",
+      name: "Google Trends",
+      path: "/dashboard/trends",
+      icon: TrendingUp,
+    },
+        {
+      name: "SEO Intelligence",
+      path: "/dashboard/seo",
+      icon: Target,
+    },
+    {
+      name: "Blog Manager",
+      path: "/dashboard/blog",
+      icon: PenTool,
+    },
+    {
+      name: "Messages & Feedback",
       path: "/dashboard/messages",
       icon: MessageSquare,
     },
     {
-      name: "Admin Profile",
-      path: "/dashboard/profile",
-      icon: UserRound,
-    },
-    {
-      name: "Store Settings",
-      path: "/dashboard/store-settings",
-      icon: Store,
+      name: "Site Settings",
+      path: "/dashboard/settings",
+      icon: Settings,
     },
   ];
 
@@ -92,25 +69,18 @@ const Sidebar = ({ isSidebarOpen, onClose }) => {
     <aside
       aria-label="Admin sidebar"
       className={`
-  
-
-    fixed inset-y-0 left-0 z-50
-    flex h-dvh w-[min(82vw,280px)] flex-col
-    overflow-hidden
-
-    border-r border-white/50
-
-    shadow-[8px_0_30px_rgba(40,70,80,0.08)]
-    backdrop-blur-2xl
-
-    transition-transform duration-300 ease-in-out
-
-    ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
-
-    lg:w-60
-    lg:backdrop-blur-none
-    lg:shadow-[8px_0_32px_rgba(78,108,125,0.12)]
-  `}
+        fixed inset-y-0 left-0 z-50
+        flex h-dvh w-[min(82vw,280px)] flex-col
+        overflow-hidden
+        border-r border-white/50
+        shadow-[8px_0_30px_rgba(40,70,80,0.08)]
+        backdrop-blur-2xl
+        transition-transform duration-300 ease-in-out
+        ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
+        lg:w-60
+        lg:backdrop-blur-none
+        lg:shadow-[8px_0_32px_rgba(78,108,125,0.12)]
+      `}
     >
       {/* =====================================
           LOGO
@@ -126,18 +96,17 @@ const Sidebar = ({ isSidebarOpen, onClose }) => {
           <h1
             className="
               w-full text-2xl font-bold tracking-tight
-              text-orange-400 sm:text-3xl lg:text-left
+              text-indigo-500 sm:text-3xl lg:text-left
             "
           >
-            <span>E</span>
-
+            <span>STIK</span>
             <span
               className="
-                bg-[radial-gradient(circle,rgba(34,193,195,1)_0%,rgba(253,187,45,1)_100%)]
+                bg-[radial-gradient(circle,rgba(99,102,241,1)_0%,rgba(168,85,247,1)_100%)]
                 bg-clip-text text-transparent
               "
             >
-              COM
+              NEX
             </span>
           </h1>
         </div>
@@ -149,19 +118,12 @@ const Sidebar = ({ isSidebarOpen, onClose }) => {
       <nav
         aria-label="Admin navigation"
         className="
-          min-h-0
-          flex-1
-          overflow-y-auto
-          px-3
-          pt-5
-          pb-24
-          sm:px-4
+          min-h-0 flex-1 overflow-y-auto px-3 pt-5 pb-24 sm:px-4
         "
       >
         <div className="flex flex-col gap-1.5">
           {menuItems.map((item) => {
             const Icon = item.icon;
-
             return (
               <Button
                 key={item.path}
@@ -180,24 +142,16 @@ const Sidebar = ({ isSidebarOpen, onClose }) => {
       ===================================== */}
       <div
         className="
-          absolute
-          bottom-0
-          left-0
-          w-full
-          border-t
-          border-white/40
-         logout-button
-          p-3
-          backdrop-blur-2xl
-          sm:p-4
-          lg:backdrop-blur-none
-          
-        
+          absolute bottom-0 left-0 w-full border-t border-white/40
+          logout-button p-3 backdrop-blur-2xl sm:p-4 lg:backdrop-blur-none
         "
       >
-       
-         <button type="button" onClick={handleLogout}  style={{fontWeight:"800 !important" }} className="text-white sidebar-link ">
-          
+        <button 
+          type="button" 
+          onClick={handleLogout}  
+          style={{fontWeight:"800 !important"}} 
+          className="text-white sidebar-link w-full text-left"
+        >
           LogOut
         </button>
       </div>
@@ -206,4 +160,3 @@ const Sidebar = ({ isSidebarOpen, onClose }) => {
 };
 
 export default Sidebar;
-

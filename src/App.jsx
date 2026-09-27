@@ -79,6 +79,12 @@ const App = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Check if current route is an admin or login route
+  const isAdminRoute = 
+    location.pathname.startsWith('/dashboard') || 
+    location.pathname.startsWith('/stiknex-secure-login-portal') ||
+    location.pathname.startsWith('/setup-2fa-admin');
+
   // ==========================================================
   // RENDER
   // ==========================================================
@@ -90,8 +96,8 @@ const App = () => {
 
       {/* Lazy Loading */}
       <Suspense fallback={<PageLoader />}>
-        {/* Download App Modal */}
-        <DownloadAppModal />
+        {/* Render DownloadAppModal ONLY on public pages */}
+        {!isAdminRoute && <DownloadAppModal />}
 
         {/* Application Routes */}
         <Routes>
@@ -158,6 +164,3 @@ const App = () => {
 };
 
 export default App;
-
-
-

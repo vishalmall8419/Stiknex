@@ -26,3 +26,8 @@ server/.env
 *.njsproj
 *.sln
 *.sw?
+
+.vercel
+
+# Google Analytics Service Account
+stiknex-analytics-*.json

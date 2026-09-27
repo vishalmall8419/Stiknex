@@ -1,5 +1,4 @@
 import React from "react";
-
 import {
   ResponsiveContainer,
   AreaChart,
@@ -10,209 +9,115 @@ import {
   Tooltip,
 } from "recharts";
 
-import { ChevronDown } from "lucide-react";
-
 const formatNumber = (value) => {
-  return new Intl.NumberFormat("en-IN").format(value);
-};
-
-const formatYAxis = (value) => {
-  if (value >= 10000000) {
-    return `${(value / 10000000).toFixed(1)}Cr`;
-  }
-
-  if (value >= 100000) {
-    return `${(value / 100000).toFixed(1)}L`;
-  }
-
-  if (value >= 1000) {
-    return `${value / 1000}K`;
-  }
-
+  if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
+  if (value >= 1000) return `${(value / 1000).toFixed(1)}K`;
   return value;
 };
 
-const formatDate = (date) => {
-  if (!date) return "";
-
-  return new Date(`${date}T00:00:00`).toLocaleDateString("en-IN", {
-    day: "numeric",
-    month: "short",
-  });
-};
-
-const CustomTooltip = ({ active, payload }) => {
+const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) {
     return null;
   }
 
-  const item = payload[0]?.payload;
-
   return (
-    <div className="rounded-lg border border-white/70 bg-white/90 px-3 py-2 text-xs shadow-lg backdrop-blur-md">
-      <p className="font-semibold text-slate-700">
-        {formatDate(item?.date)}
-      </p>
-
-      <p className="mt-1 text-teal-600">
-        Sales: ₹{formatNumber(payload[0]?.value || 0)}
-      </p>
+    <div className="rounded-lg border border-white/70 bg-white/90 px-3 py-2 text-xs shadow-lg backdrop-blur-md dark:bg-slate-800 dark:border-slate-700 dark:text-white">
+      <p className="font-semibold mb-1">{label}</p>
+      {payload.map((entry, index) => (
+        <p key={index} style={{ color: entry.color }} className="font-medium">
+          {entry.name}: {formatNumber(entry.value)}
+        </p>
+      ))}
     </div>
   );
 };
 
-const SalesChart = ({
+const AnalyticsChart = ({
+  title = "Analytics Overview",
   data = [],
-  range = 7,
-  onRangeChange,
-  rangeOptions = [],
 }) => {
   return (
     <section
       className="
+        w-full
         min-w-0
         overflow-hidden
-        rounded-xl
-        border border-white/60
-        bg-white/20
-        p-2.5
-        shadow-[0_4px_18px_rgba(80,120,140,0.06)]
-        backdrop-blur-3xl shadow-[0_8px_32px_rgba(31,38,135,0.15)] border border-white/40
+        rounded-2xl
+        bg-white/60 dark:bg-white/5
+        p-4
+        backdrop-blur-xl border border-white/40 dark:border-white/10
+        shadow-lg
       "
     >
-      {/* Header */}
-      <div className="mb-2 flex items-center justify-between gap-2">
-        <h2 className="text-xs font-semibold text-(--primary)">
-          Sales Overview
-        </h2>
-
-        <select
-          value={range}
-          onChange={(event) =>
-            onRangeChange?.(Number(event.target.value))
-          }
-          className="
-            max-w-[105px]
-            cursor-pointer
-            rounded-lg
-            border border-slate-200/70
-            bg-white/40
-            px-2 py-1
-            text-[9px]
-            text-slate-600
-            outline-none
-          "
-        >
-          {rangeOptions.map((option) => (
-            <option
-              key={option.value}
-              value={option.value}
-            >
-              {option.label}
-            </option>
-          ))}
-        </select>
+      <div className="mb-4">
+        <h2 className="text-lg font-semibold">{title}</h2>
       </div>
 
-      {/* Chart */}
-      <div className="h-20 w-full sm:h-24">
+      <div className="h-[250px] w-full">
         {data.length > 0 ? (
-          <ResponsiveContainer
-            width="100%"
-            height="100%"
-          >
+          <ResponsiveContainer width="100%" height="100%">
             <AreaChart
               data={data}
-              margin={{
-                top: 4,
-                right: 4,
-                left: 0,
-                bottom: 0,
-              }}
+              margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
             >
               <defs>
-                <linearGradient
-                  id="salesGradient"
-                  x1="0"
-                  y1="0"
-                  x2="0"
-                  y2="1"
-                >
-                  <stop
-                    offset="0%"
-                    stopColor="#35CDB0"
-                    stopOpacity={0.38}
-                  />
-
-                  <stop
-                    offset="100%"
-                    stopColor="#35CDB0"
-                    stopOpacity={0.04}
-                  />
+                <linearGradient id="colorUsers" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.4} />
+                  <stop offset="95%" stopColor="#4f46e5" stopOpacity={0} />
+                </linearGradient>
+                <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.4} />
+                  <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                 </linearGradient>
               </defs>
 
               <CartesianGrid
-                stroke="#B9D9D9"
-                strokeOpacity={0.35}
+                strokeDasharray="3 3"
+                stroke="#94a3b8"
+                strokeOpacity={0.2}
                 vertical={false}
               />
 
               <XAxis
                 dataKey="date"
-                tickFormatter={formatDate}
-                tick={{
-                  fontSize: 8,
-                  fill: "#56818A",
-                }}
+                tick={{ fontSize: 11, fill: "#64748b" }}
                 axisLine={false}
                 tickLine={false}
-                tickMargin={4}
+                tickMargin={10}
               />
 
               <YAxis
-                tickFormatter={formatYAxis}
-                tick={{
-                  fontSize: 8,
-                  fill: "#56818A",
-                }}
+                tickFormatter={formatNumber}
+                tick={{ fontSize: 11, fill: "#64748b" }}
                 axisLine={false}
                 tickLine={false}
-                width={28}
-                domain={[0, "auto"]}
               />
 
-              <Tooltip
-                content={<CustomTooltip />}
-                cursor={{
-                  stroke: "#35CDB0",
-                  strokeDasharray: "3 3",
-                }}
-              />
+              <Tooltip content={<CustomTooltip />} />
 
               <Area
                 type="monotone"
-                dataKey="sales"
-                stroke="#0BAEC1"
-                strokeWidth={1.6}
-                fill="url(#salesGradient)"
-                dot={{
-                  r: 1.8,
-                  fill: "#0BAEC1",
-                  strokeWidth: 0,
-                }}
-                activeDot={{
-                  r: 3,
-                  fill: "#0BAEC1",
-                }}
-                isAnimationActive
-                animationDuration={500}
+                dataKey="pageViews"
+                name="Page Views"
+                stroke="#10b981"
+                strokeWidth={2}
+                fill="url(#colorViews)"
+                activeDot={{ r: 4, strokeWidth: 0 }}
+              />
+              <Area
+                type="monotone"
+                dataKey="users"
+                name="Users"
+                stroke="#4f46e5"
+                strokeWidth={2}
+                fill="url(#colorUsers)"
+                activeDot={{ r: 4, strokeWidth: 0 }}
               />
             </AreaChart>
           </ResponsiveContainer>
         ) : (
-          <div className="flex h-full items-center justify-center text-xs text-(--muted)">
-            No sales data
+          <div className="flex h-full items-center justify-center text-sm text-slate-400">
+            No chart data available
           </div>
         )}
       </div>
@@ -220,6 +125,4 @@ const SalesChart = ({
   );
 };
 
-export default React.memo(SalesChart);
-
-
+export default React.memo(AnalyticsChart);
