@@ -1,4 +1,4 @@
-import { BetaAnalyticsDataClient } from '@google-analytics/data';
+﻿import { BetaAnalyticsDataClient } from '@google-analytics/data';
 import { verifyAdminToken } from './_utils/auth.js';
 import fs from 'fs';
 import path from 'path';
@@ -7,7 +7,17 @@ function getAnalyticsClient() {
   let creds;
   const raw = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
   if (raw) {
-    creds = JSON.parse(raw); if (creds.private_key) { creds.private_key = creds.private_key.replace(/\\n/g, '\n'); }
+    try {
+        let cleaned = raw.trim();
+        if (cleaned.startsWith("'") && cleaned.endsWith("'")) cleaned = cleaned.slice(1, -1);
+        creds = JSON.parse(cleaned);
+        if (creds.private_key) {
+            // Fix Vercel newlines
+            creds.private_key = creds.private_key.replace(/\\n/g, '\n');
+        }
+    } catch (e) {
+        throw new Error('Failed to parse GOOGLE_SERVICE_ACCOUNT_JSON env variable: ' + e.message);
+    }
   } else {
     try {
       const jsonPath = path.join(process.cwd(), 'stiknex-analytics-3c4c573bd912.json');
@@ -156,6 +166,7 @@ export default async function handler(req, res) {
       data: { overview, dailyChart, topPages, topCountries, devices, trafficSources, events, realtimeActive, realtimeMinutes, realtimeDetails },
     });
   } catch (error) {
-    return res.status(500).json({ success: false, error: error.message });
+    return res.status(200).json({ success: false, error: error.message });
   }
 }
+
