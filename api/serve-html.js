@@ -33,14 +33,14 @@ export default async function handler(req, res) {
 
     if (keywordsStr) {
       html = html.replace(
-        /<meta name="keywords" content="(.*?)"\s*\/?>/i,
-        '<meta name="keywords" content="' + keywordsStr + ', $1" />'
+        /<meta[^>]*name=["']keywords["'][^>]*content=["']([\s\S]*?)["'][^>]*\/?>/is,
+        (match, p1) => '<meta name="keywords" content="' + keywordsStr + ', ' + p1.replace(/\s+/g, ' ').trim() + '" />'
       );
 
-      const top10 = keywordsStr.split(',').slice(0, 15).join(',');
+      const top10 = keywordsStr.split(',').slice(0, 15).join(', ');
       html = html.replace(
-        /<meta name="description" content="(.*?)"\s*\/?>/i,
-        '<meta name="description" content="$1 Live Trends: ' + top10 + '." />'
+        /<meta[^>]*name=["']description["'][^>]*content=["']([\s\S]*?)["'][^>]*\/?>/is,
+        (match, p1) => '<meta name="description" content="' + p1.replace(/\s+/g, ' ').trim() + ' Live Trends: ' + top10 + '." />'
       );
     }
 
