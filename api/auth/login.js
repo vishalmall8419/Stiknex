@@ -1,5 +1,5 @@
-import connectToDatabase from '../utils/db.js';
-import Admin from '../models/Admin.js';
+import connectToDatabase from '../_utils/db.js';
+import Admin from '../_models/Admin.js';
 import speakeasy from 'speakeasy';
 import jwt from 'jsonwebtoken';
 

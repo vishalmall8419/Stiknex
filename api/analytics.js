@@ -1,5 +1,5 @@
 import { BetaAnalyticsDataClient } from '@google-analytics/data';
-import { verifyAdminToken } from './utils/auth.js';
+import { verifyAdminToken } from './_utils/auth.js';
 import fs from 'fs';
 import path from 'path';
 

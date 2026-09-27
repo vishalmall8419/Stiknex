@@ -1,4 +1,4 @@
-import redisClient from './utils/redis.js';
+import redisClient from './_utils/redis.js';
 import googleTrends from 'google-trends-api';
 
 export default async function handler(req, res) {

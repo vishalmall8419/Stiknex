@@ -1,7 +1,7 @@
-import redisClient from './utils/redis.js';
-import connectToDatabase from './utils/db.js';
-import { verifyAdminToken } from './utils/auth.js';
-import Trend from './models/Trend.js';
+import redisClient from './_utils/redis.js';
+import connectToDatabase from './_utils/db.js';
+import { verifyAdminToken } from './_utils/auth.js';
+import Trend from './_models/Trend.js';
 
 export default async function handler(req, res) {
     try {

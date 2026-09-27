@@ -1,7 +1,7 @@
-import connectToDatabase from './utils/db.js';
-import Trend from './models/Trend.js';
-import { verifyAdminToken } from './utils/auth.js';
-import redisClient from './utils/redis.js';
+import connectToDatabase from './_utils/db.js';
+import Trend from './_models/Trend.js';
+import { verifyAdminToken } from './_utils/auth.js';
+import redisClient from './_utils/redis.js';
 
 const POSITIVE_KEYWORDS = [
     'sticky notes', 'notes', 'notebook', 'markdown', 'whiteboard', 
