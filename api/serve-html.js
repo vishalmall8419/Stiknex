@@ -1,4 +1,4 @@
-﻿import connectToDatabase from './_utils/db.js';
+import connectToDatabase from './_utils/db.js';
 import Trend from './_models/Trend.js';
 import redisClient from './_utils/redis.js';
 
