@@ -46,7 +46,7 @@ const AnalyticsPage = () => {
           headers: { Authorization: `Bearer ${token}`, 'Cache-Control': 'no-cache' } 
         });
         const json = await res.json();
-        if (json.success) { setData(json.data); setError(null); } else { setError(json.error || json.message || 'Failed'); }
+        if (json.success) { setData(json.data); } else { alert('Google Analytics Error: ' + (json.error || json.message)); }
       } catch (err) {
         console.error("Load error:", err);
       } finally {
