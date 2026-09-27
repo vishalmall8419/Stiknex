@@ -210,7 +210,7 @@ const SEOOpportunities = () => {
                       </span>
                     </td>
                     <td className="p-4">
-                      <button onClick={() => { navigator.clipboard.writeText(trend.keyword); alert("Keyword '"+trend.keyword+"' copied for " + trend.suggestionType); }} className="cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors inline-flex items-center gap-1.5>
+                      <button onClick={() => { navigator.clipboard.writeText(trend.keyword); alert("Keyword '"+trend.keyword+"' copied for " + trend.suggestionType); }} className="cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors inline-flex items-center gap-1.5">
                         {getSuggestionIcon(trend.suggestionType)}
                         {trend.suggestionType || 'None'}</button>
                     </td>
