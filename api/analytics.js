@@ -1,3 +1,10 @@
+// Suppress Node's url.parse deprecation warning caused by Google SDKs
+const originalEmitWarning = process.emitWarning;
+process.emitWarning = function(warning, ...args) {
+    if (args[0] === 'DeprecationWarning' && warning && typeof warning === 'string' && warning.includes('url.parse')) return;
+    return originalEmitWarning.call(process, warning, ...args);
+};
+
 import { BetaAnalyticsDataClient } from '@google-analytics/data';
 import { verifyAdminToken } from './_utils/auth.js';
 import fs from 'fs';
