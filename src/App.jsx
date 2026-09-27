@@ -7,7 +7,6 @@ import {
 } from "react-router-dom";
 
 import { Analytics } from "@vercel/analytics/react"
-import DynamicSEO from './Component/DynamicSEO';
 
 import DownloadAppModal from "./Component/DownloadAppModal";
 
@@ -92,8 +91,7 @@ const App = () => {
 
   return (
     <>
-      <DynamicSEO />
-      {/* Vercel Analytics */}
+            {/* Vercel Analytics */}
       <Analytics debug={false} />
 
       {/* Lazy Loading */}
