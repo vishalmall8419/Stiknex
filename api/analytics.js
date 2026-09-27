@@ -7,7 +7,7 @@ function getAnalyticsClient() {
   let creds;
   const raw = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
   if (raw) {
-    creds = JSON.parse(raw);
+    creds = JSON.parse(raw); if (creds.private_key) { creds.private_key = creds.private_key.replace(/\\n/g, '\n'); }
   } else {
     try {
       const jsonPath = path.join(process.cwd(), 'stiknex-analytics-3c4c573bd912.json');

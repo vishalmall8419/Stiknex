@@ -46,8 +46,7 @@ function processRelevanceEngine(keyword, trafficStr) {
         }
     }
 
-    let status = 'pending';
-    if (relevanceScore >= 40) status = 'relevant';
+    let status = 'relevant'; // Auto-marking all non-ignored as relevant for automatic 100 SEO injection
     // Removed over-aggressive ignore for 0 score so Admin can manually review non-negative trends in Pending tab 
 
     // 3. Search Intent

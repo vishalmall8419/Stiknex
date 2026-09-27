@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect } from "react";
+﻿import { Suspense, lazy, useEffect } from "react";
 import {
   Routes,
   Route,
@@ -7,6 +7,7 @@ import {
 } from "react-router-dom";
 
 import { Analytics } from "@vercel/analytics/react"
+import DynamicSEO from './Component/DynamicSEO';
 
 import DownloadAppModal from "./Component/DownloadAppModal";
 
@@ -91,6 +92,7 @@ const App = () => {
 
   return (
     <>
+      <DynamicSEO />
       {/* Vercel Analytics */}
       <Analytics debug={false} />
 
@@ -164,3 +166,4 @@ const App = () => {
 };
 
 export default App;
+

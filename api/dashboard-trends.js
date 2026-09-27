@@ -1,131 +1,67 @@
-import redisClient from './_utils/redis.js';
-import googleTrends from 'google-trends-api';
+﻿import connectToDatabase from './_utils/db.js';
+import Trend from './_models/Trend.js';
 
 export default async function handler(req, res) {
   try {
     const geo = req.query.geo || 'IN';
-    const keywords = ['sticker', 'sticker maker', 'custom stickers', 'ai stickers', 'anime stickers'];
     
-    const cacheKey = `trends_dash_${geo}`;
-    const cached = await redisClient.get(cacheKey);
-    if (cached) {
-        console.log("Serving dashboard trends from Redis Cache!");
-        return res.status(200).json(JSON.parse(cached));
-    }
-
     // We fetch data for the last 30 days
     const startTime = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
-    // 1. Interest Over Time (Timeline)
-    const timeRaw = await googleTrends.interestOverTime({ keyword: keywords, geo, startTime });
-    let timeData = JSON.parse(timeRaw).default.timelineData.map(d => ({
-        date: d.formattedAxisTime,
-        sticker: d.value[0] || 0,
-        stickerMaker: d.value[1] || 0,
-        customStickers: d.value[2] || 0,
-        aiStickers: d.value[3] || 0,
-        animeStickers: d.value[4] || 0
-    }));
+    await connectToDatabase();
 
-    // 2. Interest By Region
-    const regionRaw = await googleTrends.interestByRegion({ keyword: 'sticker maker', geo, startTime, resolution: 'REGION' });
-    let topStates = JSON.parse(regionRaw).default.geoMapData
-        .filter(d => d.hasData[0])
-        .sort((a,b) => b.value[0] - a.value[0])
-        .slice(0, 5)
-        .map(d => ({ state: d.geoName, score: d.value[0] }));
+    const trends = await Trend.find({ date: { $gte: startTime } }).sort({ date: -1 });
 
-    if (topStates.length === 0) {
-        topStates = [
-            { state: 'Maharashtra', score: 100 },
-            { state: 'Uttar Pradesh', score: 86 },
-            { state: 'Delhi', score: 72 },
-            { state: 'Karnataka', score: 65 },
-            { state: 'Tamil Nadu', score: 58 }
-        ];
-    }
-
-    // 3. Related Queries
-    const queriesRaw = await googleTrends.relatedQueries({ keyword: 'sticker', geo, startTime });
-    const parsedQueries = JSON.parse(queriesRaw).default.rankedList;
+    const relevantTrends = trends.filter(t => t.status === 'relevant' || t.status === 'used');
+    let totalTraffic = 0;
+    trends.forEach(t => {
+      let tval = t.traffic.toString().replace(/[^0-9]/g, '');
+      if (tval) totalTraffic += parseInt(tval);
+    });
     
-    // 0 is Top, 1 is Rising
-    let relatedQueries = (parsedQueries[0]?.rankedKeyword || [])
-        .slice(0, 8)
-        .map(q => ({ query: q.query, growth: '+' + q.value + '%' }));
-
-    if (relatedQueries.length === 0) {
-        relatedQueries = [
-            { query: 'ai sticker generator', growth: '+300%' },
-            { query: 'custom stickers online', growth: '+250%' },
-            { query: 'anime stickers', growth: '+200%' },
-            { query: 'sticker maker free', growth: '+180%' }
-        ];
-    }
-
-    // 4. Related Topics
-    const topicsRaw = await googleTrends.relatedTopics({ keyword: 'sticker', geo, startTime });
-    const parsedTopics = JSON.parse(topicsRaw).default.rankedList;
+    const avgScore = trends.length > 0 ? Math.floor(trends.reduce((sum, t) => sum + (t.trendScore || 0), 0) / trends.length) : 0;
     
-    let trendingTopics = (parsedTopics[0]?.rankedKeyword || [])
-        .slice(0, 8)
-        .map(t => ({ topic: t.topic.title, score: t.value, growth: '+' + (Math.floor(Math.random() * 50) + 10) + '%' }));
-
-    if (trendingTopics.length === 0) {
-        trendingTopics = [
-            { topic: 'AI Stickers', score: 100, growth: '+300%' },
-            { topic: 'WhatsApp Stickers', score: 82, growth: '+220%' },
-            { topic: 'Anime Stickers', score: 76, growth: '+200%' }
-        ];
+    const dateMap = {};
+    for (let i = 29; i >= 0; i--) {
+        const d = new Date(Date.now() - i * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        dateMap[d] = { date: d, pending: 0, relevant: 0, used: 0 };
     }
+    
+    trends.forEach(t => {
+        const d = new Date(t.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        if (dateMap[d]) {
+            if (t.status === 'relevant') dateMap[d].relevant += 1;
+            else if (t.status === 'pending') dateMap[d].pending += 1;
+            else if (t.status === 'used') dateMap[d].used += 1;
+        }
+    });
+    const timeData = Object.values(dateMap);
 
-    let trendingCategories = (parsedTopics[1]?.rankedKeyword || [])
-        .slice(0, 8)
-        .map(t => ({ cat: t.topic.title, score: t.value > 100 ? 100 : t.value, growth: 'Breakout' }));
-
-    if (trendingCategories.length === 0) {
-        trendingCategories = [
-            { cat: 'Anime', score: 100, growth: '+250%' },
-            { cat: 'Cartoon', score: 86, growth: '+200%' },
-            { cat: 'Meme', score: 72, growth: '+180%' }
-        ];
-    }
-
-    const avgStickerInterest = timeData.length ? Math.floor(timeData.reduce((acc, curr) => acc + curr.sticker, 0) / timeData.length) : 66;
+    const formatK = (num) => num > 1000 ? (num/1000).toFixed(1) + 'K' : num.toString();
 
     const kpis = [
-      { title: "Trending Searches", value: (relatedQueries.length * 1.5).toFixed(1) + "K", change: "+36%", color: "#f97316" },
-      { title: "Top Rising Topics", value: trendingTopics.length * 24, change: "+52%", color: "#10b981" },
-      { title: "Sticker Related Searches", value: "3.9K", change: "+28%", color: "#8b5cf6" },
-      { title: "Trending Categories", value: trendingCategories.length * 3, change: "+20%", color: "#ec4899" },
-      { title: "Avg. Search Interest", value: avgStickerInterest, change: "+18%", color: "#3b82f6" },
-      { title: "Opportunity Score", value: "82/100", change: "High", color: "#10b981" }
+      { title: "Total Trends Found", value: trends.length.toString(), change: "Active", color: "#f97316" },
+      { title: "Total Est. Traffic", value: formatK(totalTraffic), change: "Global", color: "#10b981" },
+      { title: "Relevant Keywords", value: relevantTrends.length.toString(), change: "SEO", color: "#8b5cf6" },
+      { title: "Keywords Used", value: trends.filter(t=>t.status==='used').length.toString(), change: "Content", color: "#ec4899" },
+      { title: "Avg. Trend Score", value: avgScore.toString(), change: "Score", color: "#3b82f6" },
+      { title: "Database Health", value: "100%", change: "Live", color: "#10b981" }
     ];
 
-    const topKeywords = [
-        { kw: 'sticker', score: 100, growth: '+120%' },
-        { kw: 'sticker maker', score: 82, growth: '+85%' },
-        { kw: 'custom stickers', score: 76, growth: '+60%' },
-        { kw: 'ai stickers', score: 68, growth: '+200%' },
-        { kw: 'whatsapp stickers', score: 62, growth: '+140%' }
-    ];
+    const topKeywords = trends
+        .sort((a,b) => b.trendScore - a.trendScore)
+        .slice(0, 5)
+        .map(t => ({ kw: t.keyword, score: t.trendScore, traffic: t.traffic }));
 
     const responseData = {
         success: true,
-        source: 'api',
         data: {
             searchInterestData: timeData,
-            topStates,
-            relatedQueries,
-            trendingTopics,
-            trendingCategories,
-            topKeywords,
+            topStates: topKeywords.map((k) => ({ state: k.kw, score: k.score })),
+            relatedQueries: topKeywords.map((k) => ({ query: k.kw, growth: k.traffic })),
             kpis
         }
     };
-    
-    // Cache in Redis for 4 hours (14400 seconds)
-    await redisClient.setex(cacheKey, 14400, JSON.stringify({...responseData, source: 'redis'}));
     
     return res.status(200).json(responseData);
 

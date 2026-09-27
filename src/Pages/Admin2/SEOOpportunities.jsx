@@ -43,7 +43,7 @@ const SEOOpportunities = () => {
     try {
       const token = localStorage.getItem("stkx_admin_token");
       const res = await fetch(`/api/update-trend`, {
-        method: "PUT",
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -210,10 +210,9 @@ const SEOOpportunities = () => {
                       </span>
                     </td>
                     <td className="p-4">
-                      <span className="inline-flex items-center gap-1.5 px-2 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-md text-[10px] font-bold border border-slate-200 dark:border-slate-700">
+                      <button onClick={() => { navigator.clipboard.writeText(trend.keyword); alert("Keyword '"+trend.keyword+"' copied for " + trend.suggestionType); }} className="cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors inline-flex items-center gap-1.5>
                         {getSuggestionIcon(trend.suggestionType)}
-                        {trend.suggestionType || 'None'}
-                      </span>
+                        {trend.suggestionType || 'None'}</button>
                     </td>
                     <td className="p-4 text-right">
                       <div className="flex justify-end gap-2">

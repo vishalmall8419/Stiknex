@@ -108,7 +108,7 @@ const TrendsPage = () => {
             <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
               <BarChart3 className="text-orange-500" /> Trends
             </h1>
-            <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 mt-1">Realtime Google Trends Insights for Stickers</p>
+            <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 mt-1">Live Google Trends Intelligence & SEO Impact</p>
           </div>
           <div className="flex items-center gap-2">
             <select value={country} onChange={(e) => setCountry(e.target.value)} className="bg-white/60 dark:bg-slate-900/60 border border-white/40 dark:border-slate-700/50 backdrop-blur-md text-xs font-bold px-3 py-1.5 rounded-lg focus:outline-none">
@@ -156,7 +156,7 @@ const TrendsPage = () => {
           ))}
         </div>
 
-        {/* ROW 2: LINE CHART, MAP, RELATED QUERIES */}
+        {/* ROW 2: LINE CHART, MAP, TRAFFIC POTENTIAL */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 min-w-0 mb-3">
           
           {/* SEARCH INTEREST OVER TIME */}
@@ -176,17 +176,17 @@ const TrendsPage = () => {
                   <XAxis dataKey="date" tick={{ fontSize: 9, fill: '#6b7280' }} axisLine={false} tickLine={false} dy={10} />
                   <YAxis tick={{ fontSize: 9, fill: '#6b7280' }} axisLine={false} tickLine={false} dx={-10} domain={[0, 100]} />
                   <RechartsTooltip content={<CustomTooltip />} />
-                  <Line type="monotone" dataKey="sticker" name="Sticker" stroke="#3b82f6" strokeWidth={2} dot={false} activeDot={{r:4}} />
-                  <Line type="monotone" dataKey="stickerMaker" name="Sticker Maker" stroke="#f97316" strokeWidth={2} dot={false} />
-                  <Line type="monotone" dataKey="customStickers" name="Custom Stickers" stroke="#10b981" strokeWidth={2} dot={false} />
-                  <Line type="monotone" dataKey="aiStickers" name="AI Stickers" stroke="#ec4899" strokeWidth={2} dot={false} />
-                  <Line type="monotone" dataKey="animeStickers" name="Anime Stickers" stroke="#f59e0b" strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="pending" name="Pending" name="Sticker" stroke="#3b82f6" strokeWidth={2} dot={false} activeDot={{r:4}} />
+                  <Line type="monotone" dataKey="relevant" name="Relevant" name="Sticker Maker" stroke="#f97316" strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="used" name="Used" name="Custom Stickers" stroke="#10b981" strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="" name="AI Stickers" stroke="#ec4899" strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="" name="Anime Stickers" stroke="#f59e0b" strokeWidth={2} dot={false} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
           </div>
 
-          {/* INTEREST BY REGION */}
+          {/* TOP KEYWORDS BY SCORE */}
           <div className={`${cardClass} lg:col-span-3`}>
             <h2 className={headerClass}>
               <span className="flex items-center gap-1.5"><Map size={14} className="text-orange-500"/> Interest by Region</span>
@@ -218,7 +218,7 @@ const TrendsPage = () => {
             </div>
           </div>
 
-          {/* RELATED QUERIES */}
+          {/* TRAFFIC POTENTIAL */}
           <div className={`${cardClass} lg:col-span-3`}>
             <h2 className={headerClass}>
               <span className="flex items-center gap-1.5"><Search size={14} className="text-slate-400"/> Related Queries</span>
