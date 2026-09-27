@@ -32,9 +32,10 @@ export default async function handler(req, res) {
     }
 
     if (keywordsStr) {
+      // Overwrite the original keywords completely using DB keywords
       html = html.replace(
         /<meta[^>]*name=["']keywords["'][^>]*content=["']([\s\S]*?)["'][^>]*\/?>/is,
-        (match, p1) => '<meta name="keywords" content="' + keywordsStr + ', ' + p1.replace(/\s+/g, ' ').trim() + '" />'
+        '<meta name="keywords" content="' + keywordsStr + '" />'
       );
 
       const top10 = keywordsStr.split(',').slice(0, 15).join(', ');
