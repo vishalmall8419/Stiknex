@@ -48,7 +48,6 @@ const BlogDetail = () => {
       const paragraphs = post.fullContent.split('\n');
       const tParagraphs = [];
       
-      // Translate in batches to avoid overwhelming the free API
       for (let i = 0; i < paragraphs.length; i++) {
         tParagraphs.push(await translateText(paragraphs[i]));
       }
