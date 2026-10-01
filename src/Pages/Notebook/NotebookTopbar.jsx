@@ -412,6 +412,15 @@ const NotebookTopbar = ({
         <Link to="/" className={Style.iconBtn} data-tip="Home" aria-label="Home" style={{ marginRight: '8px' }}>
           <i className="fa-solid fa-house"></i>
         </Link>
+        <Link to="/whiteboard" className={Style.iconBtn} data-tip="Whiteboard" aria-label="Whiteboard" style={{ marginRight: '8px' }}>
+          <i className="fa-solid fa-pen-nib"></i>
+        </Link>
+        <Link to="/blog" className={Style.iconBtn} data-tip="Blog" aria-label="Blog" style={{ marginRight: '8px' }}>
+          <i className="fa-solid fa-newspaper"></i>
+        </Link>
+        <Link to="/tools" className={Style.iconBtn} data-tip="Tools" aria-label="Tools" style={{ marginRight: '16px' }}>
+          <i className="fa-solid fa-toolbox"></i>
+        </Link>
         
         {renaming ? (
           <input

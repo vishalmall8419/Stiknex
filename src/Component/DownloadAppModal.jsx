@@ -176,31 +176,43 @@ export default function DownloadAppModal() {
                   </div>
                 </div>
 
-                <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
-                  className="flex gap-4 pt-6 border-t border-slate-200/60 mt-auto mb-2">
-                  <motion.button whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.95 }}
-                    onClick={handleDownload} className="h-[52px] min-w-[155px] px-5 bg-black hover:bg-slate-900 text-white rounded-[14px] flex items-center justify-center gap-3 shadow-[0_8px_16px_rgba(0,0,0,0.15)] transition-all border border-slate-800">
-                    <svg viewBox="0 0 384 512" className="w-[24px] h-[24px] fill-current text-white"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 24 184.8 8 273.5q-9 53 23.2 122.9c16 34.8 33.6 63 60.5 59.7 24.5-3 32-15.3 60.5-15.3 28.5 0 37.7 15.3 61.2 14.8 28.3-.5 47-28 62.5-50.5 18-26.5 25.5-52 26-53.5-1.5-1-43-17.5-43-83.3zM259.4 112.5c31.5-32 34.6-67.5 30-81.5-25.5 1.5-62 17.5-84.5 45.5-20.5 25.5-35 59-30 90.5 28.5 2.5 53-15 84.5-54.5z"/></svg>
-                    <div className="flex flex-col items-start justify-center leading-[1.1]">
-                      <span className="text-[10px] text-slate-300 font-semibold tracking-wide">Download on the</span>
-                      <span className="text-[16px] font-bold">App Store</span>
-                    </div>
-                  </motion.button>
-
-                  <motion.button whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.95 }}
-                    onClick={handleDownload} className="h-[52px] min-w-[155px] px-5 bg-black hover:bg-slate-900 text-white rounded-[14px] flex items-center justify-center gap-3 shadow-[0_8px_16px_rgba(0,0,0,0.15)] transition-all border border-slate-800">
-                    <svg viewBox="0 0 512 512" className="w-[22px] h-[22px]">
-                      <path fill="#673ab7" d="M38.8 13.9C36.3 16.4 35 20.3 35 25.3v461.3c0 5 1.3 8.9 3.8 11.4l1.3 1.3 259.9-259.9V237L40.1 12.6l-1.3 1.3z" />
-                      <path fill="#4caf50" d="M386.4 352.5l-86.4-86.4v-20.2l86.4-86.4 2.8 1.6 102.4 58.2c29.1 16.5 29.1 43.4 0 59.9l-102.4 58.2-2.8 1.5z" />
-                      <path fill="#2196f3" d="M300 286.3l86.4 86.4L114.7 527.2c-19.1 10.9-40.4 1.3-40.4-21.7L300 286.3z" />
-                      <path fill="#ffc107" d="M300 225.7L74.3 6.5C74.3 6.5 74.3 6.5 74.3 6.5c0-23 21.3-32.6 40.4-21.7L386.4 159.5 300 225.7z" />
-                    </svg>
-                    <div className="flex flex-col items-start justify-center leading-[1.1]">
-                      <span className="text-[10px] text-slate-300 font-semibold tracking-wide">GET IT ON</span>
-                      <span className="text-[16px] font-bold">Google Play</span>
-                    </div>
-                  </motion.button>
-                </motion.div>
+                                  <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
+                    className="flex gap-4 pt-6 border-t border-slate-200/60 mt-auto mb-2">
+                    <motion.button whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.95 }}
+                      onClick={() => {
+                        const link = document.createElement('a');
+                        link.href = '/Stiknex.apk';
+                        link.download = 'Stiknex.apk';
+                        link.click();
+                        onClose();
+                      }}
+                      className="h-[52px] min-w-[155px] px-5 bg-black hover:bg-slate-900 text-white rounded-[14px] flex items-center justify-center gap-3 shadow-[0_8px_16px_rgba(0,0,0,0.15)] transition-all border border-slate-800">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-bot text-[#3DDC84]"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
+                      <div className="flex flex-col items-start justify-center leading-[1.1]">
+                        <span className="text-[10px] text-slate-300 font-semibold tracking-wide">Download</span>
+                        <span className="text-[16px] font-bold">Android App</span>
+                      </div>
+                    </motion.button>
+  
+                    <motion.button whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.95 }}
+                      onClick={async () => {
+                        if (window.deferredPWA) {
+                          window.deferredPWA.prompt();
+                          const { outcome } = await window.deferredPWA.userChoice;
+                          if (outcome === 'accepted') window.deferredPWA = null;
+                        } else {
+                          alert('PWA installation is not supported or already installed.');
+                        }
+                        onClose();
+                      }}
+                      className="h-[52px] min-w-[155px] px-5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-[14px] flex items-center justify-center gap-3 shadow-[0_8px_16px_rgba(79,70,229,0.3)] transition-all">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-laptop-minimal"><rect width="18" height="12" x="3" y="4" rx="2"/><line x1="2" x2="22" y1="20" y2="20"/></svg>
+                      <div className="flex flex-col items-start justify-center leading-[1.1]">
+                        <span className="text-[10px] text-indigo-200 font-semibold tracking-wide">Install</span>
+                        <span className="text-[16px] font-bold">PWA App</span>
+                      </div>
+                    </motion.button>
+                  </motion.div>
               </div>
 
               {/* --- RIGHT COLUMN - ULTRA PREMIUM VISUALS --- */}

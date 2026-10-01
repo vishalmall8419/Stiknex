@@ -94,7 +94,7 @@ const WhiteboardEditor = ({ whiteboard, onClose, onUpdate }) => {
           excalidrawAPI={(api) => setExcalidrawAPI(api)}
           initialData={{
             elements: Array.isArray(whiteboard.elements) ? whiteboard.elements.filter(el => el && el.type) : [],
-            appState: (typeof whiteboard.appState === "object" && whiteboard.appState !== null) ? whiteboard.appState : {},
+            appState: (typeof whiteboard.appState === 'object' && whiteboard.appState !== null) ? { ...whiteboard.appState, collaborators: new Map() } : {},
             files: (typeof whiteboard.files === "object" && whiteboard.files !== null) ? whiteboard.files : {},
           }}
           onChange={handleChange}

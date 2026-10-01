@@ -14,6 +14,7 @@ import SEOOpportunities from "./SEOOpportunities";
 import BlogManager from "./BlogManager";
 import Messages from "./Messages";
 import SiteSettings from "./SiteSettings";
+import ExternalProjects from "./ExternalProjects";
 
 const AdminLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -24,6 +25,32 @@ const AdminLayout = () => {
 
   // MOCK ROLE CHECK - Replace with actual authentication
   const role = sessionStorage.getItem("Role");
+
+  // Auto-logout after 30 minutes of inactivity
+  useEffect(() => {
+    if (role !== "admin") return;
+
+    let timeout;
+    const resetTimer = () => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        sessionStorage.removeItem("Role");
+        localStorage.removeItem("stkx_admin_token");
+        sessionStorage.removeItem("DummyToken");
+        navigate("/login", { replace: true });
+      }, 30 * 60 * 1000); // 30 minutes
+    };
+    
+    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
+    events.forEach(e => document.addEventListener(e, resetTimer));
+    
+    resetTimer(); // initialize
+    
+    return () => {
+      clearTimeout(timeout);
+      events.forEach(e => document.removeEventListener(e, resetTimer));
+    };
+  }, [role, navigate]);
 
   useEffect(() => {
     if (role !== "admin") {
@@ -93,10 +120,11 @@ const AdminLayout = () => {
               <Route path="/" element={<DashBoard />} />
               <Route path="analytics" element={<AnalyticsPage />} />
               <Route path="trends" element={<Trends />} />
-                <Route path="seo" element={<SEOOpportunities />} />
+              <Route path="seo" element={<SEOOpportunities />} />
               <Route path="blog" element={<BlogManager />} />
               <Route path="messages" element={<Messages />} />
               <Route path="settings" element={<SiteSettings />} />
+              <Route path="external" element={<ExternalProjects />} />
             </Routes>
           </Suspense>
         </div>

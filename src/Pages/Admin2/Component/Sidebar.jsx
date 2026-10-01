@@ -8,6 +8,7 @@ import {
   TrendingUp, Target,
   PenTool,
   Settings,
+  Globe,
 } from "lucide-react";
 
 const Sidebar = ({ isSidebarOpen, onClose }) => {
@@ -52,6 +53,11 @@ const Sidebar = ({ isSidebarOpen, onClose }) => {
       name: "Blog Manager",
       path: "/dashboard/blog",
       icon: PenTool,
+    },
+    {
+      name: "External Projects",
+      path: "/dashboard/external",
+      icon: Globe,
     },
     {
       name: "Messages & Feedback",
