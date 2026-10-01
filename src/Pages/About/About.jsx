@@ -140,7 +140,7 @@ const About = () => {
 
   return (
     <AppShell fullWidth={true}>
-      <PageSEO title="About Stiknex – Free Productivity App by Vishal Mall" description="Learn about Stiknex, a free online productivity platform built by Vishal Mall. Discover the story, mission, and technology behind Stiknex's sticky notes, notebook, whiteboard and tools." path="/about" type="website" keywords="about stiknex, stiknex developer, vishal mall, productivity app story, free notes app about" />
+      <PageSEO title="About Stiknex - Free Productivity App by Vishal Mall" description="Learn about Stiknex, a free online productivity platform built by Vishal Mall. Discover the story, mission, and technology behind Stiknex's sticky notes, notebook, whiteboard and tools." path="/about" type="website" keywords="about stiknex, stiknex developer, vishal mall, productivity app story, free notes app about" />
 
       <div className="relative min-h-screen">
         <AuroraBackground />
