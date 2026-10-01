@@ -9,9 +9,19 @@ export default async function handler(req, res) {
     try {
         await connectToDatabase();
         
+        const { slug } = req.query;
+
+        if (slug) {
+            const blog = await Blog.findOne({ slug, published: true });
+            if (!blog) {
+                return res.status(404).json({ error: 'Blog not found' });
+            }
+            return res.status(200).json(blog);
+        }
+
         // Fetch published blogs, sorted by newest first
         const blogs = await Blog.find({ published: true })
-            .select('title slug excerpt imageUrl publishedAt')
+            .select('title slug excerpt imageUrl imageSource publishedAt')
             .sort({ publishedAt: -1 })
             .limit(50); // Pagination could be added later
 

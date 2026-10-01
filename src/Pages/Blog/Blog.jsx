@@ -52,9 +52,11 @@ const Blog = () => {
   
   // Fast loading using native fetch instead of Vite import transpilation
   useEffect(() => {
-    fetch("/api/get-blogs")
-      .then(res => res.ok ? res.json() : [])
-      .then((dynamicBlogs) => {
+    Promise.all([
+      fetch("/api/blogs").then(res => res.ok ? res.json() : []).catch(() => []),
+      fetch("/data/blogs.json").then(res => res.json()).catch(() => []),
+      fetch("/data/blogs-2.json").then(res => res.json()).catch(() => [])
+    ]).then(([dynamicBlogs, data1, data2]) => {
       // Format dynamic blogs to match static structure
       const formattedDynamic = dynamicBlogs.map(b => ({
         id: b.slug,
@@ -67,7 +69,10 @@ const Blog = () => {
         isDynamic: true
       }));
       
-      setBlogsData(formattedDynamic);
+      const combinedStatic = [...data1, ...data2];
+      const shuffledStatic = combinedStatic.sort(() => 0.5 - Math.random());
+      
+      setBlogsData([...formattedDynamic, ...shuffledStatic]);
       setIsDataLoaded(true);
     }).catch(err => {
       console.error("Error loading blogs:", err);

@@ -21,7 +21,7 @@ const SEOOpportunities = () => {
       }
 
       const token = localStorage.getItem("stkx_admin_token");
-      const res = await fetch("/api/get-trends", {
+      const res = await fetch("/api/trends-admin", {
         headers: { Authorization: `Bearer ${token}` },
       });
       const json = await res.json();
@@ -42,7 +42,7 @@ const SEOOpportunities = () => {
   const updateStatus = async (id, status) => {
     try {
       const token = localStorage.getItem("stkx_admin_token");
-      const res = await fetch(`/api/update-trend`, {
+      const res = await fetch(`/api/trends-admin`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

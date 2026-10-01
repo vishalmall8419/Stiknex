@@ -9,7 +9,7 @@ const HomeBlogSection = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/get-blogs")
+    fetch("/api/blogs")
       .then(res => res.ok ? res.json() : [])
       .then(dynamicBlogs => {
         const combined = dynamicBlogs.map(b => ({
@@ -17,9 +17,9 @@ const HomeBlogSection = () => {
           title: b.title,
           briefDescription: b.excerpt,
           image: b.imageUrl,
+          images: [b.imageUrl],
           date: new Date(b.publishedAt).toLocaleDateString(),
-          category: "Trending",
-          readTime: "5 min read"
+          category: "Trending"
         }));
         
         const shuffled = combined.sort(() => 0.5 - Math.random());

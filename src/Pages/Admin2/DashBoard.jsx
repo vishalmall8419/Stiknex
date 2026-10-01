@@ -48,7 +48,7 @@ const DashBoard = () => {
         const headers = { Authorization: `Bearer ${token}` };
         const [analyticsRes, trendsRes] = await Promise.all([
           fetch(`/api/analytics?range=${dateRange}&t=${Date.now()}`, { headers: { ...headers, 'Cache-Control': 'no-cache' } }),
-          fetch(`/api/get-trends?t=${Date.now()}`, { headers: { ...headers, 'Cache-Control': 'no-cache' } })
+          fetch(`/api/trends-admin?t=${Date.now()}`, { headers: { ...headers, 'Cache-Control': 'no-cache' } })
         ]);
         const [analyticsJson, trendsJson] = await Promise.all([
           analyticsRes.json(),

@@ -68,31 +68,18 @@ const BlogDetail = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    fetch(`/api/get-blog-detail?slug=${id}`)
-      .then(res => {
-        if (!res.ok) throw new Error('Blog not found');
-        return res.json();
-      })
-      .then(b => {
-        // Map dynamic blog to expected format
-        const formatted = {
-          id: b.slug,
-          title: b.title,
-          briefDescription: b.excerpt,
-          fullDescription: b.content,
-          image: b.imageUrl,
-          images: [b.imageUrl], // Put main image in images array
-          date: new Date(b.publishedAt).toLocaleDateString(),
-          category: "Trending",
-          keywords: b.keywords || []
-        };
-        setPost(formatted);
-        setLoading(false);
-      }).catch(err => {
-        console.error("Error loading blog details:", err);
-        setPost(null);
-        setLoading(false);
-      });
+    Promise.all([
+      fetch("/data/blogs.json").then(res => res.json()),
+      fetch("/data/blogs-2.json").then(res => res.json())
+    ]).then(([data1, data2]) => {
+      const combined = [...data1, ...data2];
+      const found = combined.find(b => b.id.toString() === id);
+      setPost(found);
+      setLoading(false);
+    }).catch(err => {
+      console.error("Error loading blog details:", err);
+      setLoading(false);
+    });
   }, [id]);
 
   if (loading) {
