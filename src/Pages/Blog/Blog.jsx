@@ -53,18 +53,30 @@ const Blog = () => {
   // Fast loading using native fetch instead of Vite import transpilation
   useEffect(() => {
     Promise.all([
-      fetch("/data/blogs.json").then(res => res.json()),
-      fetch("/data/blogs-2.json").then(res => res.json())
-    ]).then(([data1, data2]) => {
-      // Small optimization: avoid full copy if not needed, but required for shuffle
-      const combined = [...data1, ...data2];
-      const shuffled = combined.sort(() => 0.5 - Math.random());
+      fetch("/api/get-blogs").then(res => res.ok ? res.json() : []).catch(() => []),
+      fetch("/data/blogs.json").then(res => res.json()).catch(() => []),
+      fetch("/data/blogs-2.json").then(res => res.json()).catch(() => [])
+    ]).then(([dynamicBlogs, data1, data2]) => {
+      // Format dynamic blogs to match static structure
+      const formattedDynamic = dynamicBlogs.map(b => ({
+        id: b.slug,
+        title: b.title,
+        briefDescription: b.excerpt,
+        image: b.imageUrl,
+        date: new Date(b.publishedAt).toLocaleDateString(),
+        category: "Trending",
+        readTime: "5 min read",
+        isDynamic: true
+      }));
       
-      setBlogsData(shuffled);
+      const combinedStatic = [...data1, ...data2];
+      const shuffledStatic = combinedStatic.sort(() => 0.5 - Math.random());
+      
+      setBlogsData([...formattedDynamic, ...shuffledStatic]);
       setIsDataLoaded(true);
     }).catch(err => {
-      console.error("Error loading blogs JSON:", err);
-      setIsDataLoaded(true); // Prevent infinite loading if fails
+      console.error("Error loading blogs:", err);
+      setIsDataLoaded(true);
     });
   }, []);
   

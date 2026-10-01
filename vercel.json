@@ -1,12 +1,17 @@
 {
   "rewrites": [
+    { "source": "/sitemap.xml", "destination": "/api/sitemap.xml" },
     { "source": "/api/(.*)", "destination": "/api/$1" },
     { "source": "/((?!.*\\.).*)", "destination": "/api/serve-html" }
   ],
   "crons": [
     {
       "path": "/api/fetch-trends",
-      "schedule": "0 */7 * * *"
+      "schedule": "0 2 * * *"
+    },
+    {
+      "path": "/api/generate-blog",
+      "schedule": "0 3 * * *"
     }
   ]
 }
