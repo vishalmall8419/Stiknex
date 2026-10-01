@@ -620,7 +620,7 @@ const Notebook = () => {
         style={editorVars}
       >
         <div className={Style.paperColumn}>
-          <div className={Style.marginLine}></div>
+          
           <div className={Style.editorWrap}>
             {searchOpen && searchQuery !== "" && (
               <div

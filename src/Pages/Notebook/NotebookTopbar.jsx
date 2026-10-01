@@ -172,6 +172,11 @@ const NotebookTopbar = ({
   const [now, setNow] = useState(() => new Date());
   const [clockFormat, setClockFormat] = useState(loadClockFormat);
   const [clockMenuOpen, setClockMenuOpen] = useState(false);
+  const [moreMenuOpen, setMoreMenuOpen] = useState(false);
+  const moreMenuBtnRef = useRef(null);
+  const moreMenuPortalRef = useRef(null);
+  const moreMenuRef = useClickOutside(() => setMoreMenuOpen(false), [moreMenuPortalRef]);
+  const moreMenuRect = useAnchoredRect(moreMenuRef, moreMenuOpen);
 
   const [snapshotsOpen, setSnapshotsOpen] = useState(false);
   const [snapshots, setSnapshots] = useState(() => JSON.parse(localStorage.getItem("stiknexSnapshots") || "[]"));
@@ -214,12 +219,12 @@ const NotebookTopbar = ({
   // portaled overlays so they land exactly where the old in-flow
   // absolutely-positioned versions used to.
   const titleMenuRect = useAnchoredRect(titleMenuRef, titleMenuOpen);
-  const timerRect = useAnchoredRect(timerRef, timerOpen);
-  const clockRect = useAnchoredRect(clockRef, clockMenuOpen);
+  const timerRect = useAnchoredRect(moreMenuRef, timerOpen);
+  const clockRect = useAnchoredRect(moreMenuRef, clockMenuOpen);
   const searchRect = useAnchoredRect(searchRef, searchOpen);
-  const shortcutsRect = useAnchoredRect(shortcutsRef, shortcutsOpen);
-  useAnchoredRect(snapshotsBtnRef, snapshotsOpen);
-  const unicodeRect = useAnchoredRect(unicodeBtnRef, unicodeOpen);
+  const shortcutsRect = useAnchoredRect(moreMenuRef, shortcutsOpen);
+  useAnchoredRect(moreMenuRef, snapshotsOpen);
+  const unicodeRect = useAnchoredRect(moreMenuRef, unicodeOpen);
 
   // Tooltips were pure-CSS (::after on hover), which meant they were
   // clipped by the same topbar scroll container. They're now driven
@@ -575,52 +580,14 @@ const NotebookTopbar = ({
           <i className={`fa-solid ${copied ? "fa-check" : "fa-copy"}`}></i>
         </button>
 
-        <button
-          type="button"
-          className={`${Style.iconBtn} ${settingsOpen ? Style.iconBtnActive : ""}`}
-          data-tip="Notebook Settings"
-          onClick={onToggleSettings}
-        >
-          <i className="fa-solid fa-sliders"></i>
-        </button>
+        
 
-        <button
-          type="button"
-          className={`${Style.iconBtn} ${musicOn ? Style.iconBtnActive : ""}`}
-          data-tip={musicOn ? "Focus sound: on" : "Focus sound: off"}
-          onClick={() => {
-            if (!musicOn && !(window.AudioContext || window.webkitAudioContext)) {
-              swal({
-                title: "Not supported",
-                text: "Your browser doesn't support Focus Sound.",
-                icon: "warning",
-              });
-              return;
-            }
-            setMusicOn((v) => !v);
-          }}
-        >
-          <i className={`fa-solid ${musicOn ? "fa-music" : "fa-volume-xmark"}`}></i>
-        </button>
+        
 
-        <button
-          type="button"
-          className={`${Style.iconBtn} ${isReading ? Style.iconBtnActive : ""}`}
-          data-tip={isReading ? "Stop Reading" : "Read Aloud"}
-          onClick={handleReadAloud}
-        >
-          <i className={`fa-solid ${isReading ? "fa-stop" : "fa-volume-high"}`}></i>
-        </button>
+        
 
         <div className={Style.popoverWrap} ref={timerRef}>
-          <button
-            type="button"
-            className={`${Style.iconBtn} ${timerOpen ? Style.iconBtnActive : ""}`}
-            data-tip="Timer"
-            onClick={() => setTimerOpen((v) => !v)}
-          >
-            <i className="fa-solid fa-stopwatch"></i>
-          </button>
+          
           {timerOpen &&
             timerRect &&
             createPortal(
@@ -661,18 +628,7 @@ const NotebookTopbar = ({
         </div>
 
         <div className={Style.popoverWrap} ref={clockRef}>
-          <button
-            type="button"
-            className={`${Style.iconBtn} ${Style.clockBtn} ${
-              clockMenuOpen ? Style.iconBtnActive : ""
-            }`}
-            data-tip="Current Time"
-            aria-label="Current time"
-            onClick={() => setClockMenuOpen((v) => !v)}
-          >
-            <i className="fa-solid fa-clock"></i>
-            <span className={Style.clockBtnTime}>{formatClock(now, clockFormat)}</span>
-          </button>
+          
           {clockMenuOpen &&
             clockRect &&
             createPortal(
@@ -862,15 +818,7 @@ const NotebookTopbar = ({
         </button>
 
         <div className={Style.popoverWrap} ref={snapshotsRef}>
-          <button
-            ref={snapshotsBtnRef}
-            type="button"
-            className={`${Style.iconBtn} ${snapshotsOpen ? Style.iconBtnActive : ""}`}
-            data-tip="View Snapshots"
-            onClick={() => setSnapshotsOpen((v) => !v)}
-          >
-            <i className="fa-solid fa-floppy-disk"></i>
-          </button>
+          
           {snapshotsOpen &&
             createPortal(
               <div
@@ -955,24 +903,10 @@ const NotebookTopbar = ({
             )}
         </div>
 
-        <button
-          type="button"
-          className={Style.iconBtn}
-          data-tip="Turn On Focus Mode"
-          onClick={onToggleZenMode}
-        >
-          <i className="fa-solid fa-bullseye"></i>
-        </button>
+        
 
         <div className={Style.popoverWrap} ref={shortcutsRef}>
-          <button
-            type="button"
-            className={`${Style.iconBtn} ${shortcutsOpen ? Style.iconBtnActive : ""}`}
-            data-tip="Keyboard Shortcuts"
-            onClick={() => setShortcutsOpen((v) => !v)}
-          >
-            <i className="fa-solid fa-keyboard"></i>
-          </button>
+          
           {shortcutsOpen &&
             shortcutsRect &&
             createPortal(
@@ -997,15 +931,7 @@ const NotebookTopbar = ({
         </div>
 
         <div className={Style.popoverWrap} ref={unicodeRef}>
-          <button
-            ref={unicodeBtnRef}
-            type="button"
-            className={`${Style.iconBtn} ${unicodeOpen ? Style.iconBtnActive : ""}`}
-            data-tip="Insert Unicode Symbol"
-            onClick={() => setUnicodeOpen((v) => !v)}
-          >
-            <span style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>Ω</span>
-          </button>
+          
           {unicodeOpen &&
             unicodeRect &&
             createPortal(
@@ -1048,28 +974,92 @@ const NotebookTopbar = ({
             )}
         </div>
 
-        <button
-          type="button"
-          className={Style.iconBtn}
-          data-tip="Toggle Full Screen"
-          onClick={() => {
-            if (!document.fullscreenElement) {
-              document.documentElement.requestFullscreen().catch((err) => {
-                console.log(err);
-              });
-            } else {
-              document.exitFullscreen();
-            }
-          }}
-        >
-          <i className="fa-solid fa-expand"></i>
-        </button>
+        
 
-        <Link to="/about" className={Style.aboutLink} data-tip="About">
-          About
-        </Link>
+        
+      
+        <div className={Style.popoverWrap} ref={moreMenuRef}>
+          <button
+            ref={moreMenuBtnRef}
+            type="button"
+            className={`${Style.iconBtn} ${moreMenuOpen ? Style.iconBtnActive : ""}`}
+            data-tip="More Tools"
+            onClick={() => setMoreMenuOpen((v) => !v)}
+          >
+            <i className="fa-solid fa-ellipsis-vertical"></i>
+          </button>
+          
+          {moreMenuOpen &&
+            moreMenuRect &&
+            createPortal(
+              <div
+                ref={moreMenuPortalRef}
+                className={`${Style.popover} ${darkMode ? "darkPopover" : ""}`}
+                style={{
+                  position: "fixed",
+                  top: moreMenuRect.bottom + 10,
+                  right: Math.max(8, window.innerWidth - moreMenuRect.right - 8),
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "4px",
+                  padding: "8px",
+                  minWidth: "180px",
+                  zIndex: 9999
+                }}
+              >
+                <button className="dropdownItem" onClick={() => { setMoreMenuOpen(false); onToggleSettings(); }}>
+                  <i className="fa-solid fa-sliders"></i> Notebook Settings
+                </button>
+                <button className="dropdownItem" onClick={() => { setMoreMenuOpen(false); setTimerOpen(true); }}>
+                  <i className="fa-solid fa-stopwatch"></i> Timer
+                </button>
+                <button className="dropdownItem" onClick={() => { setMoreMenuOpen(false); setClockMenuOpen(true); }}>
+                  <i className="fa-solid fa-clock"></i> Current Time
+                </button>
+                <button className="dropdownItem" onClick={() => { setMoreMenuOpen(false); setSnapshotsOpen(true); }}>
+                  <i className="fa-solid fa-clock-rotate-left"></i> Version History
+                </button>
+                <button className="dropdownItem" onClick={() => { setMoreMenuOpen(false); setUnicodeOpen(true); }}>
+                  <i className="fa-solid fa-omega"></i> Insert Symbol
+                </button>
+                <button className="dropdownItem" onClick={() => { setMoreMenuOpen(false); onToggleZenMode(); }}>
+                  <i className="fa-solid fa-bullseye"></i> Focus Mode
+                </button>
+                <button className="dropdownItem" onClick={() => { 
+                  setMoreMenuOpen(false); 
+                  if (!musicOn && !(window.AudioContext || window.webkitAudioContext)) {
+                    swal({ title: "Not supported", text: "Your browser doesn't support Focus Sound.", icon: "warning" });
+                    return;
+                  }
+                  setMusicOn((v) => !v); 
+                }}>
+                  <i className={`fa-solid ${musicOn ? "fa-volume-xmark" : "fa-music"}`}></i> {musicOn ? "Turn off Sound" : "Focus Sound"}
+                </button>
+                <button className="dropdownItem" onClick={() => { setMoreMenuOpen(false); handleReadAloud(); }}>
+                  <i className={`fa-solid ${isReading ? "fa-stop" : "fa-volume-high"}`}></i> {isReading ? "Stop Reading" : "Read Aloud"}
+                </button>
+                <button className="dropdownItem" onClick={() => { setMoreMenuOpen(false); setShortcutsOpen(true); }}>
+                  <i className="fa-solid fa-keyboard"></i> Keyboard Shortcuts
+                </button>
+                <button className="dropdownItem" onClick={() => { 
+                    setMoreMenuOpen(false); 
+                    if (!document.fullscreenElement) {
+                      document.documentElement.requestFullscreen().catch((err) => console.log(err));
+                    } else {
+                      document.exitFullscreen();
+                    }
+                }}>
+                  <i className="fa-solid fa-expand"></i> Full Screen
+                </button>
+                <Link to="/about" className="dropdownItem" onClick={() => setMoreMenuOpen(false)}>
+                  <i className="fa-solid fa-circle-info"></i> About Stiknex
+                </Link>
+              </div>,
+              document.body,
+            )}
+        </div>
       </div>
-
+  
       {tooltip &&
         createPortal(
           <div

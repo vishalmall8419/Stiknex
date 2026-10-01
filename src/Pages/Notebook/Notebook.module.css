@@ -20,25 +20,15 @@
   width: 100%;
   padding: 0 clamp(0.85rem, 2.3vw, 4rem);
   background-color: #fdfbf3;
-  background-image: repeating-linear-gradient(
-    to bottom,
-    transparent 0,
-    transparent calc(var(--nb-line-height, 34px) - 1px),
-    #e8e6df calc(var(--nb-line-height, 34px) - 1px),
-    #e8e6df var(--nb-line-height, 34px)
-  );
+  background-image: radial-gradient(#d4d2cc 1.5px, transparent 1.5px);
+  background-size: 24px 24px;
   background-position: 0 0;
 }
 
 .darkPaperArea {
   background-color: #1c1c20;
-  background-image: repeating-linear-gradient(
-    to bottom,
-    transparent 0,
-    transparent calc(var(--nb-line-height, 34px) - 1px),
-    #2c2c33 calc(var(--nb-line-height, 34px) - 1px),
-    #2c2c33 var(--nb-line-height, 34px)
-  );
+  background-image: radial-gradient(#3a3a40 1.5px, transparent 1.5px);
+  background-size: 24px 24px;
 }
 
 .paperColumn {
@@ -261,4 +251,40 @@
   .statusPill .dot {
     display: none;
   }
+}
+
+.dropdownItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: #333;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+.dropdownItem:hover {
+  background: #f1f1f1;
+}
+.darkPopover .dropdownItem {
+  color: #f1f1f1;
+}
+.darkPopover .dropdownItem:hover {
+  background: #333;
+}
+.dropdownItem i {
+  font-size: 15px;
+  width: 16px;
+  text-align: center;
+}
+.darkPopover {
+  background: #232327;
+  border: 1px solid #333;
 }
