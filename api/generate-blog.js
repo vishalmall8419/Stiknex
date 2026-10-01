@@ -87,7 +87,7 @@ Output STRICTLY as JSON with no markdown block wrappers. Use this schema:
 }
 `;
 
-        const geminiRes = await fetchJson(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`, {
+        const geminiRes = await fetchJson(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -106,15 +106,16 @@ Output STRICTLY as JSON with no markdown block wrappers. Use this schema:
         // If Imagen endpoint is not enabled on this key, this might fail, so we wrap in try-catch
         let imageUrl = '';
         try {
-            const imagenRes = await fetchJson(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-image:generateContent?key=${process.env.GEMINI_API_KEY}`, {
+            const imagenRes = await fetchJson(`https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-images?key=${process.env.GEMINI_API_KEY}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    contents: [{ parts: [{ text: articleData.imagePrompt }] }]
+                    instances: [{ prompt: articleData.imagePrompt }],
+                    parameters: { sampleCount: 1, outputOptions: { mimeType: "image/jpeg" } }
                 })
             });
 
-            const base64Image = imagenRes.candidates[0].content.parts[0].inlineData.data;
+            const base64Image = imagenRes.predictions[0].bytesBase64Encoded;
             const buffer = Buffer.from(base64Image, 'base64');
 
             // 7. Save Image to Vercel Blob (Fallback to Data URI if no token)
