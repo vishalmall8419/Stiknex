@@ -26,10 +26,10 @@ const ExternalProjects = () => {
       
       if (res.ok) {
         const json = await res.json();
-        setServices(json.services || []);
+        setServices(json.services || externalServicesDefault());
         if (json.timestamp) {
             const parsedDate = new Date(json.timestamp);
-            if (!isNaN(parsedDate)) {
+            if (!isNaN(parsedDate.getTime())) {
                 setLastUpdated(parsedDate);
             }
         }
@@ -39,7 +39,7 @@ const ExternalProjects = () => {
     } catch (error) {
       console.error("Monitor Error:", error);
       // Ensure we update services so they don't spin forever
-      setServices(services => services.map(s => ({ 
+      setServices(services => (services || []).map(s => ({ 
         ...s, 
         pending: false, 
         ok: false, 
@@ -90,29 +90,54 @@ const ExternalProjects = () => {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-        {services && services.map((service, idx) => (
-          <ServiceCard key={idx} service={service} />
-        ))}
+        {services && services.map((service, idx) => {
+          if (!service) return null;
+          return <ServiceCard key={idx} service={service} />;
+        })}
       </div>
     </div>
   );
 };
 
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) { return { hasError: true, error }; }
+  render() {
+    if (this.state.hasError) return <div className="text-red-500 p-4 border border-red-500 rounded-lg">Error rendering card: {String(this.state.error)}</div>;
+    return this.props.children;
+  }
+}
+
 const ServiceCard = ({ service }) => {
+  return (
+    <ErrorBoundary>
+      <ServiceCardInner service={service} />
+    </ErrorBoundary>
+  );
+};
+
+const ServiceCardInner = ({ service }) => {
   const isOnline = service.ok === true;
   const isPending = service.pending === true;
   const isError = !isOnline && !isPending;
   
-  let hostname = service.url;
+  let hostname = service.url || "unknown";
   try {
-      hostname = new URL(service.url).hostname;
+      if (service.url) hostname = new URL(service.url).hostname;
   } catch (e) {
       hostname = service.url;
   }
   
   let renderedData = "";
   try {
-      renderedData = typeof service.data === 'object' ? JSON.stringify(service.data, null, 2) : String(service.data || '');
+      if (typeof service.data === 'object' && service.data !== null) {
+          renderedData = JSON.stringify(service.data, null, 2);
+      } else {
+          renderedData = String(service.data || '');
+      }
   } catch (e) {
       renderedData = "Error parsing response data";
   }
@@ -130,7 +155,7 @@ const ServiceCard = ({ service }) => {
       <div className="flex justify-between items-start mb-6">
         <div>
           <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-1">{service.name || 'Unknown Service'}</h2>
-          <a href={service.url} target="_blank" rel="noreferrer" className="text-sm text-indigo-500 hover:underline flex items-center gap-1 font-medium">
+          <a href={service.url || '#'} target="_blank" rel="noreferrer" className="text-sm text-indigo-500 hover:underline flex items-center gap-1 font-medium">
             <Globe size={14} /> {hostname} <ArrowUpRight size={14} />
           </a>
         </div>
