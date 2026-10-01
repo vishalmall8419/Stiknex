@@ -68,18 +68,28 @@ const BlogDetail = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    Promise.all([
-      fetch("/data/blogs.json").then(res => res.json()),
-      fetch("/data/blogs-2.json").then(res => res.json())
-    ]).then(([data1, data2]) => {
-      const combined = [...data1, ...data2];
-      const found = combined.find(b => b.id.toString() === id);
-      setPost(found);
-      setLoading(false);
-    }).catch(err => {
-      console.error("Error loading blog details:", err);
-      setLoading(false);
-    });
+    fetch("/api/blogs?slug=" + id)
+      .then(res => res.ok ? res.json() : null)
+      .then(found => {
+        if(found) {
+          // Format it to match expected UI structure
+          setPost({
+            id: found.slug,
+            title: found.title,
+            briefDescription: found.excerpt,
+            fullContent: found.content,
+            image: found.imageUrl,
+            date: new Date(found.publishedAt).toLocaleDateString(),
+            category: "Trending"
+          });
+        } else {
+          setPost(null);
+        }
+        setLoading(false);
+      }).catch(err => {
+        console.error("Error loading blog details:", err);
+        setLoading(false);
+      });
   }, [id]);
 
   if (loading) {

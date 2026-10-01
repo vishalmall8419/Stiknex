@@ -9,11 +9,16 @@ const HomeBlogSection = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([
-      fetch("/data/blogs.json").then(res => res.json()),
-      fetch("/data/blogs-2.json").then(res => res.json())
-    ]).then(([data1, data2]) => {
-      const combined = [...data1, ...data2];
+    fetch("/api/blogs").then(res => res.ok ? res.json() : []).then(dynamicBlogs => {
+      const combined = dynamicBlogs.map(b => ({
+        id: b.slug,
+        title: b.title,
+        briefDescription: b.excerpt,
+        image: b.imageUrl,
+        images: [b.imageUrl],
+        date: new Date(b.publishedAt).toLocaleDateString(),
+        category: "Trending"
+      }));
       const shuffled = combined.sort(() => 0.5 - Math.random());
       
       const uniqueCategories = new Set();
