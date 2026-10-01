@@ -106,7 +106,7 @@ Output STRICTLY as JSON with no markdown block wrappers. Use this schema:
         // If Imagen endpoint is not enabled on this key, this might fail, so we wrap in try-catch
         let imageUrl = '';
         try {
-            const imagenRes = await fetchJson(`https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${process.env.GEMINI_API_KEY}`, {
+            const imagenRes = await fetchJson(`https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${process.env.GEMINI_API_KEY}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
