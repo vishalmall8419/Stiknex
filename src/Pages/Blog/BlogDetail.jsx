@@ -68,18 +68,31 @@ const BlogDetail = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    Promise.all([
-      fetch("/data/blogs.json").then(res => res.json()),
-      fetch("/data/blogs-2.json").then(res => res.json())
-    ]).then(([data1, data2]) => {
-      const combined = [...data1, ...data2];
-      const found = combined.find(b => b.id.toString() === id);
-      setPost(found);
-      setLoading(false);
-    }).catch(err => {
-      console.error("Error loading blog details:", err);
-      setLoading(false);
-    });
+    fetch(`/api/get-blog-detail?slug=${id}`)
+      .then(res => {
+        if (!res.ok) throw new Error('Blog not found');
+        return res.json();
+      })
+      .then(b => {
+        // Map dynamic blog to expected format
+        const formatted = {
+          id: b.slug,
+          title: b.title,
+          briefDescription: b.excerpt,
+          fullDescription: b.content,
+          image: b.imageUrl,
+          images: [b.imageUrl], // Put main image in images array
+          date: new Date(b.publishedAt).toLocaleDateString(),
+          category: "Trending",
+          keywords: b.keywords || []
+        };
+        setPost(formatted);
+        setLoading(false);
+      }).catch(err => {
+        console.error("Error loading blog details:", err);
+        setPost(null);
+        setLoading(false);
+      });
   }, [id]);
 
   if (loading) {
@@ -163,21 +176,11 @@ const BlogDetail = () => {
           transition={{ duration: 0.8, delay: 0.4 }}
           className="max-w-none bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl p-8 md:p-12 rounded-[2rem] border border-white/50 dark:border-slate-700/50 shadow-sm text-lg text-slate-700 dark:text-slate-300 leading-relaxed space-y-6"
         >
-          {(translatedContent ? translatedContent.fullDescription : post.fullDescription).split('\n').map((paragraph, idx) => {
-            // Very simple markdown link parser: [Text](url)
-            const parts = paragraph.split(/(\[[^\]]+\]\([^)]+\))/g);
-            return (
-              <p key={idx} className="mb-6 last:mb-0 text-lg md:text-xl">
-                {parts.map((part, i) => {
-                  const match = part.match(/\[([^\]]+)\]\(([^)]+)\)/);
-                  if (match) {
-                    return <a key={i} href={match[2]} className="text-indigo-600 dark:text-indigo-400 font-bold hover:underline">{match[1]}</a>;
-                  }
-                  return part;
-                })}
-              </p>
-            );
-          })}
+          {(translatedContent ? translatedContent.fullDescription : post.fullDescription).split('\n').map((paragraph, idx) => (
+            <p key={idx} className="mb-6 last:mb-0 text-lg md:text-xl">
+              {paragraph}
+            </p>
+          ))}
 
           {/* Render any additional images if they exist */}
           {post.images && post.images.length > 1 && (

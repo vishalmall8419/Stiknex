@@ -12,6 +12,7 @@
   "dependencies": {
     "@excalidraw/excalidraw": "^0.18.1",
     "@google-analytics/data": "^7.2.0",
+    "@google/genai": "^2.25.0",
     "@tailwindcss/vite": "^4.3.3",
     "@vercel/analytics": "^2.0.1",
     "@vercel/blob": "^2.8.0",

@@ -68,7 +68,7 @@ const buildBreadcrumbSchema = (path, title) => {
   };
 };
 
-const PageSEO = ({ title, description, path = "/", image, noIndex = false, type = "website", datePublished, keywords, faqs }) => {
+const PageSEO = ({ title, description, path = "/", image, noIndex = false }) => {
   useEffect(() => {
     const fullTitle = title.includes(SITE_NAME) ? title : `${title} | ${SITE_NAME}`;
     const url = `${SITE_URL}${path}`;
@@ -78,12 +78,11 @@ const PageSEO = ({ title, description, path = "/", image, noIndex = false, type 
 
     setMetaByName("title", fullTitle);
     setMetaByName("description", description);
-    if (keywords) setMetaByName("keywords", keywords);
-    setMetaByName("robots", noIndex ? "noindex, nofollow" : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1");
+    setMetaByName("robots", noIndex ? "noindex, nofollow" : "index, follow");
 
     setCanonical(url);
 
-    setMetaByProperty("og:type", type === "article" ? "article" : "website");
+    setMetaByProperty("og:type", "website");
     setMetaByProperty("og:title", fullTitle);
     setMetaByProperty("og:description", description);
     setMetaByProperty("og:url", url);
@@ -95,67 +94,12 @@ const PageSEO = ({ title, description, path = "/", image, noIndex = false, type 
     setMetaByName("twitter:description", description);
     setMetaByName("twitter:image", ogImage);
 
-    // 1. Breadcrumb Schema
     setJsonLd("page-breadcrumb-schema", buildBreadcrumbSchema(path, title));
-
-    // 2. Article / WebApp / Website Schema
-    let mainSchema = null;
-    if (type === "article") {
-      mainSchema = {
-        "@context": "https://schema.org",
-        "@type": "Article",
-        headline: title,
-        image: ogImage,
-        datePublished: datePublished || new Date().toISOString(),
-        author: { "@type": "Organization", name: SITE_NAME },
-        publisher: { "@type": "Organization", name: SITE_NAME, logo: { "@type": "ImageObject", url: DEFAULT_IMAGE } },
-        description: description
-      };
-    } else if (type === "webapp") {
-      mainSchema = {
-        "@context": "https://schema.org",
-        "@type": "WebApplication",
-        name: title,
-        url: url,
-        description: description,
-        applicationCategory: "ProductivityApplication",
-        operatingSystem: "All",
-        offers: { "@type": "Offer", price: "0" }
-      };
-    } else {
-      mainSchema = {
-        "@context": "https://schema.org",
-        "@type": "WebSite",
-        name: SITE_NAME,
-        url: SITE_URL,
-        potentialAction: {
-          "@type": "SearchAction",
-          target: `${SITE_URL}/search?q={search_term_string}`,
-          "query-input": "required name=search_term_string"
-        }
-      };
-    }
-    setJsonLd("page-main-schema", mainSchema);
-
-    // 3. FAQ Schema
-    if (faqs && faqs.length > 0) {
-      setJsonLd("page-faq-schema", {
-        "@context": "https://schema.org",
-        "@type": "FAQPage",
-        mainEntity: faqs.map(f => ({
-          "@type": "Question",
-          name: f.q,
-          acceptedAnswer: { "@type": "Answer", text: f.a }
-        }))
-      });
-    }
 
     return () => {
       setJsonLd("page-breadcrumb-schema", null);
-      setJsonLd("page-main-schema", null);
-      setJsonLd("page-faq-schema", null);
     };
-  }, [title, description, path, image, noIndex, type, datePublished, keywords, faqs]);
+  }, [title, description, path, image, noIndex]);
 
   return null;
 };

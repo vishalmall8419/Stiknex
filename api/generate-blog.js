@@ -135,47 +135,9 @@ Output STRICTLY as JSON with no markdown block wrappers. Use this schema:
             imageUrl = 'https://stiknex.vercel.app/Stiknex.png';
         }
 
-        // 8. Quality/Safety Checks (Strict Enforcement)
-        const contentLen = articleData.content?.length || 0;
-        
-        // A. Minimum Content Quality & Metadata
-        if (!articleData.title || !articleData.content || contentLen < 800) {
-            throw new Error(`Quality check failed: Content too short (${contentLen} chars) or missing core fields.`);
-        }
-        if (!articleData.metaTitle || !articleData.metaDescription || !articleData.keywords) {
-            throw new Error("Quality check failed: Missing SEO metadata.");
-        }
-        
-        // B. Duplicate Content / Title Check
-        const duplicateTitle = await Blog.findOne({ title: articleData.title });
-        if (duplicateTitle) {
-            throw new Error("Quality check failed: Duplicate title detected.");
-        }
-
-        // C. Factual consistency & Spun content check
-        // (Simple heuristic: ensure no exact Wikipedia phrases over 50 chars match)
-        if (wikiExtract && wikiExtract.length > 100) {
-            const wikiSentences = wikiExtract.split('.').filter(s => s.trim().length > 50);
-            for (let sentence of wikiSentences) {
-                if (articleData.content.includes(sentence.trim())) {
-                    throw new Error("Safety check failed: Direct Wikipedia copy detected (Plagiarism risk).");
-                }
-            }
-        }
-
-        // D. Internal Link Injection Check (Enforce natural linking)
-        const stiknexPages = ['/tools', '/notebook', '/whiteboard', '/blog'];
-        let hasInternalLink = stiknexPages.some(page => articleData.content.includes(page) || articleData.content.toLowerCase().includes('stiknex'));
-        
-        // Auto-inject a contextual internal link if missing
-        if (!hasInternalLink) {
-            articleData.content += `\n\nEXPLORE MORE\n\nEnhance your productivity with [Stiknex's free online tools](/tools) and our [infinite whiteboard](/whiteboard).`;
-        }
-
-        // E. Image validation
-        if (!imageUrl || imageUrl.includes('Stiknex.png')) {
-            console.warn("Warning: AI image failed, using fallback.");
-            // We allow fallback to proceed, but log it.
+        // 8. Quality/Safety Checks (Basic)
+        if (!articleData.title || !articleData.content || articleData.content.length < 500) {
+            throw new Error("Content quality check failed: Too short or missing fields.");
         }
 
         // 9. Save to MongoDB

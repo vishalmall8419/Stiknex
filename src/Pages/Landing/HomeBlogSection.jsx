@@ -9,39 +9,26 @@ const HomeBlogSection = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([
-      fetch("/data/blogs.json").then(res => res.json()),
-      fetch("/data/blogs-2.json").then(res => res.json())
-    ]).then(([data1, data2]) => {
-      const combined = [...data1, ...data2];
-      const shuffled = combined.sort(() => 0.5 - Math.random());
-      
-      const uniqueCategories = new Set();
-      const selected = [];
-      
-      for (const blog of shuffled) {
-        if (!uniqueCategories.has(blog.category)) {
-          uniqueCategories.add(blog.category);
-          selected.push(blog);
-        }
-        if (selected.length === 6) break;
-      }
-      
-      if (selected.length < 6) {
-        for (const blog of shuffled) {
-          if (!selected.includes(blog)) {
-            selected.push(blog);
-          }
-          if (selected.length === 6) break;
-        }
-      }
-      
-      setBlogs(selected);
-      setLoading(false);
-    }).catch(err => {
-      console.error("Error loading blog data:", err);
-      setLoading(false);
-    });
+    fetch("/api/get-blogs")
+      .then(res => res.ok ? res.json() : [])
+      .then(dynamicBlogs => {
+        const combined = dynamicBlogs.map(b => ({
+          id: b.slug,
+          title: b.title,
+          briefDescription: b.excerpt,
+          image: b.imageUrl,
+          date: new Date(b.publishedAt).toLocaleDateString(),
+          category: "Trending",
+          readTime: "5 min read"
+        }));
+        
+        const shuffled = combined.sort(() => 0.5 - Math.random());
+        setBlogs(shuffled.slice(0, 6));
+        setLoading(false);
+      }).catch(err => {
+        console.error("Error loading blog data:", err);
+        setLoading(false);
+      });
   }, []);
 
   if (loading) {
