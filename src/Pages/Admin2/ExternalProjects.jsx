@@ -26,8 +26,13 @@ const ExternalProjects = () => {
       
       if (res.ok) {
         const json = await res.json();
-        setServices(json.services);
-        setLastUpdated(new Date(json.timestamp));
+        setServices(json.services || []);
+        if (json.timestamp) {
+            const parsedDate = new Date(json.timestamp);
+            if (!isNaN(parsedDate)) {
+                setLastUpdated(parsedDate);
+            }
+        }
       } else {
         throw new Error("Failed to fetch");
       }
@@ -85,7 +90,7 @@ const ExternalProjects = () => {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-        {services.map((service, idx) => (
+        {services && services.map((service, idx) => (
           <ServiceCard key={idx} service={service} />
         ))}
       </div>
@@ -97,6 +102,20 @@ const ServiceCard = ({ service }) => {
   const isOnline = service.ok === true;
   const isPending = service.pending === true;
   const isError = !isOnline && !isPending;
+  
+  let hostname = service.url;
+  try {
+      hostname = new URL(service.url).hostname;
+  } catch (e) {
+      hostname = service.url;
+  }
+  
+  let renderedData = "";
+  try {
+      renderedData = typeof service.data === 'object' ? JSON.stringify(service.data, null, 2) : String(service.data || '');
+  } catch (e) {
+      renderedData = "Error parsing response data";
+  }
 
   return (
     <motion.div 
@@ -110,9 +129,9 @@ const ServiceCard = ({ service }) => {
     >
       <div className="flex justify-between items-start mb-6">
         <div>
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-1">{service.name}</h2>
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-1">{service.name || 'Unknown Service'}</h2>
           <a href={service.url} target="_blank" rel="noreferrer" className="text-sm text-indigo-500 hover:underline flex items-center gap-1 font-medium">
-            <Globe size={14} /> {new URL(service.url).hostname} <ArrowUpRight size={14} />
+            <Globe size={14} /> {hostname} <ArrowUpRight size={14} />
           </a>
         </div>
         
@@ -136,14 +155,14 @@ const ServiceCard = ({ service }) => {
           <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mb-1 uppercase tracking-wider">Response Time</p>
           <p className="text-lg font-black text-slate-800 dark:text-slate-200 flex items-center gap-2">
             <Clock size={16} className={isOnline ? "text-green-500" : "text-slate-400"} />
-            {isPending ? '--' : `${service.timeTaken}ms`}
+            {isPending ? '--' : `${service.timeTaken || 0}ms`}
           </p>
         </div>
         <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-3">
           <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mb-1 uppercase tracking-wider">HTTP Status</p>
           <p className="text-lg font-black text-slate-800 dark:text-slate-200 flex items-center gap-2">
             <Cpu size={16} className={isOnline ? "text-green-500" : (isError ? "text-red-500" : "text-slate-400")} />
-            {isPending ? '--' : service.status}
+            {isPending ? '--' : (service.status || 'N/A')}
           </p>
         </div>
       </div>
@@ -154,10 +173,10 @@ const ServiceCard = ({ service }) => {
           {isPending ? (
             <span className="text-slate-500">Waiting for response...</span>
           ) : isError ? (
-            <span className="text-red-400">{service.error || "Connection failed or timed out."}</span>
+            <span className="text-red-400">{String(service.error || "Connection failed or timed out.")}</span>
           ) : (
             <pre className="whitespace-pre-wrap break-words">
-              {typeof service.data === 'object' ? JSON.stringify(service.data, null, 2) : service.data}
+              {renderedData}
             </pre>
           )}
         </div>
