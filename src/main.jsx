@@ -4,6 +4,16 @@ import "./index.css";
 import App from "./App";
 import { AppProvider } from "./context/AppContext";
 
+// Automatically reload if a Vite dynamic import chunk fails (e.g. after a new deployment)
+window.addEventListener('vite:preloadError', (event) => {
+  window.location.reload();
+});
+window.addEventListener('error', (e) => {
+  if (e.message && e.message.includes('Failed to fetch dynamically imported module')) {
+    window.location.reload();
+  }
+});
+
 // Store PWA install prompt
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
