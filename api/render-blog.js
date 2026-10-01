@@ -29,8 +29,8 @@ export default async function handler(req, res) {
         const imageUrl = blog.imageUrl || `${baseUrl}/Stiknex.png`;
         const url = `${baseUrl}/blog/${slug}`;
 
-        // Replace default title
-        html = html.replace(/<title>.*?<\/title>/, `<title>${title}</title>`);
+        // Replace default title (handling multiline)
+        html = html.replace(/<title>[\s\S]*?<\/title>/, `<title>${title}</title>`);
         
         // Replace or add keywords
         html = html.replace(
@@ -60,6 +60,22 @@ export default async function handler(req, res) {
             `<meta property="og:image:secure_url" content="${imageUrl}" />`
         );
         
+        
+        const schema = {
+            "@context": "https://schema.org",
+            "@type": "BlogPosting",
+            "headline": title,
+            "image": imageUrl,
+            "description": description,
+            "author": { "@type": "Person", "name": "Stiknex AI" },
+            "publisher": { "@type": "Organization", "name": "Stiknex", "logo": { "@type": "ImageObject", "url": `${baseUrl}/logo.png` } },
+            "datePublished": blog.publishedAt ? blog.publishedAt.toISOString() : new Date().toISOString()
+        };
+        html = html.replace('</head>', `<script type="application/ld+json">${JSON.stringify(schema)}</script></head>`);
+
+        
+        html = html.replace('</head>', `<link rel="canonical" href="${url}" /></head>`);
+
         // Replace Twitter tags
         html = html.replace(
             /<meta\s+name="twitter:title"\s+content="[^"]*"\s*\/>/,
