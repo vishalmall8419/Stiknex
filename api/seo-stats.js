@@ -68,7 +68,7 @@ export default async function handler(req, res) {
         }
 
         // --- ORIGINAL SEO STATS LOGIC ---
-        const isAdmin = verifyAdminToken(req.headers['authorization']?.split(' ')[1] || req.cookies.stkx_admin_token);
+        const isAdmin = verifyAdminToken(req.headers['authorization']?.split(' ')[1] || req.cookies?.stkx_admin_token);
         
         await connectToDatabase();
         
