@@ -89,7 +89,15 @@ const TrendsPage = () => {
     );
   }
 
-  const { searchInterestData, topStates, relatedQueries, trendingTopics, trendingCategories, topKeywords, kpis } = trendsData;
+  const { 
+    searchInterestData = [], 
+    topStates = [], 
+    relatedQueries = [], 
+    trendingTopics = [], 
+    trendingCategories = [], 
+    topKeywords = [], 
+    kpis = [] 
+  } = trendsData || {};
 
   // Merge static UI properties with fetched API values
   const displayKpis = defaultKpis.map((base, i) => ({
