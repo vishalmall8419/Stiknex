@@ -67,12 +67,12 @@ Output STRICTLY as JSON:
             articleData = JSON.parse(geminiRes.candidates[0].content.parts[0].text);
 
             try {
-                const imagenRes = await fetchJson(`https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${process.env.GEMINI_API_KEY}`, {
+                const imagenRes = await fetchJson(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-image:generateContent?key=${process.env.GEMINI_API_KEY}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ instances: [{ prompt: articleData.imagePrompt }], parameters: { sampleCount: 1, outputOptions: { mimeType: "image/jpeg" } } })
+                    body: JSON.stringify({ contents: [{ parts: [{ text: articleData.imagePrompt }] }] })
                 });
-                const base64Image = imagenRes.predictions[0].bytesBase64Encoded;
+                const base64Image = imagenRes.candidates[0].content.parts[0].inlineData.data;
                 const buffer = Buffer.from(base64Image, 'base64');
                 
                 if (process.env.BLOB_READ_WRITE_TOKEN) {
