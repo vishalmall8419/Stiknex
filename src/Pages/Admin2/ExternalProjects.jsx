@@ -3,7 +3,7 @@ import { Server, Activity, Clock, CheckCircle, XCircle, RefreshCw, Globe, ArrowU
 import { motion } from "framer-motion";
 
 const ExternalProjects = () => {
-  const [services, setServices] = externalServicesDefault();
+  const [services, setServices] = useState(externalServicesDefault());
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState(null);
 
@@ -78,7 +78,7 @@ const ExternalProjects = () => {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-        {(Array.isArray(services) ? services : []).map((service, idx) => (
+        {services.map((service, idx) => (
           <ServiceCard key={idx} service={service} />
         ))}
       </div>
