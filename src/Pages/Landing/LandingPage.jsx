@@ -152,9 +152,42 @@ const LandingPage = () => {
             </Link>
             <a href="#features" className="hero-btn px-8 py-4 bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-full text-lg font-semibold shadow-sm hover:shadow-md transition-all">
               Explore Features
-            </a>
-          </div>
-        </motion.div>
+              </a>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-center gap-4 mt-6 hero-btn">
+              <a href="/Stiknex.apk" download className="group flex items-center gap-3 px-6 py-3 bg-slate-900 dark:bg-black text-white border border-slate-700 dark:border-slate-800 rounded-2xl hover:bg-slate-800 transition-all shadow-md">
+                <svg viewBox="0 0 512 512" className="w-[20px] h-[20px] shrink-0">
+                  <path fill="#4caf50" d="M38.8 13.9C36.3 16.4 35 20.3 35 25.3v461.3c0 5 1.3 8.9 3.8 11.4l1.3 1.3 259.9-259.9V237L40.1 12.6l-1.3 1.3z" />
+                  <path fill="#4caf50" d="M386.4 352.5l-86.4-86.4v-20.2l86.4-86.4 2.8 1.6 102.4 58.2c29.1 16.5 29.1 43.4 0 59.9l-102.4 58.2-2.8 1.5z" />
+                  <path fill="#4caf50" d="M300 286.3l86.4 86.4L114.7 527.2c-19.1 10.9-40.4 1.3-40.4-21.7L300 286.3z" />
+                  <path fill="#4caf50" d="M300 225.7L74.3 6.5C74.3 6.5 74.3 6.5 74.3 6.5c0-23 21.3-32.6 40.4-21.7L386.4 159.5 300 225.7z" />
+                </svg>
+                <div className="flex flex-col items-start leading-[1.1] text-left">
+                  <span className="text-[10px] text-slate-300 font-semibold tracking-wide uppercase">Download</span>
+                  <span className="text-[14px] font-bold">Android App</span>
+                </div>
+              </a>
+
+              <button onClick={() => {
+                  if (window.deferredPWA) {
+                    window.deferredPWA.prompt();
+                    window.deferredPWA.userChoice.then(() => { window.deferredPWA = null; });
+                  } else {
+                    alert("To install the PWA, please use 'Add to Home Screen' in your browser menu (or Share -> Add to Home Screen on iOS).");
+                  }
+                }} 
+                className="group flex items-center gap-3 px-6 py-3 bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-900/50 rounded-2xl hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-all shadow-md">
+                <svg viewBox="0 0 24 24" className="w-[20px] h-[20px] shrink-0 fill-none stroke-current" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 15V3m0 12l-4-4m4 4l4-4M2 17l.621 2.485A2 2 0 0 0 4.561 21h14.878a2 2 0 0 0 1.94-1.515L22 17"></path>
+                </svg>
+                <div className="flex flex-col items-start leading-[1.1] text-left">
+                  <span className="text-[10px] text-indigo-400 dark:text-indigo-300 font-semibold tracking-wide uppercase">Fast & Light</span>
+                  <span className="text-[14px] font-bold">Install PWA</span>
+                </div>
+              </button>
+            </div>
+          </motion.div>
 
         <motion.div 
           animate={{ y: [-20, 20, -20], rotate: [0, 5, -5, 0] }} 
@@ -352,12 +385,25 @@ const LandingPage = () => {
 
       <HomeBlogSection />
 
-      <footer className="py-12 px-6 border-t border-slate-200/50 dark:border-slate-800/50 bg-white/50 dark:bg-slate-950/50 text-center relative z-10">
-        <p className="text-slate-500 dark:text-slate-400 font-medium">
-          Crafted with <Coffee size={16} className="inline mx-1 text-amber-600" /> and passion by 
-          <a href="https://vishalmall.vercel.app/" target="_blank" rel="noreferrer" className="text-indigo-600 dark:text-indigo-400 hover:underline ml-1 font-bold">Vishal Mall</a>
-        </p>
-        <p className="text-slate-400 dark:text-slate-500 text-sm mt-2">&copy; {new Date().getFullYear()} Stiknex. All rights reserved.</p>
+            <footer className="py-12 px-6 border-t border-slate-200/50 dark:border-slate-800/50 bg-white/50 dark:bg-slate-950/50 relative z-10">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex flex-wrap justify-center md:justify-start gap-4 text-sm font-medium text-slate-500 dark:text-slate-400">
+            <Link to="/" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Home</Link>
+            <Link to="/about" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">About</Link>
+            <Link to="/tools" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Tools</Link>
+            <Link to="/blog" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Blog</Link>
+            <Link to="/notebook" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Notebook</Link>
+            <Link to="/whiteboard" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Whiteboard</Link>
+            <Link to="/buy-me-a-coffee" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Support</Link>
+          </div>
+          <div className="text-center md:text-right">
+            <p className="text-slate-500 dark:text-slate-400 font-medium text-sm mb-1">
+              Crafted with <Coffee size={14} className="inline text-amber-600" /> by 
+              <a href="https://vishalmall.vercel.app/" target="_blank" rel="noreferrer" className="text-indigo-600 dark:text-indigo-400 hover:underline ml-1 font-bold">Vishal Mall</a>
+            </p>
+            <p className="text-slate-400 dark:text-slate-500 text-xs">&copy; {new Date().getFullYear()} Stiknex. All rights reserved.</p>
+          </div>
+        </div>
       </footer>
     </div>
   );
