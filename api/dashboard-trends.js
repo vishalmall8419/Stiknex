@@ -50,15 +50,18 @@ export default async function handler(req, res) {
 
     const topKeywords = trends
         .sort((a,b) => b.trendScore - a.trendScore)
-        .slice(0, 5)
-        .map(t => ({ kw: t.keyword, score: t.trendScore, traffic: t.traffic }));
-
+        .slice(0, 100)
+        .map(t => ({ kw: t.keyword, score: t.trendScore, traffic: t.traffic, intent: t.searchIntent || 'Search' }));
+   
     const responseData = {
         success: true,
         data: {
             searchInterestData: timeData,
-            topStates: topKeywords.map((k) => ({ state: k.kw, score: k.score })),
+            topStates: topKeywords.slice(0, 25).map((k) => ({ state: k.kw, score: k.score })),
             relatedQueries: topKeywords.map((k) => ({ query: k.kw, growth: k.traffic })),
+            trendingTopics: topKeywords.map((k) => ({ topic: k.kw, score: k.score, growth: k.traffic })),
+            trendingCategories: topKeywords.map((k) => ({ cat: k.intent, score: k.score, growth: k.traffic })),
+            topKeywords: topKeywords,
             kpis
         }
     };

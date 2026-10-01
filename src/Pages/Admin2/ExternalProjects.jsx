@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Server, Activity, Clock, CheckCircle, XCircle, RefreshCw, Globe, ArrowUpRight, Cpu } from "lucide-react";
 import { motion } from "framer-motion";
-
+ 
 const ExternalProjects = () => {
-  const [services, setServices] = externalServicesDefault();
+  const [services, setServices] = useState(externalServicesDefault());
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState(null);
 

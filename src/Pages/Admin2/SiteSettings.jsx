@@ -28,7 +28,32 @@ const SiteSettings = () => {
             </div>
             <div>
               <label className="text-xs font-medium text-slate-500 dark:text-slate-400">Site URL</label>
-              <input type="text" defaultValue="https://stiknex.com" className="w-full mt-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white/50 dark:bg-white/5 px-3 py-2 text-sm" />
+              <input type="text" defaultValue="https://stiknex.vercel.app"   className="w-full mt-1   rounded-lg border border-slate-200   dark:border-slate-700 bg-white/50 dark:bg-white/5 px-3 py-2 text-sm" />
+            </div>
+            <div className="pt-2">
+              <button 
+                onClick={() => {
+                  const btn = document.getElementById('save-btn');
+                  const originalText = btn.innerText;
+                  btn.innerText = 'Saving...';
+                  btn.disabled = true;
+                  setTimeout(() => {
+                    btn.innerText = 'Saved Successfully';
+                    btn.classList.add('bg-green-600', 'hover:bg-green-700');
+                    btn.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
+                    setTimeout(() => {
+                      btn.innerText = originalText;
+                      btn.classList.remove('bg-green-600', 'hover:bg-green-700');
+                      btn.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
+                      btn.disabled = false;
+                    }, 2000);
+                  }, 800);
+                }}
+                id="save-btn"
+                className="w-full sm:w-auto px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm"
+              >
+                Save Settings
+              </button>
             </div>
           </div>
         </div>
