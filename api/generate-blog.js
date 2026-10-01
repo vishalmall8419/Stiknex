@@ -5,16 +5,20 @@ import { verifyAdminToken } from './_utils/auth.js';
 import { put } from '@vercel/blob';
 
 // Re-usable fetch helper
-const fetchJson = async (url, options) => {
-    const res = await fetch(url, options);
-    if (!res.ok) throw new Error(`Fetch failed: ${res.statusText}`);
-    return res.json();
+const fetchJson = async (url, options, retries = 3) => {
+    for (let i = 0; i < retries; i++) {
+        const res = await fetch(url, options);
+        if (res.ok) return res.json();
+        if (i === retries - 1) throw new Error(`Fetch failed: ${res.statusText} (${res.status})`);
+        await new Promise(r => setTimeout(r, 2000 * (i + 1))); // exponential backoff
+    }
 };
 
 export default async function handler(req, res) {
     // 1. Auth check
     const isCron = req.headers['authorization'] === `Bearer ${process.env.CRON_SECRET}`;
-    const isAdmin = verifyAdminToken(req.cookies.stiknex_auth_token);
+    const dummyReq = { headers: { authorization: `Bearer ${req.cookies?.stiknex_auth_token || ''}` } };
+    const isAdmin = verifyAdminToken(dummyReq).valid;
     if (!isCron && !isAdmin) {
         return res.status(401).json({ error: 'Unauthorized' });
     }
@@ -87,7 +91,7 @@ Output STRICTLY as JSON with no markdown block wrappers. Use this schema:
 }
 `;
 
-        const geminiRes = await fetchJson(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`, {
+        const geminiRes = await fetchJson(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -106,16 +110,15 @@ Output STRICTLY as JSON with no markdown block wrappers. Use this schema:
         // If Imagen endpoint is not enabled on this key, this might fail, so we wrap in try-catch
         let imageUrl = '';
         try {
-            const imagenRes = await fetchJson(`https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-images?key=${process.env.GEMINI_API_KEY}`, {
+            const imagenRes = await fetchJson(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-image:generateContent?key=${process.env.GEMINI_API_KEY}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    instances: [{ prompt: articleData.imagePrompt }],
-                    parameters: { sampleCount: 1, outputOptions: { mimeType: "image/jpeg" } }
+                    contents: [{ parts: [{ text: articleData.imagePrompt }] }]
                 })
             });
 
-            const base64Image = imagenRes.predictions[0].bytesBase64Encoded;
+            const base64Image = imagenRes.candidates[0].content.parts[0].inlineData.data;
             const buffer = Buffer.from(base64Image, 'base64');
 
             // 7. Save Image to Vercel Blob (Fallback to Data URI if no token)
