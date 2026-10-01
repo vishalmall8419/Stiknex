@@ -1,9 +1,25 @@
 {
   "rewrites": [
-    { "source": "/sitemap.xml", "destination": "/api/sitemap.xml" },
-    { "source": "/api/(.*)", "destination": "/api/$1" },
-    { "source": "/blog/:slug", "destination": "/api/render-blog?slug=$1" },
-    { "source": "/((?!.*\\.).*)", "destination": "/index.html" }
+    {
+      "source": "/api/monitor-external",
+      "destination": "/api/seo-stats?action=monitor-external"
+    },
+    {
+      "source": "/sitemap.xml",
+      "destination": "/api/sitemap.xml"
+    },
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
+    },
+    {
+      "source": "/blog/:slug",
+      "destination": "/api/render-blog?slug=$1"
+    },
+    {
+      "source": "/((?!.*\\.).*)",
+      "destination": "/index.html"
+    }
   ],
   "crons": [
     {
