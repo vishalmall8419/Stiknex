@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const LazyImage = ({ src, alt, className = '', style, decoding = 'async' }) => {
+const LazyImage = ({ src, alt, className = '', style, decoding = 'async', width, height }) => {
   const [isIntersecting, setIsIntersecting] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const imgRef = useRef(null);
@@ -46,6 +46,8 @@ const LazyImage = ({ src, alt, className = '', style, decoding = 'async' }) => {
         <motion.img
           src={src}
           alt={alt}
+          width={width}
+          height={height}
           initial={{ opacity: 0, scale: 1.05 }}
           animate={{ opacity: isLoaded ? 1 : 0, scale: isLoaded ? 1 : 1.05 }}
           transition={{ duration: 0.7, ease: 'easeOut' }}

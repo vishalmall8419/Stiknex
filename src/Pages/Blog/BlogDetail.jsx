@@ -68,45 +68,18 @@ const BlogDetail = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    // First try fetching dynamic blog from API
-    fetch(`/api/get-blog-detail?slug=${id}`)
-      .then(res => res.ok ? res.json() : null)
-      .then(dynamicBlog => {
-        if (dynamicBlog) {
-          // Format to match local UI structure
-          setPost({
-            id: dynamicBlog.slug,
-            title: dynamicBlog.title,
-            briefDescription: dynamicBlog.excerpt,
-            fullDescription: dynamicBlog.content,
-            images: [dynamicBlog.imageUrl],
-            date: new Date(dynamicBlog.publishedAt).toLocaleDateString(),
-            category: "Trending",
-            tags: dynamicBlog.keywords ? dynamicBlog.keywords.split(',').map(k => k.trim()) : [],
-            metaTitle: dynamicBlog.metaTitle,
-            metaDescription: dynamicBlog.metaDescription
-          });
-          setLoading(false);
-        } else {
-          // Fallback to static JSON
-          Promise.all([
-            fetch("/data/blogs.json").then(res => res.json()).catch(() => []),
-            fetch("/data/blogs-2.json").then(res => res.json()).catch(() => [])
-          ]).then(([data1, data2]) => {
-            const combined = [...data1, ...data2];
-            const found = combined.find(b => b.id.toString() === id);
-            setPost(found);
-            setLoading(false);
-          }).catch(err => {
-            console.error("Error loading blog details:", err);
-            setLoading(false);
-          });
-        }
-      })
-      .catch(err => {
-        console.error("Error fetching dynamic blog:", err);
-        setLoading(false);
-      });
+    Promise.all([
+      fetch("/data/blogs.json").then(res => res.json()),
+      fetch("/data/blogs-2.json").then(res => res.json())
+    ]).then(([data1, data2]) => {
+      const combined = [...data1, ...data2];
+      const found = combined.find(b => b.id.toString() === id);
+      setPost(found);
+      setLoading(false);
+    }).catch(err => {
+      console.error("Error loading blog details:", err);
+      setLoading(false);
+    });
   }, [id]);
 
   if (loading) {
@@ -133,15 +106,7 @@ const BlogDetail = () => {
 
   return (
     <div className="relative min-h-screen text-slate-900 dark:text-slate-100 selection:bg-indigo-500/30 font-sans pb-24">
-      <PageSEO 
-        title={post.metaTitle || `${post.title} | Stiknex`} 
-        description={post.metaDescription || post.briefDescription} 
-        path={`/blog/${id}`} 
-        type="article"
-        image={coverImage}
-        datePublished={post.date}
-        keywords={post.tags?.join(", ")}
-      />
+      <PageSEO title={`${post.title} | Stiknex`} description={post.briefDescription} path={`/blog/${id}`} />
       <AuroraBackground />
 
       <main className="pt-24 md:pt-32 px-6 max-w-4xl mx-auto relative z-10">
@@ -198,11 +163,21 @@ const BlogDetail = () => {
           transition={{ duration: 0.8, delay: 0.4 }}
           className="max-w-none bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl p-8 md:p-12 rounded-[2rem] border border-white/50 dark:border-slate-700/50 shadow-sm text-lg text-slate-700 dark:text-slate-300 leading-relaxed space-y-6"
         >
-          {(translatedContent ? translatedContent.fullDescription : post.fullDescription).split('\n').map((paragraph, idx) => (
-            <p key={idx} className="mb-6 last:mb-0 text-lg md:text-xl">
-              {paragraph}
-            </p>
-          ))}
+          {(translatedContent ? translatedContent.fullDescription : post.fullDescription).split('\n').map((paragraph, idx) => {
+            // Very simple markdown link parser: [Text](url)
+            const parts = paragraph.split(/(\[[^\]]+\]\([^)]+\))/g);
+            return (
+              <p key={idx} className="mb-6 last:mb-0 text-lg md:text-xl">
+                {parts.map((part, i) => {
+                  const match = part.match(/\[([^\]]+)\]\(([^)]+)\)/);
+                  if (match) {
+                    return <a key={i} href={match[2]} className="text-indigo-600 dark:text-indigo-400 font-bold hover:underline">{match[1]}</a>;
+                  }
+                  return part;
+                })}
+              </p>
+            );
+          })}
 
           {/* Render any additional images if they exist */}
           {post.images && post.images.length > 1 && (

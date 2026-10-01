@@ -44,8 +44,13 @@ const Sidebar = ({ isSidebarOpen, onClose }) => {
       icon: TrendingUp,
     },
         {
-      name: "SEO Intelligence",
+      name: "SEO Opportunities",
       path: "/dashboard/seo",
+      icon: Target,
+    },
+    {
+      name: "SEO Dashboard",
+      path: "/dashboard/seo-dashboard",
       icon: Target,
     },
     {

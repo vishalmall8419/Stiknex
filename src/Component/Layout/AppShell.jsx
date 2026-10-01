@@ -163,6 +163,22 @@ const AppShell = ({ children, hideNav = false, fullWidth = false }) => {
         </div>
       </main>
 
+      {/* SEO Internal Linking Footer */}
+      <footer className="mt-auto border-t border-gray-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md">
+        <div className="max-w-7xl mx-auto px-6 py-10 flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex flex-wrap justify-center gap-6 text-sm font-medium text-slate-500 dark:text-slate-400">
+            <Link to="/" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Home</Link>
+            <Link to="/about" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">About Stiknex</Link>
+            <Link to="/tools" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Free Tools</Link>
+            <Link to="/blog" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Blog</Link>
+            <Link to="/notebook" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Online Notebook</Link>
+            <Link to="/whiteboard" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Excalidraw Whiteboard</Link>
+          </div>
+          <div className="text-sm text-slate-400 dark:text-slate-500">
+            © {new Date().getFullYear()} Stiknex. All rights reserved.
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
