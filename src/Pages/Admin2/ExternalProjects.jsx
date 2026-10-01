@@ -78,7 +78,7 @@ const ExternalProjects = () => {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-        {services.map((service, idx) => (
+        {(Array.isArray(services) ? services : []).map((service, idx) => (
           <ServiceCard key={idx} service={service} />
         ))}
       </div>
