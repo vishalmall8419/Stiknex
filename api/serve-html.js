@@ -1,4 +1,5 @@
 import connectToDatabase from './_utils/db.js';
+import ActiveSeoKeyword from './_models/ActiveSeoKeyword.js';
 import Trend from './_models/Trend.js';
 import redisClient from './_utils/redis.js';
 import fs from 'fs';
@@ -14,25 +15,38 @@ export default async function handler(req, res) {
       return res.status(500).send('Failed to read HTML template from disk');
     }
 
-    // Fetch trending keywords from Redis cache first, then DB
+    // Try Redis cache first (expires after 7 hours — same as cron interval)
     const cacheKey = 'seo_meta_tags_html';
     let keywordsStr = await redisClient.get(cacheKey);
 
     if (!keywordsStr) {
       await connectToDatabase();
-      const trends = await Trend.find({ status: { $ne: 'ignored' } })
-        .sort({ trendScore: -1 })
-        .limit(100);
 
-      keywordsStr = trends.map(t => t.keyword).join(', ');
+      // PRIMARY: Use ActiveSeoKeyword (freshest trending keywords, replaced each cron run)
+      let activeKeywords = await ActiveSeoKeyword.find({})
+        .sort({ numericTraffic: -1, trendScore: -1 })
+        .limit(120)
+        .lean();
+
+      if (activeKeywords.length > 0) {
+        keywordsStr = activeKeywords.map(k => k.keyword).join(', ');
+      } else {
+        // FALLBACK: Use Trend collection (in case cron hasn't run yet)
+        const trends = await Trend.find({ status: { $ne: 'ignored' } })
+          .sort({ numericTraffic: -1, trendScore: -1 })
+          .limit(100)
+          .lean();
+        keywordsStr = trends.map(t => t.keyword).join(', ');
+      }
 
       if (keywordsStr) {
-        await redisClient.setex(cacheKey, 14400, keywordsStr);
+        // Cache for 7 hours (matches cron refresh interval)
+        await redisClient.setex(cacheKey, 7 * 60 * 60, keywordsStr);
       }
     }
 
     if (keywordsStr) {
-      // Fully replace the keywords meta tag with DB-driven keywords
+      // Fully replace the keywords meta tag with fresh trending keywords from DB
       html = html.replace(
         /<meta[^>]*name=["']keywords["'][^>]*content=["']([\s\S]*?)["'][^>]*\/?>/is,
         '<meta name="keywords" content="' + keywordsStr + '" />'
@@ -52,8 +66,8 @@ export default async function handler(req, res) {
     }
 
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    // No CDN cache — always serve fresh SSR HTML
-    res.setHeader('Cache-Control', 'no-store');
+    // Short edge cache — let Vercel CDN cache for 15 min, revalidate in background
+    res.setHeader('Cache-Control', 's-maxage=900, stale-while-revalidate=3600');
     return res.status(200).send(html);
 
   } catch (error) {

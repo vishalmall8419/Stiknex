@@ -1,7 +1,9 @@
 import connectToDatabase from './_utils/db.js';
 import Trend from './_models/Trend.js';
+import ActiveSeoKeyword from './_models/ActiveSeoKeyword.js';
 import { verifyAdminToken } from './_utils/auth.js';
 import redisClient from './_utils/redis.js';
+
 
 const POSITIVE_KEYWORDS = [
     'sticky notes', 'notes', 'notebook', 'markdown', 'whiteboard', 
@@ -180,8 +182,42 @@ export default async function handler(req, res) {
             }
         }
 
+        // ─── ACTIVE SEO KEYWORDS UPDATE ───────────────────────────────────
+        // Collect all non-ignored trends from this run, sorted by traffic desc
+        // These are FRESH keywords from Google Trends for live SEO injection
+        try {
+            // Get top 100 most-trending non-ignored keywords from DB (latest 7 days)
+            const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+            const freshTrends = await Trend.find({
+                status: { $ne: 'ignored' },
+                date: { $gte: sevenDaysAgo }
+            })
+            .sort({ numericTraffic: -1, trendScore: -1 })
+            .limit(150)
+            .lean();
+
+            if (freshTrends.length > 0) {
+                // Wipe old active SEO keywords and replace with latest
+                await ActiveSeoKeyword.deleteMany({});
+                const seoKeywordDocs = freshTrends.map(t => ({
+                    keyword: t.keyword,
+                    traffic: t.traffic,
+                    numericTraffic: t.numericTraffic || 0,
+                    trendScore: t.trendScore || 0,
+                    relevanceScore: t.relevanceScore || 0,
+                    fetchedAt: new Date()
+                }));
+                await ActiveSeoKeyword.insertMany(seoKeywordDocs, { ordered: false });
+                console.log(`Updated ActiveSeoKeyword with ${seoKeywordDocs.length} fresh SEO keywords`);
+            }
+        } catch (seoErr) {
+            console.error('Failed to update ActiveSeoKeyword:', seoErr.message);
+        }
+
+        // Clear Redis SEO cache so next page load picks up fresh keywords
         try {
             if (redisClient && redisClient.del) {
+                await redisClient.del('seo_meta_tags_html');
                 await redisClient.del('seo_opportunities_all');
             }
         } catch (e) {}
