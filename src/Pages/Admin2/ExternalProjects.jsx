@@ -3,7 +3,7 @@ import { Server, Activity, Clock, CheckCircle, XCircle, RefreshCw, Globe, ArrowU
 import { motion } from "framer-motion";
 
 const ExternalProjects = () => {
-  const [services, setServices] = useState(externalServicesDefault());
+  const [services, setServices] = externalServicesDefault();
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState(null);
 
@@ -33,6 +33,13 @@ const ExternalProjects = () => {
       }
     } catch (error) {
       console.error("Monitor Error:", error);
+      // Ensure we update services so they don't spin forever
+      setServices(services => services.map(s => ({ 
+        ...s, 
+        pending: false, 
+        ok: false, 
+        error: "Vercel Timeout (Render is still waking up... try again in 30 seconds)" 
+      })));
     } finally {
       setLoading(false);
     }

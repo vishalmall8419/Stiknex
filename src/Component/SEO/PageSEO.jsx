@@ -68,7 +68,7 @@ const buildBreadcrumbSchema = (path, title) => {
   };
 };
 
-const PageSEO = ({ title, description, keywords, path = "/", image, noIndex = false }) => {
+const PageSEO = ({ title, description, path = "/", image, noIndex = false }) => {
   useEffect(() => {
     const fullTitle = title.includes(SITE_NAME) ? title : `${title} | ${SITE_NAME}`;
     const url = `${SITE_URL}${path}`;
@@ -78,9 +78,6 @@ const PageSEO = ({ title, description, keywords, path = "/", image, noIndex = fa
 
     setMetaByName("title", fullTitle);
     setMetaByName("description", description);
-    if (keywords) {
-      setMetaByName("keywords", keywords);
-    }
     setMetaByName("robots", noIndex ? "noindex, nofollow" : "index, follow");
 
     setCanonical(url);
