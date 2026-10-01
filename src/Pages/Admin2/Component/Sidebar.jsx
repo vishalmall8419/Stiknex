@@ -8,6 +8,7 @@ import {
   TrendingUp, Target,
   PenTool,
   Settings,
+  Server,
 } from "lucide-react";
 
 const Sidebar = ({ isSidebarOpen, onClose }) => {
@@ -43,7 +44,7 @@ const Sidebar = ({ isSidebarOpen, onClose }) => {
       path: "/dashboard/trends",
       icon: TrendingUp,
     },
-        {
+    {
       name: "SEO Opportunities",
       path: "/dashboard/seo",
       icon: Target,
@@ -52,6 +53,11 @@ const Sidebar = ({ isSidebarOpen, onClose }) => {
       name: "SEO Dashboard",
       path: "/dashboard/seo-dashboard",
       icon: Target,
+    },
+    {
+      name: "External Projects",
+      path: "/dashboard/external-projects",
+      icon: Server, // I need to make sure Server is imported
     },
     {
       name: "Blog Manager",

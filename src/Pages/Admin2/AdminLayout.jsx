@@ -15,6 +15,7 @@ import BlogManager from "./BlogManager";
 import Messages from "./Messages";
 import SiteSettings from "./SiteSettings";
 import SEOMonitoring from "./SEOMonitoring";
+import ExternalProjects from "./ExternalProjects";
 
 const AdminLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -96,6 +97,7 @@ const AdminLayout = () => {
               <Route path="trends" element={<Trends />} />
               <Route path="seo" element={<SEOOpportunities />} />
               <Route path="seo-dashboard" element={<SEOMonitoring />} />
+              <Route path="external-projects" element={<ExternalProjects />} />
               <Route path="blog" element={<BlogManager />} />
               <Route path="messages" element={<Messages />} />
               <Route path="settings" element={<SiteSettings />} />
