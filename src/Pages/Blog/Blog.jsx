@@ -153,7 +153,7 @@ const Blog = () => {
 
   return (
     <div ref={containerRef} className="relative min-h-screen overflow-hidden text-slate-900 dark:text-slate-100 selection:bg-indigo-500/30 font-sans">
-      <PageSEO title="Blog | Stiknex" description="Read the latest updates, tutorials, and productivity tips from the Stiknex team." path="/blog" />
+      <PageSEO title="Blog – Productivity Tips, Notes & Tools Guides | Stiknex" description="Read the Stiknex blog for productivity tips, note-taking guides, digital workspace advice, and tutorials on using sticky notes, notebooks, whiteboards, and online tools." path="/blog" type="website" keywords="productivity blog, note taking tips, sticky notes guide, online tools blog, digital workspace tips, stiknex blog, productivity tips 2026" />
       <AuroraBackground />
 
       {/* Floating Navbar */}

@@ -54,7 +54,7 @@ const WhiteboardEditor = ({ whiteboard, onClose, onUpdate }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-gray-50 dark:bg-slate-900 transition-colors duration-300">
-      <PageSEO title={`${title} — Whiteboard`} description="Stiknex Whiteboard Editor" path="/whiteboard" />
+      <PageSEO title="Free Online Whiteboard – Draw & Collaborate | Stiknex" description="Use Stiknex's free online whiteboard powered by Excalidraw. Sketch, diagram, brainstorm and collaborate in real-time. No sign-up required." path="/whiteboard" type="webapp" keywords="free online whiteboard, excalidraw, digital whiteboard, online drawing board, whiteboard app, collaborative whiteboard, free sketch tool" />
       
       {/* Editor Topbar */}
       <div className="h-16 border-b border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-950 flex items-center justify-between px-4 sm:px-6 shadow-sm z-10">
