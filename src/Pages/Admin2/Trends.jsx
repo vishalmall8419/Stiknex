@@ -48,7 +48,7 @@ const TrendsPage = () => {
   }, [country, dateRange]);
 
   const headerClass = "text-[11px] uppercase tracking-wider font-extrabold text-slate-500 dark:text-slate-400 mb-4 flex items-center justify-between";
-  const cardClass = "bg-white/60 dark:bg-slate-900/60 border border-white/40 dark:border-slate-700/50 rounded-2xl p-4 backdrop-blur-md shadow-sm flex flex-col";
+  const cardClass = "bg-white/60 dark:bg-slate-900/60 border border-white/40 dark:border-slate-700/50 rounded-2xl p-4 backdrop-blur-md shadow-sm flex flex-col h-[400px]";
   
   // Base static fallback structure for icons and colors
   const defaultKpis = [

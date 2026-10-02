@@ -45,7 +45,6 @@ const BlogDetail = () => {
       const tTitle = await translateText(post.title);
       const tDesc = await translateText(post.briefDescription);
       
-      const paragraphs = post.fullDescription.split('\n');
       const paragraphs = post.fullContent.split('\n');
       const tParagraphs = [];
       
@@ -57,7 +56,6 @@ const BlogDetail = () => {
       setTranslatedContent({
         title: tTitle,
         briefDescription: tDesc,
-        fullDescription: tParagraphs.join('\n')
         fullContent: tParagraphs.join('\n')
       });
     } catch {
@@ -175,7 +173,6 @@ const BlogDetail = () => {
           transition={{ duration: 0.8, delay: 0.4 }}
           className="max-w-none bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl p-8 md:p-12 rounded-[2rem] border border-white/50 dark:border-slate-700/50 shadow-sm text-lg text-slate-700 dark:text-slate-300 leading-relaxed space-y-6"
         >
-          {(translatedContent ? translatedContent.fullDescription : post.fullDescription).split('\n').map((paragraph, idx) => (
           {(translatedContent ? translatedContent.fullContent : post.fullContent).split('\n').map((paragraph, idx) => (
             <p key={idx} className="mb-6 last:mb-0 text-lg md:text-xl">
               {paragraph}

@@ -78,29 +78,8 @@ const PageSEO = ({ title, description, path = "/", image, noIndex = false, type 
 
     setMetaByName("title", fullTitle);
     setMetaByName("description", description);
-    
-    // Auto-inject trending keywords seamlessly without breaking existing logic
-    if (keywords) {
-      setMetaByName("keywords", keywords);
-      
-      // Async fetch to enhance keywords after initial load
-      fetch("/api/latest-keywords")
-        .then(res => res.ok ? res.json() : null)
-        .then(json => {
-          if (json && json.keywords && json.keywords.length > 0) {
-            const combined = [...new Set([
-              ...keywords.split(",").map(k => k.trim()),
-              ...json.keywords
-            ])].join(", ");
-            setMetaByName("keywords", combined);
-          }
-        })
-        .catch(() => {}); // silent fail, keep original
-    }
-
+    if (keywords) setMetaByName("keywords", keywords);
     setMetaByName("robots", noIndex ? "noindex, nofollow" : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1");
-    setMetaByName("theme-color", "#6366f1"); // Indigo-500
-    setMetaByName("author", "Vishal Mall");
 
     setCanonical(url);
 
@@ -110,16 +89,8 @@ const PageSEO = ({ title, description, path = "/", image, noIndex = false, type 
     setMetaByProperty("og:url", url);
     setMetaByProperty("og:site_name", SITE_NAME);
     setMetaByProperty("og:image", ogImage);
-    setMetaByProperty("og:locale", "en_US");
-
-    if (type === "article" && datePublished) {
-      setMetaByProperty("article:published_time", datePublished);
-      setMetaByProperty("article:author", "Vishal Mall");
-    }
 
     setMetaByName("twitter:card", "summary_large_image");
-    setMetaByName("twitter:site", "@stiknex");
-    setMetaByName("twitter:creator", "@vishalmall");
     setMetaByName("twitter:title", fullTitle);
     setMetaByName("twitter:description", description);
     setMetaByName("twitter:image", ogImage);
@@ -136,7 +107,7 @@ const PageSEO = ({ title, description, path = "/", image, noIndex = false, type 
         headline: title,
         image: ogImage,
         datePublished: datePublished || new Date().toISOString(),
-        author: { "@type": "Person", name: "Vishal Mall", url: SITE_URL },
+        author: { "@type": "Organization", name: SITE_NAME },
         publisher: { "@type": "Organization", name: SITE_NAME, logo: { "@type": "ImageObject", url: DEFAULT_IMAGE } },
         description: description
       };
@@ -179,23 +150,10 @@ const PageSEO = ({ title, description, path = "/", image, noIndex = false, type 
       });
     }
 
-    // 4. Organization Schema (Only on Home Page)
-    if (path === "/") {
-      setJsonLd("page-org-schema", {
-        "@context": "https://schema.org",
-        "@type": "Organization",
-        name: SITE_NAME,
-        url: SITE_URL,
-        logo: DEFAULT_IMAGE,
-        sameAs: [] // Can add social links here
-      });
-    }
-
     return () => {
       setJsonLd("page-breadcrumb-schema", null);
       setJsonLd("page-main-schema", null);
       setJsonLd("page-faq-schema", null);
-      setJsonLd("page-org-schema", null);
     };
   }, [title, description, path, image, noIndex, type, datePublished, keywords, faqs]);
 

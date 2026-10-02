@@ -8,6 +8,7 @@ import PageSEO from "../../Component/SEO/PageSEO";
 import { ArrowRight, Sparkles, Layers, PenTool, LayoutDashboard, Code2, Mail, Zap, Terminal, Coffee } from "lucide-react";
 import { useAppContext } from "../../context/AppContext";
 import HomeBlogSection from "./HomeBlogSection";
+import Testimonials from "../../Component/Testimonials";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -383,6 +384,7 @@ const LandingPage = () => {
         </div>
       </section>
 
+      <Testimonials />
       <HomeBlogSection />
 
             <footer className="py-12 px-6 border-t border-slate-200/50 dark:border-slate-800/50 bg-white/50 dark:bg-slate-950/50 relative z-10">

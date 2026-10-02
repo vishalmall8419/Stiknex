@@ -1,4 +1,4 @@
-﻿import { Suspense, lazy, useEffect } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import {
   Routes,
   Route,
@@ -9,6 +9,7 @@ import {
 import { Analytics } from "@vercel/analytics/react"
 
 import DownloadAppModal from "./Component/DownloadAppModal";
+import FeedbackFloatingButton from "./Component/FeedbackFloatingButton";
 
 // ============================================================
 // LAZY LOADED PAGES
@@ -96,8 +97,13 @@ const App = () => {
 
       {/* Lazy Loading */}
       <Suspense fallback={<PageLoader />}>
-        {/* Render DownloadAppModal ONLY on public pages */}
-        {!isAdminRoute && <DownloadAppModal />}
+        {/* Render Modals/Buttons ONLY on public pages */}
+        {!isAdminRoute && (
+          <>
+            <DownloadAppModal />
+            <FeedbackFloatingButton />
+          </>
+        )}
 
         {/* Application Routes */}
         <Routes>
