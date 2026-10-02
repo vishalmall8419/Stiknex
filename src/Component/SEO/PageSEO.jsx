@@ -1,9 +1,55 @@
-import { useEffect, useState } from "react";
-import { Helmet } from "react-helmet-async";
+import { useEffect } from "react";
 
 const SITE_URL = "https://stiknex.vercel.app";
 const SITE_NAME = "Stiknex";
 const DEFAULT_IMAGE = `${SITE_URL}/Stiknex.png`;
+
+const setMetaByName = (name, content) => {
+  if (!content) return;
+  let tag = document.querySelector(`meta[name="${name}"]`);
+  if (!tag) {
+    tag = document.createElement("meta");
+    tag.setAttribute("name", name);
+    document.head.appendChild(tag);
+  }
+  tag.setAttribute("content", content);
+};
+
+const setMetaByProperty = (property, content) => {
+  if (!content) return;
+  let tag = document.querySelector(`meta[property="${property}"]`);
+  if (!tag) {
+    tag = document.createElement("meta");
+    tag.setAttribute("property", property);
+    document.head.appendChild(tag);
+  }
+  tag.setAttribute("content", content);
+};
+
+const setCanonical = (href) => {
+  let tag = document.querySelector('link[rel="canonical"]');
+  if (!tag) {
+    tag = document.createElement("link");
+    tag.setAttribute("rel", "canonical");
+    document.head.appendChild(tag);
+  }
+  tag.setAttribute("href", href);
+};
+
+const setJsonLd = (id, data) => {
+  let script = document.getElementById(id);
+  if (!data) {
+    if (script) script.remove();
+    return;
+  }
+  if (!script) {
+    script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.id = id;
+    document.head.appendChild(script);
+  }
+  script.textContent = JSON.stringify(data);
+};
 
 const buildBreadcrumbSchema = (path, title) => {
   const crumbs = [{ "@type": "ListItem", position: 1, name: "Home", item: `${SITE_URL}/` }];
@@ -23,126 +69,95 @@ const buildBreadcrumbSchema = (path, title) => {
 };
 
 const PageSEO = ({ title, description, path = "/", image, noIndex = false, type = "website", datePublished, keywords, faqs }) => {
-  const [dynamicKeywords, setDynamicKeywords] = useState(keywords || "");
-  const fullTitle = title.includes(SITE_NAME) ? title : `${title} | ${SITE_NAME}`;
-  const url = `${SITE_URL}${path}`;
-  const ogImage = image || DEFAULT_IMAGE;
-
   useEffect(() => {
-    // Dynamically inject the most relevant trending keywords into meta keywords
-    const fetchKeywords = async () => {
-      try {
-        const res = await fetch("/api/latest-keywords");
-        if (res.ok) {
-          const json = await res.json();
-          if (json.keywords && json.keywords.length > 0) {
-            const combined = [...new Set([
-              ...(keywords ? keywords.split(",").map(k => k.trim()) : []),
-              ...json.keywords
-            ])].join(", ");
-            setDynamicKeywords(combined);
-          }
+    const fullTitle = title.includes(SITE_NAME) ? title : `${title} | ${SITE_NAME}`;
+    const url = `${SITE_URL}${path}`;
+    const ogImage = image || DEFAULT_IMAGE;
+
+    document.title = fullTitle;
+
+    setMetaByName("title", fullTitle);
+    setMetaByName("description", description);
+    if (keywords) setMetaByName("keywords", keywords);
+    setMetaByName("robots", noIndex ? "noindex, nofollow" : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1");
+
+    setCanonical(url);
+
+    setMetaByProperty("og:type", type === "article" ? "article" : "website");
+    setMetaByProperty("og:title", fullTitle);
+    setMetaByProperty("og:description", description);
+    setMetaByProperty("og:url", url);
+    setMetaByProperty("og:site_name", SITE_NAME);
+    setMetaByProperty("og:image", ogImage);
+
+    setMetaByName("twitter:card", "summary_large_image");
+    setMetaByName("twitter:title", fullTitle);
+    setMetaByName("twitter:description", description);
+    setMetaByName("twitter:image", ogImage);
+
+    // 1. Breadcrumb Schema
+    setJsonLd("page-breadcrumb-schema", buildBreadcrumbSchema(path, title));
+
+    // 2. Article / WebApp / Website Schema
+    let mainSchema = null;
+    if (type === "article") {
+      mainSchema = {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        headline: title,
+        image: ogImage,
+        datePublished: datePublished || new Date().toISOString(),
+        author: { "@type": "Organization", name: SITE_NAME },
+        publisher: { "@type": "Organization", name: SITE_NAME, logo: { "@type": "ImageObject", url: DEFAULT_IMAGE } },
+        description: description
+      };
+    } else if (type === "webapp") {
+      mainSchema = {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        name: title,
+        url: url,
+        description: description,
+        applicationCategory: "ProductivityApplication",
+        operatingSystem: "All",
+        offers: { "@type": "Offer", price: "0" }
+      };
+    } else {
+      mainSchema = {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        name: SITE_NAME,
+        url: SITE_URL,
+        potentialAction: {
+          "@type": "SearchAction",
+          target: `${SITE_URL}/search?q={search_term_string}`,
+          "query-input": "required name=search_term_string"
         }
-      } catch (err) {
-        console.warn("Failed to fetch dynamic keywords for SEO");
-      }
+      };
+    }
+    setJsonLd("page-main-schema", mainSchema);
+
+    // 3. FAQ Schema
+    if (faqs && faqs.length > 0) {
+      setJsonLd("page-faq-schema", {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: faqs.map(f => ({
+          "@type": "Question",
+          name: f.q,
+          acceptedAnswer: { "@type": "Answer", text: f.a }
+        }))
+      });
+    }
+
+    return () => {
+      setJsonLd("page-breadcrumb-schema", null);
+      setJsonLd("page-main-schema", null);
+      setJsonLd("page-faq-schema", null);
     };
-    fetchKeywords();
-  }, [keywords]);
+  }, [title, description, path, image, noIndex, type, datePublished, keywords, faqs]);
 
-  const breadcrumbSchema = buildBreadcrumbSchema(path, title);
-
-  let mainSchema = null;
-  if (type === "article") {
-    mainSchema = {
-      "@context": "https://schema.org",
-      "@type": "Article",
-      headline: title,
-      image: ogImage,
-      datePublished: datePublished || new Date().toISOString(),
-      author: { "@type": "Organization", name: SITE_NAME },
-      publisher: { "@type": "Organization", name: SITE_NAME, logo: { "@type": "ImageObject", url: DEFAULT_IMAGE } },
-      description: description
-    };
-  } else if (type === "webapp") {
-    mainSchema = {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      name: title,
-      url: url,
-      description: description,
-      applicationCategory: "ProductivityApplication",
-      operatingSystem: "All",
-      offers: { "@type": "Offer", price: "0" }
-    };
-  } else {
-    mainSchema = {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      name: SITE_NAME,
-      url: SITE_URL,
-      potentialAction: {
-        "@type": "SearchAction",
-        target: `${SITE_URL}/search?q={search_term_string}`,
-        "query-input": "required name=search_term_string"
-      }
-    };
-  }
-
-  let faqSchema = null;
-  if (faqs && faqs.length > 0) {
-    faqSchema = {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      mainEntity: faqs.map(f => ({
-        "@type": "Question",
-        name: f.q,
-        acceptedAnswer: { "@type": "Answer", text: f.a }
-      }))
-    };
-  }
-
-  return (
-    <Helmet>
-      {/* Primary Meta Tags */}
-      <title>{fullTitle}</title>
-      <meta name="title" content={fullTitle} />
-      <meta name="description" content={description} />
-      <meta name="keywords" content={dynamicKeywords} />
-      <meta name="robots" content={noIndex ? "noindex, nofollow" : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"} />
-      <link rel="canonical" href={url} />
-
-      {/* Open Graph / Facebook */}
-      <meta property="og:type" content={type === "article" ? "article" : "website"} />
-      <meta property="og:url" content={url} />
-      <meta property="og:title" content={fullTitle} />
-      <meta property="og:description" content={description} />
-      <meta property="og:image" content={ogImage} />
-      <meta property="og:site_name" content={SITE_NAME} />
-
-      {/* Twitter */}
-      <meta property="twitter:card" content="summary_large_image" />
-      <meta property="twitter:url" content={url} />
-      <meta property="twitter:title" content={fullTitle} />
-      <meta property="twitter:description" content={description} />
-      <meta property="twitter:image" content={ogImage} />
-
-      {/* Structured Data (JSON-LD) */}
-      <script type="application/ld+json">
-        {JSON.stringify(breadcrumbSchema)}
-      </script>
-      {mainSchema && (
-        <script type="application/ld+json">
-          {JSON.stringify(mainSchema)}
-        </script>
-      )}
-      {faqSchema && (
-        <script type="application/ld+json">
-          {JSON.stringify(faqSchema)}
-        </script>
-      )}
-    </Helmet>
-  );
+  return null;
 };
 
 export default PageSEO;
