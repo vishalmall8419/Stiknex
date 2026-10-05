@@ -1,3 +1,4 @@
+import PageSEO from "../../../Component/SEO/PageSEO";
 import { useState } from "react";
 import ToolsStyle from "../Tools.module.css";
 
@@ -14,6 +15,13 @@ const DataConverter = ({ darkMode }) => {
 
   return (
     <div>
+      <PageSEO
+        title="Data Unit Converter (MB, GB, TB) | Stiknex"
+        description="Convert digital data storage units between Bytes, Kilobytes, Megabytes, Gigabytes, Terabytes, and Petabytes instantly."
+        path="/tools/data-converter"
+        type="webapp"
+        keywords="data converter, megabytes to gigabytes, mb to gb, byte converter, digital storage calculator"
+      />
       <div className={ToolsStyle.tabRow}>
         {tabs.map((t) => (
           <button

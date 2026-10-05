@@ -15,6 +15,7 @@ import BlogManager from "./BlogManager";
 import Messages from "./Messages";
 import SiteSettings from "./SiteSettings";
 import ExternalProjects from "./ExternalProjects";
+import ReviewManager from "./ReviewManager";
 
 const AdminLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -123,6 +124,7 @@ const AdminLayout = () => {
               <Route path="seo" element={<SEOOpportunities />} />
               <Route path="blog" element={<BlogManager />} />
               <Route path="messages" element={<Messages />} />
+              <Route path="reviews" element={<ReviewManager />} />
               <Route path="settings" element={<SiteSettings />} />
               <Route path="external" element={<ExternalProjects />} />
             </Routes>

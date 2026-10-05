@@ -1,3 +1,4 @@
+import PageSEO from "../../../Component/SEO/PageSEO";
 import { useState } from "react";
 import ToolsStyle from "../Tools.module.css";
 
@@ -23,6 +24,13 @@ const QRCodeGenerator = ({ darkMode }) => {
 
   return (
     <div>
+      <PageSEO
+        title="Free Custom QR Code Generator | Stiknex"
+        description="Create, customize and download free QR codes for URLs, text, and contacts. Customize colors, add your logo and download as PNG or SVG."
+        path="/tools/qr-generator"
+        type="webapp"
+        keywords="qr code generator, free qr code, create qr code, custom qr code, qr maker with logo"
+      />
       <div className={ToolsStyle.field}>
         <label>Text or URL</label>
         <input

@@ -198,7 +198,17 @@ const Tools = () => {
 
   return (
     <AppShell fullWidth={true}>
-      <PageSEO title="Free Online Tools - Calculator, Converter, QR Code Generator | Stiknex" description="Access 10+ free online tools on Stiknex: scientific calculator, unit converter, currency converter, QR code generator, password generator, color picker, data converter and more." path="/tools" type="webapp" keywords="free online calculator, scientific calculator, unit converter, currency converter, QR code generator, password generator, color picker, online tools, data converter, temperature converter" faqs={[{ q: "What free tools are available on Stiknex?", a: "Stiknex offers a scientific calculator, simple calculator, unit converter, currency converter, temperature converter, data converter, QR code generator, password generator, and color picker — all free." }, { q: "Is the Stiknex QR code generator free?", a: "Yes, the QR code generator on Stiknex is completely free and requires no sign-up." }]} />
+      <PageSEO
+  title="Free Online Tools - Calculator, Converter, QR Code Generator | Stiknex"
+  description="Access 10+ free online tools: scientific calculator, unit converter, currency converter, QR code generator, password generator, color picker, data converter and more. No sign-up needed."
+  path="/tools"
+  type="webapp"
+  keywords="free online calculator, scientific calculator, unit converter, currency converter, QR code generator, password generator, color picker, online tools"
+  faqs={[
+    { q: 'What free tools are on Stiknex?', a: 'Scientific calculator, unit converter, currency converter, QR code generator, password generator, color picker, temperature and data converters.' },
+    { q: 'Is the QR code generator free?', a: 'Yes, completely free with no sign-up.' }
+  ]}
+/>
 
       <div className="relative min-h-screen pb-32">
         {/* Animated Background Pattern */}

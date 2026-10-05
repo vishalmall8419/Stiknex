@@ -243,10 +243,12 @@ const BuyMeACoffee = () => {
   return (
     <AppShell fullWidth={true}>
       <PageSEO
-        title="Support Stiknex"
-        description="Stiknex is free to use. If it's helped you stay organized, you can support its development."
-        path="/buy-me-a-coffee"
-      />
+  title="Support Stiknex - Buy Me a Coffee | Vishal Mall"
+  description="Support the development of Stiknex, the free online productivity platform. Your contribution keeps Stiknex free and helps build new features."
+  path="/buy-me-a-coffee"
+  type="website"
+  keywords="support stiknex, buy me a coffee, support developer, vishal mall"
+/>
       
       <div className="relative min-h-screen">
         <AuroraBackground />

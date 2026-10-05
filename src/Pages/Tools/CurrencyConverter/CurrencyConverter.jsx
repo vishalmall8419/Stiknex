@@ -1,3 +1,4 @@
+import PageSEO from "../../../Component/SEO/PageSEO";
 import { useEffect, useState } from "react";
 import ToolsStyle from "../Tools.module.css";
 
@@ -68,6 +69,13 @@ const CurrencyConverter = ({ darkMode }) => {
 
   return (
     <div>
+      <PageSEO
+        title="Live Currency Converter & Exchange Rates | Stiknex"
+        description="Convert currencies with live exchange rates. Free, fast and accurate online currency converter for USD, EUR, INR, GBP and 150+ fiat currencies."
+        path="/tools/currency-converter"
+        type="webapp"
+        keywords="currency converter, exchange rates, live currency, usd to inr, eur to usd, forex calculator"
+      />
       <div className={ToolsStyle.row}>
         <div className={ToolsStyle.field}>
           <label>Amount</label>

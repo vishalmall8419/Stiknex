@@ -561,7 +561,13 @@ const Notebook = () => {
         darkMode ? Style.darkNotebookPage : ""
       } ${isZenMode ? Style.zenMode : ""}`}
     >
-      <PageSEO title="Free Online Notebook & Digital Note Editor | Stiknex" description="Write, organize and save your notes in Stiknex's free online notebook. Rich text editor with headings, lists, bold, italic formatting. No sign-up required." path="/notebook" type="webapp" keywords="online notebook, free digital notebook, note editor, rich text editor, online notepad, free notepad, note taking app online" />
+      <PageSEO
+  title="Free Online Notebook & Digital Note Editor | Stiknex"
+  description="Write, organize and save your notes in Stiknex free online notebook. Rich text editor with headings, lists, bold, italic formatting. No sign-up required."
+  path="/notebook"
+  type="webapp"
+  keywords="online notebook, free digital notebook, note editor, rich text editor, online notepad, note taking app online"
+/>
       {darkMode && (
         <style>{`
           .swal-modal { background-color: #2a2a2a; border: 1px solid #444; }

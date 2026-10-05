@@ -1,32 +1,30 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Server, Activity, Clock, CheckCircle, XCircle, RefreshCw, Globe, ArrowUpRight, Cpu } from "lucide-react";
 import { motion } from "framer-motion";
- 
+
+const defaultServices = [
+  { id: 'portfolio', name: 'Vishal Portfolio Backend', url: 'https://vishal-portfolio-backend-yzb1.onrender.com', pending: true },
+  { id: 'narama', name: 'Narama Cosmetics Health', url: 'https://narama-cosmetics.onrender.com/api/health', pending: true }
+];
+
 const ExternalProjects = () => {
-  const [services, setServices] = useState(externalServicesDefault());
+  const [services, setServices] = useState(defaultServices);
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState(null);
 
-  function externalServicesDefault() {
-    return [
-      { id: 'portfolio', name: 'Vishal Portfolio Backend', url: 'https://vishal-portfolio-backend-yzb1.onrender.com', pending: true },
-      { id: 'narama', name: 'Narama Cosmetics Health', url: 'https://narama-cosmetics.onrender.com/api/health', pending: true }
-    ];
-  }
-
   const fetchStatus = async () => {
     setLoading(true);
-    setServices(externalServicesDefault()); // reset to pending
+    setServices(defaultServices.map(s => ({ ...s, pending: true })));
     
     try {
-      const token = localStorage.getItem("stkx_admin_token");
-      const res = await fetch("/api/monitor-external", {
+      const token = localStorage.getItem("stkx_admin_token") || sessionStorage.getItem("stkx_admin_token");
+      const res = await fetch("/api/external-services", {
         headers: { Authorization: `Bearer ${token}` }
       });
       
       if (res.ok) {
         const json = await res.json();
-        setServices(json.services || externalServicesDefault());
+        setServices(json.services && json.services.length > 0 ? json.services : defaultServices.map(s => ({...s, pending: false, ok: false, error: 'No data returned'})));
         if (json.timestamp) {
             const parsedDate = new Date(json.timestamp);
             if (!isNaN(parsedDate.getTime())) {
@@ -38,13 +36,15 @@ const ExternalProjects = () => {
       }
     } catch (error) {
       console.error("Monitor Error:", error);
-      // Ensure we update services so they don't spin forever
-      setServices(services => (services || []).map(s => ({ 
-        ...s, 
-        pending: false, 
-        ok: false, 
-        error: "Vercel Timeout (Render is still waking up... try again in 30 seconds)" 
-      })));
+      setServices(prev => {
+        const base = prev && prev.length > 0 ? prev : defaultServices;
+        return base.map(s => ({ 
+          ...s, 
+          pending: false, 
+          ok: false, 
+          error: "Vercel Timeout (Render is still waking up... try again in 30 seconds)" 
+        }));
+      });
     } finally {
       setLoading(false);
     }
@@ -200,9 +200,7 @@ const ServiceCardInner = ({ service }) => {
           ) : isError ? (
             <span className="text-red-400">{String(service.error || "Connection failed or timed out.")}</span>
           ) : (
-            <pre className="whitespace-pre-wrap break-words">
-              {renderedData}
-            </pre>
+            <pre className="whitespace-pre-wrap">{renderedData}</pre>
           )}
         </div>
       </div>

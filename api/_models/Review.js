@@ -1,14 +1,13 @@
-import mongoose from 'mongoose';
+﻿import mongoose from 'mongoose';
 
-const ReviewSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    email: { type: String, required: true },
-    type: { type: String, enum: ['review', 'message'], required: true },
-    tool: { type: String, default: 'Website' }, // Website, Notebook, Whiteboard, Tools, Sticky Notes
-    rating: { type: Number, min: 1, max: 5 }, // 1 to 5 stars (null if just a message)
-    content: { type: String, required: true },
-    status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
-    createdAt: { type: Date, default: Date.now }
+const reviewSchema = new mongoose.Schema({
+  rating: { type: Number, required: true, min: 1, max: 5 },
+  message: { type: String, required: true },
+  tool: { type: String, required: true }, // e.g. 'notepad', 'whiteboard', 'tools', 'stiknex'
+  userName: { type: String, default: 'Anonymous' },
+  userEmail: { type: String },
+  isPublic: { type: Boolean, default: false }, // If admin wants to show it on homepage
+  createdAt: { type: Date, default: Date.now }
 });
 
-export default mongoose.models.Review || mongoose.model('Review', ReviewSchema);
+export default mongoose.models.Review || mongoose.model('Review', reviewSchema);

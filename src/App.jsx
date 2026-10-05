@@ -9,7 +9,6 @@ import {
 import { Analytics } from "@vercel/analytics/react"
 
 import DownloadAppModal from "./Component/DownloadAppModal";
-import FeedbackFloatingButton from "./Component/FeedbackFloatingButton";
 
 // ============================================================
 // LAZY LOADED PAGES
@@ -52,6 +51,9 @@ const AdminLogin = lazy(() => import('./Pages/Admin2/AdminLogin'));
 const AdminLayout = lazy(() => import('./Pages/Admin2/AdminLayout'));
 const BlogDetail = lazy(
   () => import("./Pages/Blog/BlogDetail")
+);
+const FeedbackWidget = lazy(
+  () => import("./Component/FeedbackWidget")
 );
 
 // ============================================================
@@ -97,11 +99,11 @@ const App = () => {
 
       {/* Lazy Loading */}
       <Suspense fallback={<PageLoader />}>
-        {/* Render Modals/Buttons ONLY on public pages */}
+        {/* Render Modals and Widgets ONLY on public pages */}
         {!isAdminRoute && (
           <>
             <DownloadAppModal />
-            <FeedbackFloatingButton />
+            <FeedbackWidget />
           </>
         )}
 

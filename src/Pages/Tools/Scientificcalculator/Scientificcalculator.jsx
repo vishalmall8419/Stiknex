@@ -1,3 +1,4 @@
+import PageSEO from "../../../Component/SEO/PageSEO";
 import { useEffect, useState, useCallback } from "react";
 
 const padButtons = [
@@ -89,6 +90,13 @@ const ScientificCalculator = () => {
 
   return (
     <div className="w-full flex flex-col h-full max-w-sm mx-auto">
+      <PageSEO
+        title="Free Online Scientific Calculator | Stiknex"
+        description="Advanced scientific calculator with trigonometry, logarithms, fractions, and history. Evaluate complex math expressions free online."
+        path="/tools/scientific-calculator"
+        type="webapp"
+        keywords="scientific calculator, online math calculator, trigonometry calculator, online scientific calculator"
+      />
       <div className="bg-gray-50 dark:bg-slate-800/50 rounded-2xl p-4 sm:p-5 mb-3 sm:mb-4 text-right border border-gray-100 dark:border-slate-800 shrink-0">
         <div className="h-5 sm:h-6 text-slate-500 dark:text-slate-400 font-medium tracking-wide mb-1 text-xs sm:text-sm overflow-hidden whitespace-nowrap text-ellipsis">
           {expr || " "}

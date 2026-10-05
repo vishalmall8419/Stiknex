@@ -1,78 +1,83 @@
-import connectToDatabase from './_utils/db.js';
+﻿import connectToDatabase from './_utils/db.js';
 import Review from './_models/Review.js';
 import { verifyAdminToken } from './_utils/auth.js';
 
 export default async function handler(req, res) {
-    try {
-        await connectToDatabase();
+    await connectToDatabase();
 
-        if (req.method === 'POST') {
-            // Public endpoint to submit a review or message
-            const { name, email, type, tool, rating, content } = req.body;
-            
-            if (!name || !email || !content || !type) {
-                return res.status(400).json({ error: 'Missing required fields' });
+    if (req.method === 'POST') {
+        try {
+            const { rating, message, tool, userName, userEmail } = req.body;
+            if (!rating || !message) {
+                return res.status(400).json({ error: 'Rating and message are required' });
             }
-
-            const newReview = new Review({
-                name,
-                email,
-                type,
-                tool,
-                rating: type === 'review' ? rating : null,
-                content
-            });
-
-            await newReview.save();
-            return res.status(201).json({ success: true, message: 'Submitted successfully' });
+            const review = new Review({ rating, message, tool: tool || 'stiknex', userName, userEmail });
+            await review.save();
+            return res.status(201).json({ message: 'Review submitted successfully', review });
+        } catch (error) {
+            return res.status(500).json({ error: error.message });
+        }
+    } 
+    
+    if (req.method === 'GET') {
+        // If query has ?public=true, return only public reviews (no auth needed)
+        if (req.query.public === 'true') {
+            try {
+                const reviews = await Review.find({ isPublic: true }).sort({ createdAt: -1 }).limit(10);
+                return res.status(200).json(reviews);
+            } catch (error) {
+                return res.status(500).json({ error: error.message });
+            }
         }
 
-        if (req.method === 'GET') {
-            // Public fetching of APPROVED testimonials
-            if (req.query.public === 'true') {
-                const testimonials = await Review.find({ type: 'review', status: 'approved' })
-                                                .sort({ createdAt: -1 })
-                                                .limit(10);
-                return res.status(200).json({ success: true, testimonials });
-            }
+        // Otherwise, require admin auth to get all reviews
+        const authHeader = req.headers['authorization'];
+        if (!authHeader) return res.status(401).json({ error: 'Unauthorized' });
+        
+        const tokenInfo = verifyAdminToken({ headers: { authorization: authHeader } });
+        if (!tokenInfo.valid) return res.status(401).json({ error: 'Unauthorized' });
 
-            // ADMIN ONLY GET ALL
-            const isAdmin = verifyAdminToken(req.headers['authorization']?.split(' ')[1] || req.cookies?.stkx_admin_token);
-            if (!isAdmin.valid) return res.status(401).json({ error: 'Unauthorized' });
-
+        try {
             const reviews = await Review.find().sort({ createdAt: -1 });
-            return res.status(200).json({ success: true, reviews });
+            return res.status(200).json(reviews);
+        } catch (error) {
+            return res.status(500).json({ error: error.message });
         }
-
-        if (req.method === 'PATCH') {
-            // ADMIN ONLY UPDATE STATUS
-            const isAdmin = verifyAdminToken(req.headers['authorization']?.split(' ')[1] || req.cookies?.stkx_admin_token);
-            if (!isAdmin.valid) return res.status(401).json({ error: 'Unauthorized' });
-
-            const { id } = req.query;
-            const { status } = req.body;
-
-            if (!id || !status) return res.status(400).json({ error: 'Missing id or status' });
-
-            await Review.findByIdAndUpdate(id, { status });
-            return res.status(200).json({ success: true, message: 'Status updated' });
-        }
-
-        if (req.method === 'DELETE') {
-            // ADMIN ONLY DELETE
-            const isAdmin = verifyAdminToken(req.headers['authorization']?.split(' ')[1] || req.cookies?.stkx_admin_token);
-            if (!isAdmin.valid) return res.status(401).json({ error: 'Unauthorized' });
-
-            const { id } = req.query;
-            if (!id) return res.status(400).json({ error: 'Missing id' });
-
-            await Review.findByIdAndDelete(id);
-            return res.status(200).json({ success: true, message: 'Deleted' });
-        }
-
-        return res.status(405).json({ error: 'Method Not Allowed' });
-    } catch (error) {
-        console.error('Reviews API Error:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
     }
+
+    if (req.method === 'PUT') {
+        // Update isPublic status (Admin only)
+        const authHeader = req.headers['authorization'];
+        if (!authHeader) return res.status(401).json({ error: 'Unauthorized' });
+        
+        const tokenInfo = verifyAdminToken({ headers: { authorization: authHeader } });
+        if (!tokenInfo.valid) return res.status(401).json({ error: 'Unauthorized' });
+
+        try {
+            const { id, isPublic } = req.body;
+            const review = await Review.findByIdAndUpdate(id, { isPublic }, { new: true });
+            return res.status(200).json(review);
+        } catch (error) {
+            return res.status(500).json({ error: error.message });
+        }
+    }
+
+    if (req.method === 'DELETE') {
+        // Delete review (Admin only)
+        const authHeader = req.headers['authorization'];
+        if (!authHeader) return res.status(401).json({ error: 'Unauthorized' });
+        
+        const tokenInfo = verifyAdminToken({ headers: { authorization: authHeader } });
+        if (!tokenInfo.valid) return res.status(401).json({ error: 'Unauthorized' });
+
+        try {
+            const { id } = req.body;
+            await Review.findByIdAndDelete(id);
+            return res.status(200).json({ message: 'Deleted successfully' });
+        } catch (error) {
+            return res.status(500).json({ error: error.message });
+        }
+    }
+
+    res.status(405).json({ error: 'Method Not Allowed' });
 }

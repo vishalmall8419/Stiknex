@@ -1,3 +1,4 @@
+import PageSEO from "../../../Component/SEO/PageSEO";
 import { useEffect, useState, useCallback } from "react";
 
 const buttons = [
@@ -62,6 +63,13 @@ const SimpleCalculator = () => {
 
   return (
     <div className="w-full flex flex-col h-full max-w-sm mx-auto">
+      <PageSEO
+        title="Simple Online Calculator | Stiknex"
+        description="A fast, easy-to-use basic online calculator with history and dark mode. Add, subtract, multiply, and divide instantly."
+        path="/tools/simple-calculator"
+        type="webapp"
+        keywords="simple calculator, online calculator, basic calculator, math calculator"
+      />
       <div className="bg-gray-50 dark:bg-slate-800/50 rounded-2xl p-4 sm:p-6 mb-4 sm:mb-6 text-right border border-gray-100 dark:border-slate-800 shrink-0">
         <div className="h-6 text-slate-500 dark:text-slate-400 font-medium tracking-wide mb-1 text-sm overflow-hidden whitespace-nowrap text-ellipsis">
           {expr || " "}

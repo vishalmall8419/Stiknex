@@ -9,6 +9,7 @@ import {
   PenTool,
   Settings,
   Globe,
+  Star
 } from "lucide-react";
 
 const Sidebar = ({ isSidebarOpen, onClose }) => {
@@ -63,6 +64,11 @@ const Sidebar = ({ isSidebarOpen, onClose }) => {
       name: "Messages & Feedback",
       path: "/dashboard/messages",
       icon: MessageSquare,
+    },
+    {
+      name: "Review Manager",
+      path: "/dashboard/reviews",
+      icon: Star,
     },
     {
       name: "Site Settings",

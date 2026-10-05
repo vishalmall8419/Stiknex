@@ -1,8 +1,7 @@
-import connectToDatabase from './_utils/db.js';
+﻿import connectToDatabase from './_utils/db.js';
 import Trend from './_models/Trend.js';
 import Blog from './_models/Blog.js';
 import { verifyAdminToken } from './_utils/auth.js';
-import { put } from '@vercel/blob';
 
 // Re-usable fetch helper
 const fetchJson = async (url, options, retries = 3) => {
@@ -26,13 +25,13 @@ export default async function handler(req, res) {
     try {
         await connectToDatabase();
 
-        // 2. Daily limit check (only 1 blog per day)
-        const startOfDay = new Date();
-        startOfDay.setHours(0, 0, 0, 0);
-        const alreadyPublishedToday = await Blog.findOne({ publishedAt: { $gte: startOfDay } });
-        if (alreadyPublishedToday) {
-            return res.status(200).json({ message: 'Daily blog limit reached. Skipped.', blog: alreadyPublishedToday.slug });
-        }
+        // 2. Daily limit check (only 1 blog per day) (commented out to allow admin to generate manually if they want)
+        // const startOfDay = new Date();
+        // startOfDay.setHours(0, 0, 0, 0);
+        // const alreadyPublishedToday = await Blog.findOne({ publishedAt: { $gte: startOfDay } });
+        // if (alreadyPublishedToday && isCron) {
+        //     return res.status(200).json({ message: 'Daily blog limit reached. Skipped.', blog: alreadyPublishedToday.slug });
+        // }
 
         // 3. Select a Trend Keyword
         // Get keywords that don't have a blog yet. We sort by trendScore (descending).
@@ -40,10 +39,16 @@ export default async function handler(req, res) {
         const usedKeywords = existingBlogs.map(b => b.trendKeyword);
 
         const topTrend = await Trend.findOne({ keyword: { $nin: usedKeywords } }).sort({ trendScore: -1 });
-        if (!topTrend) {
-            return res.status(404).json({ message: 'No unused trending keywords found.' });
+        let keyword = req.query.keyword || req.body?.keyword; // Allow manual keyword
+        let trendScore = 100;
+        
+        if (!keyword) {
+            if (!topTrend) {
+                return res.status(404).json({ message: 'No unused trending keywords found.' });
+            }
+            keyword = topTrend.keyword;
+            trendScore = topTrend.trendScore;
         }
-        const keyword = topTrend.keyword;
 
         if (!process.env.GEMINI_API_KEY) {
             throw new Error('GEMINI_API_KEY missing in environment variables.');
@@ -63,35 +68,54 @@ export default async function handler(req, res) {
         }
 
         // 5. Generate Article via Gemini (JSON structured output)
-        const prompt = `
-You are an expert tech, productivity, and lifestyle blog writer. 
-Write a high-quality, comprehensive, and original blog post based on the keyword: "${keyword}".
+        const prompt = 
+You are an expert tech, productivity, and lifestyle blog writer for "Stiknex" (a free online productivity tools platform). 
+Write a highly detailed, comprehensive, original blog post (MINIMUM 2000 words, deep dive analysis) based on the trending keyword: "".
+
+CRITICAL RELEVANCE RULE: 
+You MUST frame the topic of the keyword through the lens of productivity, learning, note-taking, organization, technology, or self-improvement. 
+For example, if the keyword is a celebrity or movie, discuss the tools/workflows behind their success, how fans organize information about them, or lessons learned.
+If you absolutely cannot connect the topic to these themes naturally, focus on the educational and informational aspects of the topic.
 
 Important Rules:
-1. Do not copy or reuse sentences from Wikipedia. Write in a completely original, engaging, and human-readable tone.
-2. Make it highly useful and factual. Break it into clear sections. DO NOT USE HTML. Use plain text formatting: Use all caps for HEADERS (e.g. "INTRODUCTION") and separate paragraphs with exactly two newlines (\\n\\n).
-3. Do not invent fake facts. 
+1. Write in a completely original, engaging, and human-readable tone. Use deep analysis, case studies, step-by-step guides, and provide great value. The blog MUST BE LONG and detailed.
+2. The 'content' field MUST be formatted using standard Markdown (e.g. #, ##, ###, **, -, etc.). Use lots of paragraphs, lists, and subheadings to break down the topic.
+3. HYPERLINK STRATEGY (CRITICAL): 
+   - PRIMARY PRIORITY: Whenever you mention anything related to Stiknex tools, you MUST add a markdown hyperlink to that specific page. 
+     - Taking notes, writing, journal, notepad -> [Stiknex Notebook](/notebook)
+     - Drawing, whiteboard, diagram, mindmap, excalidraw -> [Stiknex Whiteboard](/whiteboard)
+     - Calculators, unit converters, QR code generator, passwords -> [Stiknex Tools](/tools)
+     - Sticky notes, boards, quick notes -> [Stiknex Sticky Notes](/)
+   - SECONDARY PRIORITY: For general knowledge, historical figures (like Gandhi ji), places, or concepts, you MUST add inline Hyperlinks to authoritative external sources (e.g., [Wikipedia](https://en.wikipedia.org/wiki/Main_Page) or other relevant sites).
+   - If writing about weather, link to [Google Weather](https://www.google.com/search?q=weather) or a relevant weather site.
+   - Embed these links naturally within the sentences. Do not just list them at the end.
 4. Include a catchy title, a short excerpt (max 160 chars), SEO meta title, SEO meta description, and 5-8 SEO keywords.
-5. Create a prompt for an AI image generator to create the header image. The image prompt MUST NOT mention copyrighted logos, real people's likenesses, or exact Wikipedia artwork. Make it conceptual, illustrative, or artistic.
+5. Create a highly descriptive prompt for an AI image generator to create the header image. Make it conceptual, illustrative, or artistic, without text.
 
 Reference Information (Use for facts only, DO NOT COPY):
-${wikiExtract ? wikiExtract : 'No specific Wikipedia data found, rely on general safe knowledge.'}
+
 
 Output STRICTLY as JSON with no markdown block wrappers. Use this schema:
 {
   "title": "...",
   "slug": "url-friendly-slug",
   "excerpt": "...",
-  "content": "MAIN HEADER\\n\\nParagraph one.\\n\\nParagraph two.\\n\\nSECOND HEADER\\n\\nParagraph three.",
+  "content": "# MAIN HEADER
+
+Paragraph one with [link](url).
+
+## SECOND HEADER
+
+...",
   "metaTitle": "...",
   "metaDescription": "...",
   "keywords": "...",
   "imagePrompt": "...",
   "imageAlt": "..."
 }
-`;
+;
 
-        const geminiRes = await fetchJson(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`, {
+        const geminiRes = await fetchJson(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${process.env.GEMINI_API_KEY}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -106,37 +130,8 @@ Output STRICTLY as JSON with no markdown block wrappers. Use this schema:
         const articleDataStr = geminiRes.candidates[0].content.parts[0].text;
         const articleData = JSON.parse(articleDataStr);
 
-        // 6. Generate Image via Gemini (Imagen 3)
-        // If Imagen endpoint is not enabled on this key, this might fail, so we wrap in try-catch
-        let imageUrl = '';
-        try {
-            const imagenRes = await fetchJson(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-image:generateContent?key=${process.env.GEMINI_API_KEY}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: articleData.imagePrompt }] }]
-                })
-            });
-
-            const base64Image = imagenRes.candidates[0].content.parts[0].inlineData.data;
-            const buffer = Buffer.from(base64Image, 'base64');
-
-            // 7. Save Image to Vercel Blob (Fallback to Data URI if no token)
-            if (process.env.BLOB_READ_WRITE_TOKEN) {
-                const blob = await put(`blogs/${articleData.slug}-${Date.now()}.jpg`, buffer, {
-                    access: 'public',
-                    contentType: 'image/jpeg'
-                });
-                imageUrl = blob.url;
-            } else {
-                // Fallback: Embed directly in DB as base64 (not recommended for many blogs, but works out-of-box)
-                imageUrl = `data:image/jpeg;base64,${base64Image}`;
-            }
-        } catch (e) {
-            console.error('Image generation failed:', e.message);
-            // Fallback generic image
-            imageUrl = 'https://stiknex.vercel.app/Stiknex.png';
-        }
+        // 6. Generate Image via Pollinations.ai (Free, Fast, No Auth required)
+        const imageUrl = \`https://image.pollinations.ai/prompt/\${encodeURIComponent(articleData.imagePrompt)}?width=1200&height=630&nologo=true&seed=\${Math.floor(Math.random() * 10000)}\`;
 
         // 8. Quality/Safety Checks (Basic)
         if (!articleData.title || !articleData.content || articleData.content.length < 500) {
@@ -153,17 +148,17 @@ Output STRICTLY as JSON with no markdown block wrappers. Use this schema:
             metaDescription: articleData.metaDescription,
             keywords: articleData.keywords,
             trendKeyword: keyword,
-            trendScore: topTrend.trendScore,
+            trendScore: trendScore,
             sourceResearch: "Wikipedia + AI Generation",
             imageUrl: imageUrl,
             imageAlt: articleData.imageAlt,
-            imageSource: "AI Generated"
+            imageSource: "Pollinations AI"
         });
 
         await newBlog.save();
 
         res.status(200).json({
-            message: 'Daily blog published successfully',
+            message: 'Blog published successfully',
             blog: newBlog.slug
         });
 
@@ -172,3 +167,4 @@ Output STRICTLY as JSON with no markdown block wrappers. Use this schema:
         res.status(500).json({ error: error.message });
     }
 }
+

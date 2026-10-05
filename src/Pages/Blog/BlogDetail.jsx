@@ -45,7 +45,7 @@ const BlogDetail = () => {
       const tTitle = await translateText(post.title);
       const tDesc = await translateText(post.briefDescription);
       
-      const paragraphs = post.fullContent.split('\n');
+            const paragraphs = post.fullContent.split('\n');
       const tParagraphs = [];
       
       // Translate in batches to avoid overwhelming the free API
@@ -56,7 +56,7 @@ const BlogDetail = () => {
       setTranslatedContent({
         title: tTitle,
         briefDescription: tDesc,
-        fullContent: tParagraphs.join('\n')
+                fullContent: tParagraphs.join('\n')
       });
     } catch {
       alert("Translation failed. Please try again.");
@@ -112,7 +112,7 @@ const BlogDetail = () => {
     );
   }
 
-  const coverImage = post.images && post.images.length > 0 ? post.images[0] : '';
+  const coverImage = post.image || '';
 
   return (
     <div className="relative min-h-screen text-slate-900 dark:text-slate-100 selection:bg-indigo-500/30 font-sans pb-24">
@@ -173,14 +173,21 @@ const BlogDetail = () => {
           transition={{ duration: 0.8, delay: 0.4 }}
           className="max-w-none bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl p-8 md:p-12 rounded-[2rem] border border-white/50 dark:border-slate-700/50 shadow-sm text-lg text-slate-700 dark:text-slate-300 leading-relaxed space-y-6"
         >
-          {(translatedContent ? translatedContent.fullContent : post.fullContent).split('\n').map((paragraph, idx) => (
-            <p key={idx} className="mb-6 last:mb-0 text-lg md:text-xl">
-              {paragraph}
-            </p>
-          ))}
+          {(translatedContent ? translatedContent.fullContent : post.fullContent).split('\n').map((paragraph, idx) => {
+            if (!paragraph.trim()) return null;
+            let html = paragraph.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+            html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, "<a href='$2' class='text-indigo-600 dark:text-indigo-400 font-bold hover:underline' target='_blank' rel='noopener noreferrer'>$1</a>");
+            if (html.startsWith("# ")) {
+              return <h2 key={idx} className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white mt-10 mb-4">{html.replace(/^# /, '')}</h2>;
+            }
+            if (html.startsWith("## ")) {
+              return <h3 key={idx} className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white mt-8 mb-3">{html.replace(/^## /, '')}</h3>;
+            }
+            return <p key={idx} className="mb-6 last:mb-0 text-lg md:text-xl" dangerouslySetInnerHTML={{ __html: html }} />;
+          })}
 
           {/* Render any additional images if they exist */}
-          {post.images && post.images.length > 1 && (
+          {false && (
             <div className="grid sm:grid-cols-2 gap-6 mt-12 mb-8 not-prose">
               {post.images.slice(1).map((img, idx) => (
                 <div key={idx} className="rounded-2xl overflow-hidden h-64 shadow-md border border-slate-200 dark:border-slate-800">

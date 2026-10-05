@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAppContext } from "../../context/AppContext";
 import { motion, AnimatePresence } from "framer-motion";
@@ -72,9 +72,7 @@ const AppShell = ({ children, hideNav = false, fullWidth = false }) => {
                 About
               </Link>
               <div className="w-px h-5 bg-gray-200 dark:bg-slate-800 mx-2"></div>
-              <button
-                onClick={toggleDarkMode}
-                className="p-2 rounded-lg text-slate-500 hover:bg-gray-100 dark:text-slate-400 dark:hover:bg-slate-800 transition-colors"
+              <button aria-label="Toggle Dark Mode" onClick={toggleDarkMode} className="p-2 rounded-lg text-slate-500 hover:bg-gray-100 dark:text-slate-400 dark:hover:bg-slate-800 transition-colors"
                 title="Toggle Theme"
               >
                 <i className={darkMode ? "fa-solid fa-sun" : "fa-solid fa-moon"}></i>
@@ -83,15 +81,11 @@ const AppShell = ({ children, hideNav = false, fullWidth = false }) => {
 
             {/* Mobile Menu Button */}
             <div className="md:hidden flex items-center gap-2">
-              <button
-                onClick={toggleDarkMode}
-                className="p-2 text-slate-500 hover:bg-gray-100 dark:text-slate-400 dark:hover:bg-slate-800 rounded-lg"
+              <button aria-label="Toggle Dark Mode" onClick={toggleDarkMode} className="p-2 text-slate-500 hover:bg-gray-100 dark:text-slate-400 dark:hover:bg-slate-800 rounded-lg"
               >
                 <i className={darkMode ? "fa-solid fa-sun" : "fa-solid fa-moon"}></i>
               </button>
-              <button 
-                onClick={() => setMobileMenuOpen(true)} 
-                className="p-2 text-slate-600 dark:text-slate-300 bg-gray-100 dark:bg-slate-800 rounded-lg"
+              <button aria-label="Open Mobile Menu" onClick={() => setMobileMenuOpen(true)} className="p-2 text-slate-600 dark:text-slate-300 bg-gray-100 dark:bg-slate-800 rounded-lg"
               >
                 <i className="fa-solid fa-bars"></i>
               </button>
@@ -121,7 +115,7 @@ const AppShell = ({ children, hideNav = false, fullWidth = false }) => {
             >
               <div className="flex items-center justify-between mb-8">
                 <span className="font-bold text-xl bg-clip-text text-transparent bg-linear-to-r from-indigo-500 to-purple-600">Menu</span>
-                <button onClick={() => setMobileMenuOpen(false)} className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 transition-colors text-slate-600 dark:text-slate-300">
+                <button aria-label="Close Mobile Menu" onClick={() => setMobileMenuOpen(false)} className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 transition-colors text-slate-600 dark:text-slate-300">
                   <i className="fa-solid fa-xmark"></i>
                 </button>
               </div>
@@ -165,17 +159,53 @@ const AppShell = ({ children, hideNav = false, fullWidth = false }) => {
 
       {/* SEO Internal Linking Footer */}
       <footer className="mt-auto border-t border-gray-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-6 py-10 flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex flex-wrap justify-center gap-6 text-sm font-medium text-slate-500 dark:text-slate-400">
-            <Link to="/" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Home</Link>
-            <Link to="/about" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">About Stiknex</Link>
-            <Link to="/tools" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Free Tools</Link>
-            <Link to="/blog" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Blog</Link>
-            <Link to="/notebook" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Online Notebook</Link>
-            <Link to="/whiteboard" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Excalidraw Whiteboard</Link>
+        <div className="max-w-7xl mx-auto px-6 py-12">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8 text-sm">
+            <div>
+              <h3 className="font-semibold text-slate-900 dark:text-white mb-4">Core Apps</h3>
+              <ul className="space-y-3 text-slate-500 dark:text-slate-400">
+                <li><Link to="/notes" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Sticky Notes</Link></li>
+                <li><Link to="/notebook" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Online Notebook</Link></li>
+                <li><Link to="/whiteboard" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Whiteboard</Link></li>
+                <li><Link to="/tools" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">All Utilities</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-semibold text-slate-900 dark:text-white mb-4">Calculators</h3>
+              <ul className="space-y-3 text-slate-500 dark:text-slate-400">
+                <li><Link to="/tools/scientific-calculator" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Scientific Calculator</Link></li>
+                <li><Link to="/tools/simple-calculator" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Basic Calculator</Link></li>
+                <li><Link to="/tools/date-calculator" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Date & Age Calculator</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-semibold text-slate-900 dark:text-white mb-4">Converters</h3>
+              <ul className="space-y-3 text-slate-500 dark:text-slate-400">
+                <li><Link to="/tools/currency-converter" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Currency Converter</Link></li>
+                <li><Link to="/tools/unit-converter" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Unit Converter</Link></li>
+                <li><Link to="/tools/data-converter" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Data Storage Converter</Link></li>
+                <li><Link to="/tools/temperature-converter" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Temperature Converter</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-semibold text-slate-900 dark:text-white mb-4">Generators & Utilities</h3>
+              <ul className="space-y-3 text-slate-500 dark:text-slate-400">
+                <li><Link to="/tools/password-generator" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Password Generator</Link></li>
+                <li><Link to="/tools/qr-generator" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">QR Code Generator</Link></li>
+                <li><Link to="/tools/color-picker" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Color Picker</Link></li>
+              </ul>
+            </div>
           </div>
-          <div className="text-sm text-slate-400 dark:text-slate-500">
-            © {new Date().getFullYear()} Stiknex. All rights reserved.
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4 pt-8 border-t border-gray-200 dark:border-slate-800 text-sm text-slate-400 dark:text-slate-500">
+            <div className="flex gap-6">
+              <Link to="/" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Home</Link>
+              <Link to="/about" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">About Stiknex</Link>
+              <Link to="/blog" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Blog</Link>
+              <Link to="/buy-me-a-coffee" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Support</Link>
+            </div>
+            <div>
+              &copy; {new Date().getFullYear()} Stiknex. All rights reserved. Built by Vishal Mall.
+            </div>
           </div>
         </div>
       </footer>
@@ -184,3 +214,5 @@ const AppShell = ({ children, hideNav = false, fullWidth = false }) => {
 };
 
 export default AppShell;
+
+

@@ -78,7 +78,45 @@ const PageSEO = ({ title, description, path = "/", image, noIndex = false, type 
 
     setMetaByName("title", fullTitle);
     setMetaByName("description", description);
-    if (keywords) setMetaByName("keywords", keywords);
+    
+    // Auto-update system: Fetch and append Google Trends data for SEO boost
+    let finalKeywords = keywords || "";
+    
+    const applyKeywords = (kwStr) => {
+        setMetaByName("keywords", kwStr);
+    };
+    
+    // Set initially
+    applyKeywords(finalKeywords);
+
+    // Fetch live trends to boost SEO
+    const fetchTrendsKeywords = async () => {
+      try {
+        const cacheKey = "seo_dynamic_trends_keywords";
+        const cached = sessionStorage.getItem(cacheKey);
+        if (cached) {
+          const combined = finalKeywords ? `${finalKeywords}, ${cached}` : cached;
+          applyKeywords(combined);
+          return;
+        }
+
+        const res = await fetch("/api/dashboard-trends?geo=US");
+        const json = await res.json();
+        if (json.success && json.data && json.data.topKeywords) {
+          const trendKws = json.data.topKeywords.slice(0, 8).map(k => k.kw).join(", ");
+          sessionStorage.setItem(cacheKey, trendKws);
+          const combined = finalKeywords ? `${finalKeywords}, ${trendKws}` : trendKws;
+          applyKeywords(combined);
+        }
+      } catch (err) {
+        console.warn("Could not fetch SEO trends for auto-update", err);
+      }
+    };
+    
+    if (!noIndex) {
+      fetchTrendsKeywords();
+    }
+
     setMetaByName("robots", noIndex ? "noindex, nofollow" : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1");
 
     setCanonical(url);

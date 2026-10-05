@@ -1,3 +1,4 @@
+import PageSEO from "../../../Component/SEO/PageSEO";
 import { useState } from "react";
 import ToolsStyle from "../Tools.module.css";
 
@@ -27,6 +28,13 @@ const UnitConverter = ({ darkMode, units, defaultUnit }) => {
 
   return (
     <div>
+      <PageSEO
+        title="Length & Weight Unit Converter | Stiknex"
+        description="Convert length, weight, area, and volume units. Convert meters, feet, kilograms, pounds, miles, kilometers, and more."
+        path="/tools/unit-converter"
+        type="webapp"
+        keywords="unit converter, length converter, weight converter, meters to feet, kg to lbs"
+      />
       <div className={ToolsStyle.row}>
         <div className={ToolsStyle.field}>
           <label>Value</label>

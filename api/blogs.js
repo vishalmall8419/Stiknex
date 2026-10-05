@@ -1,7 +1,30 @@
 import connectToDatabase from './_utils/db.js';
 import Blog from './_models/Blog.js';
+import { verifyAdminToken } from './_utils/auth.js';
 
 export default async function handler(req, res) {
+    if (req.method === 'POST') {
+        const dummyReq = { headers: { authorization: req.headers.authorization } };
+        const isAdmin = verifyAdminToken(dummyReq).valid;
+        if (!isAdmin) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+        
+        try {
+            await connectToDatabase();
+            const newBlog = new Blog({
+                ...req.body,
+                trendScore: req.body.trendScore || 0,
+                trendKeyword: req.body.trendKeyword || 'Manual',
+            });
+            await newBlog.save();
+            return res.status(201).json({ message: 'Blog created successfully', blog: newBlog });
+        } catch (error) {
+            console.error('Create Blog Error:', error);
+            return res.status(500).json({ error: error.message });
+        }
+    }
+
     if (req.method !== 'GET') {
         return res.status(405).json({ error: 'Method not allowed' });
     }

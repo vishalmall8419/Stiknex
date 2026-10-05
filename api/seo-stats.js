@@ -10,7 +10,7 @@ export default async function handler(req, res) {
 
     try {
         // --- MULTIPLEXED EXTERNAL MONITORING LOGIC ---
-        if (req.query.action === 'monitor-external') {
+        if (req.query.action === 'monitor-external' || req.query.action === 'ping-projects') {
             const endpoints = [
                 { 
                     id: 'portfolio', 
