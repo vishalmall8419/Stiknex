@@ -135,6 +135,10 @@ const App = () => {
             path="/tools"
             element={<Tools />}
           />
+          <Route
+            path="/tools/:toolId"
+            element={<Tools />}
+          />
 
           {/* Notebook */}
           <Route

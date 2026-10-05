@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAppContext } from "../../context/AppContext";
 import { motion, AnimatePresence } from "framer-motion";
@@ -102,7 +102,7 @@ const AppShell = ({ children, hideNav = false, fullWidth = false }) => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="md:hidden fixed inset-0 z-100 bg-black/60 backdrop-blur-sm" 
+              className="md:hidden fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm" 
               onClick={() => setMobileMenuOpen(false)}
             />
             <motion.div 
@@ -110,7 +110,7 @@ const AppShell = ({ children, hideNav = false, fullWidth = false }) => {
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", bounce: 0, duration: 0.4 }}
-              className="md:hidden fixed top-0 left-0 bottom-0 w-70 max-w-[85vw] z-101 bg-white dark:bg-slate-900 shadow-2xl p-6 flex flex-col border-r border-gray-200 dark:border-slate-800"
+              className="md:hidden fixed top-0 left-0 bottom-0 w-70 max-w-[85vw] z-[101] bg-white dark:bg-slate-900 shadow-2xl p-6 flex flex-col border-r border-gray-200 dark:border-slate-800"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between mb-8">

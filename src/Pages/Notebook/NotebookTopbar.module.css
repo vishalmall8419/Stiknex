@@ -11,8 +11,8 @@
   background: #1b1b1f;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   color: #e4e4e7;
-  /* overflow-x: auto; */
-  /* overflow-y: visible; */
+  overflow-x: auto;
+  overflow-y: visible;
   scrollbar-width: none;
 }
 

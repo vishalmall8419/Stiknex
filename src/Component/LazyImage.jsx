@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 const LazyImage = ({ src, alt, className = '', style, decoding = 'async' }) => {
   const [isIntersecting, setIsIntersecting] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isError, setIsError] = useState(false);
   const imgRef = useRef(null);
 
   useEffect(() => {
@@ -47,12 +48,13 @@ const LazyImage = ({ src, alt, className = '', style, decoding = 'async' }) => {
           src={src}
           alt={alt}
           initial={{ opacity: 0, scale: 1.05 }}
-          animate={{ opacity: isLoaded ? 1 : 0, scale: isLoaded ? 1 : 1.05 }}
+          animate={{ opacity: isLoaded && !isError ? 1 : 0, scale: isLoaded ? 1 : 1.05 }}
           transition={{ duration: 0.7, ease: 'easeOut' }}
           className={"w-full h-full object-cover " + className}
           style={style}
           decoding={decoding}
           onLoad={() => setIsLoaded(true)}
+          onError={() => { setIsError(true); setIsLoaded(true); }}
         />
       )}
     </div>

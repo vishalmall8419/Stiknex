@@ -8,8 +8,10 @@ const Testimonials = () => {
     fetch('/api/reviews?public=true')
       .then(res => res.json())
       .then(data => {
-        if (data.success && data.testimonials.length > 0) {
-          setTestimonials(data.testimonials);
+        // API returns array directly when public=true
+        const list = Array.isArray(data) ? data : (data.testimonials || data.reviews || []);
+        if (list.length > 0) {
+          setTestimonials(list);
         }
       })
       .catch(console.error);
@@ -33,10 +35,10 @@ const Testimonials = () => {
                   <Star key={idx} size={16} fill={idx < testi.rating ? "currentColor" : "none"} />
                 ))}
               </div>
-              <p className="text-slate-700 dark:text-slate-300 mb-6 italic relative z-10">"{testi.content}"</p>
+              <p className="text-slate-700 dark:text-slate-300 mb-6 italic relative z-10">"{testi.message || testi.content}"</p>
               <div>
-                <h4 className="font-bold text-slate-900 dark:text-white">{testi.name}</h4>
-                <p className="text-xs text-indigo-500 font-semibold">{testi.tool}</p>
+                <h4 className="font-bold text-slate-900 dark:text-white">{testi.userName || testi.name || 'Anonymous'}</h4>
+                <p className="text-xs text-indigo-500 font-semibold">{testi.tool || 'Stiknex'}</p>
               </div>
             </div>
           ))}

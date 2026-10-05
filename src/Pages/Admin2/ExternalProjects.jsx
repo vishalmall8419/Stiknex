@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Server, Activity, Clock, CheckCircle, XCircle, RefreshCw, Globe, ArrowUpRight, Cpu } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -23,8 +23,12 @@ const ExternalProjects = () => {
       });
       
       if (res.ok) {
+        const contentType = res.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+           throw new Error("Received non-JSON response (API server might not be running)");
+        }
         const json = await res.json();
-        setServices(json.services && json.services.length > 0 ? json.services : defaultServices.map(s => ({...s, pending: false, ok: false, error: 'No data returned'})));
+        setServices(Array.isArray(json.services) && json.services.length > 0 ? json.services : defaultServices.map(s => ({...s, pending: false, ok: false, error: 'No data returned'})));
         if (json.timestamp) {
             const parsedDate = new Date(json.timestamp);
             if (!isNaN(parsedDate.getTime())) {
@@ -37,7 +41,7 @@ const ExternalProjects = () => {
     } catch (error) {
       console.error("Monitor Error:", error);
       setServices(prev => {
-        const base = prev && prev.length > 0 ? prev : defaultServices;
+        const base = Array.isArray(prev) && prev.length > 0 ? prev : defaultServices;
         return base.map(s => ({ 
           ...s, 
           pending: false, 
@@ -90,7 +94,7 @@ const ExternalProjects = () => {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-        {services && services.map((service, idx) => {
+        {Array.isArray(services) && services.map((service, idx) => {
           if (!service) return null;
           return <ServiceCard key={idx} service={service} />;
         })}

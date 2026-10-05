@@ -1,8 +1,13 @@
-﻿export const seoConfig = {
+export const seoConfig = {
   "/": {
     title: "Stiknex \u2013 Free Sticky Notes, Online Notebook & Productivity Tools",
     description: "Stiknex is a free online productivity platform with infinite sticky boards, AI-powered notebook, Excalidraw whiteboard, calculators, QR code generator and more. No sign-up needed.",
     keywords: "sticky notes, online sticky notes, free sticky notes app, online notebook, digital whiteboard, productivity tools, excalidraw, note taking app, free online tools"
+  },
+  "/notes": {
+    title: "Free Online Sticky Notes | Stiknex",
+    description: "Create, organize, and customize infinite digital sticky notes. A free workspace for brainstorming and note-taking.",
+    keywords: "sticky notes, digital sticky notes, online notes, brainstorm, infinite canvas"
   },
   "/about": {
     title: "About Stiknex \u2013 Free Productivity App by Vishal Mall",
@@ -79,9 +84,39 @@
     description: "Convert temperatures between Celsius, Fahrenheit, and Kelvin. Fast and accurate online temperature conversion tool.",
     keywords: "temperature converter, celsius to fahrenheit, fahrenheit to celsius, kelvin converter"
   },
-  "/tools/unit-converter": {
-    title: "Length & Weight Unit Converter | Stiknex",
-    description: "Convert length, weight, area, and volume units. Convert meters, feet, kilograms, pounds, miles, kilometers, and more.",
-    keywords: "unit converter, length converter, weight converter, meters to feet, kg to lbs"
+  "/tools/length-converter": {
+    title: "Length Unit Converter | Stiknex",
+    description: "Convert length units: meters, feet, inches, miles, kilometers, and more. Free online length conversion tool.",
+    keywords: "length converter, unit converter, meters to feet, miles to km, inches to cm"
+  },
+  "/tools/area-converter": {
+    title: "Area Unit Converter | Stiknex",
+    description: "Convert area units: square meters, acres, hectares, square feet. Free online area conversion tool.",
+    keywords: "area converter, square meters to feet, acres to hectares, unit converter"
+  },
+  "/tools/volume-converter": {
+    title: "Volume Unit Converter | Stiknex",
+    description: "Convert volume units: liters, gallons, cubic meters, cups. Free online volume conversion tool.",
+    keywords: "volume converter, liters to gallons, cups to ml, unit converter"
+  },
+  "/tools/weight-converter": {
+    title: "Weight & Mass Unit Converter | Stiknex",
+    description: "Convert weight and mass units: kilograms, pounds, ounces, grams. Free online weight conversion tool.",
+    keywords: "weight converter, kg to lbs, pounds to kilograms, mass converter"
+  },
+  "/tools/speed-converter": {
+    title: "Speed Converter | Stiknex",
+    description: "Convert speed units: mph, km/h, knots, meters per second. Free online speed conversion tool.",
+    keywords: "speed converter, mph to kmh, knots to mph, unit converter"
+  },
+  "/tools/pressure-converter": {
+    title: "Pressure Converter | Stiknex",
+    description: "Convert pressure units: PSI, bar, Pascal, atmospheres. Free online pressure conversion tool.",
+    keywords: "pressure converter, psi to bar, pascal to atm, unit converter"
+  },
+  "/tools/power-converter": {
+    title: "Power Converter | Stiknex",
+    description: "Convert power units: Watts, horsepower, kilowatts. Free online power conversion tool.",
+    keywords: "power converter, watts to hp, kilowatts to horsepower, unit converter"
   }
 };

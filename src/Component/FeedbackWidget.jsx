@@ -1,41 +1,53 @@
-﻿import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare, Star, X, Send, CheckCircle2 } from 'lucide-react';
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  MessageSquare,
+  Star,
+  X,
+  Send,
+  CheckCircle2,
+  Loader2,
+} from "lucide-react";
 
 const FeedbackWidget = ({ tool = "stiknex" }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
-  const [message, setMessage] = useState('');
-  const [name, setName] = useState('');
-  const [status, setStatus] = useState('idle'); // idle, submitting, success, error
+  const [message, setMessage] = useState("");
+  const [name, setName] = useState("");
+  const [status, setStatus] = useState("idle"); // idle, submitting, success, error
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (rating === 0) return;
-    setStatus('submitting');
-    
+    setStatus("submitting");
+
     try {
-      const res = await fetch('/api/reviews', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ rating, message, tool, userName: name || 'Anonymous' })
+      const res = await fetch("/api/reviews", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          rating,
+          message,
+          tool,
+          userName: name || "Anonymous",
+        }),
       });
-      
+
       if (res.ok) {
-        setStatus('success');
+        setStatus("success");
         setTimeout(() => {
           setIsOpen(false);
-          setStatus('idle');
+          setStatus("idle");
           setRating(0);
-          setMessage('');
-          setName('');
+          setMessage("");
+          setName("");
         }, 3000);
       } else {
-        setStatus('error');
+        setStatus("error");
       }
     } catch (err) {
-      setStatus('error');
+      setStatus("error");
     }
   };
 
@@ -51,24 +63,37 @@ const FeedbackWidget = ({ tool = "stiknex" }) => {
           >
             <div className="bg-indigo-600 text-white p-4 flex justify-between items-center">
               <h3 className="font-bold">Rate & Review</h3>
-              <button onClick={() => setIsOpen(false)} className="hover:bg-white/20 p-1 rounded-full transition">
+              <button
+                onClick={() => setIsOpen(false)}
+                className="hover:bg-white/20 p-1 rounded-full transition"
+              >
                 <X size={18} />
               </button>
             </div>
-            
+
             <div className="p-5">
-              {status === 'success' ? (
+              {status === "success" ? (
                 <div className="flex flex-col items-center justify-center py-8 text-center">
-                  <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="text-green-500 mb-3">
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="text-green-500 mb-3"
+                  >
                     <CheckCircle2 size={48} />
                   </motion.div>
-                  <h4 className="font-bold text-lg text-slate-800 dark:text-white">Thank You!</h4>
-                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">Your feedback helps us improve Stiknex.</p>
+                  <h4 className="font-bold text-lg text-slate-800 dark:text-white">
+                    Thank You!
+                  </h4>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
+                    Your feedback helps us improve Stiknex.
+                  </p>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                   <div>
-                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 block">How would you rate this tool?</label>
+                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 block">
+                      How would you rate this tool?
+                    </label>
                     <div className="flex gap-2">
                       {[1, 2, 3, 4, 5].map((star) => (
                         <button
@@ -79,19 +104,25 @@ const FeedbackWidget = ({ tool = "stiknex" }) => {
                           onClick={() => setRating(star)}
                           className="focus:outline-none transition-transform hover:scale-110"
                         >
-                          <Star 
-                            size={28} 
-                            className={(hoverRating || rating) >= star ? 'fill-amber-400 text-amber-400' : 'text-slate-300 dark:text-slate-600'} 
+                          <Star
+                            size={28}
+                            className={
+                              (hoverRating || rating) >= star
+                                ? "fill-amber-400 text-amber-400"
+                                : "text-slate-300 dark:text-slate-600"
+                            }
                           />
                         </button>
                       ))}
                     </div>
                   </div>
-                  
+
                   <div>
-                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1 block">Your Name (Optional)</label>
-                    <input 
-                      type="text" 
+                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1 block">
+                      Your Name (Optional)
+                    </label>
+                    <input
+                      type="text"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder="Jane Doe"
@@ -100,8 +131,10 @@ const FeedbackWidget = ({ tool = "stiknex" }) => {
                   </div>
 
                   <div>
-                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1 block">Feedback or Message</label>
-                    <textarea 
+                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1 block">
+                      Feedback or Message
+                    </label>
+                    <textarea
                       required
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
@@ -111,14 +144,24 @@ const FeedbackWidget = ({ tool = "stiknex" }) => {
                     />
                   </div>
 
-                  {status === 'error' && <p className="text-red-500 text-xs font-bold">Failed to submit. Please try again.</p>}
+                  {status === "error" && (
+                    <p className="text-red-500 text-xs font-bold">
+                      Failed to submit. Please try again.
+                    </p>
+                  )}
 
-                  <button 
-                    type="submit" 
-                    disabled={rating === 0 || status === 'submitting'}
+                  <button
+                    type="submit"
+                    disabled={rating === 0 || status === "submitting"}
                     className="w-full py-2.5 bg-indigo-600 text-white rounded-lg font-bold flex items-center justify-center gap-2 hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed mt-2"
                   >
-                    {status === 'submitting' ? <Loader2 className="animate-spin" size={18} /> : <><Send size={16} /> Submit Feedback</>}
+                    {status === "submitting" ? (
+                      <Loader2 className="animate-spin" size={18} />
+                    ) : (
+                      <>
+                        <Send size={16} /> Submit Feedback
+                      </>
+                    )}
                   </button>
                 </form>
               )}
@@ -126,8 +169,8 @@ const FeedbackWidget = ({ tool = "stiknex" }) => {
           </motion.div>
         )}
       </AnimatePresence>
-      
-      <button 
+
+      <button
         onClick={() => setIsOpen(!isOpen)}
         className="w-12 h-12 bg-indigo-600 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-indigo-700 transition hover:scale-105"
         title="Leave Feedback"

@@ -1,4 +1,4 @@
-﻿import connectToDatabase from './_utils/db.js';
+import connectToDatabase from './_utils/db.js';
 import Blog from './_models/Blog.js';
 import { seoConfig } from './_utils/seoConfig.js';
 
@@ -42,15 +42,6 @@ export default async function handler(req, res) {
     <priority>${priority}</priority>
   </url>`;
         }
-
-        // Add Notes since it's not in seoConfig explicitly (or maybe add it manually)
-        xml += `
-  <url>
-    <loc>${baseUrl}/notes</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>`;
 
         // Add dynamic blogs
         blogs.forEach(blog => {

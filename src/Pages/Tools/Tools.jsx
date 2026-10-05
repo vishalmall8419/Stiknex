@@ -1,5 +1,7 @@
-import { useState, useEffect, } from "react";
-import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
+import { useParams, useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
@@ -101,8 +103,8 @@ const ToolModal = ({ activeTool, onClose }) => {
   if (!activeTool) return null;
   const tool = tools.find(t => t.id === activeTool);
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-md" onClick={onClose}>
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-md" onClick={onClose}>
       <motion.div 
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -145,7 +147,8 @@ const ToolModal = ({ activeTool, onClose }) => {
           {activeTool === "color" && <ColorPicker />}
         </div>
       </motion.div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
@@ -170,7 +173,48 @@ const cardVariants = {
 };
 
 const Tools = () => {
-  const [activeTool, setActiveTool] = useState(null);
+  const { toolId } = useParams();
+  const navigate = useNavigate();
+
+  const slugToId = {
+    "color-picker": "color",
+    "currency-converter": "currency",
+    "data-converter": "converter",
+    "qr-generator": "qrcode",
+    "password-generator": "password",
+    "scientific-calculator": "scientific",
+    "simple-calculator": "simple",
+    "date-calculator": "datetime",
+    "length-converter": "length",
+    "area-converter": "area",
+    "volume-converter": "volume",
+    "weight-converter": "weight",
+    "temperature-converter": "temperature",
+    "speed-converter": "speed",
+    "pressure-converter": "pressure",
+    "power-converter": "power"
+  };
+  const idToSlug = Object.fromEntries(Object.entries(slugToId).map(([k, v]) => [v, k]));
+
+  const initialTool = toolId ? (slugToId[toolId] || (tools.find(t => t.id === toolId) ? toolId : null)) : null;
+  const [activeTool, setActiveTool] = useState(initialTool);
+
+  useEffect(() => {
+     if (toolId) {
+        const id = slugToId[toolId] || (tools.find(t => t.id === toolId) ? toolId : null);
+        setActiveTool(id);
+     } else {
+        setActiveTool(null);
+     }
+  }, [toolId]);
+
+  const handleOpenTool = (tId) => { 
+     const slug = idToSlug[tId] || tId;
+     navigate(`/tools/${slug}`);
+  };
+  const handleClose = () => { 
+     navigate("/tools"); 
+  };
 
   useEffect(() => {
     // Lenis Smooth Scrolling Setup
@@ -196,27 +240,29 @@ const Tools = () => {
     };
   }, []);
 
+  const currentTool = activeTool ? tools.find(t => t.id === activeTool) : null;
+
   return (
     <AppShell fullWidth={true}>
       <PageSEO
-  title="Free Online Tools - Calculator, Converter, QR Code Generator | Stiknex"
-  description="Access 10+ free online tools: scientific calculator, unit converter, currency converter, QR code generator, password generator, color picker, data converter and more. No sign-up needed."
-  path="/tools"
-  type="webapp"
-  keywords="free online calculator, scientific calculator, unit converter, currency converter, QR code generator, password generator, color picker, online tools"
-  faqs={[
-    { q: 'What free tools are on Stiknex?', a: 'Scientific calculator, unit converter, currency converter, QR code generator, password generator, color picker, temperature and data converters.' },
-    { q: 'Is the QR code generator free?', a: 'Yes, completely free with no sign-up.' }
-  ]}
-/>
+        title={currentTool ? `${currentTool.title} | Free Online Tool | Stiknex` : "Free Online Tools - Calculator, Converter, QR Code Generator | Stiknex"}
+        description={currentTool ? `Free online ${currentTool.title.toLowerCase()}. ${currentTool.desc} No sign-up required.` : "Access 10+ free online tools: scientific calculator, unit converter, currency converter, QR code generator, password generator, color picker, data converter and more. No sign-up needed."}
+        path={currentTool ? `/tools/${idToSlug[activeTool] || activeTool}` : "/tools"}
+        type="webapp"
+        keywords={currentTool ? `${currentTool.title.toLowerCase()}, online ${currentTool.title.toLowerCase()}, free ${currentTool.title.toLowerCase()}, stiknex tools` : "free online calculator, scientific calculator, unit converter, currency converter, QR code generator, password generator, color picker, online tools"}
+        faqs={!currentTool ? [
+          { q: 'What free tools are on Stiknex?', a: 'Scientific calculator, unit converter, currency converter, QR code generator, password generator, color picker, temperature and data converters.' },
+          { q: 'Is the QR code generator free?', a: 'Yes, completely free with no sign-up.' }
+        ] : null}
+      />
 
-      <div className="relative min-h-screen pb-32">
+      <div className="relative min-h-screen pb-32 overflow-x-hidden">
         {/* Animated Background Pattern */}
         <div className="absolute inset-0 bg-[radial-gradient(#cbd5e1_1.5px,transparent_1.5px)] dark:bg-[radial-gradient(#334155_1.5px,transparent_1.5px)] [background-size:40px_40px] opacity-30 -z-10 pointer-events-none"></div>
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500/10 dark:bg-indigo-500/20 rounded-full blur-[100px] -z-10 pointer-events-none"></div>
-        <div className="absolute top-[20%] left-0 w-[600px] h-[600px] bg-cyan-500/10 dark:bg-cyan-500/20 rounded-full blur-[120px] -z-10 pointer-events-none"></div>
+        <div className="absolute top-0 right-0 w-72 h-72 md:w-[500px] md:h-[500px] bg-indigo-500/10 dark:bg-indigo-500/20 rounded-full blur-[100px] -z-10 pointer-events-none"></div>
+        <div className="absolute top-[20%] left-0 w-72 h-72 md:w-[600px] md:h-[600px] bg-cyan-500/10 dark:bg-cyan-500/20 rounded-full blur-[120px] -z-10 pointer-events-none"></div>
 
-        <div className="max-w-7xl mx-auto px-6 pt-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-20 sm:pt-24">
           
           {/* ================= HERO SECTION ================= */}
           <div className="text-center mb-24 flex flex-col items-center">
@@ -257,7 +303,7 @@ const Tools = () => {
                 whileHover={{ y: -8, scale: 1.02 }}
                 whileTap={{ scale: 0.95 }}
                 key={t.id}
-                onClick={() => setActiveTool(t.id)}
+                onClick={() => handleOpenTool(t.id)}
                 className="tool-card group flex flex-col text-left p-6 md:p-8 rounded-[2rem] bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-white dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-black/40 hover:border-indigo-500/50 dark:hover:border-indigo-500/50 hover:shadow-2xl hover:shadow-indigo-500/20 transition-all duration-300 relative overflow-hidden"
               >
                 {/* Hover Glow Effect */}
@@ -286,7 +332,7 @@ const Tools = () => {
         </div>
       </div>
 
-      <ToolModal activeTool={activeTool} onClose={() => setActiveTool(null)} />
+      <ToolModal activeTool={activeTool} onClose={handleClose} />
     </AppShell>
   );
 };
