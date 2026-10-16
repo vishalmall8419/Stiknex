@@ -3,7 +3,13 @@ import jwt from 'jsonwebtoken';
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_stiknex_super_secret_key_2026';
 
 export function verifyAdminToken(req) {
-    const authHeader = req.headers.authorization;
+    let authHeader = '';
+    if (typeof req === 'string') {
+        authHeader = req.startsWith('Bearer ') ? req : 'Bearer ' + req;
+    } else if (req && req.headers) {
+        authHeader = req.headers.authorization || req.headers['authorization'] || '';
+    }
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return { valid: false, message: 'Missing or invalid authorization header.' };
     }

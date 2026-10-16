@@ -1,6 +1,34 @@
 {
   "rewrites": [
     {
+      "source": "/api/auth/login",
+      "destination": "/api/auth?action=login"
+    },
+    {
+      "source": "/api/auth/setup-2fa",
+      "destination": "/api/auth?action=setup-2fa"
+    },
+    {
+      "source": "/api/admin-blogs",
+      "destination": "/api/blogs?admin=true"
+    },
+    {
+      "source": "/api/dashboard-trends",
+      "destination": "/api/trends?view=dashboard"
+    },
+    {
+      "source": "/api/trends-admin",
+      "destination": "/api/trends?view=admin"
+    },
+    {
+      "source": "/api/latest-keywords",
+      "destination": "/api/trends?view=keywords"
+    },
+    {
+      "source": "/api/external-services",
+      "destination": "/api/seo-stats?action=monitor-external"
+    },
+    {
       "source": "/api/monitor-external",
       "destination": "/api/seo-stats?action=monitor-external"
     },
@@ -10,7 +38,7 @@
     },
     {
       "source": "/blog/:slug",
-      "destination": "/api/render-blog?slug=$1"
+      "destination": "/api/render-page?slug=$1&type=blog"
     },
     {
       "source": "/((?!api/)(?!.*\\.).*)",
@@ -29,7 +57,7 @@
   ],
   "functions": {
     "api/**/*.js": {
-      "maxDuration": 60
+      "maxDuration": 15
     }
   }
 }
