@@ -141,11 +141,11 @@ const About = () => {
   return (
     <AppShell fullWidth={true}>
       <PageSEO
-  title="About Stiknex - Free Productivity App by Vishal Mall"
-  description="Learn about Stiknex, a free online productivity platform built by Vishal Mall. Discover the story, mission, and technology behind Stiknex sticky notes, notebook, whiteboard and tools."
+  title="About Stiknex – Free Online Productivity Platform"
+  description="Learn about Stiknex, a free privacy-first online workspace offering sticky notes, notebooks, interactive whiteboards, and online productivity tools."
   path="/about"
   type="website"
-  keywords="about stiknex, stiknex developer, vishal mall, productivity app, free notes app"
+  keywords="about stiknex, productivity platform, free notes app, digital workspace, online tools"
 />
 
       <div className="relative min-h-screen">
@@ -209,92 +209,31 @@ const About = () => {
           </section>
 
 
-          {/* ================= CREATOR STORY SECTION ================= */}
+          {/* ================= PLATFORM MISSION SECTION ================= */}
           <section className="max-w-7xl mx-auto px-6 mb-32 relative">
-            
             <FadeIn>
               <div className="w-full rounded-[3rem] bg-indigo-50/80 dark:bg-slate-950 text-slate-900 dark:text-white p-8 md:p-16 relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-indigo-100 dark:border-slate-800 backdrop-blur-xl">
-                {/* Background Glows */}
-                <motion.div 
-                  animate={{ rotate: 360 }} 
-                  transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                  className="absolute -top-1/2 -right-1/4 w-[800px] h-[800px] bg-gradient-to-br from-indigo-500/20 to-purple-500/20 dark:from-indigo-600/30 dark:to-purple-600/30 blur-[100px] rounded-full pointer-events-none"
-                />
-                
-                <div className="relative z-10 flex flex-col lg:flex-row gap-16 items-start">
-                  
-                  {/* Left Column: Sticky Profile */}
-                  <div className="w-full lg:w-1/3 lg:sticky lg:top-32 flex flex-col items-center lg:items-start text-center lg:text-left">
-                    <motion.div 
-                      whileHover={{ scale: 1.05 }}
-                      className="w-48 h-48 rounded-[2rem] bg-gradient-to-br from-indigo-500 via-purple-500 to-cyan-500 p-1 mb-8 shadow-2xl transform rotate-3 transition-transform duration-500"
-                    >
-                      <div className="w-full h-full rounded-[1.8rem] bg-slate-100 dark:bg-slate-900 flex items-center justify-center text-7xl font-black text-slate-900 dark:text-white overflow-hidden relative">
-                        <img src="/creator.jpg" alt="Vishal Mall" className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 ring-1 ring-inset ring-black/10 dark:ring-white/10 rounded-[1.8rem]"></div>
-                      </div>
-                    </motion.div>
-                    
-                    <h2 className="text-4xl font-black mb-2"><ShinyText>Vishal Mall</ShinyText></h2>
-                    <p className="text-indigo-600 dark:text-indigo-400 text-lg font-bold mb-6 flex items-center gap-2 justify-center lg:justify-start">
-                      <Code2 size={20} /> Frontend Developer
-                    </p>
-                    
-                    <div className="flex gap-4 justify-center lg:justify-start w-full">
-                      <a aria-label="GitHub Profile" href="https://github.com/vishalmall8419" target="_blank" rel="noreferrer" className="w-12 h-12 rounded-2xl bg-slate-200 dark:bg-white/10 hover:bg-slate-300 dark:hover:bg-white/20 flex items-center justify-center text-xl transition-all hover:-translate-y-1 hover:shadow-lg backdrop-blur-md text-slate-700 dark:text-white">
-                        <i className="fa-brands fa-github"></i>
-                      </a>
-                      <a href="https://www.linkedin.com/in/vishal-mall-536506302/" target="_blank" rel="noreferrer" className="w-12 h-12 rounded-2xl bg-[#0a66c2]/10 dark:bg-[#0a66c2]/20 hover:bg-[#0a66c2]/20 dark:hover:bg-[#0a66c2]/40 text-[#0a66c2] hover:text-[#0a66c2] dark:hover:text-white flex items-center justify-center text-xl transition-all hover:-translate-y-1 hover:shadow-lg backdrop-blur-md">
-                        <i className="fa-brands fa-linkedin"></i>
-                      </a>
-                      <a href="https://x.com/MrVishalMa24207" target="_blank" rel="noreferrer" className="w-12 h-12 rounded-2xl bg-slate-200 dark:bg-white/10 hover:bg-slate-300 dark:hover:bg-white/20 flex items-center justify-center text-xl transition-all hover:-translate-y-1 hover:shadow-lg backdrop-blur-md text-slate-700 dark:text-white">
-                        <i className="fa-brands fa-x-twitter"></i>
-                      </a>
-                    </div>
+                <div className="relative z-10 max-w-4xl mx-auto text-center space-y-6">
+                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-100 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-semibold text-sm">
+                    <Sparkles size={16} /> Privacy-First & Always Free
                   </div>
-
-                  {/* Right Column: Story & Tech */}
-                  <div className="w-full lg:w-2/3 space-y-16">
-                    
-                    <FadeIn direction="right">
-                      <h3 className="text-2xl font-bold mb-4 flex items-center gap-3">
-                        <Sparkles className="text-indigo-600 dark:text-indigo-400" /> The Journey
-                      </h3>
-                      <p className="text-slate-700 dark:text-slate-300 text-lg leading-relaxed mb-4">
-                        Hello! I am a passionate Frontend Developer currently working at <strong>Starchain Lab</strong> in Bhopal, Madhya Pradesh. I love turning complex problems into simple, beautiful, and intuitive designs.
-                      </p>
-                      <p className="text-slate-700 dark:text-slate-300 text-lg leading-relaxed">
-                        I built <strong>Stiknex</strong> because I couldn't find a productivity app that felt right. They were all either too slow, too cluttered, or required constant internet connection. So I combined my love for clean UI and performant web technologies to create the ultimate workspace.
-                      </p>
-                    </FadeIn>
-
-                    <FadeIn direction="right" delay={0.2}>
-                      <h3 className="text-2xl font-bold mb-6 flex items-center gap-3">
-                        <Database className="text-cyan-600 dark:text-cyan-400" /> Tech Arsenal
-                      </h3>
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                        {['React.js', 'Tailwind CSS', 'GSAP', 'Framer Motion', 'Java', 'MySQL', 'JavaScript (ES6+)'].map((tech, idx) => (
-                          <motion.div 
-                            key={idx}
-                            whileHover={{ scale: 1.05, backgroundColor: "var(--hover-bg)" }}
-                            style={{ "--hover-bg": "rgba(99, 102, 241, 0.1)" }}
-                            className="px-4 py-3 bg-white/50 dark:bg-white/5 rounded-xl border border-slate-200 dark:border-white/10 text-slate-800 dark:text-slate-200 font-medium flex items-center justify-center text-center cursor-default transition-colors shadow-sm dark:shadow-none"
-                          >
-                            {tech}
-                          </motion.div>
-                        ))}
-                      </div>
-                    </FadeIn>
-
-                    <FadeIn direction="right" delay={0.4}>
-                      <div className="p-8 rounded-3xl bg-gradient-to-br from-indigo-100/50 to-purple-100/50 dark:from-indigo-900/50 dark:to-purple-900/50 border border-indigo-200 dark:border-indigo-500/30">
-                        <h3 className="text-xl font-bold mb-2">Beyond the Screen</h3>
-                        <p className="text-slate-700 dark:text-slate-300">
-                          When I'm not writing code, I'm an avid reader. I find immense inspiration in books like <em>"Jeet Aapki"</em> by Shiv Khera and the classic <em>"Godan"</em> by Munshi Premchand.
-                        </p>
-                      </div>
-                    </FadeIn>
-
+                  <h3 className="text-3xl md:text-5xl font-black">Built for Speed, Focus & Privacy</h3>
+                  <p className="text-slate-700 dark:text-slate-300 text-lg md:text-xl leading-relaxed">
+                    Stiknex was engineered to provide instant productivity utilities without bloated sign-ups, mandatory tracking, or paywalls. Every tool runs directly in your browser with local data persistence so your notes, thoughts, and calculations remain 100% private to you.
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 text-left">
+                    <div className="p-6 rounded-2xl bg-white/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
+                      <h4 className="font-bold text-lg mb-2 text-indigo-600 dark:text-indigo-400">⚡ Zero Friction</h4>
+                      <p className="text-slate-600 dark:text-slate-400 text-sm">No accounts, no email verifications, and no paywalls. Open the browser and begin working instantly.</p>
+                    </div>
+                    <div className="p-6 rounded-2xl bg-white/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
+                      <h4 className="font-bold text-lg mb-2 text-purple-600 dark:text-purple-400">🔒 Local-First Security</h4>
+                      <p className="text-slate-600 dark:text-slate-400 text-sm">Your notes and diagrams stay securely on your device's browser storage without unauthorized third-party telemetry.</p>
+                    </div>
+                    <div className="p-6 rounded-2xl bg-white/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
+                      <h4 className="font-bold text-lg mb-2 text-cyan-600 dark:text-cyan-400">📱 Truly Universal</h4>
+                      <p className="text-slate-600 dark:text-slate-400 text-sm">Full PWA support allows you to install Stiknex on mobile, tablet, and desktop for offline-ready access.</p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -370,7 +309,7 @@ const About = () => {
                   <Rocket size={20} /> Launch Workspace
                 </Link>
                 <a href="mailto:vishal.mall02@outlook.com" className="px-8 py-4 rounded-full bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-bold text-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all hover:scale-105 flex items-center justify-center gap-2">
-                  Contact Me
+                  Contact Support
                 </a>
               </div>
             </FadeIn>

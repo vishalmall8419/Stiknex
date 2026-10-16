@@ -1,26 +1,19 @@
-import React, { useEffect, useRef, useState, lazy, Suspense, useMemo } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
 import PageSEO from "../../Component/SEO/PageSEO";
-import { ArrowRight, Sparkles, Zap, Coffee, BookOpen, Loader2, ChevronRight } from "lucide-react";
+import { ArrowRight, Sparkles, Zap, BookOpen, Loader2, Search, Clock, Calendar } from "lucide-react";
 import { useAppContext } from "../../context/AppContext";
 import LazyImage from "../../Component/LazyImage";
 
-const TiltCard = lazy(() => import("./TiltCard"));
-const CardDeck = lazy(() => import("./CardDeck"));
-
-gsap.registerPlugin(ScrollTrigger);
-
-// Pure component to prevent unnecessary re-renders of background
+// Smooth ambient gradient background
 const AuroraBackground = React.memo(() => (
   <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10 bg-slate-50 dark:bg-slate-950 transition-colors duration-500">
     <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-500/20 dark:bg-indigo-600/20 blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-blob"></div>
     <div className="absolute top-[10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-purple-500/20 dark:bg-purple-600/20 blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-blob animation-delay-2000"></div>
     <div className="absolute bottom-[-20%] left-[20%] w-[50%] h-[50%] rounded-full bg-blue-500/20 dark:bg-blue-600/20 blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-blob animation-delay-4000"></div>
-    <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1.5px,transparent_1.5px)] dark:bg-[radial-gradient(#334155_1.5px,transparent_1.5px)] bg-size-[40px_40px] opacity-40"></div>
+    <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1.5px,transparent_1.5px)] dark:bg-[radial-gradient(#334155_1.5px,transparent_1.5px)] bg-[size:40px_40px] opacity-40"></div>
     
     <style>{`
       @keyframes blob {
@@ -39,50 +32,42 @@ const AuroraBackground = React.memo(() => (
 const Blog = () => {
   const { darkMode, toggleDarkMode } = useAppContext();
   const containerRef = useRef(null);
-  const horizontalRef = useRef(null);
-  const horizontalContainerRef = useRef(null);
   const observerTarget = useRef(null);
   
   const { scrollYProgress } = useScroll();
-  const y = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
+  const y = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
   
   const [blogsData, setBlogsData] = useState([]);
-  const [visibleCount, setVisibleCount] = useState(25);
+  const [visibleCount, setVisibleCount] = useState(18);
   const [isDataLoaded, setIsDataLoaded] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
   
-  // Fast loading using native fetch instead of Vite import transpilation
   useEffect(() => {
-    fetch("/api/blogs").then(res => res.ok ? res.json() : []).then(dynamicBlogs => {
-        // Format dynamic blogs to match static structure
-        const formattedDynamic = dynamicBlogs.map(b => ({
+    fetch("/api/blogs")
+      .then(res => res.ok ? res.json() : [])
+      .then(dynamicBlogs => {
+        const formatted = dynamicBlogs.map(b => ({
           id: b.slug,
           title: b.title,
-          briefDescription: b.excerpt,
-          image: b.imageUrl,
-          date: new Date(b.publishedAt).toLocaleDateString(),
-          category: "Trending",
-          readTime: "5 min read",
-          isDynamic: true
+          briefDescription: b.excerpt || (b.content ? b.content.replace(/<[^>]+>/g, '').slice(0, 160) + '...' : ''),
+          image: b.imageUrl || (b.images && b.images[0]) || '/logo.png',
+          date: b.publishedAt ? new Date(b.publishedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "Recent",
+          category: b.category || "Productivity",
+          readTime: b.readTime || "5 min read",
         }));
-        
-        setBlogsData(formattedDynamic);
-      setIsDataLoaded(true);
-    }).catch(err => {
-      console.error("Error loading blogs:", err);
-      setIsDataLoaded(true);
-    });
+        setBlogsData(formatted);
+        setIsDataLoaded(true);
+      })
+      .catch(err => {
+        console.error("Error loading blogs:", err);
+        setIsDataLoaded(true);
+      });
   }, []);
   
-  // Memoize sliced arrays to prevent re-mapping on simple re-renders
-  const featuredPosts = useMemo(() => blogsData.slice(0, 5), [blogsData]);
-  const deepDives = useMemo(() => blogsData.slice(5, 10), [blogsData]);
-  const bentoPosts = useMemo(() => blogsData.slice(10, 14), [blogsData]);
-  const gridPosts = useMemo(() => blogsData.slice(14, visibleCount), [blogsData, visibleCount]);
-  
+  // Smooth scroll init
   useEffect(() => {
     if (!isDataLoaded) return;
-    
-    // Smooth scrolling
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -96,57 +81,45 @@ const Blog = () => {
     }
     requestAnimationFrame(raf);
 
-    // Context scoping for GSAP prevents memory leaks
-    const ctx = gsap.context(() => {
-      gsap.from(".hero-text", { y: 40, opacity: 0, duration: 0.8, ease: "power3.out", delay: 0.1 });
-
-      const mm = gsap.matchMedia();
-      mm.add("(min-width: 1024px)", () => {
-        if (horizontalRef.current && horizontalContainerRef.current) {
-          const cards = gsap.utils.toArray('.horizontal-card');
-          const totalWidth = horizontalContainerRef.current.scrollWidth;
-          const scrollDist = totalWidth - window.innerWidth + 200;
-          
-          gsap.to(cards, {
-            x: -scrollDist,
-            ease: "none",
-            scrollTrigger: {
-              trigger: horizontalRef.current,
-              pin: true,
-              scrub: 1,
-              start: "center center",
-              end: () => `+=${scrollDist}`
-            }
-          });
-        }
-      });
-      
-      // Entrance animation for first batch
-      
-      
-    }, containerRef);
-
-    return () => {
-      lenis.destroy();
-      ctx.revert();
-    };
+    return () => lenis.destroy();
   }, [isDataLoaded]);
 
-  // Intersection Observer for infinite scrolling (debounced implicitly by threshold)
+  // Categories list
+  const categories = useMemo(() => {
+    const set = new Set(["All"]);
+    blogsData.forEach(b => { if (b.category) set.add(b.category); });
+    return Array.from(set);
+  }, [blogsData]);
+
+  // Filtered blogs based on search and category
+  const filteredBlogs = useMemo(() => {
+    return blogsData.filter(b => {
+      const matchesCat = selectedCategory === "All" || b.category.toLowerCase() === selectedCategory.toLowerCase();
+      const matchesSearch = !searchQuery || 
+        b.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        b.briefDescription.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesCat && matchesSearch;
+    });
+  }, [blogsData, selectedCategory, searchQuery]);
+
+  const featuredPost = filteredBlogs[0];
+  const sideSpotlights = filteredBlogs.slice(1, 3);
+  const remainingPosts = filteredBlogs.slice(3, visibleCount);
+
+  // Infinite scroll
   useEffect(() => {
     if (!isDataLoaded) return;
-    
     const observer = new IntersectionObserver(
       entries => {
-        if (entries[0].isIntersecting && visibleCount < blogsData.length) {
-          setVisibleCount(prev => Math.min(prev + 12, blogsData.length));
+        if (entries[0].isIntersecting && visibleCount < filteredBlogs.length) {
+          setVisibleCount(prev => Math.min(prev + 12, filteredBlogs.length));
         }
       },
-      { threshold: 0.1, rootMargin: "300px" } // Pre-load earlier
+      { threshold: 0.1, rootMargin: "250px" }
     );
     if (observerTarget.current) observer.observe(observerTarget.current);
     return () => observer.disconnect();
-  }, [isDataLoaded, visibleCount, blogsData.length]);
+  }, [isDataLoaded, visibleCount, filteredBlogs.length]);
 
   if (!isDataLoaded) {
     return (
@@ -157,229 +130,277 @@ const Blog = () => {
   }
 
   return (
-    <div ref={containerRef} className="relative min-h-screen overflow-hidden text-slate-900 dark:text-slate-100 selection:bg-indigo-500/30 font-sans">
+    <div ref={containerRef} className="relative min-h-screen overflow-x-hidden text-slate-900 dark:text-slate-100 selection:bg-indigo-500/30 font-sans">
       <PageSEO
-  title="Blog - Productivity Tips, Notes & Tools Guides | Stiknex"
-  description="Read the Stiknex blog for productivity tips, note-taking guides, digital workspace advice, and tutorials on sticky notes, notebooks, whiteboards and online tools."
-  path="/blog"
-  type="website"
-  keywords="productivity blog, note taking tips, sticky notes guide, online tools blog, digital workspace tips, stiknex blog"
-/>
+        title="Blog – Productivity Tips, Notes & Tools Guides | Stiknex"
+        description="Read the Stiknex blog for productivity tips, note-taking guides, digital workspace advice, and tutorials on sticky notes, notebooks, whiteboards and online tools."
+        path="/blog"
+        type="website"
+        keywords="productivity blog, note taking tips, sticky notes guide, online tools blog, digital workspace tips, stiknex blog"
+      />
       <AuroraBackground />
 
-      {/* Floating Navbar */}
-      <nav className="fixed top-4 sm:top-6 left-1/2 -translate-x-1/2 z-50 px-3 min-[350px]:px-4 py-2 sm:px-6 sm:py-3 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.1)] flex items-center gap-2 min-[350px]:gap-3 sm:gap-8 w-max max-w-[95vw]">
-        <Link to="/" className="flex items-center gap-1.5 sm:gap-2 group">
-          <img src="/logo.png" alt="Stiknex Logo" className="w-6 h-6 sm:w-8 sm:h-8 object-contain group-hover:scale-105 transition-transform drop-shadow-sm" />
-          <span className="font-extrabold text-base min-[350px]:text-lg sm:text-xl tracking-tight bg-clip-text text-transparent bg-linear-to-r from-indigo-500 to-purple-600">Stiknex</span>
+      {/* Clean Global Navbar */}
+      <nav className="fixed top-3 sm:top-5 left-1/2 -translate-x-1/2 z-50 px-3 sm:px-6 py-2 sm:py-2.5 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800/60 rounded-full shadow-lg flex items-center gap-2 sm:gap-6 max-w-[96vw] overflow-x-auto no-scrollbar">
+        <Link to="/" className="flex items-center gap-1.5 sm:gap-2 shrink-0 group">
+          <img src="/logo.png" alt="Stiknex Logo" className="w-6 h-6 sm:w-7 sm:h-7 object-contain group-hover:scale-105 transition-transform" />
+          <span className="font-black text-sm sm:text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-600">Stiknex</span>
         </Link>
-        <div className="flex gap-2 min-[350px]:gap-3 sm:gap-4 items-center">
-          <button onClick={toggleDarkMode} className="text-slate-600 dark:text-slate-400 hover:text-indigo-500 transition-colors">
-            {darkMode ? <Sparkles size={14} className="min-[350px]:w-4 min-[350px]:h-4 sm:w-4.5 sm:h-4.5" /> : <Zap size={14} className="min-[350px]:w-4 min-[350px]:h-4 sm:w-4.5 sm:h-4.5" />}
+        <div className="flex items-center gap-1 sm:gap-4 shrink-0 text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300">
+          <Link to="/sticky-notes" className="px-2 py-1 rounded-lg hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors whitespace-nowrap">Sticky Notes</Link>
+          <Link to="/online-notebook" className="px-2 py-1 rounded-lg hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors whitespace-nowrap">Notepad</Link>
+          <Link to="/whiteboard" className="px-2 py-1 rounded-lg hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors whitespace-nowrap">Whiteboard</Link>
+          <Link to="/tools" className="px-2 py-1 rounded-lg hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors whitespace-nowrap">Tools</Link>
+          <Link to="/blog" className="px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 font-semibold whitespace-nowrap">Blog</Link>
+          <Link to="/about" className="px-2 py-1 rounded-lg hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors whitespace-nowrap">About</Link>
+        </div>
+        <div className="flex items-center gap-2 shrink-0 pl-1 border-l border-slate-200 dark:border-slate-800">
+          <button onClick={toggleDarkMode} className="p-1.5 rounded-full text-slate-600 dark:text-slate-400 hover:text-indigo-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" title="Toggle Dark Mode">
+            {darkMode ? <Sparkles size={16} /> : <Zap size={16} />}
           </button>
-          <Link to="/" className="hidden min-[350px]:block text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-indigo-500 transition-colors">Home</Link>
-          <span className="hidden min-[350px]:block text-xs sm:text-sm font-bold text-indigo-600 dark:text-indigo-400">Blog</span>
-          <Link to="/notes" className="px-2.5 py-1 min-[350px]:px-3 min-[350px]:py-1.5 sm:px-4 sm:py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full text-[10px] min-[350px]:text-xs sm:text-sm font-semibold transition-transform hover:scale-105 shadow-md whitespace-nowrap">
-            Launch App
-          </Link>
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="relative pt-40 pb-10 px-6 min-h-[40vh] flex flex-col items-center justify-center">
-        <motion.div style={{ y }} className="max-w-4xl mx-auto text-center z-10 w-full hero-text">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold text-xs sm:text-sm mb-6 sm:mb-8 border border-indigo-100 dark:border-indigo-500/20 shadow-sm mx-auto max-w-full">
-            <BookOpen size={16} className="shrink-0" /> Stiknex Blog
+      {/* Hero Header */}
+      <header className="relative pt-36 pb-12 px-6 flex flex-col items-center justify-center text-center">
+        <motion.div style={{ y }} className="max-w-4xl mx-auto w-full">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-semibold text-xs sm:text-sm mb-6 border border-indigo-100 dark:border-indigo-500/20 shadow-sm">
+            <BookOpen size={16} /> Stiknex Articles & Guides
           </div>
           
-          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tighter mb-6 leading-[1.05] text-slate-900 dark:text-white">
-            Where Ideas <br/>
-            <span className="text-transparent bg-clip-text bg-linear-to-r from-indigo-500 via-purple-500 to-pink-500">
-              Take Shape.
+          <h1 className="text-4xl sm:text-6xl md:text-7xl font-black tracking-tight mb-6 leading-tight text-slate-900 dark:text-white">
+            Productivity, Thought & <br className="hidden sm:inline" />
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
+              Visual Workspaces.
             </span>
           </h1>
 
-          <p className="text-lg sm:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto font-medium px-4">
-            Explore {blogsData.length} articles on visual thinking, infinite canvas strategies, and next-gen productivity workflows.
+          <p className="text-base sm:text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto font-normal leading-relaxed mb-10">
+            Insights, tutorials, and practical strategies on note-taking, productivity workflows, calculators, and free online utilities.
           </p>
-        </motion.div>
-      </section>
 
-      {/* Framer Card Deck Section */}
-      <section className="py-20 px-6 relative z-10 flex flex-col items-center justify-center min-h-[60vh]">
-        <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white mb-10 text-center">
-          Interactive Card Deck
-        </h2>
-        <div className="w-full max-w-4xl h-125 flex items-center justify-center relative">
-          <Suspense fallback={<div className="animate-pulse w-full h-full bg-slate-200 dark:bg-slate-800 rounded-3xl"></div>}>
-            <CardDeck />
-          </Suspense>
-        </div>
-      </section>
+          {/* Search Bar */}
+          <div className="max-w-xl mx-auto relative mb-8">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search guides, calculators, and workflows..."
+              className="w-full pl-11 pr-4 py-3.5 rounded-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-md text-sm sm:text-base"
+            />
+            {searchQuery && (
+              <button onClick={() => setSearchQuery("")} className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-600">
+                Clear
+              </button>
+            )}
+          </div>
 
-      {/* 1. GSAP Horizontal Scroll */}
-      <section ref={horizontalRef} className="relative h-screen flex flex-col justify-center overflow-hidden py-10">
-        <div className="absolute inset-0 bg-slate-900/5 dark:bg-slate-950/50 -z-10 skew-y-3 transform origin-top-left"></div>
-        <div className="px-6 md:px-12 xl:px-24 mb-8">
-          <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white flex items-center gap-4">
-            Featured Spotlights <Sparkles className="text-indigo-500" />
-          </h2>
-        </div>
-        
-        <div className="overflow-hidden w-full pl-6 md:pl-12 xl:pl-24">
-          <div ref={horizontalContainerRef} className="flex gap-6 md:gap-10 w-max pr-24">
-            {featuredPosts.map((post) => {
-              const img = post.images && post.images.length > 0 ? post.images[0] : '';
-              return (
-              <div 
-                key={post.id} 
-                className="horizontal-card w-[85vw] md:w-150 lg:w-175 h-[50vh] md:h-[60vh] shrink-0 relative rounded-3xl overflow-hidden group shadow-2xl"
+          {/* Category Pills */}
+          <div className="flex flex-wrap items-center justify-center gap-2 max-w-3xl mx-auto">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all ${
+                  selectedCategory === cat
+                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-500/20"
+                    : "bg-white/60 dark:bg-slate-900/60 text-slate-600 dark:text-slate-400 border border-slate-200/80 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800"
+                }`}
               >
-                <LazyImage src={img} alt={post.title} className="absolute inset-0 w-full h-full opacity-80 group-hover:opacity-100 transition-opacity duration-700" />
-                <div className="absolute inset-0 bg-linear-to-t from-slate-900 via-slate-900/40 to-transparent"></div>
-                <div className="absolute inset-0 p-8 md:p-12 flex flex-col justify-end">
-                  <span className="inline-block px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest bg-white text-slate-900 mb-4 w-max">
-                    {post.category}
-                  </span>
-                  <h3 className="text-3xl md:text-5xl font-black text-white mb-4 leading-tight">{post.title}</h3>
-                  <p className="text-slate-300 md:text-lg line-clamp-2 max-w-2xl mb-6">{post.briefDescription}</p>
-                  <Link to={`/blog/${post.id}`} className="inline-flex items-center gap-2 text-white font-bold hover:text-indigo-300 transition-colors w-max">
-                    READ STORY <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />
-                  </Link>
-                </div>
-              </div>
-            )})}
-          </div>
-        </div>
-      </section>
-
-      {/* 2. Stack Flow Cards */}
-      <section className="py-32 px-6 relative max-w-4xl mx-auto">
-        <div className="text-center mb-24">
-          <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white mb-4">The Deep Dives</h2>
-          <p className="text-slate-600 dark:text-slate-400 text-lg">Scroll down to stack these comprehensive guides.</p>
-        </div>
-        
-        <div className="relative pb-32">
-          {deepDives.map((post, i) => {
-            const img = post.images && post.images.length > 0 ? post.images[0] : '';
-            return (
-            <div 
-              key={post.id} 
-              className="sticky shadow-[0_30px_60px_rgba(0,0,0,0.1)] dark:shadow-[0_30px_60px_rgba(0,0,0,0.5)] rounded-[2.5rem] overflow-hidden border border-slate-200/50 dark:border-slate-700/50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl mb-12 flex flex-col md:flex-row group"
-              style={{
-                top: `calc(10vh + ${i * 25}px)`,
-                zIndex: i,
-                height: 'min(60vh, 450px)'
-              }}
-            >
-              <div className="md:w-2/5 h-48 md:h-full relative overflow-hidden">
-                <LazyImage src={img} alt={post.title} className="w-full h-full group-hover:scale-110 transition-transform duration-1000" />
-              </div>
-              <div className="md:w-3/5 p-8 md:p-12 flex flex-col justify-center">
-                <span className="text-indigo-600 dark:text-indigo-400 font-bold uppercase tracking-widest text-sm mb-4">{post.category}</span>
-                <h3 className="text-2xl md:text-4xl font-black text-slate-900 dark:text-white mb-6 leading-tight">{post.title}</h3>
-                <p className="text-slate-600 dark:text-slate-400 text-lg line-clamp-3 mb-8">{post.briefDescription}</p>
-                <Link to={`/blog/${post.id}`} className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold hover:scale-105 transition-transform w-max">
-                  Read Full Guide
-                </Link>
-              </div>
-            </div>
-          )})}
-        </div>
-      </section>
-
-      {/* 3. 3D Tilt Bento Grid */}
-      <section className="py-24 px-6 relative z-10 bg-slate-100/50 dark:bg-slate-950/50">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-16">
-            <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white">Editor's Picks</h2>
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {bentoPosts.map((post, i) => (
-              <div key={post.id} className={`${i === 0 || i === 3 ? 'lg:col-span-2' : 'lg:col-span-1'} md:col-span-1`}>
-                <Suspense fallback={<div className="animate-pulse w-full h-100 bg-slate-200 dark:bg-slate-800 rounded-4xl"></div>}>
-                  <TiltCard post={post} />
-                </Suspense>
-              </div>
+                {cat}
+              </button>
             ))}
           </div>
-        </div>
-      </section>
+        </motion.div>
+      </header>
 
-      {/* 4. Infinite Scroll Grid */}
-      <section id="infinite-grid" className="py-24 px-6 relative z-10">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white mb-12">All Articles</h2>
-          
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {gridPosts.map((post) => {
-              const img = post.images && post.images.length > 0 ? post.images[0] : '';
-              return (
-              <motion.article 
-                key={post.id} 
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 0.5, ease: "easeOut" }}
-                className="grid-card group relative flex flex-col h-100 rounded-3xl bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/50 dark:border-slate-700/50 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-300 overflow-hidden"
+      {/* Featured Editorial Spotlight (Clean Vertical Flow, No Horizontal Pinning) */}
+      {featuredPost && (
+        <section className="max-w-7xl mx-auto px-6 py-8">
+          <div className="flex items-center gap-2 mb-6">
+            <Sparkles className="text-amber-500" size={20} />
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">Featured Stories</h2>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {/* Main Big Feature */}
+            <div className="lg:col-span-7 group">
+              <Link to={`/blog/${featuredPost.id}`} className="block relative rounded-3xl overflow-hidden bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xl hover:shadow-2xl transition-all duration-300 h-full flex flex-col">
+                <div className="relative aspect-16/9 sm:aspect-21/9 lg:aspect-16/9 w-full overflow-hidden bg-slate-100 dark:bg-slate-800">
+                  <LazyImage
+                    src={featuredPost.image}
+                    alt={featuredPost.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  />
+                  <div className="absolute top-4 left-4">
+                    <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-indigo-600 text-white shadow-md">
+                      {featuredPost.category}
+                    </span>
+                  </div>
+                </div>
+                <div className="p-6 sm:p-8 flex flex-col flex-1 justify-between">
+                  <div>
+                    <div className="flex items-center gap-4 text-xs font-medium text-slate-400 mb-3">
+                      <span className="flex items-center gap-1"><Calendar size={13} /> {featuredPost.date}</span>
+                      <span className="flex items-center gap-1"><Clock size={13} /> {featuredPost.readTime}</span>
+                    </div>
+                    <h3 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mb-3 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-snug">
+                      {featuredPost.title}
+                    </h3>
+                    <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base leading-relaxed line-clamp-3">
+                      {featuredPost.briefDescription}
+                    </p>
+                  </div>
+                  <div className="mt-6 flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold text-sm">
+                    Read Article <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </div>
+              </Link>
+            </div>
+
+            {/* Side Spotlights */}
+            <div className="lg:col-span-5 flex flex-col gap-6">
+              {sideSpotlights.map((post) => (
+                <Link
+                  key={post.id}
+                  to={`/blog/${post.id}`}
+                  className="group flex flex-col sm:flex-row lg:flex-row gap-4 p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-md hover:shadow-xl transition-all duration-300 flex-1"
+                >
+                  <div className="w-full sm:w-44 lg:w-44 h-40 sm:h-auto rounded-2xl overflow-hidden shrink-0 bg-slate-100 dark:bg-slate-800 relative">
+                    <LazyImage
+                      src={post.image}
+                      alt={post.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  </div>
+                  <div className="flex flex-col justify-between flex-1 py-1">
+                    <div>
+                      <div className="flex items-center gap-3 text-xs text-slate-400 mb-2">
+                        <span className="font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">{post.category}</span>
+                        <span>•</span>
+                        <span>{post.readTime}</span>
+                      </div>
+                      <h4 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white line-clamp-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-snug mb-2">
+                        {post.title}
+                      </h4>
+                      <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm line-clamp-2">
+                        {post.briefDescription}
+                      </p>
+                    </div>
+                    <div className="mt-3 text-xs font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-1">
+                      Read story <ArrowRight size={13} className="group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Main Articles Grid */}
+      <section className="max-w-7xl mx-auto px-6 py-12">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+          <div>
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">All Articles</h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400">Showing {filteredBlogs.length} articles</p>
+          </div>
+        </div>
+
+        {filteredBlogs.length === 0 ? (
+          <div className="py-20 text-center rounded-3xl bg-white/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
+            <p className="text-lg font-bold text-slate-700 dark:text-slate-300 mb-2">No articles found</p>
+            <p className="text-sm text-slate-500">Try adjusting your search terms or selecting another category.</p>
+            <button
+              onClick={() => { setSearchQuery(""); setSelectedCategory("All"); }}
+              className="mt-4 px-4 py-2 rounded-full bg-indigo-600 text-white text-xs font-semibold"
+            >
+              Reset Filters
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6 sm:gap-8">
+            {remainingPosts.map((post) => (
+              <Link
+                key={post.id}
+                to={`/blog/${post.id}`}
+                className="group flex flex-col rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 overflow-hidden"
               >
-                <div className="w-full h-48 overflow-hidden relative shrink-0">
-                  <LazyImage src={img} alt={post.title} className="w-full h-full relative z-10 group-hover:scale-105 transition-transform duration-500" />
-                  <div className="absolute top-4 left-4 z-20">
-                    <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-white/90 dark:bg-slate-900/90 text-slate-900 dark:text-white backdrop-blur-sm shadow-sm">
+                <div className="aspect-16/10 w-full overflow-hidden bg-slate-100 dark:bg-slate-800 relative shrink-0">
+                  <LazyImage
+                    src={post.image}
+                    alt={post.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute top-3 left-3">
+                    <span className="px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-white/90 dark:bg-slate-900/90 text-slate-900 dark:text-white backdrop-blur-md shadow-sm">
                       {post.category}
                     </span>
                   </div>
                 </div>
-                
-                <div className="p-6 flex flex-col flex-1">
-                  <h3 className="text-xl font-bold mb-2 text-slate-900 dark:text-white leading-snug group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors line-clamp-2">
-                    {post.title}
-                  </h3>
-                  <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-4 flex-1 line-clamp-2">
-                    {post.briefDescription}
-                  </p>
-                  
-                  <div className="mt-auto pt-4 border-t border-slate-200/50 dark:border-slate-800/50 flex items-center justify-between text-sm text-slate-500 dark:text-slate-400">
-                    <div className="flex items-center gap-1.5 font-medium group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-                      Read <ChevronRight size={16} />
+
+                <div className="p-6 flex flex-col flex-1 justify-between">
+                  <div>
+                    <div className="flex items-center gap-3 text-xs text-slate-400 mb-2.5">
+                      <span>{post.date}</span>
+                      <span>•</span>
+                      <span>{post.readTime}</span>
                     </div>
+                    <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-2.5 line-clamp-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-snug">
+                      {post.title}
+                    </h3>
+                    <p className="text-slate-500 dark:text-slate-400 text-sm line-clamp-3 leading-relaxed">
+                      {post.briefDescription}
+                    </p>
+                  </div>
+
+                  <div className="mt-5 pt-4 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs font-bold text-indigo-600 dark:text-indigo-400">
+                    <span>Read Article</span>
+                    <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                   </div>
                 </div>
-                
-                <Link to={`/blog/${post.id}`} className="absolute inset-0 z-10"></Link>
-              </motion.article>
-            )})}
+              </Link>
+            ))}
           </div>
-          
-          <div ref={observerTarget} className="w-full h-20 flex items-center justify-center mt-12">
-            {visibleCount < blogsData.length ? (
-              <div className="flex flex-col items-center gap-3 text-slate-500 dark:text-slate-400">
-                <Loader2 size={32} className="animate-spin text-indigo-500" />
-                <span className="font-medium text-sm">Loading more stories...</span>
-              </div>
-            ) : (
-              <div className="px-6 py-3 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-medium text-sm">
-                You've reached the end!
-              </div>
-            )}
-          </div>
+        )}
+
+        {/* Infinite Scroll Trigger */}
+        <div ref={observerTarget} className="w-full py-12 flex items-center justify-center">
+          {visibleCount < filteredBlogs.length ? (
+            <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-sm">
+              <Loader2 size={20} className="animate-spin text-indigo-500" />
+              <span>Loading more articles...</span>
+            </div>
+          ) : filteredBlogs.length > 0 ? (
+            <div className="px-5 py-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 text-xs font-medium">
+              You've viewed all available articles
+            </div>
+          ) : null}
         </div>
       </section>
 
-      <footer className="py-12 px-6 border-t border-slate-200/50 dark:border-slate-800/50 bg-white/50 dark:bg-slate-950/50 text-center relative z-10">
-        <p className="text-slate-500 dark:text-slate-400 font-medium">
-          Crafted with <Coffee size={16} className="inline mx-1 text-amber-600" /> and passion by 
-          <a href="https://vishalmall.vercel.app/" target="_blank" rel="noreferrer" className="text-indigo-600 dark:text-indigo-400 hover:underline ml-1 font-bold">Vishal Mall</a>
-        </p>
-        <p className="text-slate-400 dark:text-slate-500 text-sm mt-2">&copy; {new Date().getFullYear()} Stiknex. All rights reserved.</p>
+      {/* Global Clean Footer */}
+      <footer className="py-12 px-6 border-t border-slate-200/60 dark:border-slate-800/60 bg-white/60 dark:bg-slate-950/60 text-center relative z-10 backdrop-blur-md">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-slate-500 dark:text-slate-400">
+          <div className="flex flex-wrap justify-center gap-5">
+            <Link to="/" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Home</Link>
+            <Link to="/sticky-notes" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Sticky Notes</Link>
+            <Link to="/online-notebook" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Notepad</Link>
+            <Link to="/whiteboard" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Whiteboard</Link>
+            <Link to="/tools" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Tools</Link>
+            <Link to="/about" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">About</Link>
+          </div>
+          <div>
+            <a href="https://vishalmall.vercel.app/" target="_blank" rel="noopener noreferrer" className="text-indigo-600 dark:text-indigo-400 hover:underline font-bold mr-3">
+              Developer
+            </a>
+            <span>&copy; {new Date().getFullYear()} Stiknex. All rights reserved.</span>
+          </div>
+        </div>
       </footer>
     </div>
   );
 };
 
 export default React.memo(Blog);
-
-
-

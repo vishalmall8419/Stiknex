@@ -1,122 +1,251 @@
+// Serverless SEO Configuration (mirrors src/utils/seoConfig.js)
+export const BASE_URL = "https://stiknex.vercel.app";
+
 export const seoConfig = {
   "/": {
-    title: "Stiknex \u2013 Free Sticky Notes, Online Notebook & Productivity Tools",
-    description: "Stiknex is a free online productivity platform with infinite sticky boards, AI-powered notebook, Excalidraw whiteboard, calculators, QR code generator and more. No sign-up needed.",
+    path: "/",
+    canonical: `${BASE_URL}/`,
+    title: "Stiknex – Free Sticky Notes, Online Notebook & Productivity Tools",
+    h1: "Free Online Productivity & Utility Tools",
+    description: "Stiknex is a free online productivity platform featuring infinite sticky notes boards, an AI-powered notebook, Excalidraw whiteboard, calculators, converters, QR code generator and more. No sign-up required.",
     keywords: "sticky notes, online sticky notes, free sticky notes app, online notebook, digital whiteboard, productivity tools, excalidraw, note taking app, free online tools"
   },
-  "/notes": {
-    title: "Free Online Sticky Notes | Stiknex",
-    description: "Create, organize, and customize infinite digital sticky notes. A free workspace for brainstorming and note-taking.",
-    keywords: "sticky notes, digital sticky notes, online notes, brainstorm, infinite canvas"
+  "/sticky-notes": {
+    path: "/sticky-notes",
+    canonical: `${BASE_URL}/sticky-notes`,
+    title: "Free Online Sticky Notes & Infinite Canvas | Stiknex",
+    h1: "Free Online Sticky Notes Board",
+    description: "Create, organize, and color-code infinite digital sticky notes on an interactive canvas. Brainstorm ideas, track tasks, and drag notes freely without signing in.",
+    keywords: "online sticky notes, sticky notes online, digital sticky notes, free sticky notes, virtual sticky notes, note board online"
   },
-  "/about": {
-    title: "About Stiknex \u2013 Free Productivity App by Vishal Mall",
-    description: "Learn about Stiknex, a free online productivity platform built by Vishal Mall. Discover the story, mission, and technology behind Stiknex sticky notes, notebook, whiteboard and tools.",
-    keywords: "about stiknex, stiknex developer, vishal mall, productivity app, free notes app"
+  "/online-notebook": {
+    path: "/online-notebook",
+    canonical: `${BASE_URL}/online-notebook`,
+    title: "Free Online Notebook & Digital Notepad | Stiknex",
+    h1: "Free Online Notebook & Text Editor",
+    description: "Distraction-free rich text notebook editor online. Format headings, bullet lists, code snippets, and auto-save notes locally with zero account sign-up.",
+    keywords: "online notebook, digital notebook, free online notebook, online notepad, browser text editor, note taking online"
+  },
+  "/word-counter": {
+    path: "/word-counter",
+    canonical: `${BASE_URL}/word-counter`,
+    title: "Free Online Word Counter – Real-Time Word & Character Count | Stiknex",
+    h1: "Free Online Word Counter",
+    description: "Count words, characters, sentences, and paragraphs in real time. Accurately calculate reading time, speaking time, and convert text case instantly.",
+    keywords: "word counter, online word counter, count words, word count tool, free word counter, sentence counter, paragraph counter"
+  },
+  "/character-counter": {
+    path: "/character-counter",
+    canonical: `${BASE_URL}/character-counter`,
+    title: "Character Counter Online – Characters With & Without Spaces | Stiknex",
+    h1: "Free Online Character Counter",
+    description: "Measure exact character count with and without spaces for social media, SEO meta tags, essays, and text limits. Fast, free, and private.",
+    keywords: "character counter, character count, online character counter, count characters, letter counter, text length checker"
+  },
+  "/reading-time-calculator": {
+    path: "/reading-time-calculator",
+    canonical: `${BASE_URL}/reading-time-calculator`,
+    title: "Reading Time Calculator – Estimate Article & Speech Duration | Stiknex",
+    h1: "Free Reading Time Calculator",
+    description: "Estimate how long it will take to read or speak your text. Based on standard 200 words-per-minute silent reading and 130 wpm speech delivery.",
+    keywords: "reading time calculator, calculate reading time, speech time calculator, reading speed estimator, wpm calculator"
+  },
+  "/simple-calculator": {
+    path: "/simple-calculator",
+    canonical: `${BASE_URL}/simple-calculator`,
+    title: "Simple Calculator Online – Quick Arithmetic & Math | Stiknex",
+    h1: "Free Simple Online Calculator",
+    description: "Perform quick everyday calculations with addition, subtraction, multiplication, division, and percentages. Clean, responsive, and easy to use.",
+    keywords: "simple calculator, online calculator, basic calculator, math calculator, simple math tool"
+  },
+  "/scientific-calculator": {
+    path: "/scientific-calculator",
+    canonical: `${BASE_URL}/scientific-calculator`,
+    title: "Online Scientific Calculator – Trig, Log & Powers | Stiknex",
+    h1: "Free Online Scientific Calculator",
+    description: "Advanced scientific calculator supporting trigonometry, logarithms, exponential powers, square roots, and parentheses for students and professionals.",
+    keywords: "scientific calculator online, online scientific calculator, advanced math calculator, trigonometry calculator"
+  },
+  "/date-calculator": {
+    path: "/date-calculator",
+    canonical: `${BASE_URL}/date-calculator`,
+    title: "Date Calculator – Calculate Days Between Dates & Age | Stiknex",
+    h1: "Free Online Date & Time Calculator",
+    description: "Calculate exact duration between two dates in days, weeks, and months. Add or subtract days, calculate age, or find target calendar milestones.",
+    keywords: "date calculator, calculate days between dates, age calculator, days counter, calendar duration calculator"
+  },
+  "/currency-converter": {
+    path: "/currency-converter",
+    canonical: `${BASE_URL}/currency-converter`,
+    title: "Live Currency Converter – Real-Time Foreign Exchange Rates | Stiknex",
+    h1: "Free Live Currency Converter",
+    description: "Convert 150+ world currencies with up-to-date foreign exchange rates. Convert USD, EUR, INR, GBP, CAD, AUD, JPY and more instantly.",
+    keywords: "currency converter, exchange rate calculator, live currency rates, money converter, forex converter, usd to inr, eur to usd"
+  },
+  "/unit-converter": {
+    path: "/unit-converter",
+    canonical: `${BASE_URL}/unit-converter`,
+    title: "Free Online Unit Converter – Metric & Imperial Conversion | Stiknex",
+    h1: "Free Universal Unit Converter",
+    description: "Convert length, area, volume, mass, temperature, speed, pressure, and power between metric and imperial standards with exact precision.",
+    keywords: "unit converter, measurement converter, metric to imperial, conversion calculator, convert units"
+  },
+  "/length-converter": {
+    path: "/length-converter",
+    canonical: `${BASE_URL}/length-converter`,
+    title: "Length Converter – Meters, Feet, Inches, Miles & Kilometers | Stiknex",
+    h1: "Free Online Length Converter",
+    description: "Convert length and distance units: millimeters, centimeters, meters, kilometers, inches, feet, yards, and miles accurately.",
+    keywords: "length converter, distance converter, meters to feet, inches to cm, miles to km, unit converter length"
+  },
+  "/area-converter": {
+    path: "/area-converter",
+    canonical: `${BASE_URL}/area-converter`,
+    title: "Area Converter – Square Meters, Feet, Acres & Hectares | Stiknex",
+    h1: "Free Online Area Converter",
+    description: "Convert area measurements: square meters, square feet, acres, hectares, square kilometers, and square miles with instant calculations.",
+    keywords: "area converter, square feet to square meters, acres to hectares, land area converter"
+  },
+  "/volume-converter": {
+    path: "/volume-converter",
+    canonical: `${BASE_URL}/volume-converter`,
+    title: "Volume Converter – Liters, Gallons, Cups & Milliliters | Stiknex",
+    h1: "Free Online Volume Converter",
+    description: "Convert volume and liquid capacity: liters, milliliters, US gallons, fluid ounces, cups, tablespoons, and cubic meters.",
+    keywords: "volume converter, liters to gallons, cups to ml, fluid ounces to ml, liquid volume converter"
+  },
+  "/weight-converter": {
+    path: "/weight-converter",
+    canonical: `${BASE_URL}/weight-converter`,
+    title: "Weight Converter – Kilograms, Pounds, Ounces & Grams | Stiknex",
+    h1: "Free Online Weight & Mass Converter",
+    description: "Convert weight and mass between kilograms, grams, pounds, ounces, stones, and metric tons with precise conversion formulas.",
+    keywords: "weight converter, mass converter, kg to lbs, pounds to kg, ounces to grams, weight conversion calculator"
+  },
+  "/temperature-converter": {
+    path: "/temperature-converter",
+    canonical: `${BASE_URL}/temperature-converter`,
+    title: "Temperature Converter – Celsius, Fahrenheit & Kelvin | Stiknex",
+    h1: "Free Online Temperature Converter",
+    description: "Convert temperatures between Celsius (°C), Fahrenheit (°F), and Kelvin (K) instantly with accurate thermodynamic formulas.",
+    keywords: "temperature converter, celsius to fahrenheit, fahrenheit to celsius, kelvin converter, temperature conversion formula"
+  },
+  "/speed-converter": {
+    path: "/speed-converter",
+    canonical: `${BASE_URL}/speed-converter`,
+    title: "Speed Converter – MPH, KM/H, Knots & Meters per Second | Stiknex",
+    h1: "Free Online Speed Converter",
+    description: "Convert speed and velocity units: miles per hour (mph), kilometers per hour (km/h), knots, and meters per second (m/s).",
+    keywords: "speed converter, mph to kmh, kmh to mph, knots to kmh, meters per second converter"
+  },
+  "/pressure-converter": {
+    path: "/pressure-converter",
+    canonical: `${BASE_URL}/pressure-converter`,
+    title: "Pressure Converter – PSI, Bar, Pascal & Atmospheres | Stiknex",
+    h1: "Free Online Pressure Converter",
+    description: "Convert pressure units between Pascals, Kilopascals, Bar, PSI (Pounds per Square Inch), and standard Atmospheres (atm).",
+    keywords: "pressure converter, psi to bar, bar to psi, pascal converter, atmospheres to psi"
+  },
+  "/power-converter": {
+    path: "/power-converter",
+    canonical: `${BASE_URL}/power-converter`,
+    title: "Power Converter – Watts, Kilowatts, Horsepower & BTU | Stiknex",
+    h1: "Free Online Power Converter",
+    description: "Convert electrical and mechanical power: Watts (W), Kilowatts (kW), Megawatts, metric Horsepower (hp), and BTU/hour.",
+    keywords: "power converter, watts to horsepower, kw to hp, horsepower to watts, energy rate converter"
+  },
+  "/qr-code-generator": {
+    path: "/qr-code-generator",
+    canonical: `${BASE_URL}/qr-code-generator`,
+    title: "Free QR Code Generator – Custom Colors & Instant Download | Stiknex",
+    h1: "Free Custom QR Code Generator",
+    description: "Generate high-resolution QR codes for websites, WiFi networks, plain text, and contact links. Customize foreground colors and download as PNG free.",
+    keywords: "qr code generator, free qr code maker, create qr code, custom qr code online, qr code creator"
+  },
+  "/password-generator": {
+    path: "/password-generator",
+    canonical: `${BASE_URL}/password-generator`,
+    title: "Random Password Generator – Strong & Secure Password Maker | Stiknex",
+    h1: "Free Strong Random Password Generator",
+    description: "Generate cryptographically secure, random passwords with custom lengths, numbers, symbols, and uppercase characters. 100% client-side privacy.",
+    keywords: "password generator, strong password generator, random password maker, secure password tool, password creator"
+  },
+  "/color-picker": {
+    path: "/color-picker",
+    canonical: `${BASE_URL}/color-picker`,
+    title: "Free Color Picker & Palette Tool – HEX, RGB, HSL Converter | Stiknex",
+    h1: "Free Online Color Picker & Converter",
+    description: "Inspect colors, convert between HEX, RGB, and HSL color spaces, and copy CSS color values instantly. Interactive palette and eyedropper support.",
+    keywords: "color picker, hex to rgb, rgb to hsl, color palette generator, css color picker, online color tool"
   },
   "/tools": {
-    title: "Free Online Tools \u2013 Calculator, Converter, QR Code Generator | Stiknex",
-    description: "Access 10+ free online tools: scientific calculator, unit converter, currency converter, QR code generator, password generator, color picker, data converter and more. No sign-up needed.",
-    keywords: "free online calculator, scientific calculator, unit converter, currency converter, QR code generator, password generator, color picker, online tools"
+    path: "/tools",
+    canonical: `${BASE_URL}/tools`,
+    title: "Free Online Tools – Calculators, Converters & Generators | Stiknex",
+    h1: "Free Online Productivity & Utility Tools Directory",
+    description: "Explore Stiknex's full suite of 18+ free online productivity tools: scientific calculators, universal unit converters, QR code generator, password generator, word counter and more.",
+    keywords: "free online tools, productivity tools, calculators, unit converters, qr code generator, password generator, color picker, online utilities"
   },
   "/blog": {
-    title: "Blog \u2013 Productivity Tips, Notes & Tools Guides | Stiknex",
-    description: "Read the Stiknex blog for productivity tips, note-taking guides, digital workspace advice, and tutorials on sticky notes, notebooks, whiteboards and online tools.",
-    keywords: "productivity blog, note taking tips, sticky notes guide, online tools blog, digital workspace tips, stiknex blog"
+    path: "/blog",
+    canonical: `${BASE_URL}/blog`,
+    title: "Blog – Productivity Guides, Writing Tips & Online Tools | Stiknex",
+    h1: "Stiknex Productivity & Technology Blog",
+    description: "Read in-depth articles on productivity workflows, note-taking strategies, writing efficiency, math shortcuts, and modern digital utility guides.",
+    keywords: "productivity blog, note taking tips, sticky notes guide, online tools blog, digital workspace tips, writing productivity"
   },
-  "/notebook": {
-    title: "Free Online Notebook & Digital Note Editor | Stiknex",
-    description: "Write, organize and save your notes in Stiknex free online notebook. Rich text editor with headings, lists, bold, italic formatting. No sign-up required.",
-    keywords: "online notebook, free digital notebook, note editor, rich text editor, online notepad, note taking app online"
+  "/about": {
+    path: "/about",
+    canonical: `${BASE_URL}/about`,
+    title: "About Stiknex – Free Productivity Platform by Vishal Mall",
+    h1: "About Stiknex",
+    description: "Learn about the mission behind Stiknex, a lightweight, privacy-focused suite of online productivity tools built by Vishal Mall to help people write, calculate, and create without friction.",
+    keywords: "about stiknex, stiknex developer, vishal mall, productivity app, free notes app story"
   },
   "/whiteboard": {
-    title: "Free Online Whiteboard \u2013 Draw & Collaborate | Stiknex",
-    description: "Use Stiknex free online whiteboard powered by Excalidraw. Sketch, diagram, brainstorm and collaborate. No sign-up required.",
+    path: "/whiteboard",
+    canonical: `${BASE_URL}/whiteboard`,
+    title: "Free Online Whiteboard – Draw, Sketch & Diagram | Stiknex",
+    h1: "Free Online Digital Whiteboard",
+    description: "Sketch, diagram, brainstorm, and collaborate with Stiknex's free digital whiteboard powered by Excalidraw. Infinite canvas with shapes, arrows, and freehand drawing.",
     keywords: "free online whiteboard, excalidraw, digital whiteboard, online drawing board, whiteboard app, free sketch tool"
   },
   "/buy-me-a-coffee": {
-    title: "Support Stiknex \u2013 Buy Me a Coffee | Vishal Mall",
-    description: "Support the development of Stiknex, the free online productivity platform. Your contribution keeps Stiknex free and helps build new features.",
-    keywords: "support stiknex, buy me a coffee, support developer, vishal mall"
-  },
-  "/tools/color-picker": {
-    title: "Free Online Color Picker & Converter | Stiknex",
-    description: "Pick colors, convert HEX to RGB and HSL, and copy Tailwind CSS classes instantly. Free online color picker tool with eyedropper support.",
-    keywords: "color picker, hex to rgb, rgb to hsl, online color picker, tailwind color generator, eyedropper tool"
-  },
-  "/tools/currency-converter": {
-    title: "Live Currency Converter & Exchange Rates | Stiknex",
-    description: "Convert currencies with live exchange rates. Free, fast and accurate online currency converter for USD, EUR, INR, GBP and 150+ fiat currencies.",
-    keywords: "currency converter, exchange rates, live currency, usd to inr, eur to usd, forex calculator"
-  },
-  "/tools/data-converter": {
-    title: "Data Unit Converter (MB, GB, TB) | Stiknex",
-    description: "Convert digital data storage units between Bytes, Kilobytes, Megabytes, Gigabytes, Terabytes, and Petabytes instantly.",
-    keywords: "data converter, megabytes to gigabytes, mb to gb, byte converter, digital storage calculator"
-  },
-  "/tools/date-calculator": {
-    title: "Date & Time Calculator | Stiknex",
-    description: "Calculate duration between two dates, add or subtract days, and find exact age in years, months and days. Free online date calculator.",
-    keywords: "date calculator, time calculator, days between dates, age calculator, add days to date"
-  },
-  "/tools/password-generator": {
-    title: "Strong Random Password Generator | Stiknex",
-    description: "Generate strong, secure and random passwords instantly. Customize length, symbols, numbers, and uppercase letters. 100% free and local.",
-    keywords: "password generator, random password, strong password, secure password maker, online password generator"
-  },
-  "/tools/qr-generator": {
-    title: "Free Custom QR Code Generator | Stiknex",
-    description: "Create, customize and download free QR codes for URLs, text, and contacts. Customize colors, add your logo and download as PNG or SVG.",
-    keywords: "qr code generator, free qr code, create qr code, custom qr code, qr maker with logo"
-  },
-  "/tools/scientific-calculator": {
-    title: "Free Online Scientific Calculator | Stiknex",
-    description: "Advanced scientific calculator with trigonometry, logarithms, fractions, and history. Evaluate complex math expressions free online.",
-    keywords: "scientific calculator, online math calculator, trigonometry calculator, online scientific calculator"
-  },
-  "/tools/simple-calculator": {
-    title: "Simple Online Calculator | Stiknex",
-    description: "A fast, easy-to-use basic online calculator with history and dark mode. Add, subtract, multiply, and divide instantly.",
-    keywords: "simple calculator, online calculator, basic calculator, math calculator"
-  },
-  "/tools/temperature-converter": {
-    title: "Temperature Converter (Celsius, Fahrenheit) | Stiknex",
-    description: "Convert temperatures between Celsius, Fahrenheit, and Kelvin. Fast and accurate online temperature conversion tool.",
-    keywords: "temperature converter, celsius to fahrenheit, fahrenheit to celsius, kelvin converter"
-  },
-  "/tools/length-converter": {
-    title: "Length Unit Converter | Stiknex",
-    description: "Convert length units: meters, feet, inches, miles, kilometers, and more. Free online length conversion tool.",
-    keywords: "length converter, unit converter, meters to feet, miles to km, inches to cm"
-  },
-  "/tools/area-converter": {
-    title: "Area Unit Converter | Stiknex",
-    description: "Convert area units: square meters, acres, hectares, square feet. Free online area conversion tool.",
-    keywords: "area converter, square meters to feet, acres to hectares, unit converter"
-  },
-  "/tools/volume-converter": {
-    title: "Volume Unit Converter | Stiknex",
-    description: "Convert volume units: liters, gallons, cubic meters, cups. Free online volume conversion tool.",
-    keywords: "volume converter, liters to gallons, cups to ml, unit converter"
-  },
-  "/tools/weight-converter": {
-    title: "Weight & Mass Unit Converter | Stiknex",
-    description: "Convert weight and mass units: kilograms, pounds, ounces, grams. Free online weight conversion tool.",
-    keywords: "weight converter, kg to lbs, pounds to kilograms, mass converter"
-  },
-  "/tools/speed-converter": {
-    title: "Speed Converter | Stiknex",
-    description: "Convert speed units: mph, km/h, knots, meters per second. Free online speed conversion tool.",
-    keywords: "speed converter, mph to kmh, knots to mph, unit converter"
-  },
-  "/tools/pressure-converter": {
-    title: "Pressure Converter | Stiknex",
-    description: "Convert pressure units: PSI, bar, Pascal, atmospheres. Free online pressure conversion tool.",
-    keywords: "pressure converter, psi to bar, pascal to atm, unit converter"
-  },
-  "/tools/power-converter": {
-    title: "Power Converter | Stiknex",
-    description: "Convert power units: Watts, horsepower, kilowatts. Free online power conversion tool.",
-    keywords: "power converter, watts to hp, kilowatts to horsepower, unit converter"
+    path: "/buy-me-a-coffee",
+    canonical: `${BASE_URL}/buy-me-a-coffee`,
+    title: "Support Stiknex – Buy Me a Coffee | Vishal Mall",
+    h1: "Support Stiknex Development",
+    description: "Support the ongoing maintenance and development of Stiknex free productivity tools. Your support keeps Stiknex ad-light, free, and accessible for everyone.",
+    keywords: "support stiknex, buy me a coffee, support developer, vishal mall, donate"
   }
+};
+
+export const seoAliases = {
+  "/notes": "/sticky-notes",
+  "/tools/word-counter": "/word-counter",
+  "/tools/character-counter": "/character-counter",
+  "/tools/reading-time-calculator": "/reading-time-calculator",
+  "/tools/simple-calculator": "/simple-calculator",
+  "/tools/scientific-calculator": "/scientific-calculator",
+  "/tools/date-calculator": "/date-calculator",
+  "/tools/currency-converter": "/currency-converter",
+  "/tools/unit-converter": "/unit-converter",
+  "/tools/length-converter": "/length-converter",
+  "/tools/area-converter": "/area-converter",
+  "/tools/volume-converter": "/volume-converter",
+  "/tools/weight-converter": "/weight-converter",
+  "/tools/temperature-converter": "/temperature-converter",
+  "/tools/speed-converter": "/speed-converter",
+  "/tools/pressure-converter": "/pressure-converter",
+  "/tools/power-converter": "/power-converter",
+  "/tools/qr-generator": "/qr-code-generator",
+  "/tools/qr-code-generator": "/qr-code-generator",
+  "/tools/password-generator": "/password-generator",
+  "/tools/color-picker": "/color-picker"
+};
+
+export const getSeoForPath = (path) => {
+  const clean = path.startsWith("/") ? path : `/${path}`;
+  const unaliased = seoAliases[clean] || clean;
+  return seoConfig[unaliased] || seoConfig["/"];
 };

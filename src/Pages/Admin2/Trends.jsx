@@ -8,6 +8,7 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, ResponsiveContainer, 
   Tooltip as RechartsTooltip, LineChart, Line, BarChart, Bar, Cell 
 } from "recharts";
+import { motion } from "framer-motion";
 
 const TrendsPage = () => {
   const [dateRange, setDateRange] = useState("Last 30 days");

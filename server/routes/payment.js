@@ -1,7 +1,7 @@
 import { Router } from "express";
 import Razorpay from "razorpay";
 import crypto from "crypto";
-import { getCount, incrementCount } from "../supporterStore.js";
+import { getCount, recordSupporter } from "../supporterStore.js";
 
 const router = Router();
 
@@ -53,14 +53,14 @@ router.post("/create-order", async (req, res) => {
       keyId: process.env.RAZORPAY_KEY_ID,
     });
   } catch (err) {
-     console.error(err);
-    return res.status(500).json({ error: err.message,});
+    console.error(err);
+    return res.status(500).json({ error: err.message });
   }
 });
 
-router.post("/verify-payment", (req, res) => {
+router.post("/verify-payment", async (req, res) => {
   try {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, amount, donorName, donorEmail } = req.body;
 
     if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
       return res.status(400).json({ success: false, error: "Missing payment details." });
@@ -77,15 +77,43 @@ router.post("/verify-payment", (req, res) => {
       return res.status(400).json({ success: false, error: "Signature verification failed." });
     }
 
-    const totalSupporters = incrementCount();
+    let verifiedAmount = Number(amount) || 0;
+    try {
+      if (razorpay && !verifiedAmount) {
+        const paymentDetails = await razorpay.payments.fetch(razorpay_payment_id);
+        if (paymentDetails && paymentDetails.amount) {
+          verifiedAmount = paymentDetails.amount / 100;
+        }
+      }
+    } catch (fetchErr) {
+      console.warn("Could not fetch payment detail from Razorpay:", fetchErr.message);
+    }
+
+    // Persist payee and payment record into MongoDB database
+    const totalSupporters = await recordSupporter({
+      orderId: razorpay_order_id,
+      paymentId: razorpay_payment_id,
+      amount: verifiedAmount,
+      currency: "INR",
+      donorName: donorName || "Anonymous Supporter",
+      donorEmail: donorEmail || "",
+    });
+
     return res.json({ success: true, totalSupporters });
   } catch (err) {
+    console.error("Payment verification / DB error:", err);
     return res.status(500).json({ success: false, error: "Verification failed. Please try again." });
   }
 });
 
-router.get("/supporters", (req, res) => {
-  res.json({ totalSupporters: getCount() });
+router.get("/supporters", async (req, res) => {
+  try {
+    const totalSupporters = await getCount();
+    return res.json({ totalSupporters });
+  } catch (err) {
+    console.error("Error fetching supporters:", err);
+    return res.json({ totalSupporters: 0 });
+  }
 });
 
 export default router;

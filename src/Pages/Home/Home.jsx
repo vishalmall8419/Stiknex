@@ -273,7 +273,7 @@ const Home = () => {
   };
 
   return (
-    <AppShell fullWidth={true}>
+    <AppShell fullWidth={true} hideFooter={true}>
       <PageSEO
         title="Stiknex - Infinite Board"
         description="A freeform infinite canvas for your sticky notes."

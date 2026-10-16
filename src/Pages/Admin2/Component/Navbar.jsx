@@ -1,12 +1,22 @@
 import { Bell, Menu, Package, X } from "lucide-react";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import profileImage from "../AdminAssets/profile.png"
 
 const Navbar = ({ isSidebarOpen, onToggleSidebar }) => {
+  const [customLogo, setCustomLogo] = useState(() => localStorage.getItem("stkx_dashboard_logo") || "");
+
+  useEffect(() => {
+    const updateLogo = () => {
+      setCustomLogo(localStorage.getItem("stkx_dashboard_logo") || "");
+    };
+    window.addEventListener("storage", updateLogo);
+    return () => window.removeEventListener("storage", updateLogo);
+  }, []);
+
   const User = {
     name: "vishal Mall",
-    ProfileImage:profileImage,
+    ProfileImage: customLogo || profileImage,
   };
 
   const firstName =

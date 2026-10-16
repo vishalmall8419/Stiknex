@@ -9,7 +9,8 @@ const POSITIVE_KEYWORDS = [
     'sticky notes', 'notes', 'notebook', 'markdown', 'whiteboard', 
     'excalidraw', 'productivity', 'todo', 'task', 'kanban', 
     'journal', 'diary', 'offline app', 'pwa', 'drawing', 
-    'mindmap', 'planning', 'tools', 'calculator', 'workspace', 'study', 'focus'
+    'mindmap', 'planning', 'tools', 'calculator', 'workspace', 'study', 'focus',
+    'word counter', 'character count', 'reading time', 'unit converter', 'qr code', 'password generator', 'color picker'
 ];
 const NEGATIVE_KEYWORDS = [
     'movie', 'cricket', 'match', 'ipl', 'football', 'election', 

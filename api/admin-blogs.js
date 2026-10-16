@@ -6,8 +6,10 @@ export default async function handler(req, res) {
     try {
         await connectToDatabase();
         
-        const isAdmin = verifyAdminToken(req.headers['authorization']?.split(' ')[1] || req.cookies?.stkx_admin_token);
-        if (!isAdmin.valid) return res.status(401).json({ error: 'Unauthorized' });
+        const authResult = verifyAdminToken(req);
+        if (!authResult.valid) {
+            return res.status(401).json({ error: 'Unauthorized: ' + authResult.message });
+        }
 
         if (req.method === 'GET') {
             const blogs = await Blog.find().sort({ publishedAt: -1 });
@@ -15,27 +17,40 @@ export default async function handler(req, res) {
         }
 
         if (req.method === 'POST') {
-            const { title, slug, excerpt, fullContent, imageUrl, imageSource, published } = req.body;
+            const { title, slug, excerpt, content, fullContent, imageUrl, imageAlt, imageSource, published, category, metaTitle, metaDescription, keywords } = req.body;
             const newBlog = new Blog({
-                title, slug, excerpt, fullContent, imageUrl, imageSource,
-                published,
-                publishedAt: published ? new Date() : null,
-                metrics: { relevanceScore: 100, originalTrendScore: 0 }
+                title, 
+                slug: slug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
+                excerpt: excerpt || '',
+                content: content || fullContent || '',
+                imageUrl: imageUrl || 'https://image.pollinations.ai/prompt/' + encodeURIComponent(title + ' tech visual') + '?width=1200&height=630&nologo=true',
+                imageAlt: imageAlt || title,
+                imageSource: imageSource || 'Manual Entry',
+                category: category || 'Productivity',
+                metaTitle: metaTitle || title,
+                metaDescription: metaDescription || excerpt || '',
+                keywords: keywords || 'stiknex, blog',
+                trendKeyword: 'Manual',
+                trendScore: 100,
+                published: published !== undefined ? published : true,
+                publishedAt: new Date()
             });
             await newBlog.save();
             return res.status(201).json({ success: true, blog: newBlog });
         }
 
-        if (req.method === 'PATCH') {
-            const { id } = req.query;
-            const updates = req.body;
+        if (req.method === 'PATCH' || req.method === 'PUT') {
+            const id = req.query.id || req.body._id || req.body.id;
+            const updates = { ...req.body };
+            delete updates._id;
+            delete updates.id;
             if (updates.published && !updates.publishedAt) updates.publishedAt = new Date();
             const blog = await Blog.findByIdAndUpdate(id, updates, { new: true });
             return res.status(200).json({ success: true, blog });
         }
 
         if (req.method === 'DELETE') {
-            const { id } = req.query;
+            const id = req.query.id || req.body.id;
             await Blog.findByIdAndDelete(id);
             return res.status(200).json({ success: true });
         }

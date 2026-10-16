@@ -1,4 +1,4 @@
-﻿{
+{
   "rewrites": [
     {
       "source": "/api/monitor-external",
@@ -9,15 +9,11 @@
       "destination": "/api/sitemap.xml"
     },
     {
-      "source": "/api/(.*)",
-      "destination": "/api/$1"
-    },
-    {
       "source": "/blog/:slug",
       "destination": "/api/render-blog?slug=$1"
     },
     {
-      "source": "/((?!.*\\.).*)",
+      "source": "/((?!api/)(?!.*\\.).*)",
       "destination": "/api/render-page?path=$1"
     }
   ],

@@ -8,8 +8,6 @@ import {
 
 import { Analytics } from "@vercel/analytics/react"
 
-import DownloadAppModal from "./Component/DownloadAppModal";
-
 // ============================================================
 // LAZY LOADED PAGES
 // ============================================================
@@ -102,7 +100,6 @@ const App = () => {
         {/* Render Modals and Widgets ONLY on public pages */}
         {!isAdminRoute && (
           <>
-            <DownloadAppModal />
             <FeedbackWidget />
           </>
         )}
@@ -130,7 +127,30 @@ const App = () => {
             element={<About />}
           />
 
-          {/* Tools */}
+          {/* Direct Clean Tool Routes */}
+          <Route path="/sticky-notes" element={<Home />} />
+          <Route path="/online-notebook" element={<Notebook />} />
+          <Route path="/word-counter" element={<Tools directSlug="word-counter" />} />
+          <Route path="/character-counter" element={<Tools directSlug="character-counter" />} />
+          <Route path="/reading-time-calculator" element={<Tools directSlug="reading-time-calculator" />} />
+          <Route path="/simple-calculator" element={<Tools directSlug="simple-calculator" />} />
+          <Route path="/scientific-calculator" element={<Tools directSlug="scientific-calculator" />} />
+          <Route path="/date-calculator" element={<Tools directSlug="date-calculator" />} />
+          <Route path="/currency-converter" element={<Tools directSlug="currency-converter" />} />
+          <Route path="/unit-converter" element={<Tools directSlug="length-converter" />} />
+          <Route path="/length-converter" element={<Tools directSlug="length-converter" />} />
+          <Route path="/area-converter" element={<Tools directSlug="area-converter" />} />
+          <Route path="/volume-converter" element={<Tools directSlug="volume-converter" />} />
+          <Route path="/weight-converter" element={<Tools directSlug="weight-converter" />} />
+          <Route path="/temperature-converter" element={<Tools directSlug="temperature-converter" />} />
+          <Route path="/speed-converter" element={<Tools directSlug="speed-converter" />} />
+          <Route path="/pressure-converter" element={<Tools directSlug="pressure-converter" />} />
+          <Route path="/power-converter" element={<Tools directSlug="power-converter" />} />
+          <Route path="/qr-code-generator" element={<Tools directSlug="qr-code-generator" />} />
+          <Route path="/password-generator" element={<Tools directSlug="password-generator" />} />
+          <Route path="/color-picker" element={<Tools directSlug="color-picker" />} />
+
+          {/* Tools Catalog & Subroutes */}
           <Route
             path="/tools"
             element={<Tools />}

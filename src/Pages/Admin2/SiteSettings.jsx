@@ -1,15 +1,97 @@
-import React from "react";
-import { Settings, Globe, Shield, Bell } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Settings, Globe, Shield, Bell, Upload, Image, Trash2, Check } from "lucide-react";
 
 const SiteSettings = () => {
+  const [logoPreview, setLogoPreview] = useState("");
+  const [logoSaved, setLogoSaved] = useState(false);
+
+  useEffect(() => {
+    const savedLogo = localStorage.getItem("stkx_dashboard_logo");
+    if (savedLogo) {
+      setLogoPreview(savedLogo);
+    }
+  }, []);
+
+  const handleLogoUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      alert("Please upload an image smaller than 2MB.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64 = reader.result;
+      setLogoPreview(base64);
+      localStorage.setItem("stkx_dashboard_logo", base64);
+      // Dispatch storage event so other components update immediately
+      window.dispatchEvent(new Event("storage"));
+      setLogoSaved(true);
+      setTimeout(() => setLogoSaved(false), 2500);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveLogo = () => {
+    localStorage.removeItem("stkx_dashboard_logo");
+    setLogoPreview("");
+    window.dispatchEvent(new Event("storage"));
+  };
+
   return (
     <main className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Settings</h1>
-        <p className="text-sm text-slate-500 dark:text-slate-400">Manage your Stiknex website configuration</p>
+        <p className="text-sm text-slate-500 dark:text-slate-400">Manage your Stiknex website configuration and dashboard logo</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Custom Dashboard Logo */}
+        <div className="rounded-2xl bg-white/60 dark:bg-white/5 backdrop-blur-xl border border-white/40 dark:border-white/10 shadow-lg p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-50 dark:bg-violet-900/30">
+              <Image size={20} className="text-violet-500" />
+            </div>
+            <div>
+              <h3 className="font-semibold">Dashboard Logo</h3>
+              <p className="text-xs text-slate-400">Upload your own logo to appear in sidebar and navbar</p>
+            </div>
+          </div>
+          <div className="space-y-4">
+            <div className="flex items-center gap-4">
+              <div className="h-16 w-16 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 flex items-center justify-center overflow-hidden shrink-0">
+                {logoPreview ? (
+                  <img src={logoPreview} alt="Dashboard Logo" className="h-full w-full object-contain p-1" />
+                ) : (
+                  <span className="text-xs text-slate-400 font-bold">Default</span>
+                )}
+              </div>
+              <div className="flex-1">
+                <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg transition-colors shadow-xs">
+                  <Upload size={14} /> Upload Logo
+                  <input type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
+                </label>
+                {logoPreview && (
+                  <button
+                    onClick={handleRemoveLogo}
+                    className="ml-2 inline-flex items-center gap-1 px-3 py-2 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-medium rounded-lg transition-colors dark:bg-red-900/20 dark:text-red-400"
+                  >
+                    <Trash2 size={14} /> Remove
+                  </button>
+                )}
+                <p className="text-[11px] text-slate-400 mt-1">Recommended: Square PNG/SVG, max 2MB</p>
+              </div>
+            </div>
+            {logoSaved && (
+              <div className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+                <Check size={14} /> Logo updated across dashboard!
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* General Settings */}
         <div className="rounded-2xl bg-white/60 dark:bg-white/5 backdrop-blur-xl border border-white/40 dark:border-white/10 shadow-lg p-6">
           <div className="flex items-center gap-3 mb-4">
@@ -28,7 +110,7 @@ const SiteSettings = () => {
             </div>
             <div>
               <label className="text-xs font-medium text-slate-500 dark:text-slate-400">Site URL</label>
-              <input type="text" defaultValue="https://stiknex.vercel.app"   className="w-full mt-1   rounded-lg border border-slate-200   dark:border-slate-700 bg-white/50 dark:bg-white/5 px-3 py-2 text-sm" />
+              <input type="text" defaultValue="https://stiknex.vercel.app" className="w-full mt-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white/50 dark:bg-white/5 px-3 py-2 text-sm" />
             </div>
             <div className="pt-2">
               <button 

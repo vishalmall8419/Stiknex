@@ -1,4 +1,4 @@
-﻿import { seoConfig } from './_utils/seoConfig.js';
+import { seoConfig, getSeoForPath, BASE_URL } from './_utils/seoConfig.js';
 
 export default async function handler(req, res) {
     const rawPath = req.query.path || '/';
@@ -10,11 +10,11 @@ export default async function handler(req, res) {
         matchPath = matchPath.slice(0, -1);
     }
     
-    // Default to the index SEO if not found
-    const seo = seoConfig[matchPath] || seoConfig["/"];
+    // Retrieve matched or alias SEO
+    const seo = getSeoForPath(matchPath);
 
     try {
-        const protocol = req.headers['x-forwarded-proto'] || 'http';
+        const protocol = req.headers['x-forwarded-proto'] || 'https';
         const host = req.headers.host || 'stiknex.vercel.app';
         const baseUrl = `${protocol}://${host}`;
 
@@ -67,14 +67,24 @@ export default async function handler(req, res) {
             `<meta name="description" content="${description}" />`
         );
 
-        // Add semantic markup payload into <noscript> for basic crawlers/indexing
-        // This gives search engines a textual summary of the tool without running JS
+        // Ensure canonical link is present and correct
+        const canonicalUrl = `${baseUrl}${seo.path || cleanPath}`;
+        if (html.includes('<link rel="canonical"')) {
+            html = html.replace(/<link\s+rel="canonical"\s+href="[^"]*"\s*\/?>/, `<link rel="canonical" href="${canonicalUrl}" />`);
+        } else {
+            html = html.replace('</head>', `<link rel="canonical" href="${canonicalUrl}" />\n</head>`);
+        }
+
+        // Add semantic markup payload into rendered HTML for search engine indexing
         const semanticPayload = `
         <noscript>
             <main>
-                <h1>${title}</h1>
+                <h1>${seo.h1 || title}</h1>
                 <p>${description}</p>
-                <p>Features: ${keywords}</p>
+                <p>Keywords: ${keywords}</p>
+                <nav aria-label="Breadcrumb">
+                    <a href="${baseUrl}/">Home</a> &gt; <span>${title}</span>
+                </nav>
             </main>
         </noscript>
         `;

@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "./Button";
 
@@ -14,6 +15,15 @@ import {
 
 const Sidebar = ({ isSidebarOpen, onClose }) => {
   const navigate = useNavigate();
+  const [customLogo, setCustomLogo] = useState(() => localStorage.getItem("stkx_dashboard_logo") || "");
+
+  useEffect(() => {
+    const updateLogo = () => {
+      setCustomLogo(localStorage.getItem("stkx_dashboard_logo") || "");
+    };
+    window.addEventListener("storage", updateLogo);
+    return () => window.removeEventListener("storage", updateLogo);
+  }, []);
 
   // =====================================
   // LOGOUT HANDLER
@@ -100,27 +110,40 @@ const Sidebar = ({ isSidebarOpen, onClose }) => {
       <div className="shrink-0 px-3 sm:px-4">
         <div
           className="
-            flex min-h-[88px] items-center
+            flex min-h-[88px] items-center gap-3
             border-b border-white/40
             lg:min-h-[96px]
           "
         >
-          <h1
-            className="
-              w-full text-2xl font-bold tracking-tight
-              text-indigo-500 sm:text-3xl lg:text-left
-            "
-          >
-            <span>STIK</span>
-            <span
+          {customLogo ? (
+            <div className="flex items-center gap-2.5 w-full overflow-hidden">
+              <img
+                src={customLogo}
+                alt="Dashboard Logo"
+                className="h-10 w-10 object-contain rounded-lg border border-white/20 bg-white/20 p-1 shrink-0"
+              />
+              <span className="font-bold text-lg truncate tracking-tight text-slate-800 dark:text-white">
+                Dashboard
+              </span>
+            </div>
+          ) : (
+            <h1
               className="
-                bg-[radial-gradient(circle,rgba(99,102,241,1)_0%,rgba(168,85,247,1)_100%)]
-                bg-clip-text text-transparent
+                w-full text-2xl font-bold tracking-tight
+                text-indigo-500 sm:text-3xl lg:text-left
               "
             >
-              NEX
-            </span>
-          </h1>
+              <span>STIK</span>
+              <span
+                className="
+                  bg-[radial-gradient(circle,rgba(99,102,241,1)_0%,rgba(168,85,247,1)_100%)]
+                  bg-clip-text text-transparent
+                "
+              >
+                NEX
+              </span>
+            </h1>
+          )}
         </div>
       </div>
 

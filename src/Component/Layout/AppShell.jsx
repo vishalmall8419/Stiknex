@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useAppContext } from "../../context/AppContext";
 import { motion, AnimatePresence } from "framer-motion";
 
-const AppShell = ({ children, hideNav = false, fullWidth = false }) => {
+const AppShell = ({ children, hideNav = false, hideFooter = false, fullWidth = false }) => {
   const { darkMode, toggleDarkMode } = useAppContext();
   const { pathname } = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -157,58 +157,90 @@ const AppShell = ({ children, hideNav = false, fullWidth = false }) => {
         </div>
       </main>
 
-      {/* SEO Internal Linking Footer */}
-      <footer className="mt-auto border-t border-gray-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-6 py-12">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8 text-sm">
-            <div>
-              <h3 className="font-semibold text-slate-900 dark:text-white mb-4">Core Apps</h3>
-              <ul className="space-y-3 text-slate-500 dark:text-slate-400">
-                <li><Link to="/notes" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Sticky Notes</Link></li>
-                <li><Link to="/notebook" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Online Notebook</Link></li>
-                <li><Link to="/whiteboard" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Whiteboard</Link></li>
-                <li><Link to="/tools" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">All Utilities</Link></li>
-              </ul>
+      {/* SEO Internal Linking Footer (Phase 6 & 7) */}
+      {!hideFooter && (
+        <footer className="mt-auto border-t border-gray-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md">
+          <div className="max-w-7xl mx-auto px-6 py-12">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-8 text-sm">
+              <div>
+                <h3 className="font-semibold text-slate-900 dark:text-white mb-4">Writing & Notes</h3>
+                <ul className="space-y-2.5 text-slate-500 dark:text-slate-400">
+                  <li><Link to="/word-counter" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Word Counter</Link></li>
+                  <li><Link to="/character-counter" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Character Counter</Link></li>
+                  <li><Link to="/reading-time-calculator" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Reading Time Calculator</Link></li>
+                  <li><Link to="/online-notebook" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Online Notebook</Link></li>
+                  <li><Link to="/sticky-notes" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Sticky Notes</Link></li>
+                  <li><Link to="/whiteboard" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Whiteboard</Link></li>
+                </ul>
+              </div>
+              <div>
+                <h3 className="font-semibold text-slate-900 dark:text-white mb-4">Calculators</h3>
+                <ul className="space-y-2.5 text-slate-500 dark:text-slate-400">
+                  <li><Link to="/simple-calculator" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Simple Calculator</Link></li>
+                  <li><Link to="/scientific-calculator" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Scientific Calculator</Link></li>
+                  <li><Link to="/date-calculator" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Date Calculator</Link></li>
+                </ul>
+              </div>
+              <div>
+                <h3 className="font-semibold text-slate-900 dark:text-white mb-4">Unit Converters</h3>
+                <ul className="space-y-2.5 text-slate-500 dark:text-slate-400">
+                  <li><Link to="/unit-converter" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Unit Converter</Link></li>
+                  <li><Link to="/currency-converter" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Currency Converter</Link></li>
+                  <li><Link to="/length-converter" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Length Converter</Link></li>
+                  <li><Link to="/area-converter" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Area Converter</Link></li>
+                  <li><Link to="/volume-converter" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Volume Converter</Link></li>
+                  <li><Link to="/weight-converter" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Weight Converter</Link></li>
+                  <li><Link to="/temperature-converter" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Temperature</Link></li>
+                </ul>
+              </div>
+              <div>
+                <h3 className="font-semibold text-slate-900 dark:text-white mb-4">Generators & Utilities</h3>
+                <ul className="space-y-2.5 text-slate-500 dark:text-slate-400">
+                  <li><Link to="/qr-code-generator" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">QR Code Generator</Link></li>
+                  <li><Link to="/password-generator" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Password Generator</Link></li>
+                  <li><Link to="/color-picker" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Color Picker</Link></li>
+                  <li><Link to="/speed-converter" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Speed Converter</Link></li>
+                  <li><Link to="/pressure-converter" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Pressure Converter</Link></li>
+                  <li><Link to="/power-converter" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Power Converter</Link></li>
+                </ul>
+              </div>
+              <div>
+                <h3 className="font-semibold text-slate-900 dark:text-white mb-4">Platform & Resources</h3>
+                <ul className="space-y-2.5 text-slate-500 dark:text-slate-400">
+                  <li><Link to="/" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Home</Link></li>
+                  <li><Link to="/tools" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">All Online Tools</Link></li>
+                  <li><Link to="/blog" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Productivity Blog</Link></li>
+                  <li><Link to="/about" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">About Stiknex</Link></li>
+                  <li><Link to="/buy-me-a-coffee" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Support Development</Link></li>
+                  <li><a href="https://vishalmall.vercel.app/" target="_blank" rel="noopener noreferrer" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Developer</a></li>
+                </ul>
+              </div>
             </div>
-            <div>
-              <h3 className="font-semibold text-slate-900 dark:text-white mb-4">Calculators</h3>
-              <ul className="space-y-3 text-slate-500 dark:text-slate-400">
-                <li><Link to="/tools/scientific-calculator" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Scientific Calculator</Link></li>
-                <li><Link to="/tools/simple-calculator" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Basic Calculator</Link></li>
-                <li><Link to="/tools/date-calculator" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Date & Age Calculator</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-semibold text-slate-900 dark:text-white mb-4">Converters</h3>
-              <ul className="space-y-3 text-slate-500 dark:text-slate-400">
-                <li><Link to="/tools/currency-converter" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Currency Converter</Link></li>
-                <li><Link to="/tools/unit-converter" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Unit Converter</Link></li>
-                <li><Link to="/tools/data-converter" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Data Storage Converter</Link></li>
-                <li><Link to="/tools/temperature-converter" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Temperature Converter</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-semibold text-slate-900 dark:text-white mb-4">Generators & Utilities</h3>
-              <ul className="space-y-3 text-slate-500 dark:text-slate-400">
-                <li><Link to="/tools/password-generator" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Password Generator</Link></li>
-                <li><Link to="/tools/qr-generator" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">QR Code Generator</Link></li>
-                <li><Link to="/tools/color-picker" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Color Picker</Link></li>
-              </ul>
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4 pt-8 border-t border-gray-200 dark:border-slate-800 text-sm text-slate-400 dark:text-slate-500">
+              <div className="flex flex-wrap gap-4 sm:gap-6">
+                <Link to="/" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Home</Link>
+                <Link to="/about" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">About</Link>
+                <Link to="/blog" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Blog</Link>
+                <Link to="/buy-me-a-coffee" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Support</Link>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const btn = document.querySelector('button[title*="Feedback"]');
+                    if (btn) btn.click();
+                  }}
+                  className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors cursor-pointer"
+                >
+                  Contact & Message
+                </button>
+                <a href="https://vishalmall.vercel.app/" target="_blank" rel="noopener noreferrer" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors font-medium">Developer</a>
+              </div>
+              <div>
+                &copy; {new Date().getFullYear()} Stiknex. All rights reserved.
+              </div>
             </div>
           </div>
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 pt-8 border-t border-gray-200 dark:border-slate-800 text-sm text-slate-400 dark:text-slate-500">
-            <div className="flex gap-6">
-              <Link to="/" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Home</Link>
-              <Link to="/about" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">About Stiknex</Link>
-              <Link to="/blog" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Blog</Link>
-              <Link to="/buy-me-a-coffee" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Support</Link>
-            </div>
-            <div>
-              &copy; {new Date().getFullYear()} Stiknex. All rights reserved. Built by Vishal Mall.
-            </div>
-          </div>
-        </div>
-      </footer>
+        </footer>
+      )}
     </div>
   );
 };

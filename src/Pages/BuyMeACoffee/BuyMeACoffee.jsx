@@ -243,11 +243,11 @@ const BuyMeACoffee = () => {
   return (
     <AppShell fullWidth={true}>
       <PageSEO
-  title="Support Stiknex - Buy Me a Coffee | Vishal Mall"
-  description="Support the development of Stiknex, the free online productivity platform. Your contribution keeps Stiknex free and helps build new features."
+  title="Support Stiknex – Keep Free Productivity Tools Running"
+  description="Support the development and server costs of Stiknex free productivity platform. Your contribution keeps Stiknex 100% free with no sign-ups or paywalls."
   path="/buy-me-a-coffee"
   type="website"
-  keywords="support stiknex, buy me a coffee, support developer, vishal mall"
+  keywords="support stiknex, buy me a coffee, donate stiknex, free productivity tools"
 />
       
       <div className="relative min-h-screen">
@@ -371,42 +371,29 @@ const BuyMeACoffee = () => {
             </FadeIn>
           </section>
 
-          {/* ================= A MESSAGE FROM THE CREATOR ================= */}
-          <section className="max-w-6xl mx-auto px-6 mb-32">
+          {/* ================= PLATFORM SUPPORT MESSAGE ================= */}
+          <section className="max-w-4xl mx-auto px-6 mb-32">
             <FadeIn>
-              <div className="w-full rounded-[3rem] bg-gradient-to-br from-indigo-50/80 to-slate-100 dark:from-indigo-950 dark:to-slate-900 p-8 md:p-16 border border-indigo-500/20 shadow-2xl relative overflow-hidden backdrop-blur-xl">
-                <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-amber-500/20 dark:bg-amber-500/10 rounded-full blur-[100px]"></div>
-                
-                <div className="relative z-10 flex flex-col lg:flex-row gap-12 items-center">
-                  
-                  {/* Photo */}
-                  <div className="w-48 h-48 lg:w-64 lg:h-64 shrink-0 rounded-[2rem] bg-gradient-to-tr from-amber-400 to-indigo-500 p-1 shadow-2xl transform -rotate-3 transition-transform duration-500 hover:rotate-0">
-                    <div className="w-full h-full rounded-[1.8rem] bg-slate-100 dark:bg-slate-900 overflow-hidden relative">
-                      <img src="/creator.jpg" alt="Vishal Mall" className="w-full h-full object-cover" />
-                      <div className="absolute inset-0 ring-1 ring-inset ring-black/10 dark:ring-white/10 rounded-[1.8rem]"></div>
+              <div className="w-full rounded-[3rem] bg-gradient-to-br from-indigo-50/80 to-slate-100 dark:from-indigo-950 dark:to-slate-900 p-8 md:p-14 border border-indigo-500/20 shadow-2xl relative overflow-hidden backdrop-blur-xl text-center">
+                <div className="relative z-10 max-w-2xl mx-auto space-y-6 text-slate-900 dark:text-white">
+                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-100 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 font-bold text-sm">
+                    <Coffee size={18} /> Sustaining Independent Web Tools
+                  </div>
+                  <h3 className="text-3xl lg:text-4xl font-black">Why Support Stiknex?</h3>
+                  <p className="text-slate-700 dark:text-slate-300 text-base md:text-lg leading-relaxed">
+                    Stiknex is built to give students, developers, and thinkers an ad-free, account-free workspace for their thoughts, diagrams, and quick calculations.
+                  </p>
+                  <p className="text-slate-700 dark:text-slate-300 text-base md:text-lg leading-relaxed">
+                    Every contribution directly pays for domain costs, infrastructure, and helps us build new calculators, converters, and collaborative features without cluttering your screen with ads.
+                  </p>
+                  <div className="flex flex-wrap gap-6 justify-center pt-2">
+                    <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold text-sm">
+                      <ShieldCheck size={20} /> 100% Free Forever
+                    </div>
+                    <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 font-bold text-sm">
+                      <Zap size={20} /> Community Supported
                     </div>
                   </div>
-
-                  {/* Message */}
-                  <div className="flex-1 text-center lg:text-left text-slate-900 dark:text-white">
-                    <h3 className="text-3xl lg:text-5xl font-black mb-6">Hey! I'm Vishal Mall.</h3>
-                    <p className="text-indigo-600 dark:text-indigo-300 text-lg lg:text-xl font-bold mb-6 leading-relaxed">
-                      I'm a Frontend Developer at Starchain Lab, based in Bhopal. I built Stiknex out of pure passion for clean design, fast performance, and a frustration with modern productivity tools that demand internet access for everything.
-                    </p>
-                    <p className="text-slate-700 dark:text-slate-300 text-lg leading-relaxed mb-8 font-medium">
-                      I have put hundreds of hours into making this workspace infinite, snappy, and entirely free. If Stiknex has saved you time, helped you organize chaos, or just made your workflow a bit more beautiful—a small contribution goes a long way in paying for servers and giving me the caffeine I need to ship the next big update.
-                    </p>
-                    
-                    <div className="flex flex-wrap gap-6 justify-center lg:justify-start">
-                      <div className="flex items-center gap-3 text-emerald-600 dark:text-emerald-400 font-bold">
-                        <ShieldCheck size={24} /> 100% Free Forever
-                      </div>
-                      <div className="flex items-center gap-3 text-amber-600 dark:text-amber-400 font-bold">
-                        <Zap size={24} /> Indie Developed
-                      </div>
-                    </div>
-                  </div>
-
                 </div>
               </div>
             </FadeIn>

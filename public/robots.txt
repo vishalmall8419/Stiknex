@@ -4,9 +4,14 @@
 
 User-agent: *
 Allow: /
+Allow: /assets/
+Allow: /Stiknex.png
 
-# Prevent indexing of internal or broken paths if any exist
+# Prevent crawling of backend APIs and admin dashboard
 Disallow: /api/
+Disallow: /dashboard/
+Disallow: /stiknex-secure-login-portal
+Disallow: /setup-2fa-admin
 
 # Sitemap Location
 Sitemap: https://stiknex.vercel.app/sitemap.xml

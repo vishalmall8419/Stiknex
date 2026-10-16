@@ -78,18 +78,7 @@ const LandingPage = () => {
       gsap.from(".hero-sub", { y: 30, opacity: 0, duration: 1, delay: 0.8, ease: "power3.out" });
       gsap.from(".hero-btn", { scale: 0.8, opacity: 0, duration: 0.8, delay: 1, ease: "elastic.out(1, 0.5)", stagger: 0.2 });
 
-      gsap.from(".creator-element", {
-        scrollTrigger: {
-          trigger: "#creator",
-          start: "top 75%",
-        },
-        x: -50,
-        opacity: 0,
-        stagger: 0.15,
-        duration: 0.8,
-        ease: "power3.out"
-      });
-    }, containerRef);
+          }, containerRef);
 
     return () => {
       lenis.destroy();
@@ -116,20 +105,23 @@ const LandingPage = () => {
 />
       <AuroraBackground />
 
-      <nav className="fixed top-4 sm:top-6 left-1/2 -translate-x-1/2 z-50 px-3 min-[350px]:px-4 py-2 sm:px-6 sm:py-3 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.1)] flex items-center gap-2 min-[350px]:gap-3 sm:gap-8 w-max max-w-[95vw]">
-        <Link to="/" className="flex items-center gap-1.5 sm:gap-2 group">
-          <img src="/logo.png" alt="Stiknex Logo" className="w-6 h-6 sm:w-8 sm:h-8 object-contain group-hover:scale-105 transition-transform drop-shadow-sm" />
-          <span className="font-extrabold text-base min-[350px]:text-lg sm:text-xl tracking-tight bg-clip-text text-transparent bg-linear-to-r from-indigo-500 to-purple-600">Stiknex</span>
+      <nav className="fixed top-3 sm:top-5 left-1/2 -translate-x-1/2 z-50 px-3 sm:px-6 py-2 sm:py-2.5 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800/60 rounded-full shadow-lg flex items-center gap-2 sm:gap-6 max-w-[96vw] overflow-x-auto no-scrollbar">
+        <Link to="/" className="flex items-center gap-1.5 sm:gap-2 shrink-0 group">
+          <img src="/logo.png" alt="Stiknex Logo" className="w-6 h-6 sm:w-7 sm:h-7 object-contain group-hover:scale-105 transition-transform" />
+          <span className="font-black text-sm sm:text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-600">Stiknex</span>
         </Link>
-        <div className="flex gap-2 min-[350px]:gap-3 sm:gap-4 items-center">
-          <button onClick={toggleDarkMode} className="text-slate-600 dark:text-slate-400 hover:text-indigo-500 transition-colors">
-            {darkMode ? <Sparkles size={14} className="min-[350px]:w-4 min-[350px]:h-4 sm:w-4.5 sm:h-4.5" /> : <Zap size={14} className="min-[350px]:w-4 min-[350px]:h-4 sm:w-4.5 sm:h-4.5" />}
+        <div className="flex items-center gap-1 sm:gap-4 shrink-0 text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300">
+          <Link to="/sticky-notes" className="px-2 py-1 rounded-lg hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors whitespace-nowrap">Sticky Notes</Link>
+          <Link to="/online-notebook" className="px-2 py-1 rounded-lg hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors whitespace-nowrap">Notepad</Link>
+          <Link to="/whiteboard" className="px-2 py-1 rounded-lg hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors whitespace-nowrap">Whiteboard</Link>
+          <Link to="/tools" className="px-2 py-1 rounded-lg hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors whitespace-nowrap">Tools</Link>
+          <Link to="/blog" className="px-2 py-1 rounded-lg hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors whitespace-nowrap">Blog</Link>
+          <Link to="/about" className="px-2 py-1 rounded-lg hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors whitespace-nowrap">About</Link>
+        </div>
+        <div className="flex items-center gap-2 shrink-0 pl-1 border-l border-slate-200 dark:border-slate-800">
+          <button onClick={toggleDarkMode} className="p-1.5 rounded-full text-slate-600 dark:text-slate-400 hover:text-indigo-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" title="Toggle Dark Mode">
+            {darkMode ? <Sparkles size={16} /> : <Zap size={16} />}
           </button>
-          <a href="#creator" className="hidden min-[350px]:block text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-indigo-500 transition-colors">Creator</a>
-          <Link to="/blog" className="hidden min-[350px]:block text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-indigo-500 transition-colors">Blog</Link>
-          <Link to="/notes" className="px-2.5 py-1 min-[350px]:px-3 min-[350px]:py-1.5 sm:px-4 sm:py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full text-[10px] min-[350px]:text-xs sm:text-sm font-semibold transition-transform hover:scale-105 shadow-md whitespace-nowrap">
-            Launch App
-          </Link>
         </div>
       </nav>
 
@@ -337,64 +329,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      <section id="creator" className="py-32 px-6 relative z-10 border-t border-slate-200/50 dark:border-slate-800/50 bg-white/30 dark:bg-slate-950/30 backdrop-blur-lg">
-        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center gap-16">
-          <div className="w-full md:w-1/2 space-y-8">
-            <div className="creator-element inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 font-medium text-sm border border-purple-100 dark:border-purple-500/20">
-              <Terminal size={16} /> Meet the Developer
-            </div>
-            
-            <h2 className="creator-element text-4xl md:text-5xl font-black">
-              Hi, I'm <span className="text-transparent bg-clip-text bg-linear-to-r from-purple-500 to-indigo-500">Vishal Mall</span>
-            </h2>
-            
-            <p className="creator-element text-lg text-slate-600 dark:text-slate-400 leading-relaxed">
-              I am a passionate <strong>Frontend Developer</strong> currently working at <strong>Starchain Lab</strong> in Bhopal, Madhya Pradesh. I love building intuitive, beautiful, and highly interactive web experiences.
-            </p>
-            
-            <div className="creator-element space-y-4 pt-4 border-t border-slate-200 dark:border-slate-800">
-              <h4 className="font-semibold text-slate-900 dark:text-white uppercase tracking-wider text-sm">Tech Stack</h4>
-              <div className="flex flex-wrap gap-2">
-                {['React.js', 'JavaScript (ES6+)', 'Tailwind CSS', 'GSAP', 'Framer Motion', 'Java', 'MySQL'].map(tech => (
-                  <span key={tech} className="px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-md text-sm font-medium text-slate-700 dark:text-slate-300">{tech}</span>
-                ))}
-              </div>
-            </div>
-
-            <div className="creator-element flex gap-4 pt-4">
-              <a aria-label="GitHub Profile" href="https://github.com/vishalmall8419" target="_blank" rel="noreferrer" className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white transition-colors">
-                <i className="fa-brands fa-github text-xl"></i>
-              </a>
-              <a href="https://www.linkedin.com/in/vishal-mall-536506302/" target="_blank" rel="noreferrer" className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-[#0a66c2] transition-colors">
-                <i className="fa-brands fa-linkedin text-xl"></i>
-              </a>
-              <a href="mailto:vishal.mall02@outlook.com" className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-red-500 transition-colors">
-                <Mail size={20} />
-              </a>
-            </div>
-          </div>
-          
-          <div className="w-full md:w-1/2 grid grid-cols-1 sm:grid-cols-2 gap-4">
-             <div className="creator-element p-6 rounded-2xl bg-white dark:bg-slate-900 shadow-xl border border-slate-100 dark:border-slate-800 flex flex-col justify-center transform sm:translate-y-8">
-                <h3 className="text-4xl font-black text-indigo-500 mb-2">10+</h3>
-                <p className="font-medium text-slate-700 dark:text-slate-300">Frontend Websites Built</p>
-             </div>
-             <div className="creator-element p-6 rounded-2xl bg-white dark:bg-slate-900 shadow-xl border border-slate-100 dark:border-slate-800 flex flex-col justify-center">
-                <h3 className="text-4xl font-black text-purple-500 mb-2">5+</h3>
-                <p className="font-medium text-slate-700 dark:text-slate-300">Full-Stack Projects</p>
-             </div>
-             <div className="creator-element p-6 rounded-2xl bg-white dark:bg-slate-900 shadow-xl border border-slate-100 dark:border-slate-800 flex flex-col justify-center sm:translate-y-8 col-span-1 sm:col-span-2">
-                <h3 className="text-xl font-bold mb-2">Notable Projects</h3>
-                <ul className="space-y-2 text-slate-600 dark:text-slate-400 text-sm">
-                   <li><span className="font-semibold text-indigo-500">• Stiknex</span> (Productivity Platform)</li>
-                   <li><span className="font-semibold text-indigo-500">• CodeForge</span> (Project Management)</li>
-                   <li><span className="font-semibold text-indigo-500">• Student Productivity Portal</span></li>
-                   <li><span className="font-semibold text-indigo-500">• VMS Blog & E-Cart</span> (E-commerce)</li>
-                </ul>
-             </div>
-          </div>
-        </div>
-      </section>
+      
 
       <Testimonials />
       <HomeBlogSection />
@@ -409,11 +344,20 @@ const LandingPage = () => {
             <Link to="/notebook" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Notebook</Link>
             <Link to="/whiteboard" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Whiteboard</Link>
             <Link to="/buy-me-a-coffee" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Support</Link>
+            <button
+              type="button"
+              onClick={() => {
+                const btn = document.querySelector('button[title*="Feedback"]');
+                if (btn) btn.click();
+              }}
+              className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors cursor-pointer"
+            >
+              Contact & Message
+            </button>
           </div>
           <div className="text-center md:text-right">
             <p className="text-slate-500 dark:text-slate-400 font-medium text-sm mb-1">
-              Crafted with <Coffee size={14} className="inline text-amber-600" /> by 
-              <a href="https://vishalmall.vercel.app/" target="_blank" rel="noreferrer" className="text-indigo-600 dark:text-indigo-400 hover:underline ml-1 font-bold">Vishal Mall</a>
+              <a href="https://vishalmall.vercel.app/" target="_blank" rel="noreferrer" className="text-indigo-600 dark:text-indigo-400 hover:underline font-semibold">Developer</a>
             </p>
             <p className="text-slate-400 dark:text-slate-500 text-xs">&copy; {new Date().getFullYear()} Stiknex. All rights reserved.</p>
           </div>
