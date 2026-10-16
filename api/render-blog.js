@@ -30,12 +30,18 @@ export default async function handler(req, res) {
         const url = `${baseUrl}/blog/${slug}`;
 
         // Replace default title
-        html = html.replace(//<title>[\s\S]*?<\/title>/`);
+        html = html.replace(/<title>[\s\S]*?<\/title>/, `<title>${title}</title>`);
         
         // Replace or add keywords
         html = html.replace(
             /<!-- =========================================================\s*KEYWORDS\s*========================================================== -->/,
             `<!-- KEYWORDS --><meta name="keywords" content="${keywords}" />`
+        );
+
+        // Replace meta description
+        html = html.replace(
+            /<meta\s+name="description"\s+content="[^"]*"\s*\/>/,
+            `<meta name="description" content="${description}" />`
         );
 
         // Replace OG tags
@@ -73,6 +79,28 @@ export default async function handler(req, res) {
             /<meta\s+name="twitter:image"\s+content="[^"]*"\s*\/>/,
             `<meta name="twitter:image" content="${imageUrl}" />`
         );
+
+        // Ensure canonical link
+        const canonicalUrl = `${baseUrl}/blog/${slug}`;
+        if (html.includes('<link rel="canonical"')) {
+            html = html.replace(/<link\s+rel="canonical"\s+href="[^"]*"\s*\/?>/, `<link rel="canonical" href="${canonicalUrl}" />`);
+        } else {
+            html = html.replace('</head>', `<link rel="canonical" href="${canonicalUrl}" />\n</head>`);
+        }
+
+        // Add semantic markup payload for indexing
+        const semanticPayload = `
+        <noscript>
+            <main>
+                <h1>${title}</h1>
+                <p>${description}</p>
+                <article>
+                    ${blog.content || ''}
+                </article>
+            </main>
+        </noscript>
+        `;
+        html = html.replace('</head>', `${semanticPayload}</head>`);
 
         // Send modified HTML with cache headers (cache for 1 hour at Edge)
         res.setHeader('Content-Type', 'text/html; charset=utf-8');
