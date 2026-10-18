@@ -2,11 +2,13 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAppContext } from "../../context/AppContext";
 import { motion, AnimatePresence } from "framer-motion";
+import ExtensionModal from "../ExtensionModal";
 
 const AppShell = ({ children, hideNav = false, hideFooter = false, fullWidth = false }) => {
   const { darkMode, toggleDarkMode } = useAppContext();
   const { pathname } = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showExtensionModal, setShowExtensionModal] = useState(false);
 
   const navItems = [
     { name: "Sticky Notes", path: "/sticky-notes", icon: "fa-solid fa-note-sticky" },
@@ -65,6 +67,16 @@ const AppShell = ({ children, hideNav = false, hideFooter = false, fullWidth = f
 
             {/* Desktop Actions */}
             <div className="hidden md:flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setShowExtensionModal(true)}
+                className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/60 dark:text-indigo-300 border border-indigo-200/80 dark:border-indigo-800/80 transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
+                title="Add Stiknex Chrome Extension"
+              >
+                <i className="fa-brands fa-chrome text-[#4285F4]"></i>
+                <span>Add to Chrome</span>
+              </button>
+
               <Link to="/buy-me-a-coffee" className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 transition-colors flex items-center gap-2">
                 <i className="fa-solid fa-mug-hot"></i> Support
               </Link>
@@ -72,7 +84,7 @@ const AppShell = ({ children, hideNav = false, hideFooter = false, fullWidth = f
                 About
               </Link>
               <div className="w-px h-5 bg-gray-200 dark:bg-slate-800 mx-2"></div>
-              <button aria-label="Toggle Dark Mode" onClick={toggleDarkMode} className="p-2 rounded-lg text-slate-500 hover:bg-gray-100 dark:text-slate-400 dark:hover:bg-slate-800 transition-colors"
+              <button aria-label="Toggle Dark Mode" onClick={toggleDarkMode} className="p-2 rounded-lg text-slate-500 hover:bg-gray-100 dark:text-slate-400 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                 title="Toggle Theme"
               >
                 <i className={darkMode ? "fa-solid fa-sun" : "fa-solid fa-moon"}></i>
@@ -138,6 +150,18 @@ const AppShell = ({ children, hideNav = false, hideFooter = false, fullWidth = f
                 
                 <div className="h-px bg-gray-100 dark:bg-slate-800 my-4"></div>
                 
+                <button 
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    setShowExtensionModal(true);
+                  }}
+                  className="w-full flex items-center gap-4 px-4 py-3 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 rounded-xl transition-all cursor-pointer text-left"
+                >
+                  <i className="fa-brands fa-chrome w-5 text-center text-[#4285F4]"></i>
+                  <span className="font-semibold text-sm">Add to Chrome</span>
+                </button>
+
                 <Link to="/buy-me-a-coffee" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-4 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 rounded-xl transition-all dark:text-slate-400 dark:hover:text-indigo-400 hover:pl-5">
                   <i className="fa-solid fa-mug-hot w-5 text-center"></i> Support
                 </Link>
@@ -196,6 +220,17 @@ const AppShell = ({ children, hideNav = false, hideFooter = false, fullWidth = f
               <div>
                 <h3 className="font-semibold text-slate-900 dark:text-white mb-4">Generators & Utilities</h3>
                 <ul className="space-y-2.5 text-slate-500 dark:text-slate-400">
+                  <li>
+                    <button 
+                      type="button"
+                      onClick={() => setShowExtensionModal(true)} 
+                      className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors text-left flex items-center gap-1.5 cursor-pointer font-medium text-indigo-600 dark:text-indigo-400"
+                    >
+                      <i className="fa-brands fa-chrome text-[#4285F4]"></i>
+                      <span>Chrome Extension</span>
+                      <span className="text-[10px] px-1.5 py-0.5 bg-indigo-50 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-300 rounded font-semibold">New</span>
+                    </button>
+                  </li>
                   <li><Link to="/qr-code-generator" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">QR Code Generator</Link></li>
                   <li><Link to="/password-generator" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Password Generator</Link></li>
                   <li><Link to="/color-picker" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Color Picker</Link></li>
@@ -241,6 +276,9 @@ const AppShell = ({ children, hideNav = false, hideFooter = false, fullWidth = f
           </div>
         </footer>
       )}
+
+      {/* Chrome Extension Modal */}
+      <ExtensionModal isOpen={showExtensionModal} onClose={() => setShowExtensionModal(false)} />
     </div>
   );
 };

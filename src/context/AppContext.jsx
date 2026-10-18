@@ -16,7 +16,11 @@ export const AppProvider = ({ children }) => {
   // Sticky Notes State
   const [notes, setNotes] = useState(() => {
     try {
-      return JSON.parse(localStorage.getItem("notes")) || [];
+      const stored = JSON.parse(localStorage.getItem("notes")) || [];
+      return stored.map((note, idx) => ({
+        ...note,
+        zIndex: note.zIndex !== undefined ? note.zIndex : idx + 1,
+      }));
     } catch {
       return [];
     }
@@ -58,7 +62,26 @@ export const AppProvider = ({ children }) => {
   }, [whiteboards]);
 
   // Notes API
-  const addNote = (note) => setNotes((prev) => [{ ...note, updatedAt: Date.now() }, ...prev]);
+  const addNote = (note) => {
+    setNotes((prev) => {
+      const maxZ = prev.reduce((max, n) => Math.max(max, n.zIndex || 1), 1);
+      const newNote = {
+        ...note,
+        zIndex: maxZ + 1,
+        updatedAt: Date.now(),
+      };
+      return [...prev, newNote];
+    });
+  };
+
+  const bringToFront = (id) => {
+    setNotes((prev) => {
+      const maxZ = prev.reduce((max, n) => Math.max(max, n.zIndex || 1), 1);
+      const targetNote = prev.find((n) => n.id === id);
+      if (!targetNote || targetNote.zIndex === maxZ) return prev;
+      return prev.map((n) => (n.id === id ? { ...n, zIndex: maxZ + 1 } : n));
+    });
+  };
   const deleteNote = (id) => {
     swal({
       title: "Delete Note?",
@@ -112,6 +135,7 @@ export const AppProvider = ({ children }) => {
         deleteNote,
         deleteMultipleNotes,
         updateNote,
+        bringToFront,
         whiteboards,
         addWhiteboard,
         updateWhiteboard,

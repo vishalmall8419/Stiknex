@@ -3,6 +3,8 @@ import connectToDatabase from "./_utils/db.js";
 import Supporter from "./_models/Supporter.js";
 
 const MIN_AMOUNT_INR = 10;
+const FALLBACK_RAZORPAY_KEY_ID = "rzp_test_TMMQZgMhvSGNKx";
+const FALLBACK_RAZORPAY_KEY_SECRET = "JABhiZQ72yyDbLeKhnUasFbz";
 
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Credentials", "true");
@@ -40,8 +42,8 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: `Minimum donation amount is ₹${MIN_AMOUNT_INR}.` });
         }
 
-        const keyId = process.env.RAZORPAY_KEY_ID || process.env.VITE_RAZORPAY_KEY_ID;
-        const keySecret = process.env.RAZORPAY_KEY_SECRET;
+        const keyId = process.env.RAZORPAY_KEY_ID || process.env.VITE_RAZORPAY_KEY_ID || FALLBACK_RAZORPAY_KEY_ID;
+        const keySecret = process.env.RAZORPAY_KEY_SECRET || FALLBACK_RAZORPAY_KEY_SECRET;
 
         if (!keyId || !keySecret) {
           console.error("Razorpay API credentials not configured in environment");
@@ -98,7 +100,7 @@ export default async function handler(req, res) {
           return res.status(400).json({ success: false, error: "Missing payment details." });
         }
 
-        const keySecret = process.env.RAZORPAY_KEY_SECRET;
+        const keySecret = process.env.RAZORPAY_KEY_SECRET || FALLBACK_RAZORPAY_KEY_SECRET;
         if (keySecret) {
           const expectedSignature = crypto
             .createHmac("sha256", keySecret)

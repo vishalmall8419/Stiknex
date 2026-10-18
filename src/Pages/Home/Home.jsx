@@ -19,7 +19,7 @@ const NOTE_COLORS = COLORS.reduce((acc, curr) => {
   return acc;
 }, {});
 
-const StickyNote = ({ note, updateNote, deleteNote, connectingFrom, onConnectClick, zoom }) => {
+const StickyNote = ({ note, updateNote, deleteNote, connectingFrom, onConnectClick, zoom, bringToFront }) => {
   const updateXarrow = useXarrow();
   const textareaRef = useRef(null);
   const nodeRef = useRef(null);
@@ -46,6 +46,7 @@ const StickyNote = ({ note, updateNote, deleteNote, connectingFrom, onConnectCli
   return (
     <Draggable
       nodeRef={nodeRef} scale={zoom}
+      onStart={() => bringToFront && bringToFront(note.id)}
       defaultPosition={{ x: defaultX, y: defaultY }}
       onDrag={updateXarrow}
       onStop={(e, data) => {
@@ -57,6 +58,9 @@ const StickyNote = ({ note, updateNote, deleteNote, connectingFrom, onConnectCli
     >
       <div 
         ref={nodeRef}
+        style={{ zIndex: note.zIndex || 1 }}
+        onMouseDown={() => bringToFront && bringToFront(note.id)}
+        onTouchStart={() => bringToFront && bringToFront(note.id)}
         id={`note-${note.id}`} 
         className={`absolute w-64 min-h-[160px] shadow-[0_4px_15px_rgba(0,0,0,0.1)] dark:shadow-[0_4px_15px_rgba(0,0,0,0.4)] rounded-sm group flex flex-col ${bgColor} ${isTarget ? 'ring-2 ring-green-400 cursor-crosshair' : ''} hover:shadow-[0_8px_25px_rgba(0,0,0,0.15)] dark:hover:shadow-[0_8px_25px_rgba(0,0,0,0.6)] transition-shadow backdrop-blur-sm`}
       >
@@ -116,7 +120,7 @@ const StickyNote = ({ note, updateNote, deleteNote, connectingFrom, onConnectCli
 };
 
 const Home = () => {
-  const { notes, addNote, updateNote, deleteNote, deleteMultipleNotes, darkMode } = useAppContext();
+  const { notes, addNote, updateNote, deleteNote, deleteMultipleNotes, bringToFront, darkMode } = useAppContext();
   const boardRef = useRef(null);
   const [zoom, setZoom] = useState(1);
   const [connections, setConnections] = useState(() => {
@@ -400,6 +404,7 @@ const Home = () => {
                     deleteNote={handleDeleteNote}
                     connectingFrom={connectingFrom}
                     onConnectClick={handleConnectClick}
+                    bringToFront={bringToFront}
                   />
                ))}
             

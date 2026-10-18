@@ -6,13 +6,18 @@ import { getCount, recordSupporter } from "../supporterStore.js";
 const router = Router();
 
 const MIN_AMOUNT_INR = 10;
+const FALLBACK_RAZORPAY_KEY_ID = "rzp_test_TMMQZgMhvSGNKx";
+const FALLBACK_RAZORPAY_KEY_SECRET = "JABhiZQ72yyDbLeKhnUasFbz";
+
+const activeKeyId = process.env.RAZORPAY_KEY_ID || FALLBACK_RAZORPAY_KEY_ID;
+const activeKeySecret = process.env.RAZORPAY_KEY_SECRET || FALLBACK_RAZORPAY_KEY_SECRET;
 
 let razorpay;
 try {
-  if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
+  if (activeKeyId && activeKeySecret) {
     razorpay = new Razorpay({
-      key_id: process.env.RAZORPAY_KEY_ID,
-      key_secret: process.env.RAZORPAY_KEY_SECRET,
+      key_id: activeKeyId,
+      key_secret: activeKeySecret,
     });
   } else {
     console.warn("RAZORPAY_KEY_ID or RAZORPAY_KEY_SECRET is not set in environment. Payments will not work.");
@@ -50,7 +55,7 @@ router.post("/create-order", async (req, res) => {
       orderId: order.id,
       amount: order.amount,
       currency: order.currency,
-      keyId: process.env.RAZORPAY_KEY_ID,
+      keyId: activeKeyId,
     });
   } catch (err) {
     console.error(err);
@@ -67,7 +72,7 @@ router.post("/verify-payment", async (req, res) => {
     }
 
     const expectedSignature = crypto
-      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+      .createHmac("sha256", activeKeySecret)
       .update(`${razorpay_order_id}|${razorpay_payment_id}`)
       .digest("hex");
 

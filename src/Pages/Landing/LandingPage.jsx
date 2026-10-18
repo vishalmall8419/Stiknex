@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
 import gsap from "gsap";
@@ -9,6 +9,17 @@ import { ArrowRight, Sparkles, Layers, PenTool, LayoutDashboard, Code2, Mail, Za
 import { useAppContext } from "../../context/AppContext";
 import HomeBlogSection from "./HomeBlogSection";
 import Testimonials from "../../Component/Testimonials";
+import ExtensionModal from "../../Component/ExtensionModal";
+
+const ChromeIcon = ({ className = "w-4 h-4" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none">
+    <circle cx="12" cy="12" r="10" stroke="#4285F4" strokeWidth="2"/>
+    <circle cx="12" cy="12" r="4" fill="#4285F4"/>
+    <path d="M12 2a10 10 0 0 1 8.66 5H12" stroke="#EA4335" strokeWidth="2"/>
+    <path d="M20.66 7a10 10 0 0 1-5 13.66L12 12" stroke="#FBBC05" strokeWidth="2"/>
+    <path d="M15.66 20.66A10 10 0 0 1 3.34 12H12" stroke="#34A853" strokeWidth="2"/>
+  </svg>
+);
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -41,6 +52,7 @@ const Features = [
 
 const LandingPage = () => {
   const { darkMode, toggleDarkMode } = useAppContext();
+  const [showExtensionModal, setShowExtensionModal] = useState(false);
   const containerRef = useRef(null);
   const textRef = useRef(null);
   const { scrollYProgress } = useScroll();
@@ -117,6 +129,15 @@ const LandingPage = () => {
           <Link to="/tools" className="px-2 py-1 rounded-lg hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors whitespace-nowrap">Tools</Link>
           <Link to="/blog" className="px-2 py-1 rounded-lg hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors whitespace-nowrap">Blog</Link>
           <Link to="/about" className="px-2 py-1 rounded-lg hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors whitespace-nowrap">About</Link>
+          <button 
+            type="button"
+            onClick={() => setShowExtensionModal(true)} 
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-semibold border border-indigo-200/80 dark:border-indigo-800/80 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 transition-colors whitespace-nowrap cursor-pointer shadow-xs text-xs"
+            title="Add Stiknex Chrome Extension"
+          >
+            <ChromeIcon className="w-3.5 h-3.5" />
+            <span>Add to Chrome</span>
+          </button>
         </div>
         <div className="flex items-center gap-2 shrink-0 pl-1 border-l border-slate-200 dark:border-slate-800">
           <button onClick={toggleDarkMode} className="p-1.5 rounded-full text-slate-600 dark:text-slate-400 hover:text-indigo-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" title="Toggle Dark Mode">
@@ -173,6 +194,18 @@ const LandingPage = () => {
                   <span className="text-[14px] font-bold">Android App</span>
                 </div>
               </a>
+
+              <button 
+                type="button"
+                onClick={() => setShowExtensionModal(true)} 
+                className="group flex items-center gap-3 px-6 py-3 bg-white dark:bg-slate-800 text-slate-800 dark:text-white border border-indigo-200/80 dark:border-indigo-900/50 rounded-2xl hover:bg-indigo-50/50 dark:hover:bg-slate-700/60 transition-all shadow-md cursor-pointer"
+              >
+                <ChromeIcon className="w-[20px] h-[20px] shrink-0" />
+                <div className="flex flex-col items-start leading-[1.1] text-left">
+                  <span className="text-[10px] text-indigo-500 dark:text-indigo-400 font-semibold tracking-wide uppercase">Browser Tool</span>
+                  <span className="text-[14px] font-bold">Add to Chrome</span>
+                </div>
+              </button>
 
               <button onClick={() => {
                   if (window.deferredPWA) {
@@ -524,6 +557,9 @@ const LandingPage = () => {
           </div>
         </div>
       </footer>
+
+      {/* Chrome Extension Modal */}
+      <ExtensionModal isOpen={showExtensionModal} onClose={() => setShowExtensionModal(false)} />
     </div>
   );
 };
