@@ -5,7 +5,6 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
 import AppShell from "../../Component/Layout/AppShell";
 import { loadRazorpayScript } from "../../utils/loadRazorpay";
-import { API_BASE_URL } from "../../config/api";
 import PageSEO from "../../Component/SEO/PageSEO";
 import { Heart, Coffee, ShieldCheck, Zap } from "lucide-react";
 
@@ -141,7 +140,7 @@ const BuyMeACoffee = () => {
     requestAnimationFrame(raf);
 
     let cancelled = false;
-    fetch(`${API_BASE_URL}/supporters?t=${Date.now()}`)
+    fetch(`/api/supporters?t=${Date.now()}`)
       .then((res) => res.json())
       .then((data) => {
         if (!cancelled) {
@@ -184,20 +183,38 @@ const BuyMeACoffee = () => {
     try {
       const scriptLoaded = await loadRazorpayScript();
       if (!scriptLoaded) {
-        setError("Could not load payment gateway. Check your internet connection.");
+        setError("Could not load payment gateway. Please disable ad-blockers and check your connection.");
         setStatus("idle");
         return;
       }
 
-      const orderRes = await fetch(`${API_BASE_URL}/create-order`, {
+      const orderRes = await fetch("/api/supporters?action=create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ amount }),
       });
-      const orderData = await orderRes.json();
+
+      let orderData;
+      try {
+        orderData = await orderRes.json();
+      } catch {
+        throw new Error("Could not parse payment order response from server.");
+      }
 
       if (!orderRes.ok) {
-        setError(orderData.error || "Could not create order. Please try again.");
+        setError(orderData?.error || "Could not create payment order. Please try again.");
+        setStatus("idle");
+        return;
+      }
+
+      if (!orderData?.orderId || !orderData?.keyId) {
+        setError("Incomplete order details received from payment gateway.");
+        setStatus("idle");
+        return;
+      }
+
+      if (!window.Razorpay) {
+        setError("Razorpay SDK is not available. Please disable any ad-blockers and try again.");
         setStatus("idle");
         return;
       }
@@ -205,13 +222,13 @@ const BuyMeACoffee = () => {
       const options = {
         key: orderData.keyId,
         amount: orderData.amount,
-        currency: orderData.currency,
+        currency: orderData.currency || "INR",
         name: "Stiknex",
         description: "Support Stiknex",
         order_id: orderData.orderId,
         handler: async (response) => {
           try {
-            const verifyRes = await fetch(`${API_BASE_URL}/verify-payment`, {
+            const verifyRes = await fetch("/api/supporters?action=verify-payment", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
@@ -219,7 +236,12 @@ const BuyMeACoffee = () => {
                 amount,
               }),
             });
-            const verifyData = await verifyRes.json();
+            let verifyData;
+            try {
+              verifyData = await verifyRes.json();
+            } catch {
+              throw new Error("Payment verified with bank, but failed to parse response.");
+            }
 
             if (verifyData.success) {
               setStatus("success");
@@ -230,8 +252,9 @@ const BuyMeACoffee = () => {
               setError(verifyData.error || "Payment verification failed.");
               setStatus("idle");
             }
-          } catch {
-            setError("Network error while verifying payment.");
+          } catch (verifyErr) {
+            console.error("Payment verification error:", verifyErr);
+            setError(verifyErr?.message || "Network error while verifying payment.");
             setStatus("idle");
           }
         },
@@ -240,13 +263,15 @@ const BuyMeACoffee = () => {
       };
 
       const razorpayInstance = new window.Razorpay(options);
-      razorpayInstance.on("payment.failed", () => {
-        setError("Payment failed. Please try again.");
+      razorpayInstance.on("payment.failed", (failedRes) => {
+        console.error("Payment failed event:", failedRes);
+        setError(failedRes?.error?.description || "Payment failed. Please try again.");
         setStatus("idle");
       });
       razorpayInstance.open();
-    } catch {
-      setError("Something went wrong. Please try again.");
+    } catch (err) {
+      console.error("Payment initiation error:", err);
+      setError(err?.message || "Something went wrong. Please try again.");
       setStatus("idle");
     }
   };
