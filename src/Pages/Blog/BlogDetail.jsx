@@ -82,7 +82,11 @@ const BlogDetail = () => {
             fullContent: data.content,
             image: data.imageUrl,
             category: data.category || "Productivity",
-            keywords: data.keywords ? (Array.isArray(data.keywords) ? data.keywords : data.keywords.split(',').map(k => k.trim())) : [],
+            keywords: data.keywords
+              ? (Array.isArray(data.keywords) ? data.keywords.flatMap(k => String(k).split(',')) : String(data.keywords).split(','))
+                  .map(k => k.trim().replace(/^#+/, ''))
+                  .filter(Boolean)
+              : [],
             wordCount: data.wordCount || (data.content ? data.content.split(/\s+/).length : 0),
             publishedAt: data.publishedAt
           });
@@ -118,12 +122,12 @@ const BlogDetail = () => {
   const coverImage = post.image || '';
 
   return (
-    <div className="relative min-h-screen text-slate-900 dark:text-slate-100 selection:bg-indigo-500/30 font-sans pb-16">
+    <div className="relative min-h-screen text-slate-900 dark:text-slate-100 selection:bg-indigo-500/30 font-sans pb-16 w-full max-w-full overflow-x-hidden">
       <PageSEO title={`${post.title} | Stiknex`} description={post.briefDescription} path={`/blog/${id}`} />
       <AuroraBackground />
 
       {/* Clean Global Navbar */}
-      <nav className="fixed top-3 sm:top-5 left-1/2 -translate-x-1/2 z-50 px-3 sm:px-6 py-2 sm:py-2.5 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800/60 rounded-full shadow-lg flex items-center gap-2 sm:gap-6 max-w-[96vw] overflow-x-auto no-scrollbar">
+      <nav className="fixed top-3 sm:top-5 left-1/2 -translate-x-1/2 z-50 px-3 sm:px-6 py-2 sm:py-2.5 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800/60 rounded-full shadow-lg flex items-center gap-2 sm:gap-6 max-w-[calc(100vw-1.5rem)] overflow-x-auto no-scrollbar">
         <Link to="/" className="flex items-center gap-1.5 sm:gap-2 shrink-0 group">
           <img src="/logo.png" alt="Stiknex Logo" className="w-6 h-6 sm:w-7 sm:h-7 object-contain group-hover:scale-105 transition-transform" />
           <span className="font-black text-sm sm:text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-600">Stiknex</span>
@@ -143,25 +147,25 @@ const BlogDetail = () => {
         </div>
       </nav>
 
-      <main className="pt-28 md:pt-36 px-6 max-w-4xl mx-auto relative z-10">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-          <Link to="/blog" className="inline-flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-semibold hover:-translate-x-2 transition-transform text-sm sm:text-base">
+      <main className="pt-24 sm:pt-28 md:pt-36 px-4 sm:px-6 max-w-4xl mx-auto relative z-10 w-full overflow-x-hidden">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 mb-8 w-full">
+          <Link to="/blog" className="inline-flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-semibold hover:-translate-x-2 transition-transform text-sm sm:text-base shrink-0">
             <ArrowLeft size={18} /> Back to Articles
           </Link>
           
           <button 
             onClick={handleTranslate}
             disabled={isTranslating}
-            className="flex items-center gap-2 px-4 py-2 rounded-full bg-orange-100 dark:bg-orange-500/20 text-orange-700 dark:text-orange-400 font-bold hover:bg-orange-200 dark:hover:bg-orange-500/30 transition-colors shadow-sm disabled:opacity-70 text-xs sm:text-sm"
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-orange-100 dark:bg-orange-500/20 text-orange-700 dark:text-orange-400 font-bold hover:bg-orange-200 dark:hover:bg-orange-500/30 transition-colors shadow-sm disabled:opacity-70 text-xs sm:text-sm shrink-0 self-start sm:self-auto"
           >
             {isTranslating ? <Loader2 size={16} className="animate-spin" /> : <Languages size={16} />}
             {isTranslating ? "Translating..." : (translatedContent ? "Read in English" : "Read in Hindi (हिंदी)")}
           </button>
         </div>
         
-        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: "easeOut" }}>
-          <div className="flex flex-wrap items-center gap-3 mb-6">
-            <span className="px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300">
+        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: "easeOut" }} className="w-full">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-6">
+            <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300">
               {post.category}
             </span>
             <span className="flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
@@ -177,11 +181,11 @@ const BlogDetail = () => {
             </span>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-6 leading-tight text-slate-900 dark:text-white">
+          <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-6 leading-tight text-slate-900 dark:text-white break-words">
             {translatedContent ? translatedContent.title : post.title}
           </h1>
 
-          <p className="text-lg sm:text-xl md:text-2xl text-slate-600 dark:text-slate-300 font-light leading-relaxed mb-10">
+          <p className="text-base sm:text-lg md:text-xl text-slate-600 dark:text-slate-300 font-light leading-relaxed mb-10 break-words">
             {translatedContent ? translatedContent.briefDescription : post.briefDescription}
           </p>
         </motion.div>
@@ -191,7 +195,7 @@ const BlogDetail = () => {
             initial={{ opacity: 0, scale: 0.95 }} 
             animate={{ opacity: 1, scale: 1 }} 
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="w-full h-[35vh] sm:h-[45vh] md:h-[55vh] rounded-3xl overflow-hidden shadow-2xl mb-12 border border-slate-200/50 dark:border-slate-800/50"
+            className="w-full h-[30vh] sm:h-[45vh] md:h-[55vh] rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl mb-12 border border-slate-200/50 dark:border-slate-800/50"
           >
             <LazyImage src={coverImage} alt={post.title} className="w-full h-full object-cover" />
           </motion.div>
@@ -201,7 +205,7 @@ const BlogDetail = () => {
           initial={{ opacity: 0, y: 40 }} 
           animate={{ opacity: 1, y: 0 }} 
           transition={{ duration: 0.8, delay: 0.4 }}
-          className="max-w-none bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl p-6 sm:p-10 md:p-12 rounded-3xl border border-white/50 dark:border-slate-800/80 shadow-md text-base sm:text-lg text-slate-700 dark:text-slate-300 leading-relaxed space-y-6"
+          className="w-full max-w-full bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl p-4 sm:p-8 md:p-12 rounded-2xl sm:rounded-3xl border border-white/50 dark:border-slate-800/80 shadow-md text-base sm:text-lg text-slate-700 dark:text-slate-300 leading-relaxed space-y-6 break-words overflow-x-hidden"
         >
           {(translatedContent ? translatedContent.fullContent : post.fullContent).split('\n').map((paragraph, idx) => {
             const trimmed = paragraph.trim();
@@ -215,7 +219,7 @@ const BlogDetail = () => {
                 <h2 
                   id={headingId} 
                   key={idx} 
-                  className="scroll-mt-28 text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white mt-12 mb-4 pb-2 border-b border-slate-200/60 dark:border-slate-800/60"
+                  className="scroll-mt-28 text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white mt-10 sm:mt-12 mb-4 pb-2 border-b border-slate-200/60 dark:border-slate-800/60 break-words"
                 >
                   {rawHeading}
                 </h2>
@@ -230,7 +234,7 @@ const BlogDetail = () => {
                 <h3 
                   id={headingId} 
                   key={idx} 
-                  className="scroll-mt-28 text-xl md:text-2xl font-bold text-slate-800 dark:text-slate-100 mt-8 mb-3"
+                  className="scroll-mt-28 text-lg sm:text-xl md:text-2xl font-bold text-slate-800 dark:text-slate-100 mt-6 sm:mt-8 mb-3 break-words"
                 >
                   {rawHeading}
                 </h3>
@@ -248,10 +252,10 @@ const BlogDetail = () => {
               itemHtml = itemHtml.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (m, text, url) => {
                 const isInternal = url.startsWith('/') || url.includes('stiknex.site');
                 const target = isInternal ? '' : "target='_blank' rel='noopener noreferrer'";
-                return `<a href='${url}' class='text-indigo-600 dark:text-indigo-400 font-bold underline underline-offset-4 hover:text-indigo-800 dark:hover:text-indigo-200 transition-colors' ${target}>${text}</a>`;
+                return `<a href='${url}' class='text-indigo-600 dark:text-indigo-400 font-bold underline underline-offset-4 hover:text-indigo-800 dark:hover:text-indigo-200 transition-colors [overflow-wrap:anywhere] break-words' ${target}>${text}</a>`;
               });
               return (
-                <li key={idx} className="ml-6 list-disc text-base sm:text-lg text-slate-700 dark:text-slate-300 mb-2" dangerouslySetInnerHTML={{ __html: itemHtml }} />
+                <li key={idx} className="ml-4 sm:ml-6 list-disc text-base sm:text-lg text-slate-700 dark:text-slate-300 mb-2 break-words" dangerouslySetInnerHTML={{ __html: itemHtml }} />
               );
             }
 
@@ -260,19 +264,19 @@ const BlogDetail = () => {
             html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (m, text, url) => {
               const isInternal = url.startsWith('/') || url.includes('stiknex.site');
               const target = isInternal ? '' : "target='_blank' rel='noopener noreferrer'";
-              return `<a href='${url}' class='text-indigo-600 dark:text-indigo-400 font-bold underline underline-offset-4 hover:text-indigo-800 dark:hover:text-indigo-200 transition-colors' ${target}>${text}</a>`;
+              return `<a href='${url}' class='text-indigo-600 dark:text-indigo-400 font-bold underline underline-offset-4 hover:text-indigo-800 dark:hover:text-indigo-200 transition-colors [overflow-wrap:anywhere] break-words' ${target}>${text}</a>`;
             });
 
-            return <p key={idx} className="mb-6 last:mb-0 text-base sm:text-lg leading-relaxed text-slate-700 dark:text-slate-300" dangerouslySetInnerHTML={{ __html: html }} />;
+            return <p key={idx} className="mb-6 last:mb-0 text-base sm:text-lg leading-relaxed text-slate-700 dark:text-slate-300 break-words" dangerouslySetInnerHTML={{ __html: html }} />;
           })}
 
           {post.keywords && post.keywords.length > 0 && (
-            <div className="mt-12 pt-6 border-t border-slate-200 dark:border-slate-700 flex flex-wrap gap-2 not-prose">
-              <span className="flex items-center gap-2 text-slate-500 dark:text-slate-400 mr-2 font-medium text-sm">
+            <div className="mt-12 pt-6 border-t border-slate-200 dark:border-slate-700 flex flex-wrap items-center gap-2 not-prose max-w-full overflow-hidden">
+              <span className="flex items-center gap-2 text-slate-500 dark:text-slate-400 mr-2 font-medium text-sm shrink-0">
                 <Tag size={16} /> Tags:
               </span>
               {post.keywords.map((kw, i) => (
-                <span key={i} className="px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-300">
+                <span key={i} className="px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-300 [overflow-wrap:anywhere] break-words max-w-full">
                   #{kw}
                 </span>
               ))}

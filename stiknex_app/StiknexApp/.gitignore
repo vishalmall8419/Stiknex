@@ -13,3 +13,12 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Signing credentials & Keystores (Security: Never commit keys)
+*.jks
+*.keystore
+*.p12
+*.key
+signing.properties
+google-services.json
+release-keystore*
