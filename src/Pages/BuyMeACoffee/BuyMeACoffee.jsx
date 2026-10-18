@@ -141,10 +141,16 @@ const BuyMeACoffee = () => {
     requestAnimationFrame(raf);
 
     let cancelled = false;
-    fetch(`${API_BASE_URL}/supporters`)
+    fetch(`${API_BASE_URL}/supporters?t=${Date.now()}`)
       .then((res) => res.json())
-      .then((data) => { if (!cancelled) setSupporterCount(data.totalSupporters); })
-      .catch(() => { if (!cancelled) setSupporterCount(null); });
+      .then((data) => {
+        if (!cancelled) {
+          setSupporterCount(typeof data?.totalSupporters === "number" ? data.totalSupporters : 0);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setSupporterCount(0);
+      });
       
     return () => { 
       cancelled = true; 
@@ -208,13 +214,18 @@ const BuyMeACoffee = () => {
             const verifyRes = await fetch(`${API_BASE_URL}/verify-payment`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(response),
+              body: JSON.stringify({
+                ...response,
+                amount,
+              }),
             });
             const verifyData = await verifyRes.json();
 
             if (verifyData.success) {
               setStatus("success");
-              setSupporterCount(verifyData.totalSupporters);
+              if (typeof verifyData.totalSupporters === "number") {
+                setSupporterCount(verifyData.totalSupporters);
+              }
             } else {
               setError(verifyData.error || "Payment verification failed.");
               setStatus("idle");

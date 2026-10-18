@@ -24,6 +24,8 @@ function localApiPlugin() {
         else if (scriptName === 'trends-admin') { scriptName = 'trends'; extraQuery.view = 'admin'; }
         else if (scriptName === 'latest-keywords') { scriptName = 'trends'; extraQuery.view = 'keywords'; }
         else if (scriptName === 'external-services' || scriptName === 'monitor-external') { scriptName = 'seo-stats'; extraQuery.action = 'monitor-external'; }
+        else if (scriptName === 'create-order') { scriptName = 'supporters'; extraQuery.action = 'create-order'; }
+        else if (scriptName === 'verify-payment') { scriptName = 'supporters'; extraQuery.action = 'verify-payment'; }
 
         const filePath = path.resolve(process.cwd(), 'api', `${scriptName}.js`);
 

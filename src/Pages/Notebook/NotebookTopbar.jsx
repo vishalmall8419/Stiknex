@@ -1,4 +1,4 @@
-﻿import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import swal from "sweetalert";
@@ -15,7 +15,33 @@ const SHORTCUTS = [
   { keys: "Esc", action: "Exit distraction-free / close panel" },
 ];
 
-const UNICODE_CHARS = ["≡ƒÿè","≡ƒÿé","≡ƒñö","≡ƒæì","Γ¥ñ∩╕Å","Γ£¿","≡ƒöÑ","≡ƒÄë","Γ£ô","Γ£ù","Γÿà","Γÿå","ΓÖá","ΓÖú","ΓÖÑ","ΓÖª","ΓÖ¬","ΓÖ½","Γê₧","Γêæ","╧Ç","╬⌐","┬╡","╬ö","┬⌐","┬«","Γäó","┬╜","┬╝","┬╛","ΓåÉ","Γåæ","ΓåÆ","Γåô"];
+const UNICODE_CATEGORIES = [
+  {
+    id: "popular",
+    label: "Popular",
+    chars: ["😊", "😂", "🔥", "✨", "❤️", "👍", "🎉", "💡", "📌", "⭐", "🚀", "☕", "📝", "✅", "👏", "🙌", "💯", "🎯"],
+  },
+  {
+    id: "symbols",
+    label: "Symbols",
+    chars: ["✓", "✗", "★", "☆", "♠", "♣", "♥", "♦", "♪", "♫", "⚡", "🔔", "🏷️", "💬", "☀️", "🌙", "☁️", "❄️"],
+  },
+  {
+    id: "math",
+    label: "Math",
+    chars: ["∞", "∑", "π", "Ω", "µ", "Δ", "√", "≈", "≠", "±", "÷", "×", "≤", "≥", "∫", "∂", "∝", "∈"],
+  },
+  {
+    id: "currency",
+    label: "Currency",
+    chars: ["₹", "$", "€", "£", "¥", "¢", "©", "®", "™", "°", "%", "‰", "§", "¶", "•", "†"],
+  },
+  {
+    id: "arrows",
+    label: "Arrows",
+    chars: ["←", "↑", "→", "↓", "↔", "↕", "➔", "➜", "⇒", "⇐", "⬆️", "⬇️", "⬅️", "➡️", "▲", "▼"],
+  },
+];
 
 // Current Time ΓÇö 12h / 24h format preference, persisted the same
 // way other Notebook prefs are (a plain localStorage key).
@@ -180,8 +206,31 @@ const NotebookTopbar = ({
   const snapshotsPortalRef = useRef(null);
 
   const [unicodeOpen, setUnicodeOpen] = useState(false);
+  const [unicodeCategory, setUnicodeCategory] = useState("popular");
   const unicodeBtnRef = useRef(null);
   const unicodePortalRef = useRef(null);
+
+  const handleInsertUnicode = (char) => {
+    const ta = textareaRef && textareaRef.current;
+    if (ta) {
+      const start = typeof ta.selectionStart === "number" ? ta.selectionStart : (text || "").length;
+      const end = typeof ta.selectionEnd === "number" ? ta.selectionEnd : start;
+      const currentText = typeof text === "string" ? text : "";
+      const newText = currentText.substring(0, start) + char + currentText.substring(end);
+      setText(newText);
+      const newCursor = start + char.length;
+      setTimeout(() => {
+        try {
+          ta.focus();
+          ta.setSelectionRange(newCursor, newCursor);
+        } catch {
+          // ignore
+        }
+      }, 0);
+    } else {
+      setText((prev) => (prev || "") + char);
+    }
+  };
 
   // Read aloud
   const [isReading, setIsReading] = useState(false);
@@ -1001,10 +1050,11 @@ const NotebookTopbar = ({
             ref={unicodeBtnRef}
             type="button"
             className={`${Style.iconBtn} ${unicodeOpen ? Style.iconBtnActive : ""}`}
-            data-tip="Insert Unicode Symbol"
+            data-tip="Insert Symbol / Emoji"
             onClick={() => setUnicodeOpen((v) => !v)}
+            aria-label="Insert Symbol or Emoji"
           >
-            <span style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>╬⌐</span>
+            <span className={Style.unicodeTriggerIcon} aria-hidden="true">Ω</span>
           </button>
           {unicodeOpen &&
             unicodeRect &&
@@ -1018,26 +1068,45 @@ const NotebookTopbar = ({
                   right: Math.max(8, window.innerWidth - unicodeRect.right - 8),
                 }}
               >
-                <div className={Style.unicodeGrid}>
-                  {UNICODE_CHARS.map((char, i) => (
+                <div className={Style.unicodeHeader}>
+                  <div className={Style.unicodeHeaderTitle}>
+                    <span className={Style.unicodeHeaderIcon}>Ω</span>
+                    <span>Symbols & Emojis</span>
+                  </div>
+                  <button
+                    type="button"
+                    className={Style.unicodeCloseBtn}
+                    onClick={() => setUnicodeOpen(false)}
+                    aria-label="Close symbols menu"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                <div className={Style.unicodeTabs}>
+                  {UNICODE_CATEGORIES.map((cat) => (
                     <button
-                      key={i}
+                      key={cat.id}
+                      type="button"
+                      className={`${Style.unicodeTabBtn} ${unicodeCategory === cat.id ? Style.unicodeTabBtnActive : ""}`}
+                      onClick={() => setUnicodeCategory(cat.id)}
+                    >
+                      {cat.label}
+                    </button>
+                  ))}
+                </div>
+
+                <div className={Style.unicodeGrid}>
+                  {(
+                    UNICODE_CATEGORIES.find((c) => c.id === unicodeCategory)?.chars ||
+                    UNICODE_CATEGORIES[0].chars
+                  ).map((char, i) => (
+                    <button
+                      key={`${unicodeCategory}_${i}`}
+                      type="button"
                       className={Style.unicodeCharBtn}
-                      onClick={() => {
-                        const ta = textareaRef && textareaRef.current;
-                        if (ta) {
-                          const start = ta.selectionStart;
-                          const end = ta.selectionEnd;
-                          const newText = text.substring(0, start) + char + text.substring(end);
-                          setText(newText);
-                          // Restore cursor position after state update
-                          setTimeout(() => {
-                            ta.selectionStart = ta.selectionEnd = start + char.length;
-                            ta.focus();
-                          }, 0);
-                        }
-                        setUnicodeOpen(false);
-                      }}
+                      title={`Insert ${char}`}
+                      onClick={() => handleInsertUnicode(char)}
                     >
                       {char}
                     </button>

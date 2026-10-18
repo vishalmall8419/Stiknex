@@ -72,6 +72,14 @@
       "destination": "/api/seo-stats?action=monitor-external"
     },
     {
+      "source": "/api/create-order",
+      "destination": "/api/supporters?action=create-order"
+    },
+    {
+      "source": "/api/verify-payment",
+      "destination": "/api/supporters?action=verify-payment"
+    },
+    {
       "source": "/sitemap.xml",
       "destination": "/api/sitemap.xml"
     },
