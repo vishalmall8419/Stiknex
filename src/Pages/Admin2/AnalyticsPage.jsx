@@ -125,7 +125,7 @@ const AnalyticsPage = () => {
   );
 
   return (
-    <main className="relative z-10 min-h-screen text-slate-800 dark:text-slate-200 dark:text-slate-200 p-2 sm:p-4 space-y-4 font-sans max-w-[1920px] mx-auto min-w-0">
+    <main className="relative z-10 text-slate-800 dark:text-slate-200 p-2 sm:p-4 space-y-4 font-sans max-w-[1920px] mx-auto min-w-0">
       
       {/* HEADER ROW */}
       <div className="flex flex-col md:flex-row justify-between items-center bg-white/60 dark:bg-slate-900/60 border border-white/40 dark:border-slate-700/50 backdrop-blur-md p-3 rounded-xl shadow-sm gap-3">

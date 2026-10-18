@@ -118,8 +118,8 @@ const SEOOpportunities = () => {
   };
 
   return (
-    <main className="relative z-10 min-h-screen text-slate-800 dark:text-white bg-transparent font-sans">
-      <div className="flex-1 overflow-x-hidden p-3 lg:p-6 pb-20 mt-16 max-w-full">
+    <main className="relative z-10 text-slate-800 dark:text-white bg-transparent font-sans">
+      <div className="flex-1 overflow-x-hidden p-2 sm:p-4 pb-12 max-w-full">
         
         {/* HEADER */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">

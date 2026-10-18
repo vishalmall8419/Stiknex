@@ -33,7 +33,7 @@ const BlogManager = () => {
         localStorage.getItem("stkx_admin_token") ||
         sessionStorage.getItem("stkx_admin_token");
       
-      const res = await fetch("/api/blogs?admin=true", {
+      const res = await fetch(`/api/blogs?admin=true&t=${Date.now()}`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       
@@ -42,7 +42,7 @@ const BlogManager = () => {
         setBlogs(data.blogs || (Array.isArray(data) ? data : []));
       } else {
         // Fallback to public endpoint
-        const pubRes = await fetch("/api/blogs");
+        const pubRes = await fetch(`/api/blogs?t=${Date.now()}`);
         if (pubRes.ok) {
           const pubData = await pubRes.json();
           setBlogs(Array.isArray(pubData) ? pubData : (pubData.blogs || []));
@@ -292,7 +292,7 @@ const BlogManager = () => {
   });
 
   return (
-    <main className="space-y-6">
+    <main className="relative z-10 space-y-6">
       {/* Header and Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>

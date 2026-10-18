@@ -14,15 +14,15 @@ const Messages = () => {
         localStorage.getItem("stkx_admin_token") ||
         sessionStorage.getItem("stkx_admin_token");
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
-      const res = await fetch("/api/reviews", { headers });
+      const res = await fetch(`/api/reviews?t=${Date.now()}`, { headers });
       if (res.ok) {
         const data = await res.json();
         setMessages(Array.isArray(data) ? data : (data.reviews || []));
       } else {
-        const fallbackRes = await fetch("/api/reviews");
+        const fallbackRes = await fetch(`/api/reviews?t=${Date.now()}`);
         if (fallbackRes.ok) {
           const data = await fallbackRes.json();
-          setMessages(Array.isArray(data) ? data : []);
+          setMessages(Array.isArray(data) ? data : (data.reviews || []));
         }
       }
     } catch (err) {
@@ -81,7 +81,7 @@ const Messages = () => {
   });
 
   return (
-    <main className="space-y-6">
+    <main className="relative z-10 space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-black text-slate-900 dark:text-white flex items-center gap-2">

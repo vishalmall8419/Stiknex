@@ -16,37 +16,50 @@ const ExternalProjects = () => {
     setLoading(true);
     setServices(defaultServices.map(s => ({ ...s, pending: true })));
     
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+
     try {
       const token = localStorage.getItem("stkx_admin_token") || sessionStorage.getItem("stkx_admin_token");
-      const res = await fetch("/api/external-services", {
-        headers: { Authorization: `Bearer ${token}` }
+      const res = await fetch(`/api/external-services?t=${Date.now()}`, {
+        headers: { Authorization: `Bearer ${token}` },
+        signal: controller.signal
       });
+      clearTimeout(timeoutId);
       
       if (res.ok) {
         const contentType = res.headers.get("content-type");
-        if (!contentType || !contentType.includes("application/json")) {
-           throw new Error("Received non-JSON response (API server might not be running)");
-        }
-        const json = await res.json();
-        setServices(Array.isArray(json.services) && json.services.length > 0 ? json.services : defaultServices.map(s => ({...s, pending: false, ok: false, error: 'No data returned'})));
-        if (json.timestamp) {
+        if (contentType && contentType.includes("application/json")) {
+          const json = await res.json();
+          setServices(Array.isArray(json.services) && json.services.length > 0 ? json.services : defaultServices.map(s => ({...s, pending: false, ok: false, error: 'No data returned'})));
+          if (json.timestamp) {
             const parsedDate = new Date(json.timestamp);
             if (!isNaN(parsedDate.getTime())) {
-                setLastUpdated(parsedDate);
+              setLastUpdated(parsedDate);
             }
+          }
+        } else {
+          setServices(defaultServices.map(s => ({ ...s, pending: false, ok: false, error: 'Services warming up' })));
         }
       } else {
-        throw new Error("Failed to fetch");
+        setServices(defaultServices.map(s => ({ 
+          ...s, 
+          pending: false, 
+          ok: false, 
+          error: "Services warming up (Render free tier wakes in ~30s). Click Refresh to retry." 
+        })));
       }
     } catch (error) {
-      console.error("Monitor Error:", error);
+      clearTimeout(timeoutId);
       setServices(prev => {
         const base = Array.isArray(prev) && prev.length > 0 ? prev : defaultServices;
         return base.map(s => ({ 
           ...s, 
           pending: false, 
           ok: false, 
-          error: "Vercel Timeout (Render is still waking up... try again in 30 seconds)" 
+          error: error.name === 'AbortError' 
+            ? "Request Timeout: Render servers are still waking up from sleep. Click Refresh in 30s." 
+            : "Warming up external services. Click Refresh to check status." 
         }));
       });
     } finally {
@@ -59,7 +72,7 @@ const ExternalProjects = () => {
   }, []);
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
+    <div className="relative z-10 p-2 sm:p-4 max-w-7xl mx-auto space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-black text-slate-900 dark:text-white flex items-center gap-3">

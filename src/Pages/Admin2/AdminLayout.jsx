@@ -1,5 +1,5 @@
 import React, { Suspense, useState, useEffect } from "react";
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 
 // Components
 import AnimatedBackground from "./Component/AnimatedBackground";
@@ -20,7 +20,13 @@ import ReviewManager from "./ReviewManager";
 const AdminLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   
+  // Scroll to top on route navigation
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }, [location.pathname]);
+
   const handleToggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
   const handleCloseSidebar = () => setIsSidebarOpen(false);
 
@@ -129,7 +135,7 @@ const AdminLayout = () => {
         {/* =====================================
             ADMIN ROUTES
         ===================================== */}
-        <div className="min-w-0 pt-20 px-4 pb-8">
+        <div className="relative z-10 min-w-0 pt-4 px-4 pb-8">
           <Suspense fallback={
             <div className="flex h-[80vh] items-center justify-center">
               <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-500 border-t-transparent"></div>

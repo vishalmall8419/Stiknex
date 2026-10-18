@@ -41,7 +41,7 @@ const SiteSettings = () => {
   };
 
   return (
-    <main className="space-y-6">
+    <main className="relative z-10 space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Settings</h1>
         <p className="text-sm text-slate-500 dark:text-slate-400">Manage your Stiknex website configuration and dashboard logo</p>
