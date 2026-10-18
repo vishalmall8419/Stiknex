@@ -86,7 +86,7 @@ export default function DownloadAppModal() {
   const addSparkleRef = (el) => { if (el && !sparkleRefs.current.includes(el)) sparkleRefs.current.push(el); };
   const addOrbRef = (el) => { if (el && !bgOrbsRef.current.includes(el)) bgOrbsRef.current.push(el); };
 
-  const apkDownloadUrl = "https://stiknex.vercel.app/Stiknex.apk";
+  const apkDownloadUrl = "https://stiknex.site/Stiknex.apk";
 
   return (
     <AnimatePresence>

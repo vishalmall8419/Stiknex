@@ -1,4 +1,3 @@
-import PageSEO from "../../../Component/SEO/PageSEO";
 import { useEffect, useState } from "react";
 import ToolsStyle from "../Tools.module.css";
 
@@ -18,13 +17,6 @@ const DateTimeCalculator = ({ darkMode }) => {
 
   return (
     <div>
-      <PageSEO
-        title="Date & Time Calculator | Stiknex"
-        description="Calculate duration between two dates, add or subtract days, and find exact age in years, months and days. Free online date calculator."
-        path="/tools/date-calculator"
-        type="webapp"
-        keywords="date calculator, time calculator, days between dates, age calculator, add days to date"
-      />
       <div className={ToolsStyle.tabRow}>
         {tabs.map((t) => (
           <button

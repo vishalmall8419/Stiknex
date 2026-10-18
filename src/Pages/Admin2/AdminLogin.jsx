@@ -25,7 +25,8 @@ const AdminLogin = () => {
 
       if (data.success) {
         localStorage.setItem("stkx_admin_token", data.token); // Secure JWT
-        sessionStorage.setItem("Role", "admin"); // For simple UI checks
+        localStorage.setItem("Role", "admin"); // Persist admin role
+        sessionStorage.setItem("Role", "admin"); // For session checks
         navigate("/dashboard");
       } else {
         setError(data.message || "Invalid authentication code.");

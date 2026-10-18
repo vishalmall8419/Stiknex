@@ -101,7 +101,7 @@ const SEOMonitoring = () => {
           <div className="space-y-4">
             <ActionItem 
               title="Submit Sitemap to GSC" 
-              desc="Ensure https://stiknex.vercel.app/sitemap.xml is submitted in the Google Search Console Sitemaps report."
+              desc="Ensure https://stiknex.site/sitemap.xml is submitted in the Google Search Console Sitemaps report."
               status="Required"
             />
             <ActionItem 

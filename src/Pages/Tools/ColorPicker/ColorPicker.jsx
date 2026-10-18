@@ -1,4 +1,3 @@
-import PageSEO from "../../../Component/SEO/PageSEO";
 import { useState, useEffect } from "react";
 import { HexAlphaColorPicker } from "react-colorful";
 
@@ -98,14 +97,6 @@ const ColorPicker = () => {
 
   return (
     <div className="flex flex-col gap-6 max-w-lg mx-auto w-full">
-      <PageSEO
-        title="Free Online Color Picker & Converter | Stiknex"
-        description="Pick colors, convert HEX to RGB and HSL, and copy Tailwind CSS classes instantly. Free online color picker tool with eyedropper support."
-        path="/tools/color-picker"
-        type="webapp"
-        keywords="color picker, hex to rgb, rgb to hsl, online color picker, tailwind color generator, eyedropper tool"
-      />
-      
       {/* Visual Color Picker (React Colorful) */}
       <div className="flex flex-col sm:flex-row gap-6 items-start">
         <div className="w-full sm:w-auto flex-shrink-0 mx-auto sm:mx-0">

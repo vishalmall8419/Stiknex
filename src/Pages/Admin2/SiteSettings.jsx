@@ -110,7 +110,7 @@ const SiteSettings = () => {
             </div>
             <div>
               <label className="text-xs font-medium text-slate-500 dark:text-slate-400">Site URL</label>
-              <input type="text" defaultValue="https://stiknex.vercel.app" className="w-full mt-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white/50 dark:bg-white/5 px-3 py-2 text-sm" />
+              <input type="text" defaultValue="https://stiknex.site" className="w-full mt-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white/50 dark:bg-white/5 px-3 py-2 text-sm" />
             </div>
             <div className="pt-2">
               <button 

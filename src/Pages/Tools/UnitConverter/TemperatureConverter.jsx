@@ -1,4 +1,3 @@
-import PageSEO from "../../../Component/SEO/PageSEO";
 import { useState } from "react";
 import ToolsStyle from "../Tools.module.css";
 
@@ -42,13 +41,6 @@ const TemperatureConverter = ({ darkMode }) => {
 
   return (
     <div>
-      <PageSEO
-        title="Temperature Converter (Celsius, Fahrenheit) | Stiknex"
-        description="Convert temperatures between Celsius, Fahrenheit, and Kelvin. Fast and accurate online temperature conversion tool."
-        path="/tools/temperature-converter"
-        type="webapp"
-        keywords="temperature converter, celsius to fahrenheit, fahrenheit to celsius, kelvin converter"
-      />
       <div className={ToolsStyle.row}>
         <div className={ToolsStyle.field}>
           <label>Value</label>

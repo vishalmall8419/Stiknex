@@ -1,72 +1,85 @@
 import connectToDatabase from './_utils/db.js';
 import Blog from './_models/Blog.js';
-import { seoConfig } from './_utils/seoConfig.js';
+import { seoConfig, BASE_URL } from './_utils/seoConfig.js';
 
 export default async function handler(req, res) {
     try {
-        await connectToDatabase();
-        const blogs = await Blog.find({ published: true }).select('slug publishedAt').sort({ publishedAt: -1 });
-
-        const baseUrl = 'https://stiknex.vercel.app';
-        
-        let xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`;
-
-        // Iterate over static routes defined in seoConfig
+        const baseUrl = BASE_URL || 'https://stiknex.site';
         const today = new Date().toISOString().split('T')[0];
         
+        let blogs = [];
+        try {
+            await connectToDatabase();
+            blogs = await Blog.find({ published: true, validationStatus: { $ne: 'failed' } })
+                .select('slug publishedAt updatedAt')
+                .sort({ publishedAt: -1 })
+                .lean();
+        } catch (dbErr) {
+            console.warn('Sitemap DB fetch warning (using static routes):', dbErr.message);
+        }
+
+        let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
+        xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
+
+        // Core Public Pages from seoConfig (Excludes private / admin routes)
         for (const [path, config] of Object.entries(seoConfig)) {
             let priority = "0.8";
             let changefreq = "weekly";
-            
+
             if (path === "/") {
                 priority = "1.0";
                 changefreq = "daily";
-            } else if (path.startsWith("/tools/")) {
+            } else if (["/sticky-notes", "/online-notebook", "/whiteboard", "/tools"].includes(path)) {
                 priority = "0.9";
-                changefreq = "weekly";
-            } else if (path === "/notes" || path === "/notebook" || path === "/whiteboard") {
-                priority = "0.9";
-            } else if (path === "/blog") {
                 changefreq = "daily";
+            } else if (path === "/blog") {
+                priority = "0.8";
+                changefreq = "daily";
+            } else if (["/about", "/buy-me-a-coffee"].includes(path)) {
+                priority = "0.6";
+                changefreq = "monthly";
             }
 
-            // Remove trailing slash for root or format properly
             const fullUrl = path === "/" ? `${baseUrl}/` : `${baseUrl}${path}`;
 
-            xml += `
-  <url>
-    <loc>${fullUrl}</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>${changefreq}</changefreq>
-    <priority>${priority}</priority>
-  </url>`;
+            xml += `  <url>\n`;
+            xml += `    <loc>${fullUrl}</loc>\n`;
+            xml += `    <lastmod>${today}</lastmod>\n`;
+            xml += `    <changefreq>${changefreq}</changefreq>\n`;
+            xml += `    <priority>${priority}</priority>\n`;
+            xml += `  </url>\n`;
         }
 
-        // Add dynamic blogs
-        blogs.forEach(blog => {
-            let modDate = today;
-            if (blog.publishedAt) {
-                try {
-                    modDate = blog.publishedAt.toISOString().split('T')[0];
-                } catch(e) {}
-            }
-            xml += `
-  <url>
-    <loc>${baseUrl}/blog/${blog.slug}</loc>
-    <lastmod>${modDate}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>`;
-        });
+        // Dynamic Published Blog Pages
+        if (Array.isArray(blogs) && blogs.length > 0) {
+            const seenSlugs = new Set();
+            blogs.forEach(blog => {
+                if (!blog.slug || seenSlugs.has(blog.slug)) return;
+                seenSlugs.add(blog.slug);
+                let modDate = today;
+                const dateVal = blog.updatedAt || blog.publishedAt;
+                if (dateVal) {
+                    try {
+                        modDate = new Date(dateVal).toISOString().split('T')[0];
+                    } catch (_) {}
+                }
 
-        xml += `\n</urlset>`;
+                xml += `  <url>\n`;
+                xml += `    <loc>${baseUrl}/blog/${encodeURIComponent(blog.slug)}</loc>\n`;
+                xml += `    <lastmod>${modDate}</lastmod>\n`;
+                xml += `    <changefreq>monthly</changefreq>\n`;
+                xml += `    <priority>0.7</priority>\n`;
+                xml += `  </url>\n`;
+            });
+        }
 
-        res.setHeader('Content-Type', 'application/xml');
-        res.setHeader('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400'); // 1 hr cache
-        res.status(200).send(xml);
+        xml += `</urlset>`;
+
+        res.setHeader('Content-Type', 'application/xml; charset=utf-8');
+        res.setHeader('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400');
+        return res.status(200).send(xml);
     } catch (error) {
         console.error('Sitemap Error:', error);
-        res.status(500).end();
+        return res.status(500).json({ error: 'Failed to generate sitemap', message: error.message });
     }
 }

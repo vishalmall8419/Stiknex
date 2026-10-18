@@ -456,7 +456,7 @@ const parseTraffic = (str) => {
           </div>
         </div>
       </div>
-\n    </main>
+    </main>
   );
 };
 

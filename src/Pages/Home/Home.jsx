@@ -275,9 +275,10 @@ const Home = () => {
   return (
     <AppShell fullWidth={true} hideFooter={true}>
       <PageSEO
-        title="Stiknex - Infinite Board"
-        description="A freeform infinite canvas for your sticky notes."
-        path="/"
+        title="Free Online Sticky Notes & Infinite Canvas | Stiknex"
+        description="Create, organize, and color-code infinite digital sticky notes on an interactive canvas. Brainstorm ideas, track tasks, and drag notes freely without signing in."
+        path="/sticky-notes"
+        type="webapp"
       />
 
       {/* Global SweetAlert Dark Mode override for Home page */}

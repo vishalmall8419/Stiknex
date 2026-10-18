@@ -1,17 +1,19 @@
 # ==========================================
 # STIKNEX ROBOTS.TXT
+# Production: https://stiknex.site
 # ==========================================
 
 User-agent: *
 Allow: /
 Allow: /assets/
 Allow: /Stiknex.png
+Allow: /manifest.json
 
-# Prevent crawling of backend APIs and admin dashboard
+# Prevent search crawling of internal APIs and admin interfaces
 Disallow: /api/
 Disallow: /dashboard/
 Disallow: /stiknex-secure-login-portal
 Disallow: /setup-2fa-admin
 
 # Sitemap Location
-Sitemap: https://stiknex.vercel.app/sitemap.xml
+Sitemap: https://stiknex.site/sitemap.xml

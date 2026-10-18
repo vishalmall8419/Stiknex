@@ -136,11 +136,11 @@ async function handleLogin(req, res) {
         admin.lockUntil = undefined;
         await admin.save();
 
-        // Generate JWT Token (Expires in 12 hours)
+        // Generate JWT Token (Expires in 30 days)
         const token = jwt.sign(
             { id: admin._id, email: admin.email, role: admin.role },
             JWT_SECRET,
-            { expiresIn: '12h' }
+            { expiresIn: '30d' }
         );
 
         return res.status(200).json({ 

@@ -24,8 +24,17 @@ const AdminLayout = () => {
   const handleToggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
   const handleCloseSidebar = () => setIsSidebarOpen(false);
 
-  // MOCK ROLE CHECK - Replace with actual authentication
-  const role = sessionStorage.getItem("Role");
+  // Check authentication across both sessionStorage and localStorage
+  const token = localStorage.getItem("stkx_admin_token") || sessionStorage.getItem("stkx_admin_token");
+  const role = sessionStorage.getItem("Role") || localStorage.getItem("Role") || (token ? "admin" : null);
+
+  // Auto-sync session across tabs
+  useEffect(() => {
+    if (token) {
+      if (!sessionStorage.getItem("Role")) sessionStorage.setItem("Role", "admin");
+      if (!localStorage.getItem("Role")) localStorage.setItem("Role", "admin");
+    }
+  }, [token]);
 
   // Auto-logout after 30 minutes of inactivity
   useEffect(() => {
@@ -36,9 +45,11 @@ const AdminLayout = () => {
       clearTimeout(timeout);
       timeout = setTimeout(() => {
         sessionStorage.removeItem("Role");
+        localStorage.removeItem("Role");
         localStorage.removeItem("stkx_admin_token");
+        sessionStorage.removeItem("stkx_admin_token");
         sessionStorage.removeItem("DummyToken");
-        navigate("/login", { replace: true });
+        navigate("/stiknex-secure-login-portal", { replace: true });
       }, 30 * 60 * 1000); // 30 minutes
     };
     
@@ -55,12 +66,19 @@ const AdminLayout = () => {
 
   useEffect(() => {
     if (role !== "admin") {
-      navigate("/stiknex-secure-login-portal");
+      navigate("/stiknex-secure-login-portal", { replace: true });
     }
   }, [role, navigate]);
 
   if (role !== "admin") {
-    return null;
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-950 text-white">
+        <div className="flex flex-col items-center gap-3">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-500 border-t-transparent"></div>
+          <p className="text-xs text-slate-400 font-medium">Verifying administrator session...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -124,9 +142,12 @@ const AdminLayout = () => {
               <Route path="seo" element={<SEOOpportunities />} />
               <Route path="blog" element={<BlogManager />} />
               <Route path="messages" element={<Messages />} />
+              <Route path="notifications" element={<Messages />} />
               <Route path="reviews" element={<ReviewManager />} />
+              <Route path="orders" element={<ReviewManager />} />
               <Route path="settings" element={<SiteSettings />} />
               <Route path="external" element={<ExternalProjects />} />
+              <Route path="*" element={<DashBoard />} />
             </Routes>
           </Suspense>
         </div>

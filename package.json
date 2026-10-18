@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "node scripts/generate-sitemap.js && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "validate:seo": "node scripts/validate-seo.js"
   },
   "dependencies": {
     "@excalidraw/excalidraw": "^0.18.1",

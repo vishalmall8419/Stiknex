@@ -7,7 +7,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://stiknex.vercel.app"],
+    origin: ["http://localhost:5173", "https://stiknex.site", "https://stiknex.vercel.app"],
     credentials: true,
   }),
 );

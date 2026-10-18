@@ -20,7 +20,17 @@ const FeedbackModal = ({ isOpen, onClose }) => {
       const res = await fetch('/api/reviews', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, type, tool, rating, content })
+        body: JSON.stringify({
+          name,
+          userName: name,
+          email,
+          userEmail: email,
+          type,
+          tool,
+          rating,
+          content,
+          message: content
+        })
       });
       if (res.ok) {
         setSuccess(true);

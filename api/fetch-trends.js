@@ -6,15 +6,15 @@ import redisClient from './_utils/redis.js';
 
 
 const POSITIVE_KEYWORDS = [
-    'sticky notes', 'notes', 'notebook', 'markdown', 'whiteboard', 
-    'excalidraw', 'productivity', 'todo', 'task', 'kanban', 
-    'journal', 'diary', 'offline app', 'pwa', 'drawing', 
+    'sticky notes', 'notes', 'notebook', 'markdown', 'whiteboard',
+    'excalidraw', 'productivity', 'todo', 'task', 'kanban',
+    'journal', 'diary', 'offline app', 'pwa', 'drawing',
     'mindmap', 'planning', 'tools', 'calculator', 'workspace', 'study', 'focus',
     'word counter', 'character count', 'reading time', 'unit converter', 'qr code', 'password generator', 'color picker'
 ];
 const NEGATIVE_KEYWORDS = [
-    'movie', 'cricket', 'match', 'ipl', 'football', 'election', 
-    'murder', 'death', 'scandal', 'gossip', 'porn', 'sex', 
+    'movie', 'cricket', 'match', 'ipl', 'football', 'election',
+    'murder', 'death', 'scandal', 'gossip', 'porn', 'sex',
     'nude', 'xxx', 'rape', 'kill', 'weather', 'stock', 'share price',
     'celebrity', 'actor', 'actress', 'music', 'song'
 ];
@@ -35,7 +35,7 @@ function parseTraffic(trafficStr) {
 
 function processRelevanceEngine(keyword, trafficStr) {
     const lower = keyword.toLowerCase();
-    
+
     // 1. Filter Irrelevant
     for (let term of NEGATIVE_KEYWORDS) {
         if (lower.includes(term)) return { status: 'ignored' };
@@ -77,7 +77,7 @@ function processRelevanceEngine(keyword, trafficStr) {
         }
     }
 
-    // 5. Trend Score 
+    // 5. Trend Score
     const numericTraffic = parseTraffic(trafficStr);
     let trendScore = 0;
     if (numericTraffic > 0) {
@@ -92,17 +92,17 @@ async function fetchRssFeed(geo) {
     const response = await fetch(url);
     if (!response.ok) throw new Error(`Failed to fetch ${url}: ${response.statusText}`);
     const xml = await response.text();
-    
+
     const items = [];
     const itemRegex = /<item>([\s\S]*?)<\/item>/g;
     let match;
     while ((match = itemRegex.exec(xml)) !== null) {
         const itemContent = match[1];
-        
+
         const titleMatch = itemContent.match(/<title>([\s\S]*?)<\/title>/);
         const trafficMatch = itemContent.match(/<ht:approx_traffic>([\s\S]*?)<\/ht:approx_traffic>/);
         const linkMatch = itemContent.match(/<ht:news_item_url>([\s\S]*?)<\/ht:news_item_url>/);
-        
+
         if (titleMatch) {
             items.push({
                 query: titleMatch[1].replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1').trim(),
@@ -117,8 +117,10 @@ async function fetchRssFeed(geo) {
 export default async function handler(req, res) {
     try {
         const authHeader = req.headers.authorization;
-        const isCron = authHeader === `Bearer ${process.env.CRON_SECRET}`;
-        
+        const isCron = req.headers['x-vercel-cron'] === '1' ||
+                       req.headers['user-agent']?.includes('vercel-cron') ||
+                       (process.env.CRON_SECRET && authHeader === `Bearer ${process.env.CRON_SECRET}`);
+
         let isAuth = false;
         if (isCron) {
             isAuth = true;
@@ -126,64 +128,66 @@ export default async function handler(req, res) {
             const auth = verifyAdminToken(req);
             isAuth = auth.valid;
         }
-        
+
         if (!isAuth) {
             return res.status(401).json({ success: false, message: 'Unauthorized fetch trigger' });
         }
 
         await connectToDatabase();
 
-        // Top 12 Geos
-        const geos = ['US', 'IN', 'GB', 'CA', 'AU', 'DE', 'FR', 'BR', 'JP', 'ZA', 'SG', 'AE', 'IT', 'ES', 'MX', 'NL', 'SE', 'CH', 'TR', 'AR', 'CO', 'CL', 'PH', 'MY'];
-        
+        // High-priority Geos fetched in parallel to guarantee execution well within Vercel's 15s limit
+        const geos = ['US', 'IN', 'GB', 'CA', 'AU', 'DE', 'FR', 'SG'];
+
         let addedCount = 0;
         let totalProcessed = 0;
         let ignoredCount = 0;
         let errorGeos = [];
 
-        for (const geo of geos) {
-            try {
-                const trends = await fetchRssFeed(geo);
-                
-                for (const search of trends) {
-                    totalProcessed++;
-                    const engineResult = processRelevanceEngine(search.query, search.traffic);
-                    
-                    if (engineResult.status === 'ignored') {
-                        ignoredCount++;
-                        continue; 
-                    }
+        const geoResults = await Promise.allSettled(
+            geos.map(geo => fetchRssFeed(geo).then(trends => ({ geo, trends })))
+        );
 
-                    try {
-                        const result = await Trend.updateOne(
-                            { keyword: search.query },
-                            { 
-                                $setOnInsert: { 
-                                    keyword: search.query, 
-                                    traffic: search.traffic, 
-                                    numericTraffic: engineResult.numericTraffic,
-                                    url: search.url,
-                                    date: new Date(),
-                                    status: engineResult.status,
-                                    trendScore: engineResult.trendScore,
-                                    relevanceScore: engineResult.relevanceScore,
-                                    searchIntent: engineResult.searchIntent,
-                                    suggestionType: engineResult.suggestionType
-                                } 
-                            },
-                            { upsert: true }
-                        );
-                        // upsertedCount is 1 if new doc was inserted
-                        if (result.upsertedCount > 0 || (result.upserted && result.upserted.length > 0) || result.upsertedId) {
-                            addedCount++;
-                        }
-                    } catch (dbErr) {
-                        // Ignore specific duplicate key errors during parallel race conditions
-                    }
+        for (const resItem of geoResults) {
+            if (resItem.status === 'rejected') {
+                errorGeos.push(resItem.reason?.message || 'unknown');
+                continue;
+            }
+
+            const { geo, trends } = resItem.value;
+            for (const search of trends) {
+                totalProcessed++;
+                const engineResult = processRelevanceEngine(search.query, search.traffic);
+
+                if (engineResult.status === 'ignored') {
+                    ignoredCount++;
+                    continue;
                 }
-            } catch (err) {
-                console.error(`Failed RSS fetch for geo ${geo}:`, err.message);
-                errorGeos.push(geo);
+
+                try {
+                    const result = await Trend.updateOne(
+                        { keyword: search.query },
+                        {
+                            $setOnInsert: {
+                                keyword: search.query,
+                                traffic: search.traffic,
+                                numericTraffic: engineResult.numericTraffic,
+                                url: search.url,
+                                date: new Date(),
+                                status: engineResult.status,
+                                trendScore: engineResult.trendScore,
+                                relevanceScore: engineResult.relevanceScore,
+                                searchIntent: engineResult.searchIntent,
+                                suggestionType: engineResult.suggestionType
+                            }
+                        },
+                        { upsert: true }
+                    );
+                    if (result.upsertedCount > 0 || (result.upserted && result.upserted.length > 0) || result.upsertedId) {
+                        addedCount++;
+                    }
+                } catch (dbErr) {
+                    // Ignore duplicate key errors during parallel race conditions
+                }
             }
         }
 
@@ -227,8 +231,8 @@ export default async function handler(req, res) {
             }
         } catch (e) {}
 
-        const responseJson = { 
-            success: true, 
+        const responseJson = {
+            success: true,
             metrics: {
                 totalTrendsFetched: totalProcessed,
                 ignoredCount: ignoredCount,
@@ -236,9 +240,9 @@ export default async function handler(req, res) {
                 geosProcessed: geos.length - errorGeos.length,
                 failedGeos: errorGeos
             },
-            message: `Fetched ${totalProcessed} global trends. Ignored ${ignoredCount}. Added ${addedCount} new SEO keywords to DB.` 
+            message: `Fetched ${totalProcessed} global trends. Ignored ${ignoredCount}. Added ${addedCount} new SEO keywords to DB.`
         };
-        
+
         res.status(200).json(responseJson);
 
     } catch (error) {

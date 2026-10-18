@@ -13,12 +13,17 @@ const Messages = () => {
       const token =
         localStorage.getItem("stkx_admin_token") ||
         sessionStorage.getItem("stkx_admin_token");
-      const res = await fetch("/api/reviews", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      const res = await fetch("/api/reviews", { headers });
       if (res.ok) {
         const data = await res.json();
-        setMessages(Array.isArray(data) ? data : []);
+        setMessages(Array.isArray(data) ? data : (data.reviews || []));
+      } else {
+        const fallbackRes = await fetch("/api/reviews");
+        if (fallbackRes.ok) {
+          const data = await fallbackRes.json();
+          setMessages(Array.isArray(data) ? data : []);
+        }
       }
     } catch (err) {
       console.error("Error fetching messages:", err);

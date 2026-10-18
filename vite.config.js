@@ -15,16 +15,23 @@ function localApiPlugin() {
         if (!req.url.startsWith('/api/')) return next();
 
         const urlObj = new URL(req.url, 'http://localhost:5173');
-        const scriptName = urlObj.pathname.replace(/^\/api\//, '').split('/')[0];
+        let scriptName = urlObj.pathname.replace(/^\/api\//, '').split('/')[0];
+        const extraQuery = {};
+
+        // Mirror vercel.json rewrites for local dev
+        if (scriptName === 'admin-blogs') { scriptName = 'blogs'; extraQuery.admin = 'true'; }
+        else if (scriptName === 'dashboard-trends') { scriptName = 'trends'; extraQuery.view = 'dashboard'; }
+        else if (scriptName === 'trends-admin') { scriptName = 'trends'; extraQuery.view = 'admin'; }
+        else if (scriptName === 'latest-keywords') { scriptName = 'trends'; extraQuery.view = 'keywords'; }
+        else if (scriptName === 'external-services' || scriptName === 'monitor-external') { scriptName = 'seo-stats'; extraQuery.action = 'monitor-external'; }
+
         const filePath = path.resolve(process.cwd(), 'api', `${scriptName}.js`);
 
         if (fs.existsSync(filePath)) {
           try {
-            let body = '';
-            req.on('data', chunk => { body += chunk; });
-            req.on('end', async () => {
-              try { req.body = body ? JSON.parse(body) : {}; } catch { req.body = body; }
-              req.query = Object.fromEntries(urlObj.searchParams);
+            const executeHandler = async (parsedBody) => {
+              req.body = parsedBody || {};
+              req.query = { ...Object.fromEntries(urlObj.searchParams), ...extraQuery };
 
               if (!res.status) {
                 res.status = (code) => { res.statusCode = code; return res; };
@@ -40,6 +47,19 @@ function localApiPlugin() {
               const mod = await import(`file://${filePath}?t=${Date.now()}`);
               const handler = mod.default || mod;
               await handler(req, res);
+            };
+
+            if (req.method === 'GET' || req.method === 'HEAD') {
+              await executeHandler({});
+              return;
+            }
+
+            let body = '';
+            req.on('data', chunk => { body += chunk; });
+            req.on('end', async () => {
+              let parsed = {};
+              try { parsed = body ? JSON.parse(body) : {}; } catch { parsed = body; }
+              await executeHandler(parsed);
             });
             return;
           } catch (err) {

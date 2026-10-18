@@ -2,6 +2,11 @@ import { seoConfig, BASE_URL } from "../src/utils/seoConfig.js";
 
 console.log("🔍 Running Stiknex Comprehensive SEO & Indexing Validation...\n");
 
+if (BASE_URL !== "https://stiknex.site") {
+  console.error(`❌ Critical Error: BASE_URL must be "https://stiknex.site", got "${BASE_URL}"`);
+  process.exit(1);
+}
+
 let errors = 0;
 let warnings = 0;
 const seenTitles = new Set();
@@ -34,7 +39,8 @@ const requiredRoutes = [
   "/tools",
   "/blog",
   "/about",
-  "/whiteboard"
+  "/whiteboard",
+  "/buy-me-a-coffee"
 ];
 
 console.log(`Checking ${requiredRoutes.length} core routes in seoConfig...`);

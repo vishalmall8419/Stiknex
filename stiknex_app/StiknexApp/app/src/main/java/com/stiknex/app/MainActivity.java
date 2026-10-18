@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
     private SwipeRefreshLayout swipeRefreshLayout;
     private ValueCallback<Uri[]> uploadMessage;
     private static final int FILE_CHOOSER_REQUEST_CODE = 1000;
-    private final String websiteURL = "https://stiknex.vercel.app";
+    private final String websiteURL = "https://stiknex.site";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                if (url.contains("stiknex.vercel.app")) {
+                if (url.contains("stiknex.site") || url.contains("stiknex.vercel.app")) {
                     return false;
                 } else {
                     Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(url));

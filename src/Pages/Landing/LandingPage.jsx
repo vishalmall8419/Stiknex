@@ -92,7 +92,7 @@ const LandingPage = () => {
     <div ref={containerRef} className="relative min-h-screen overflow-hidden text-slate-900 dark:text-slate-100 selection:bg-indigo-500/30 font-sans">
       <PageSEO
   title="Stiknex - Free Sticky Notes, Online Notebook & Productivity Tools"
-  description="Stiknex is a free online productivity platform with infinite sticky boards, AI-powered notebook, Excalidraw whiteboard, calculators, QR code generator and more. No sign-up needed."
+  description="Stiknex is a free online productivity platform with infinite sticky boards, a rich-text notebook, Excalidraw whiteboard, calculators, QR code generator and more. No sign-up needed."
   path="/"
   type="webapp"
   keywords="sticky notes, online sticky notes, free sticky notes app, online notebook, digital whiteboard, productivity tools, excalidraw, note taking app, free online tools"
@@ -152,7 +152,7 @@ const LandingPage = () => {
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-4">
-            <Link to="/notes" className="hero-btn group px-8 py-4 bg-indigo-600 text-white rounded-full text-lg font-semibold shadow-xl shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:bg-indigo-700 transition-all flex items-center gap-2">
+            <Link to="/sticky-notes" className="hero-btn group px-8 py-4 bg-indigo-600 text-white rounded-full text-lg font-semibold shadow-xl shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:bg-indigo-700 transition-all flex items-center gap-2">
               Start Brainstorming <ArrowRight className="group-hover:translate-x-1 transition-transform" />
             </Link>
             <a href="#features" className="hero-btn px-8 py-4 bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-full text-lg font-semibold shadow-sm hover:shadow-md transition-all">
@@ -316,50 +316,211 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* Popular Online Productivity Tools Section */}
+      <section className="py-20 px-6 relative z-10 max-w-7xl mx-auto">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-bold text-xs uppercase tracking-wider mb-4 border border-indigo-100 dark:border-indigo-900/50">
+              <Sparkles size={14} /> Free Utilities & Generators
+            </div>
+            <h2 className="text-3xl sm:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
+              Essential Tools for Modern Thinkers
+            </h2>
+            <p className="text-slate-600 dark:text-slate-400 mt-3 text-base sm:text-lg max-w-2xl">
+              Fast, privacy-first calculators, converters, and text utilities running entirely in your browser with zero registration.
+            </p>
+          </div>
+          <Link
+            to="/tools"
+            className="inline-flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold text-sm sm:text-base hover:gap-3 transition-all self-start md:self-end"
+          >
+            Explore All 15+ Tools <ArrowRight size={18} />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {[
+            {
+              title: "Word Counter",
+              desc: "Instant word, character, and sentence count with reading time estimator.",
+              path: "/word-counter",
+              icon: "fa-solid fa-file-lines",
+              tag: "Writing"
+            },
+            {
+              title: "Character Counter",
+              desc: "Measure exact characters with and without spaces for social media and essays.",
+              path: "/character-counter",
+              icon: "fa-solid fa-font",
+              tag: "Writing"
+            },
+            {
+              title: "Reading Time Calculator",
+              desc: "Estimate silent reading and speaking duration for articles and presentations.",
+              path: "/reading-time-calculator",
+              icon: "fa-solid fa-stopwatch",
+              tag: "Writing"
+            },
+            {
+              title: "Scientific Calculator",
+              desc: "Trigonometry, logarithms, powers, and advanced math formulas online.",
+              path: "/scientific-calculator",
+              icon: "fa-solid fa-square-root-variable",
+              tag: "Calculators"
+            },
+            {
+              title: "Universal Unit Converter",
+              desc: "Convert length, area, volume, mass, pressure, and power units with precision.",
+              path: "/unit-converter",
+              icon: "fa-solid fa-ruler-combined",
+              tag: "Converters"
+            },
+            {
+              title: "Temperature Converter",
+              desc: "Instant conversion between Celsius (°C), Fahrenheit (°F), and Kelvin (K).",
+              path: "/temperature-converter",
+              icon: "fa-solid fa-temperature-half",
+              tag: "Converters"
+            },
+            {
+              title: "QR Code Generator",
+              desc: "Generate custom, high-resolution QR codes for links, text, Wi-Fi, and contacts.",
+              path: "/qr-code-generator",
+              icon: "fa-solid fa-qrcode",
+              tag: "Generators"
+            },
+            {
+              title: "Online Sticky Notes",
+              desc: "Infinite freeform digital canvas to organize, color-code, and drag ideas.",
+              path: "/sticky-notes",
+              icon: "fa-solid fa-note-sticky",
+              tag: "Notes"
+            }
+          ].map((tool, idx) => (
+            <Link
+              key={idx}
+              to={tool.path}
+              className="group p-6 rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border border-slate-200/80 dark:border-slate-800 hover:border-indigo-500 dark:hover:border-indigo-500 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col"
+            >
+              <div className="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xl mb-4 group-hover:scale-110 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-sm">
+                <i className={tool.icon}></i>
+              </div>
+              <span className="text-[11px] font-extrabold uppercase tracking-wider text-indigo-500 dark:text-indigo-400 mb-1">
+                {tool.tag}
+              </span>
+              <h3 className="font-bold text-lg text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors mb-2">
+                {tool.title}
+              </h3>
+              <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed flex-1">
+                {tool.desc}
+              </p>
+              <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center gap-1 text-xs font-bold text-indigo-600 dark:text-indigo-400 group-hover:translate-x-1 transition-transform">
+                Launch Tool <ArrowRight size={14} />
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
       <section className="py-24 px-6 relative z-10">
         <div className="max-w-5xl mx-auto bg-linear-to-br from-indigo-600 to-purple-700 rounded-[3rem] p-12 md:p-20 text-center relative overflow-hidden shadow-2xl">
           <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay"></div>
           <div className="relative z-10 text-white">
             <h2 className="text-4xl md:text-6xl font-black mb-6 leading-tight">Ready to transform <br/>your workflow?</h2>
             <p className="text-lg md:text-xl text-indigo-100 mb-10 max-w-2xl mx-auto">Join thousands of creators, developers, and thinkers who use Stiknex to organize their chaotic brilliant minds.</p>
-            <Link to="/notes" className="inline-flex items-center gap-3 px-8 py-4 bg-white text-indigo-600 rounded-full text-lg font-bold hover:scale-105 transition-transform shadow-[0_0_40px_rgba(255,255,255,0.3)]">
+            <Link to="/sticky-notes" className="inline-flex items-center gap-3 px-8 py-4 bg-white text-indigo-600 rounded-full text-lg font-bold hover:scale-105 transition-transform shadow-[0_0_40px_rgba(255,255,255,0.3)]">
               Open App Now <ArrowRight size={20} />
             </Link>
           </div>
         </div>
       </section>
 
-      
-
       <Testimonials />
       <HomeBlogSection />
 
-            <footer className="py-12 px-6 border-t border-slate-200/50 dark:border-slate-800/50 bg-white/50 dark:bg-slate-950/50 relative z-10">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex flex-wrap justify-center md:justify-start gap-4 text-sm font-medium text-slate-500 dark:text-slate-400">
-            <Link to="/" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Home</Link>
-            <Link to="/about" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">About</Link>
-            <Link to="/tools" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Tools</Link>
-            <Link to="/blog" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Blog</Link>
-            <Link to="/notebook" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Notebook</Link>
-            <Link to="/whiteboard" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Whiteboard</Link>
-            <Link to="/buy-me-a-coffee" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Support</Link>
-            <button
-              type="button"
-              onClick={() => {
-                const btn = document.querySelector('button[title*="Feedback"]');
-                if (btn) btn.click();
-              }}
-              className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors cursor-pointer"
-            >
-              Contact & Message
-            </button>
+      {/* Comprehensive Categorized Footer Matching AppShell for Full Link Equity */}
+      <footer className="py-16 px-6 border-t border-slate-200/60 dark:border-slate-800/60 bg-white/60 dark:bg-slate-950/60 backdrop-blur-md relative z-10 text-sm">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 mb-12">
+            <div>
+              <h3 className="font-bold text-slate-900 dark:text-white mb-4 uppercase tracking-wider text-xs">Writing & Notes</h3>
+              <ul className="space-y-2.5 text-slate-500 dark:text-slate-400">
+                <li><Link to="/sticky-notes" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Sticky Notes</Link></li>
+                <li><Link to="/online-notebook" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Online Notebook</Link></li>
+                <li><Link to="/whiteboard" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Whiteboard</Link></li>
+                <li><Link to="/word-counter" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Word Counter</Link></li>
+                <li><Link to="/character-counter" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Character Counter</Link></li>
+                <li><Link to="/reading-time-calculator" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Reading Time Calculator</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-bold text-slate-900 dark:text-white mb-4 uppercase tracking-wider text-xs">Calculators</h3>
+              <ul className="space-y-2.5 text-slate-500 dark:text-slate-400">
+                <li><Link to="/simple-calculator" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Simple Calculator</Link></li>
+                <li><Link to="/scientific-calculator" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Scientific Calculator</Link></li>
+                <li><Link to="/date-calculator" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Date Calculator</Link></li>
+                <li><Link to="/currency-converter" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Currency Converter</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-bold text-slate-900 dark:text-white mb-4 uppercase tracking-wider text-xs">Unit Converters</h3>
+              <ul className="space-y-2.5 text-slate-500 dark:text-slate-400">
+                <li><Link to="/unit-converter" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Universal Unit Converter</Link></li>
+                <li><Link to="/length-converter" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Length Converter</Link></li>
+                <li><Link to="/area-converter" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Area Converter</Link></li>
+                <li><Link to="/volume-converter" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Volume Converter</Link></li>
+                <li><Link to="/weight-converter" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Weight Converter</Link></li>
+                <li><Link to="/temperature-converter" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Temperature Converter</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-bold text-slate-900 dark:text-white mb-4 uppercase tracking-wider text-xs">Generators & Tech</h3>
+              <ul className="space-y-2.5 text-slate-500 dark:text-slate-400">
+                <li><Link to="/qr-code-generator" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">QR Code Generator</Link></li>
+                <li><Link to="/password-generator" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Password Generator</Link></li>
+                <li><Link to="/color-picker" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Color Picker</Link></li>
+                <li><Link to="/speed-converter" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Speed Converter</Link></li>
+                <li><Link to="/pressure-converter" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Pressure Converter</Link></li>
+                <li><Link to="/power-converter" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Power Converter</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-bold text-slate-900 dark:text-white mb-4 uppercase tracking-wider text-xs">Platform</h3>
+              <ul className="space-y-2.5 text-slate-500 dark:text-slate-400">
+                <li><Link to="/" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Home</Link></li>
+                <li><Link to="/tools" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">All Online Tools</Link></li>
+                <li><Link to="/blog" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Productivity Blog</Link></li>
+                <li><Link to="/about" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">About Stiknex</Link></li>
+                <li><Link to="/buy-me-a-coffee" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Support Development</Link></li>
+                <li>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const btn = document.querySelector('button[title*="Feedback"]');
+                      if (btn) btn.click();
+                    }}
+                    className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors cursor-pointer text-left"
+                  >
+                    Contact & Feedback
+                  </button>
+                </li>
+              </ul>
+            </div>
           </div>
-          <div className="text-center md:text-right">
-            <p className="text-slate-500 dark:text-slate-400 font-medium text-sm mb-1">
-              <a href="https://vishalmall.vercel.app/" target="_blank" rel="noreferrer" className="text-indigo-600 dark:text-indigo-400 hover:underline font-semibold">Developer</a>
-            </p>
-            <p className="text-slate-400 dark:text-slate-500 text-xs">&copy; {new Date().getFullYear()} Stiknex. All rights reserved.</p>
+
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4 pt-8 border-t border-slate-200/60 dark:border-slate-800/60 text-xs text-slate-400 dark:text-slate-500">
+            <div>
+              &copy; {new Date().getFullYear()} Stiknex. All rights reserved. Created with passion by{" "}
+              <a href="https://vishalmall.vercel.app/" target="_blank" rel="noreferrer" className="text-indigo-600 dark:text-indigo-400 hover:underline font-semibold">
+                Vishal Mall
+              </a>.
+            </div>
+            <div className="flex items-center gap-4">
+              <Link to="/about" className="hover:underline">About</Link>
+              <Link to="/blog" className="hover:underline">Blog</Link>
+              <Link to="/tools" className="hover:underline">Tools</Link>
+              <Link to="/buy-me-a-coffee" className="hover:underline">Buy Me a Coffee</Link>
+            </div>
           </div>
         </div>
       </footer>

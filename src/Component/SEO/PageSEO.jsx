@@ -1,6 +1,6 @@
 import { useEffect } from "react";
+import { SITE_URL } from "../../utils/seoConfig";
 
-const SITE_URL = "https://stiknex.vercel.app";
 const SITE_NAME = "Stiknex";
 const DEFAULT_IMAGE = `${SITE_URL}/Stiknex.png`;
 

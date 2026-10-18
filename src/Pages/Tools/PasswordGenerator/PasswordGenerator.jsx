@@ -1,4 +1,3 @@
-import PageSEO from "../../../Component/SEO/PageSEO";
 import { useEffect, useState } from "react";
 import ToolsStyle from "../Tools.module.css";
 
@@ -87,13 +86,6 @@ const PasswordGenerator = ({ darkMode }) => {
 
   return (
     <div onKeyDown={handleKeyDown}>
-      <PageSEO
-        title="Strong Random Password Generator | Stiknex"
-        description="Generate strong, secure and random passwords instantly. Customize length, symbols, numbers, and uppercase letters. 100% free and local."
-        path="/tools/password-generator"
-        type="webapp"
-        keywords="password generator, random password, strong password, secure password maker, online password generator"
-      />
       <div
         className={`${ToolsStyle.resultPanel} ${
           darkMode ? ToolsStyle.darkResultPanel : ""

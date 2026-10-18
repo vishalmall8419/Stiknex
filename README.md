@@ -15,7 +15,7 @@
 
 No forced sign-ups. No cloud data harvesting. Everything you write, draw, or calculate is securely saved to your local machine using modern browser APIs (`localStorage` and `IndexedDB`).
 
-🌐 **Live Demo:** [https://stiknex.vercel.app](https://stiknex.vercel.app)
+🌐 **Live Demo:** [https://stiknex.site](https://stiknex.site)
 
 ---
 

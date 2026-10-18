@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Star, MessageSquare, Trash2, Globe, EyeOff, Loader2 } from 'lucide-react';
 
 const ReviewManager = () => {
@@ -6,16 +6,23 @@ const ReviewManager = () => {
   const [loading, setLoading] = useState(true);
 
   const fetchReviews = async () => {
+    setLoading(true);
     try {
       const token = localStorage.getItem("stkx_admin_token") || sessionStorage.getItem("stkx_admin_token");
-      const res = await fetch('/api/reviews', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      const res = await fetch('/api/reviews', { headers });
       if (res.ok) {
-        setReviews(await res.json());
+        const data = await res.json();
+        setReviews(Array.isArray(data) ? data : (data.reviews || []));
+      } else {
+        const fallbackRes = await fetch('/api/reviews');
+        if (fallbackRes.ok) {
+          const data = await fallbackRes.json();
+          setReviews(Array.isArray(data) ? data : []);
+        }
       }
     } catch (e) {
-      console.error(e);
+      console.error("Error fetching reviews:", e);
     } finally {
       setLoading(false);
     }
@@ -60,18 +67,33 @@ const ReviewManager = () => {
     }
   };
 
-  if (loading) return <div className="p-10 flex justify-center"><Loader2 className="animate-spin text-indigo-500" size={32} /></div>;
-
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-black text-slate-900 dark:text-white flex items-center gap-3">
-          <MessageSquare className="text-indigo-500" size={32} /> Reviews & Feedback
-        </h1>
-        <p className="text-slate-500 dark:text-slate-400 mt-1">Manage user reviews from all Stiknex tools.</p>
+    <div className="p-6 max-w-7xl mx-auto space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-black text-slate-900 dark:text-white flex items-center gap-3">
+            <MessageSquare className="text-indigo-500" size={32} /> Reviews & Feedback
+          </h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">
+            Manage public testimonials and ratings across Stiknex tools
+          </p>
+        </div>
+        <button
+          onClick={fetchReviews}
+          disabled={loading}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition"
+        >
+          <Loader2 size={14} className={loading ? "animate-spin" : "opacity-0"} /> Refresh
+        </button>
       </div>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {loading ? (
+        <div className="py-20 flex flex-col items-center justify-center text-slate-400">
+          <Loader2 size={36} className="animate-spin text-indigo-500 mb-3" />
+          <p className="text-sm font-medium">Loading user reviews...</p>
+        </div>
+      ) : (
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {reviews.map(review => (
           <div key={review._id} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm flex flex-col">
             <div className="flex justify-between items-start mb-4">
@@ -119,8 +141,9 @@ const ReviewManager = () => {
           </div>
         )}
       </div>
-    </div>
-  );
+    )}
+  </div>
+);
 };
 
 export default ReviewManager;

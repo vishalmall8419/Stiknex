@@ -30,10 +30,12 @@ const Sidebar = ({ isSidebarOpen, onClose }) => {
   // =====================================
   const handleLogout = () => {
     sessionStorage.removeItem("Role");
+    localStorage.removeItem("Role");
     localStorage.removeItem("stkx_admin_token");
+    sessionStorage.removeItem("stkx_admin_token");
     sessionStorage.removeItem("DummyToken");
     onClose?.();
-    navigate("/login", { replace: true });
+    navigate("/stiknex-secure-login-portal", { replace: true });
   };
 
   // =====================================

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Loader2, Calendar, Tag, Languages, Sparkles, Zap } from 'lucide-react';
+import { ArrowLeft, Loader2, Calendar, Tag, Languages, Sparkles, Zap, BookOpen, Clock } from 'lucide-react';
 import LazyImage from '../../Component/LazyImage';
 import PageSEO from '../../Component/SEO/PageSEO';
 import { useAppContext } from '../../context/AppContext';
@@ -81,8 +81,10 @@ const BlogDetail = () => {
             briefDescription: data.excerpt,
             fullContent: data.content,
             image: data.imageUrl,
-            category: data.category || "Trending",
-            keywords: data.tags || []
+            category: data.category || "Productivity",
+            keywords: data.keywords ? (Array.isArray(data.keywords) ? data.keywords : data.keywords.split(',').map(k => k.trim())) : [],
+            wordCount: data.wordCount || (data.content ? data.content.split(/\s+/).length : 0),
+            publishedAt: data.publishedAt
           });
         }
         setLoading(false);
@@ -163,7 +165,15 @@ const BlogDetail = () => {
               {post.category}
             </span>
             <span className="flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
-              <Calendar size={14} /> {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+              <Calendar size={14} /> {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+            </span>
+            {post.wordCount > 0 && (
+              <span className="flex items-center gap-1.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-800/50">
+                <BookOpen size={14} /> {post.wordCount.toLocaleString()} words
+              </span>
+            )}
+            <span className="flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
+              <Clock size={14} /> {Math.ceil((post.wordCount || 3000) / 200)} min read
             </span>
           </div>
 
@@ -194,16 +204,66 @@ const BlogDetail = () => {
           className="max-w-none bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl p-6 sm:p-10 md:p-12 rounded-3xl border border-white/50 dark:border-slate-800/80 shadow-md text-base sm:text-lg text-slate-700 dark:text-slate-300 leading-relaxed space-y-6"
         >
           {(translatedContent ? translatedContent.fullContent : post.fullContent).split('\n').map((paragraph, idx) => {
-            if (!paragraph.trim()) return null;
-            let html = paragraph.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
-            html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, "<a href='$2' class='text-indigo-600 dark:text-indigo-400 font-bold underline underline-offset-4 decoration-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-200 hover:decoration-indigo-600 transition-colors' target='_blank' rel='noopener noreferrer'>$1</a>");
-            if (html.startsWith("# ")) {
-              return <h2 key={idx} className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white mt-10 mb-4">{html.replace(/^# /, '')}</h2>;
+            const trimmed = paragraph.trim();
+            if (!trimmed) return null;
+
+            // Handle H2 with matching TOC anchor ID
+            if (trimmed.startsWith("## ")) {
+              const rawHeading = trimmed.replace(/^##\s+/, '').replace(/[*_#]/g, '').trim();
+              const headingId = rawHeading.toLowerCase().replace(/^[\d.]+\s*/, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+              return (
+                <h2 
+                  id={headingId} 
+                  key={idx} 
+                  className="scroll-mt-28 text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white mt-12 mb-4 pb-2 border-b border-slate-200/60 dark:border-slate-800/60"
+                >
+                  {rawHeading}
+                </h2>
+              );
             }
-            if (html.startsWith("## ")) {
-              return <h3 key={idx} className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white mt-8 mb-3">{html.replace(/^## /, '')}</h3>;
+
+            // Handle H3 with matching TOC anchor ID
+            if (trimmed.startsWith("### ")) {
+              const rawHeading = trimmed.replace(/^###\s+/, '').replace(/[*_#]/g, '').trim();
+              const headingId = rawHeading.toLowerCase().replace(/^[\d.]+\s*/, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+              return (
+                <h3 
+                  id={headingId} 
+                  key={idx} 
+                  className="scroll-mt-28 text-xl md:text-2xl font-bold text-slate-800 dark:text-slate-100 mt-8 mb-3"
+                >
+                  {rawHeading}
+                </h3>
+              );
             }
-            return <p key={idx} className="mb-6 last:mb-0 text-base sm:text-lg leading-relaxed" dangerouslySetInnerHTML={{ __html: html }} />;
+
+            // Handle H1 if present in body
+            if (trimmed.startsWith("# ")) {
+              return null; // Skip H1 since it's already rendered above as post.title
+            }
+
+            // Handle list item
+            if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
+              let itemHtml = trimmed.slice(2).replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+              itemHtml = itemHtml.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (m, text, url) => {
+                const isInternal = url.startsWith('/') || url.includes('stiknex.site');
+                const target = isInternal ? '' : "target='_blank' rel='noopener noreferrer'";
+                return `<a href='${url}' class='text-indigo-600 dark:text-indigo-400 font-bold underline underline-offset-4 hover:text-indigo-800 dark:hover:text-indigo-200 transition-colors' ${target}>${text}</a>`;
+              });
+              return (
+                <li key={idx} className="ml-6 list-disc text-base sm:text-lg text-slate-700 dark:text-slate-300 mb-2" dangerouslySetInnerHTML={{ __html: itemHtml }} />
+              );
+            }
+
+            // Standard paragraphs with formatting
+            let html = trimmed.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+            html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (m, text, url) => {
+              const isInternal = url.startsWith('/') || url.includes('stiknex.site');
+              const target = isInternal ? '' : "target='_blank' rel='noopener noreferrer'";
+              return `<a href='${url}' class='text-indigo-600 dark:text-indigo-400 font-bold underline underline-offset-4 hover:text-indigo-800 dark:hover:text-indigo-200 transition-colors' ${target}>${text}</a>`;
+            });
+
+            return <p key={idx} className="mb-6 last:mb-0 text-base sm:text-lg leading-relaxed text-slate-700 dark:text-slate-300" dangerouslySetInnerHTML={{ __html: html }} />;
           })}
 
           {post.keywords && post.keywords.length > 0 && (

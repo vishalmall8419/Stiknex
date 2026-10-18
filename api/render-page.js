@@ -1,4 +1,4 @@
-import { getSeoForPath, BASE_URL } from './_utils/seoConfig.js';
+import { getSeoForPath, BASE_URL, SITE_URL } from './_utils/seoConfig.js';
 import connectToDatabase from './_utils/db.js';
 import Blog from './_models/Blog.js';
 import fs from 'fs';
@@ -8,11 +8,9 @@ export default async function handler(req, res) {
     const { slug, type } = req.query;
     const rawPath = req.query.path || '/';
     const cleanPath = rawPath.startsWith('/') ? rawPath : '/' + rawPath;
-    
-    // Determine protocol and host
-    const protocol = req.headers['x-forwarded-proto'] || 'https';
-    const host = req.headers.host || 'stiknex.vercel.app';
-    const baseUrl = `${protocol}://${host}`;
+
+    // Always use authoritative primary production domain for SEO metadata & canonicals
+    const primaryDomain = SITE_URL || BASE_URL || 'https://stiknex.site';
 
     try {
         // Load index.html: try local dist first, then fetch fallback
@@ -25,33 +23,92 @@ export default async function handler(req, res) {
         } catch (_) {}
 
         if (!html) {
-            const htmlRes = await fetch(`${baseUrl}/index.html`);
+            const host = req.headers.host || 'stiknex.site';
+            const protocol = req.headers['x-forwarded-proto'] || 'https';
+            const htmlRes = await fetch(`${protocol}://${host}/index.html`);
             html = await htmlRes.text();
         }
 
-        // If requesting a blog post
+        // Global safety: replace any legacy domain references in base template with primary domain
+        html = html.replace(/https:\/\/stiknex\.vercel\.app/g, primaryDomain);
+
+        // Protected Admin / Dashboard / Auth routes: do NOT inject public marketing tools or FAQs
+        const isAdminRoute = cleanPath.startsWith('/dashboard') ||
+                             cleanPath.startsWith('/stiknex-secure-login-portal') ||
+                             cleanPath.startsWith('/setup-2fa') ||
+                             cleanPath === '/login';
+
+        if (isAdminRoute) {
+            html = html
+                .replace(/<title>[\s\S]*?<\/title>/, `<title>Admin Portal | Stiknex</title>`)
+                .replace(/<meta\s+name="robots"[\s\S]*?>/i, `<meta name="robots" content="noindex, nofollow" />`)
+                .replace(/<div id="root">[\s\S]*?<\/div>\s*<script type="module"/, `
+    <div id="root">
+      <div style="min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #0f172a; color: #94a3b8; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+        <div style="width: 32px; height: 32px; border: 3px solid #6366f1; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 12px;"></div>
+        <p style="font-size: 13px; font-weight: 500;">Loading Stiknex Workspace...</p>
+        <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
+      </div>
+    </div>\n    <script type="module"`);
+
+            if (!html.includes('content="noindex, nofollow"')) {
+                html = html.replace('</head>', `<meta name="robots" content="noindex, nofollow" />\n</head>`);
+            }
+            res.setHeader('Content-Type', 'text/html; charset=utf-8');
+            res.setHeader('Cache-Control', 'no-store, max-age=0');
+            return res.status(200).send(html);
+        }
+
+        // If requesting a dynamic blog post
         if (slug || type === 'blog') {
             await connectToDatabase();
-            const blog = await Blog.findOne({ slug });
+            const blog = await Blog.findOne({ slug, published: true });
 
             if (!blog) {
-                return res.redirect(301, '/blog');
+                const notFoundHtml = html
+                    .replace(/<title>[\s\S]*?<\/title>/, `<title>404 Blog Post Not Found | Stiknex</title>`)
+                    .replace(/<div id="root">[\s\S]*?<\/div>\s*<script type="module"/, `
+    <div id="root">
+      <header style="padding: 24px 16px; text-align: center; border-bottom: 1px solid #e2e8f0;">
+        <a href="${primaryDomain}/" style="font-size: 24px; font-weight: 800; color: #4f46e5; text-decoration: none;">Stiknex</a>
+      </header>
+      <main style="max-width: 800px; margin: 0 auto; padding: 48px 16px; text-align: center;">
+        <h1 style="font-size: 32px; font-weight: 800; color: #0f172a;">Article Not Found</h1>
+        <p style="color: #64748b; margin-top: 12px; font-size: 16px;">The requested article may have been removed or moved to another address.</p>
+        <p style="margin-top: 24px;"><a href="${primaryDomain}/blog" style="display: inline-block; padding: 10px 20px; background: #4f46e5; color: #fff; text-decoration: none; border-radius: 8px; font-weight: 600;">Browse All Blog Articles</a></p>
+      </main>
+    </div>\n    <script type="module"`);
+                res.setHeader('Content-Type', 'text/html; charset=utf-8');
+                return res.status(404).send(notFoundHtml);
             }
 
             const title = blog.metaTitle || blog.title;
             const description = blog.metaDescription || blog.excerpt || '';
             const keywords = blog.keywords || '';
-            const imageUrl = blog.imageUrl || `${baseUrl}/Stiknex.png`;
-            const blogUrl = `${baseUrl}/blog/${slug}`;
+            const imageUrl = blog.imageUrl || `${primaryDomain}/Stiknex.png`;
+            const blogUrl = `${primaryDomain}/blog/${encodeURIComponent(slug)}`;
 
-            html = html.replace(/<title>[\s\S]*?<\/title>/, `<title>${title}</title>`);
+            // Convert raw markdown headings to HTML with IDs for TOC anchor navigation
+            let formattedBody = (blog.content || `<p>${description}</p>`)
+                .replace(/^##\s+(.+)$/gm, (m, h) => {
+                    const id = h.toLowerCase().replace(/^[\d.]+\s*/, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+                    return `<h2 id="${id}" style="font-size: 24px; font-weight: 700; color: #0f172a; margin-top: 36px; margin-bottom: 12px;">${h}</h2>`;
+                })
+                .replace(/^###\s+(.+)$/gm, (m, h) => {
+                    const id = h.toLowerCase().replace(/^[\d.]+\s*/, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+                    return `<h3 id="${id}" style="font-size: 20px; font-weight: 600; color: #1e293b; margin-top: 24px; margin-bottom: 8px;">${h}</h3>`;
+                })
+                .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" style="color: #4f46e5; font-weight: 600; text-decoration: underline;">$1</a>')
+                .replace(/\n\n+/g, '</p><p style="margin-bottom: 18px;">');
+
+            html = html.replace(/<title>[\s\S]*?<\/title>/, `<title>${title} | Stiknex</title>`);
             html = html.replace(/<meta\s+name="description"\s+content="[^"]*"\s*\/>/, `<meta name="description" content="${description}" />`);
-            html = html.replace(/<meta\s+property="og:title"\s+content="[^"]*"\s*\/>/, `<meta property="og:title" content="${title}" />`);
+            html = html.replace(/<meta\s+property="og:title"\s+content="[^"]*"\s*\/>/, `<meta property="og:title" content="${title} | Stiknex" />`);
             html = html.replace(/<meta\s+property="og:description"\s+content="[^"]*"\s*\/>/, `<meta property="og:description" content="${description}" />`);
             html = html.replace(/<meta\s+property="og:url"\s+content="[^"]*"\s*\/>/, `<meta property="og:url" content="${blogUrl}" />`);
             html = html.replace(/<meta\s+property="og:image"\s+content="[^"]*"\s*\/>/, `<meta property="og:image" content="${imageUrl}" />`);
             html = html.replace(/<meta\s+property="og:image:secure_url"\s+content="[^"]*"\s*\/>/, `<meta property="og:image:secure_url" content="${imageUrl}" />`);
-            html = html.replace(/<meta\s+name="twitter:title"\s+content="[^"]*"\s*\/>/, `<meta name="twitter:title" content="${title}" />`);
+            html = html.replace(/<meta\s+name="twitter:title"\s+content="[^"]*"\s*\/>/, `<meta name="twitter:title" content="${title} | Stiknex" />`);
             html = html.replace(/<meta\s+name="twitter:description"\s+content="[^"]*"\s*\/>/, `<meta name="twitter:description" content="${description}" />`);
             html = html.replace(/<meta\s+name="twitter:image"\s+content="[^"]*"\s*\/>/, `<meta name="twitter:image" content="${imageUrl}" />`);
 
@@ -61,18 +118,43 @@ export default async function handler(req, res) {
                 html = html.replace('</head>', `<link rel="canonical" href="${blogUrl}" />\n</head>`);
             }
 
-            const semanticPayload = `
-            <noscript>
-                <main>
-                    <h1>${title}</h1>
-                    <p>${description}</p>
-                    <article>
-                        ${blog.content || ''}
-                    </article>
-                </main>
-            </noscript>
-            `;
-            html = html.replace('</head>', `${semanticPayload}</head>`);
+            const blogRoot = `
+    <div id="root">
+      <header style="padding: 20px 16px; border-bottom: 1px solid #e2e8f0; text-align: center;">
+        <a href="${primaryDomain}/" style="font-size: 24px; font-weight: 800; color: #4f46e5; text-decoration: none;">Stiknex</a>
+        <nav style="margin-top: 8px; font-size: 14px;">
+          <a href="${primaryDomain}/" style="color: #64748b; margin: 0 8px; text-decoration: none;">Home</a> &gt;
+          <a href="${primaryDomain}/blog" style="color: #64748b; margin: 0 8px; text-decoration: none;">Blog</a> &gt;
+          <span style="color: #0f172a; font-weight: 600;">${title}</span>
+        </nav>
+      </header>
+      <main style="max-width: 800px; margin: 0 auto; padding: 40px 16px;">
+        <article>
+          <header style="margin-bottom: 24px;">
+            <h1 style="font-size: 32px; font-weight: 800; color: #0f172a; line-height: 1.3;">${title}</h1>
+            <p style="color: #64748b; font-size: 14px; margin-top: 8px;">Published on ${new Date(blog.publishedAt || Date.now()).toLocaleDateString()}</p>
+          </header>
+          <div style="font-size: 18px; line-height: 1.7; color: #334155; margin-bottom: 32px;">
+            ${formattedBody}
+          </div>
+        </article>
+        <footer style="margin-top: 48px; padding-top: 24px; border-top: 1px solid #e2e8f0;">
+          <p style="font-weight: 700; color: #0f172a; margin-bottom: 12px;">Explore Stiknex Productivity Tools:</p>
+          <nav aria-label="Explore Stiknex Tools">
+            <ul style="display: flex; flex-wrap: wrap; gap: 12px; list-style: none; padding: 0;">
+              <li><a href="${primaryDomain}/sticky-notes" style="color: #4f46e5; text-decoration: none; font-weight: 600;">Sticky Notes</a></li>
+              <li><a href="${primaryDomain}/online-notebook" style="color: #4f46e5; text-decoration: none; font-weight: 600;">Online Notebook</a></li>
+              <li><a href="${primaryDomain}/whiteboard" style="color: #4f46e5; text-decoration: none; font-weight: 600;">Whiteboard</a></li>
+              <li><a href="${primaryDomain}/word-counter" style="color: #4f46e5; text-decoration: none; font-weight: 600;">Word Counter</a></li>
+              <li><a href="${primaryDomain}/character-counter" style="color: #4f46e5; text-decoration: none; font-weight: 600;">Character Counter</a></li>
+              <li><a href="${primaryDomain}/tools" style="color: #4f46e5; text-decoration: none; font-weight: 600;">All Tools</a></li>
+            </ul>
+          </nav>
+        </footer>
+      </main>
+    </div>`;
+
+            html = html.replace(/<div id="root">[\s\S]*?<\/div>\s*<script type="module"/, `${blogRoot}\n    <script type="module"`);
 
             res.setHeader('Content-Type', 'text/html; charset=utf-8');
             res.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate');
@@ -89,7 +171,9 @@ export default async function handler(req, res) {
         const title = seo.title;
         const description = seo.description;
         const keywords = seo.keywords;
-        const pageUrl = `${baseUrl}${cleanPath}`;
+        const canonicalPath = seo.path || cleanPath;
+        const canonicalUrl = canonicalPath === '/' ? `${primaryDomain}/` : `${primaryDomain}${canonicalPath}`;
+        const pageUrl = cleanPath === '/' ? `${primaryDomain}/` : `${primaryDomain}${cleanPath}`;
 
         html = html.replace(/<title>[\s\S]*?<\/title>/, `<title>${title}</title>`);
         html = html.replace(/<meta\s+name="description"\s+content="[^"]*"\s*\/>/, `<meta name="description" content="${description}" />`);
@@ -99,26 +183,93 @@ export default async function handler(req, res) {
         html = html.replace(/<meta\s+name="twitter:title"\s+content="[^"]*"\s*\/>/, `<meta name="twitter:title" content="${title}" />`);
         html = html.replace(/<meta\s+name="twitter:description"\s+content="[^"]*"\s*\/>/, `<meta name="twitter:description" content="${description}" />`);
 
-        const canonicalUrl = `${baseUrl}${seo.path || cleanPath}`;
         if (html.includes('<link rel="canonical"')) {
             html = html.replace(/<link\s+rel="canonical"\s+href="[^"]*"\s*\/?>/, `<link rel="canonical" href="${canonicalUrl}" />`);
         } else {
             html = html.replace('</head>', `<link rel="canonical" href="${canonicalUrl}" />\n</head>`);
         }
 
-        const semanticPayload = `
-        <noscript>
-            <main>
-                <h1>${seo.h1 || title}</h1>
-                <p>${description}</p>
-                <p>Keywords: ${keywords}</p>
-                <nav aria-label="Breadcrumb">
-                    <a href="${baseUrl}/">Home</a> &gt; <span>${title}</span>
-                </nav>
-            </main>
-        </noscript>
-        `;
-        html = html.replace('</head>', `${semanticPayload}</head>`);
+        let faqsHtml = '';
+        if (seo.faqs && seo.faqs.length > 0) {
+            faqsHtml = `
+        <section style="margin: 32px 0;">
+            <h2 style="font-size: 20px; font-weight: 700; color: #0f172a; margin-bottom: 16px;">Frequently Asked Questions</h2>
+            ${seo.faqs.map(f => `
+            <div style="margin-bottom: 16px; padding: 16px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+                <h3 style="font-size: 16px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">${f.q}</h3>
+                <p style="font-size: 14px; color: #475569; line-height: 1.6; margin: 0;">${f.a}</p>
+            </div>
+            `).join('')}
+        </section>`;
+        }
+
+        let relatedHtml = '';
+        if (seo.relatedTools && seo.relatedTools.length > 0) {
+            relatedHtml = `
+        <section style="margin: 28px 0;">
+            <h2 style="font-size: 18px; font-weight: 700; color: #0f172a; margin-bottom: 12px;">Related Productivity Tools</h2>
+            <ul style="display: flex; flex-wrap: wrap; gap: 10px; list-style: none; padding: 0;">
+                ${seo.relatedTools.map(rt => {
+                    const relSeo = getSeoForPath(rt);
+                    const relTitle = relSeo?.title ? relSeo.title.split('–')[0].split('-')[0].split('|')[0].trim() : rt.replace('/', '');
+                    return `<li><a href="${primaryDomain}${rt}" style="display: inline-block; padding: 8px 14px; background: #eef2ff; color: #4f46e5; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 13px;">${relTitle}</a></li>`;
+                }).join('')}
+            </ul>
+        </section>`;
+        }
+
+        const standardRoot = `
+    <div id="root">
+      <header style="padding: 24px 16px; text-align: center; border-bottom: 1px solid #e2e8f0;">
+        <a href="${primaryDomain}/" style="font-size: 24px; font-weight: 800; text-decoration: none; color: #4f46e5;">Stiknex</a>
+        <p style="margin-top: 6px; color: #64748b; font-size: 14px;">Free Online Sticky Notes, Digital Notebook &amp; Productivity Tools</p>
+        <nav style="margin-top: 8px; font-size: 14px;">
+          <a href="${primaryDomain}/" style="color: #64748b; margin: 0 8px; text-decoration: none;">Home</a>
+          ${cleanPath !== '/' ? `&gt; <span style="color: #0f172a; font-weight: 600;">${seo.h1 || title}</span>` : ''}
+        </nav>
+      </header>
+      <main style="max-width: 960px; margin: 0 auto; padding: 32px 16px;">
+        <h1 style="font-size: 30px; font-weight: 800; color: #0f172a; margin-bottom: 12px; line-height: 1.3;">${seo.h1 || title}</h1>
+        <p style="color: #475569; font-size: 16px; line-height: 1.6; margin-bottom: 24px;">${description}</p>
+        ${faqsHtml}
+        ${relatedHtml}
+        <section style="margin-top: 36px; padding-top: 24px; border-top: 1px solid #e2e8f0;">
+          <h2 style="font-size: 18px; font-weight: 700; color: #0f172a; margin-bottom: 14px;">Stiknex Online Tools Directory</h2>
+          <nav aria-label="Tools Directory">
+            <ul style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; list-style: none; padding: 0;">
+              <li><a href="${primaryDomain}/sticky-notes" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Sticky Notes Board</a></li>
+              <li><a href="${primaryDomain}/online-notebook" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Online Notebook</a></li>
+              <li><a href="${primaryDomain}/whiteboard" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Online Whiteboard</a></li>
+              <li><a href="${primaryDomain}/word-counter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Word Counter Online</a></li>
+              <li><a href="${primaryDomain}/character-counter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Character Counter</a></li>
+              <li><a href="${primaryDomain}/reading-time-calculator" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Reading Time Calculator</a></li>
+              <li><a href="${primaryDomain}/simple-calculator" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Simple Calculator</a></li>
+              <li><a href="${primaryDomain}/scientific-calculator" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Scientific Calculator</a></li>
+              <li><a href="${primaryDomain}/date-calculator" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Date &amp; Time Calculator</a></li>
+              <li><a href="${primaryDomain}/currency-converter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Live Currency Converter</a></li>
+              <li><a href="${primaryDomain}/unit-converter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Universal Unit Converter</a></li>
+              <li><a href="${primaryDomain}/length-converter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Length Converter</a></li>
+              <li><a href="${primaryDomain}/area-converter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Area Converter</a></li>
+              <li><a href="${primaryDomain}/volume-converter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Volume Converter</a></li>
+              <li><a href="${primaryDomain}/weight-converter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Weight Converter</a></li>
+              <li><a href="${primaryDomain}/temperature-converter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Temperature Converter</a></li>
+              <li><a href="${primaryDomain}/speed-converter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Speed Converter</a></li>
+              <li><a href="${primaryDomain}/pressure-converter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Pressure Converter</a></li>
+              <li><a href="${primaryDomain}/power-converter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Power Converter</a></li>
+              <li><a href="${primaryDomain}/dataconverter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Data Storage Converter</a></li>
+              <li><a href="${primaryDomain}/qr-code-generator" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">QR Code Generator</a></li>
+              <li><a href="${primaryDomain}/password-generator" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Password Generator</a></li>
+              <li><a href="${primaryDomain}/color-picker" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Color Picker</a></li>
+              <li><a href="${primaryDomain}/tools" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">All Tools Directory</a></li>
+              <li><a href="${primaryDomain}/blog" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Productivity Blog</a></li>
+              <li><a href="${primaryDomain}/about" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">About Stiknex</a></li>
+            </ul>
+          </nav>
+        </section>
+      </main>
+    </div>`;
+
+        html = html.replace(/<div id="root">[\s\S]*?<\/div>\s*<script type="module"/, `${standardRoot}\n    <script type="module"`);
 
         res.setHeader('Content-Type', 'text/html; charset=utf-8');
         res.setHeader('Cache-Control', 's-maxage=86400, stale-while-revalidate=43200');

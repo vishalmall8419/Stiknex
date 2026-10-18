@@ -5,11 +5,12 @@ const BlogSchema = new mongoose.Schema({
   slug: { type: String, required: true, unique: true },
   excerpt: { type: String, required: true },
   content: { type: String, required: true }, // HTML or Markdown
-  metaTitle: { type: String, required: true },
-  metaDescription: { type: String, required: true },
-  keywords: { type: String, required: true },
-  trendKeyword: { type: String, required: true },
-  trendScore: { type: Number, required: true },
+  category: { type: String, default: "Productivity" },
+  metaTitle: { type: String, default: "" },
+  metaDescription: { type: String, default: "" },
+  keywords: { type: String, default: "stiknex, productivity, tools" },
+  trendKeyword: { type: String, default: "General" },
+  trendScore: { type: Number, default: 80 },
   sourceResearch: {
     type: String,
     default: "Wikipedia + other reliable sources",
@@ -17,8 +18,29 @@ const BlogSchema = new mongoose.Schema({
   imageUrl: { type: String, required: true },
   imageAlt: { type: String, required: true },
   imageSource: { type: String, default: "AI Generated" },
-  published: { type: Boolean, default: true },
+  wordCount: { type: Number, default: 0 },
+  validationStatus: {
+    type: String,
+    enum: ["passed", "failed", "pending"],
+    default: "pending",
+  },
+  validationError: { type: String, default: "" },
+  tableOfContents: [
+    {
+      title: { type: String },
+      id: { type: String },
+      level: { type: Number, default: 2 },
+    },
+  ],
+  sources: [
+    {
+      title: { type: String },
+      url: { type: String },
+    },
+  ],
+  published: { type: Boolean, default: false },
   publishedAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now },
 });
 
 export default mongoose.models.Blog || mongoose.model("Blog", BlogSchema);

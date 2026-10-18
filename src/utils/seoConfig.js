@@ -1,7 +1,8 @@
 // Centralized SEO Configuration for Stiknex
 // Supports Phase 2, Phase 3, Phase 4, Phase 6, Phase 10, Phase 12
 
-export const BASE_URL = "https://stiknex.vercel.app";
+export const SITE_URL = "https://stiknex.site";
+export const BASE_URL = SITE_URL;
 
 export const seoConfig = {
   "/": {
@@ -9,7 +10,7 @@ export const seoConfig = {
     canonical: `${BASE_URL}/`,
     title: "Stiknex – Free Sticky Notes, Online Notebook & Productivity Tools",
     h1: "Free Online Productivity & Utility Tools",
-    description: "Stiknex is a free online productivity platform featuring infinite sticky notes boards, an AI-powered notebook, Excalidraw whiteboard, calculators, converters, QR code generator and more. No sign-up required.",
+    description: "Stiknex is a free online productivity platform featuring infinite sticky notes boards, a rich-text notebook, Excalidraw whiteboard, calculators, converters, QR code generator and more. No sign-up required.",
     primaryIntent: "free productivity tools, sticky notes, online notebook",
     secondaryIntents: ["digital sticky notes", "online notepad", "free utility tools"],
     keywords: "sticky notes, online sticky notes, free sticky notes app, online notebook, digital whiteboard, productivity tools, excalidraw, note taking app, free online tools",

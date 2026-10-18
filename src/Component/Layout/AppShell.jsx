@@ -9,8 +9,8 @@ const AppShell = ({ children, hideNav = false, hideFooter = false, fullWidth = f
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navItems = [
-    { name: "Sticky Notes", path: "/notes", icon: "fa-solid fa-note-sticky" },
-    { name: "Notebook", path: "/notebook", icon: "fa-solid fa-book" },
+    { name: "Sticky Notes", path: "/sticky-notes", icon: "fa-solid fa-note-sticky" },
+    { name: "Notebook", path: "/online-notebook", icon: "fa-solid fa-book" },
     { name: "Whiteboards", path: "/whiteboard", icon: "fa-solid fa-pen-nib" },
     { name: "Tools", path: "/tools", icon: "fa-solid fa-screwdriver-wrench" },
     { name: "Blog", path: "/blog", icon: "fa-solid fa-blog" },

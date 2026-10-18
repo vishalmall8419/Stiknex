@@ -1,4 +1,43 @@
 {
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.stiknex.site"
+        }
+      ],
+      "destination": "https://stiknex.site/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "stiknex.vercel.app"
+        }
+      ],
+      "destination": "https://stiknex.site/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/notes",
+      "destination": "/sticky-notes",
+      "permanent": true
+    },
+    {
+      "source": "/notebook",
+      "destination": "/online-notebook",
+      "permanent": true
+    },
+    {
+      "source": "/tools/:tool(word-counter|character-counter|reading-time-calculator|simple-calculator|scientific-calculator|date-calculator|currency-converter|unit-converter|length-converter|area-converter|volume-converter|weight-converter|temperature-converter|speed-converter|pressure-converter|power-converter|qr-code-generator|password-generator|color-picker)",
+      "destination": "/:tool",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/api/auth/login",

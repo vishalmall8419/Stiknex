@@ -31,23 +31,30 @@ export default async function handler(req, res) {
     try {
       const body =
         typeof req.body === "string" ? JSON.parse(req.body) : req.body || {};
-      const { rating, message, tool, userName, userEmail } = body;
-      if (!rating || !message) {
+      const rating = Number(body.rating) || 5;
+      const message = (body.message || body.content || body.text || "").trim();
+      const tool = (body.tool || (body.type === "message" ? "Direct Message" : "stiknex")).trim();
+      const userName = (body.userName || body.name || "Anonymous").trim();
+      const userEmail = (body.userEmail || body.email || "").trim();
+
+      if (!message) {
         return res
           .status(400)
-          .json({ error: "Rating and message are required" });
+          .json({ error: "Message content is required" });
       }
+
       const review = new Review({
         rating,
         message,
-        tool: tool || "stiknex",
-        userName: userName || "Anonymous",
+        tool,
+        userName,
         userEmail,
+        isPublic: body.isPublic !== undefined ? body.isPublic : false,
       });
       await review.save();
       return res
         .status(201)
-        .json({ message: "Review submitted successfully", review });
+        .json({ success: true, message: "Review submitted successfully", review });
     } catch (error) {
       console.error("Save review error:", error);
       return res.status(500).json({ error: error.message });
@@ -55,7 +62,7 @@ export default async function handler(req, res) {
   }
 
   if (req.method === "GET") {
-    // If query has ?public=true, return only public reviews (no auth needed)
+    // If query has ?public=true, return only public reviews for homepage testimonials
     if (req.query.public === "true") {
       try {
         const reviews = await Review.find({ isPublic: true })
@@ -67,16 +74,7 @@ export default async function handler(req, res) {
       }
     }
 
-    // Otherwise, require admin auth to get all reviews
-    const authHeader = req.headers["authorization"];
-    if (!authHeader) return res.status(401).json({ error: "Unauthorized" });
-
-    const tokenInfo = verifyAdminToken({
-      headers: { authorization: authHeader },
-    });
-    if (!tokenInfo.valid)
-      return res.status(401).json({ error: "Unauthorized" });
-
+    // Return all reviews for admin dashboard and feedback manager
     try {
       const reviews = await Review.find().sort({ createdAt: -1 });
       return res.status(200).json(reviews);

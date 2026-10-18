@@ -305,7 +305,7 @@ const About = () => {
             <FadeIn>
               <h2 className="text-4xl md:text-5xl font-black mb-8 text-slate-900 dark:text-white">Ready to experience it?</h2>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link to="/notes" className="px-8 py-4 rounded-full bg-indigo-600 text-white font-bold text-lg hover:bg-indigo-700 transition-all hover:scale-105 hover:shadow-xl hover:shadow-indigo-500/25 flex items-center justify-center gap-2">
+                <Link to="/sticky-notes" className="px-8 py-4 rounded-full bg-indigo-600 text-white font-bold text-lg hover:bg-indigo-700 transition-all hover:scale-105 hover:shadow-xl hover:shadow-indigo-500/25 flex items-center justify-center gap-2">
                   <Rocket size={20} /> Launch Workspace
                 </Link>
                 <a href="mailto:vishal.mall02@outlook.com" className="px-8 py-4 rounded-full bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-bold text-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all hover:scale-105 flex items-center justify-center gap-2">
