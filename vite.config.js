@@ -81,6 +81,8 @@ function localApiPlugin() {
 export default defineConfig({
   plugins: [react(), tailwindcss(), localApiPlugin()],
   build: {
+    target: 'es2022',
+    cssCodeSplit: true,
     rollupOptions: {
       output: {
         manualChunks(id) {
@@ -88,11 +90,28 @@ export default defineConfig({
             if (id.includes('@excalidraw/excalidraw')) {
               return 'whiteboard';
             }
-            if (id.includes('lucide-react')) {
-              return 'ui';
+            if (id.includes('recharts') || id.includes('d3-')) {
+              return 'charts';
             }
-            if (id.includes('react') || id.includes('framer-motion') || id.includes('gsap')) {
-              return 'vendor';
+            if (id.includes('react-xarrows') || id.includes('react-draggable')) {
+              return 'canvas-sticky';
+            }
+            if (id.includes('react-colorful') || id.includes('qrcode')) {
+              return 'tool-helpers';
+            }
+            if (id.includes('lucide-react')) {
+              return 'ui-icons';
+            }
+            if (id.includes('framer-motion')) {
+              return 'vendor-motion';
+            }
+            if (
+              id.includes('/react/') ||
+              id.includes('/react-dom/') ||
+              id.includes('/react-router-dom/') ||
+              id.includes('/react-helmet-async/')
+            ) {
+              return 'vendor-core';
             }
           }
         }

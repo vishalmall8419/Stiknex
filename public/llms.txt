@@ -1,3 +1,50 @@
-# Stiknex AI Documentation
+# Stiknex
 
-Stiknex is a modern web application providing sticky notes, an online notebook, whiteboards, calculators, and other productivity tools. This file helps AI agents understand how to interact with the site.
+> Stiknex (https://stiknex.site) is a free, privacy-first online productivity platform featuring infinite draggable sticky notes boards, a rich-text notebook editor, an Excalidraw digital whiteboard, calculators, converters, and 15+ browser-based utility tools. No registration, login, or installation is required.
+
+## Core Workspaces
+z
+- [Sticky Notes](https://stiknex.site/sticky-notes): An infinite digital canvas for creating, color-coding, dragging, and connecting thoughts and notes.
+- [Online Notebook](https://stiknex.site/online-notebook): A distraction-free rich-text writing environment with autosave, markdown support, and export capabilities.
+- [Digital Whiteboard](https://stiknex.site/whiteboard): An integrated Excalidraw canvas for sketching, wireframing, diagramming, and visual collaboration.
+
+## Writing & Content Tools
+
+- [Word Counter](https://stiknex.site/word-counter): Live analysis of word count, characters (with and without spaces), sentences, paragraphs, and reading time.
+- [Character Counter](https://stiknex.site/character-counter): Detailed character tracking with social media limit indicators (Twitter/X, LinkedIn, SMS).
+- [Reading Time Calculator](https://stiknex.site/reading-time-calculator): Estimates silent reading and spoken presentation duration for text.
+
+## Calculators & Math
+
+- [Simple Calculator](https://stiknex.site/simple-calculator): Fast, keyboard-supported arithmetic calculator running purely client-side.
+- [Scientific Calculator](https://stiknex.site/scientific-calculator): Advanced calculator supporting trigonometry, logarithms, powers, roots, and factorials.
+- [Date & Age Calculator](https://stiknex.site/date-calculator): Computes exact age in years, months, and days, as well as time spans between two dates.
+
+## Converters
+
+- [Universal Unit Converter](https://stiknex.site/unit-converter): General unit converter supporting length, area, volume, mass, pressure, speed, and power.
+- [Currency Converter](https://stiknex.site/currency-converter): Live foreign exchange rates across 150+ world currencies with offline fallback capability.
+- [Length Converter](https://stiknex.site/length-converter): Bidirectional conversion between millimeters, centimeters, meters, kilometers, inches, feet, yards, and miles.
+- [Area Converter](https://stiknex.site/area-converter): Converts square meters, square feet, acres, hectares, and square kilometers.
+- [Volume Converter](https://stiknex.site/volume-converter): Converts milliliters, liters, cubic meters, teaspoons, tablespoons, cups, and gallons.
+- [Weight Converter](https://stiknex.site/weight-converter): Converts milligrams, grams, kilograms, ounces, pounds, and metric tons.
+- [Temperature Converter](https://stiknex.site/temperature-converter): Instant conversion between Celsius (°C), Fahrenheit (°F), and Kelvin (K).
+- [Speed Converter](https://stiknex.site/speed-converter): Converts km/h, mph, m/s, knots, and ft/s.
+- [Pressure Converter](https://stiknex.site/pressure-converter): Converts Pascals, Bar, PSI, and Atmospheres.
+- [Power Converter](https://stiknex.site/power-converter): Converts Watts, Kilowatts, Horsepower, and BTU/hr.
+
+## Generators & Utilities
+
+- [QR Code Generator](https://stiknex.site/qr-code-generator): Generates custom, downloadable high-resolution QR codes for URLs, text, Wi-Fi, and contacts entirely offline.
+- [Password Generator](https://stiknex.site/password-generator): Cryptographically secure random password generator with custom entropy and character controls.
+- [Color Picker](https://stiknex.site/color-picker): Interactive HEX, RGB, HSL color palette selector with browser EyeDropper API integration.
+
+## Resources & Articles
+
+- [Productivity Blog](https://stiknex.site/blog): In-depth tutorials, productivity methodologies, visual thinking guides, and long-form articles.
+- [About Stiknex](https://stiknex.site/about): Vision, security model, and background of the Stiknex platform.
+- [Chrome Extension](https://stiknex.site/stiknex-chrome-extension.zip): Official Manifest V3 browser extension packaging 19 offline tools into Chrome's popup and Side Panel.
+
+## Optional
+
+- [Full Documentation](https://stiknex.site/llms-full.txt): Comprehensive text documentation detailing all tools, parameters, and application architecture for AI agents.

@@ -218,6 +218,76 @@ export default async function handler(req, res) {
         </section>`;
         }
 
+        const homeRoot = `
+    <div id="root">
+      <nav style="position: fixed; top: 16px; left: 50%; transform: translateX(-50%); z-index: 50; padding: 10px 24px; background: rgba(255,255,255,0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(226,232,240,0.8); border-radius: 9999px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 16px; max-width: 96vw; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, sans-serif;">
+        <a href="${primaryDomain}/" style="display: flex; align-items: center; gap: 8px; text-decoration: none; font-weight: 900; font-size: 18px; color: #4f46e5; letter-spacing: -0.02em;">
+          <img src="${primaryDomain}/logo.png" alt="Stiknex" width="24" height="24" style="object-fit: contain;" />
+          <span style="background: linear-gradient(to right, #6366f1, #9333ea); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Stiknex</span>
+        </a>
+        <div style="display: flex; align-items: center; gap: 12px; font-size: 13px; font-weight: 500; color: #475569;">
+          <a href="${primaryDomain}/sticky-notes" style="color: #475569; text-decoration: none; padding: 4px 8px;">Sticky Notes</a>
+          <a href="${primaryDomain}/online-notebook" style="color: #475569; text-decoration: none; padding: 4px 8px;">Notepad</a>
+          <a href="${primaryDomain}/whiteboard" style="color: #475569; text-decoration: none; padding: 4px 8px;">Whiteboard</a>
+          <a href="${primaryDomain}/tools" style="color: #475569; text-decoration: none; padding: 4px 8px;">Tools</a>
+          <a href="${primaryDomain}/blog" style="color: #475569; text-decoration: none; padding: 4px 8px;">Blog</a>
+        </div>
+      </nav>
+
+      <main style="padding-top: 140px; padding-bottom: 60px; padding-left: 20px; padding-right: 20px; max-width: 1100px; margin: 0 auto; text-align: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, sans-serif;">
+        <div style="display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; border-radius: 9999px; background: #eef2ff; color: #4f46e5; font-size: 13px; font-weight: 500; margin-bottom: 24px; border: 1px solid #e0e7ff;">
+          ✨ Welcome to the new standard of ideation
+        </div>
+        
+        <h1 style="font-size: clamp(2.4rem, 5.5vw, 4.5rem); font-weight: 900; line-height: 1.1; margin: 0 auto 20px; color: #0f172a; letter-spacing: -0.03em; max-width: 900px;">
+          Think Freely. <span style="background: linear-gradient(to right, #6366f1, #a855f7, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Create Boundlessly.</span>
+        </h1>
+
+        <p style="font-size: clamp(1rem, 2vw, 1.25rem); color: #475569; max-width: 680px; margin: 0 auto 36px; line-height: 1.6; font-weight: 300;">
+          An infinite canvas for your sticky notes, integrated whiteboards, and structured notebooks. All in one place.
+        </p>
+
+        <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; margin-bottom: 48px;">
+          <a href="${primaryDomain}/sticky-notes" style="padding: 14px 32px; background: #4f46e5; color: #ffffff; border-radius: 9999px; font-size: 16px; font-weight: 600; text-decoration: none; box-shadow: 0 10px 20px -5px rgba(79, 70, 229, 0.4);">Start Brainstorming &rarr;</a>
+          <a href="${primaryDomain}/tools" style="padding: 14px 32px; background: #ffffff; color: #0f172a; border: 1px solid #e2e8f0; border-radius: 9999px; font-size: 16px; font-weight: 600; text-decoration: none;">Explore 15+ Tools</a>
+        </div>
+
+        <section style="margin-top: 48px; text-align: left; border-top: 1px solid #e2e8f0; padding-top: 36px;">
+          <h2 style="font-size: 18px; font-weight: 700; color: #0f172a; margin-bottom: 16px; text-align: center;">Free Online Productivity Tools &amp; Utilities</h2>
+          <nav aria-label="Tools Directory">
+            <ul style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; list-style: none; padding: 0; margin: 0;">
+              <li><a href="${primaryDomain}/sticky-notes" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Sticky Notes Board</a></li>
+              <li><a href="${primaryDomain}/online-notebook" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Online Notebook</a></li>
+              <li><a href="${primaryDomain}/whiteboard" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Online Whiteboard</a></li>
+              <li><a href="${primaryDomain}/word-counter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Word Counter Online</a></li>
+              <li><a href="${primaryDomain}/character-counter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Character Counter</a></li>
+              <li><a href="${primaryDomain}/reading-time-calculator" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Reading Time Calculator</a></li>
+              <li><a href="${primaryDomain}/simple-calculator" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Simple Calculator</a></li>
+              <li><a href="${primaryDomain}/scientific-calculator" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Scientific Calculator</a></li>
+              <li><a href="${primaryDomain}/date-calculator" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Date &amp; Time Calculator</a></li>
+              <li><a href="${primaryDomain}/currency-converter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Live Currency Converter</a></li>
+              <li><a href="${primaryDomain}/unit-converter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Universal Unit Converter</a></li>
+              <li><a href="${primaryDomain}/length-converter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Length Converter</a></li>
+              <li><a href="${primaryDomain}/area-converter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Area Converter</a></li>
+              <li><a href="${primaryDomain}/volume-converter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Volume Converter</a></li>
+              <li><a href="${primaryDomain}/weight-converter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Weight Converter</a></li>
+              <li><a href="${primaryDomain}/temperature-converter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Temperature Converter</a></li>
+              <li><a href="${primaryDomain}/speed-converter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Speed Converter</a></li>
+              <li><a href="${primaryDomain}/pressure-converter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Pressure Converter</a></li>
+              <li><a href="${primaryDomain}/power-converter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Power Converter</a></li>
+              <li><a href="${primaryDomain}/dataconverter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Data Storage Converter</a></li>
+              <li><a href="${primaryDomain}/qr-code-generator" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">QR Code Generator</a></li>
+              <li><a href="${primaryDomain}/password-generator" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Password Generator</a></li>
+              <li><a href="${primaryDomain}/color-picker" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Color Picker</a></li>
+              <li><a href="${primaryDomain}/tools" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">All Tools Directory</a></li>
+              <li><a href="${primaryDomain}/blog" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Productivity Blog</a></li>
+              <li><a href="${primaryDomain}/about" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">About Stiknex</a></li>
+            </ul>
+          </nav>
+        </section>
+      </main>
+    </div>`;
+
         const standardRoot = `
     <div id="root">
       <header style="padding: 24px 16px; text-align: center; border-bottom: 1px solid #e2e8f0;">
@@ -269,7 +339,8 @@ export default async function handler(req, res) {
       </main>
     </div>`;
 
-        html = html.replace(/<div id="root">[\s\S]*?<\/div>\s*<script type="module"/, `${standardRoot}\n    <script type="module"`);
+        const rootToInject = cleanPath === '/' ? homeRoot : standardRoot;
+        html = html.replace(/<div id="root">[\s\S]*?<\/div>\s*<script type="module"/, `${rootToInject}\n    <script type="module"`);
 
         res.setHeader('Content-Type', 'text/html; charset=utf-8');
         res.setHeader('Cache-Control', 's-maxage=86400, stale-while-revalidate=43200');

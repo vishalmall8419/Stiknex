@@ -113,6 +113,7 @@ const FeedbackWidget = ({ tool = "stiknex" }) => {
               <button
                 onClick={() => setIsOpen(false)}
                 className="hover:bg-white/20 p-1 rounded-full transition"
+                aria-label="Close message widget"
               >
                 <X size={18} />
               </button>
@@ -263,6 +264,7 @@ const FeedbackWidget = ({ tool = "stiknex" }) => {
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-2 px-3.5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-xl hover:scale-105 transition-all text-xs font-bold group"
         title="Send Message or Leave Feedback"
+        aria-label="Send Message or Leave Feedback"
       >
         {isOpen ? <X size={18} /> : <MessageSquare size={18} className="group-hover:rotate-12 transition-transform" />}
         <span className="hidden sm:inline">Message & Feedback</span>

@@ -1,0 +1,73 @@
+# Stiknex Full Documentation for AI Agents
+
+Application: Stiknex
+Primary URL: https://stiknex.site
+Author: Vishal Mall
+License: Free & Open Access
+Architecture: Single Page Application (React, Vite, Tailwind CSS) with Vercel Edge SSR fallback
+
+## Overview
+
+Stiknex is a privacy-first web productivity suite designed for knowledge workers, developers, students, and writers. It operates without mandatory account registration, paywalls, or external trackers. User notes, drawings, and tool outputs are stored locally in the browser via `localStorage` and `IndexedDB`.
+
+## Workspaces
+
+### 1. Sticky Notes Canvas (/sticky-notes)
+- Infinite, zoomable, draggable 2D board for capturing unstructured thoughts.
+- Custom sticky note colors: Yellow, Blue, Green, Pink, Purple, Orange, Dark Slate.
+- Visual connectors: Direct arrows linking related notes using vector paths.
+- Pinning, autosave, and batch export (JSON, PNG, text).
+- Fully responsive with touch gesture support and pull-to-refresh suppression on mobile canvases.
+
+### 2. Online Notebook (/online-notebook)
+- Distraction-free rich-text writing interface.
+- Real-time word count, character count, and reading time tracking.
+- Autosave on every keystroke with local document history.
+- Markdown export, plain text download, and HTML formatting options.
+- Edge-to-edge system insets adaptation for mobile and tablet keyboards.
+
+### 3. Digital Whiteboard (/whiteboard)
+- Full-featured Excalidraw integration running client-side.
+- Infinite canvas for flowcharts, system diagrams, mind maps, and quick sketches.
+- Hand-drawn styling, shapes, text, arrows, and custom color palettes.
+- Local document persistence and SVG/PNG image export.
+
+## Tools Directory
+
+### Writing & Content Analysis
+- Word Counter (/word-counter): Counts words, characters with spaces, characters without spaces, sentences, paragraphs, and reading/speaking duration.
+- Character Counter (/character-counter): Tracks character lengths with visual progress bars for Twitter/X (280 chars), LinkedIn (3,000 chars), and SMS (160 chars).
+- Reading Time Calculator (/reading-time-calculator): Calculates silent reading duration (200 words per minute) and speech presentation duration (130 words per minute).
+
+### Math & Calculators
+- Simple Calculator (/simple-calculator): Standard arithmetic (+, -, *, /, %, parenthesis) evaluated with a safe zero-eval parser.
+- Scientific Calculator (/scientific-calculator): Advanced trigonometry (sin, cos, tan, asin, acos, atan), logarithms (log10, ln), exponents, factorials, and DEG/RAD modes.
+- Date Calculator (/date-calculator): Calculates difference in days, weeks, months, and years between two calendar dates, plus exact age from birth date.
+
+### Converters
+- Universal Unit Converter (/unit-converter): Multi-category unit conversion.
+- Currency Converter (/currency-converter): Live forex conversion for 150+ currencies with cached fallback for offline use.
+- Length Converter (/length-converter): mm, cm, m, km, in, ft, yd, mi.
+- Area Converter (/area-converter): m², km², ft², yd², acre, hectare.
+- Volume Converter (/volume-converter): ml, L, m³, tsp, tbsp, cup, US gallon.
+- Weight Converter (/weight-converter): mg, g, kg, metric ton, oz, lb.
+- Temperature Converter (/temperature-converter): Celsius, Fahrenheit, Kelvin.
+- Speed Converter (/speed-converter): m/s, km/h, mph, knot, ft/s.
+- Pressure Converter (/pressure-converter): Pa, kPa, Bar, atm, PSI, mmHg.
+- Power Converter (/power-converter): W, kW, MW, hp, BTU/hr.
+
+### Utilities
+- QR Code Generator (/qr-code-generator): Offline QR generation with custom color options and PNG download.
+- Password Generator (/password-generator): Cryptographically secure random password generation with entropy scoring.
+- Color Picker (/color-picker): HEX, RGB, HSL conversion with native EyeDropper API.
+
+## API & Endpoints
+- Public Blog API: GET https://stiknex.site/api/blogs (Returns published article listing in JSON).
+- Public Reviews API: GET https://stiknex.site/api/reviews?public=true (Returns verified user feedback in JSON).
+- SEO Stats API: GET https://stiknex.site/api/seo-stats (System health and metadata).
+
+## Technical Specifications
+- CSP: Manifest V3 compliant, zero `eval()` and zero `new Function()` in extension and core client logic.
+- Service Worker & PWA: Fully installable Progressive Web App with offline caching.
+- Android Application: Native Android package distributing WebView wrapper with hardware acceleration and gesture bridges.
+

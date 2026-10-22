@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, Loader2, Sparkles } from 'lucide-react';
+import { ArrowRight, Sparkles } from 'lucide-react';
 import LazyImage from '../../Component/LazyImage';
 
 const HomeBlogSection = () => {
@@ -49,15 +49,7 @@ const HomeBlogSection = () => {
     });
   }, []);
 
-  if (loading) {
-    return (
-      <div className="py-24 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
-      </div>
-    );
-  }
-
-  if (blogs.length === 0) return null;
+  if (!loading && blogs.length === 0) return null;
 
   return (
     <section className="py-24 px-6 relative z-10 bg-slate-50/50 dark:bg-slate-900/20 border-t border-slate-200/50 dark:border-slate-800/50">
@@ -67,7 +59,7 @@ const HomeBlogSection = () => {
             <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white flex items-center gap-3">
               Discover Ideas <Sparkles className="text-indigo-500" />
             </h2>
-            <p className="text-slate-600 dark:text-slate-400 mt-4 text-lg max-w-2xl">
+            <p className="text-slate-600 dark:text-slate-300 mt-4 text-lg max-w-2xl">
               Dive into our latest thoughts on productivity, visual thinking, and design.
             </p>
           </div>
@@ -81,39 +73,60 @@ const HomeBlogSection = () => {
         </div>
         
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {blogs.map((post, i) => {
-            const img = post.images && post.images.length > 0 ? post.images[0] : '';
-            return (
-              <motion.article 
-                key={post.id} 
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 0.5, delay: i * 0.1, ease: "easeOut" }}
-                className="group relative flex flex-col h-[400px] rounded-3xl bg-white dark:bg-slate-800/80 backdrop-blur-md border border-slate-200 dark:border-slate-700/50 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-300 overflow-hidden"
+          {loading ? (
+            [...Array(6)].map((_, i) => (
+              <div 
+                key={i} 
+                className="flex flex-col h-[400px] rounded-3xl bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 overflow-hidden animate-pulse"
               >
-                <div className="w-full h-48 overflow-hidden relative shrink-0">
-                  <LazyImage src={img} alt={post.title} className="w-full h-full relative z-10 group-hover:scale-105 transition-transform duration-500" />
-                  <div className="absolute top-4 left-4 z-20">
-                    <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-white/90 dark:bg-slate-900/90 text-slate-900 dark:text-white backdrop-blur-sm shadow-sm">
-                      {post.category}
-                    </span>
-                  </div>
-                </div>
-                
+                <div className="w-full h-48 bg-slate-200 dark:bg-slate-700/60 shrink-0" />
                 <div className="p-6 flex flex-col flex-1">
-                  <h3 className="text-xl font-bold mb-3 text-slate-900 dark:text-white leading-snug group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors line-clamp-2">
-                    {post.title}
-                  </h3>
-                  <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-4 flex-1 line-clamp-3">
-                    {post.briefDescription}
-                  </p>
+                  <div className="w-3/4 h-5 rounded bg-slate-200 dark:bg-slate-700/60 mb-3" />
+                  <div className="w-full h-3 rounded bg-slate-200 dark:bg-slate-700/40 mb-2" />
+                  <div className="w-5/6 h-3 rounded bg-slate-200 dark:bg-slate-700/40 mb-2" />
+                  <div className="w-2/3 h-3 rounded bg-slate-200 dark:bg-slate-700/40" />
                 </div>
-                
-                <Link to={"/blog/" + post.id} className="absolute inset-0 z-10"></Link>
-              </motion.article>
-            );
-          })}
+              </div>
+            ))
+          ) : (
+            blogs.map((post, i) => {
+              const img = post.images && post.images.length > 0 ? post.images[0] : '';
+              return (
+                <motion.article 
+                  key={post.id} 
+                  initial={{ opacity: 0, y: 40 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{ duration: 0.5, delay: i * 0.1, ease: "easeOut" }}
+                  className="group relative flex flex-col h-[400px] rounded-3xl bg-white dark:bg-slate-800/80 backdrop-blur-md border border-slate-200 dark:border-slate-700/50 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-300 overflow-hidden"
+                >
+                  <div className="w-full h-48 overflow-hidden relative shrink-0">
+                    <LazyImage src={img} alt={post.title} className="w-full h-full relative z-10 group-hover:scale-105 transition-transform duration-500" />
+                    <div className="absolute top-4 left-4 z-20">
+                      <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-white/90 dark:bg-slate-900/90 text-slate-900 dark:text-white backdrop-blur-sm shadow-sm">
+                        {post.category}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="p-6 flex flex-col flex-1">
+                    <h3 className="text-xl font-bold mb-3 text-slate-900 dark:text-white leading-snug group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors line-clamp-2">
+                      {post.title}
+                    </h3>
+                    <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed mb-4 flex-1 line-clamp-3">
+                      {post.briefDescription}
+                    </p>
+                  </div>
+                  
+                  <Link 
+                    to={"/blog/" + post.id} 
+                    className="absolute inset-0 z-10" 
+                    aria-label={`Read article: ${post.title}`}
+                  />
+                </motion.article>
+              );
+            })
+          )}
         </div>
       </div>
     </section>
