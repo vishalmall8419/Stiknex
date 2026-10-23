@@ -83,35 +83,23 @@ export default defineConfig({
   build: {
     target: 'es2022',
     cssCodeSplit: true,
+    modulePreload: false,
     rollupOptions: {
       output: {
         manualChunks(id) {
           if (id.includes('node_modules')) {
-            if (id.includes('@excalidraw/excalidraw')) {
-              return 'whiteboard';
-            }
-            if (id.includes('recharts') || id.includes('d3-')) {
-              return 'charts';
-            }
-            if (id.includes('react-xarrows') || id.includes('react-draggable')) {
-              return 'canvas-sticky';
-            }
-            if (id.includes('react-colorful') || id.includes('qrcode')) {
-              return 'tool-helpers';
-            }
-            if (id.includes('lucide-react')) {
-              return 'ui-icons';
-            }
-            if (id.includes('framer-motion')) {
-              return 'vendor-motion';
-            }
+            const clean = id.replace(/\\/g, '/');
             if (
-              id.includes('/react/') ||
-              id.includes('/react-dom/') ||
-              id.includes('/react-router-dom/') ||
-              id.includes('/react-helmet-async/')
+              clean.includes('/node_modules/react/') ||
+              clean.includes('/node_modules/react-dom/') ||
+              clean.includes('/node_modules/react-router/') ||
+              clean.includes('/node_modules/react-router-dom/') ||
+              clean.includes('/node_modules/scheduler/')
             ) {
               return 'vendor-core';
+            }
+            if (clean.includes('/node_modules/framer-motion/')) {
+              return 'vendor-motion';
             }
           }
         }

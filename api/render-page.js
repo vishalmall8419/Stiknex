@@ -4,6 +4,16 @@ import Blog from './_models/Blog.js';
 import fs from 'fs';
 import path from 'path';
 
+function replaceRootHtml(templateHtml, newRoot) {
+    if (templateHtml.includes('<!-- stiknex-root-end -->')) {
+        return templateHtml.replace(/<div id="root">[\s\S]*?<\/div><!-- stiknex-root-end -->/, newRoot);
+    }
+    if (/<div id="root">[\s\S]*?<\/div>\s*<script type="module"/.test(templateHtml)) {
+        return templateHtml.replace(/<div id="root">[\s\S]*?<\/div>\s*<script type="module"/, `${newRoot}\n    <script type="module"`);
+    }
+    return templateHtml.replace(/<div id="root">[\s\S]*?<\/div>/, newRoot);
+}
+
 export default async function handler(req, res) {
     const { slug, type } = req.query;
     const rawPath = req.query.path || '/';
@@ -41,15 +51,15 @@ export default async function handler(req, res) {
         if (isAdminRoute) {
             html = html
                 .replace(/<title>[\s\S]*?<\/title>/, `<title>Admin Portal | Stiknex</title>`)
-                .replace(/<meta\s+name="robots"[\s\S]*?>/i, `<meta name="robots" content="noindex, nofollow" />`)
-                .replace(/<div id="root">[\s\S]*?<\/div>\s*<script type="module"/, `
+                .replace(/<meta\s+name="robots"[\s\S]*?>/i, `<meta name="robots" content="noindex, nofollow" />`);
+            html = replaceRootHtml(html, `
     <div id="root">
       <div style="min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #0f172a; color: #94a3b8; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
         <div style="width: 32px; height: 32px; border: 3px solid #6366f1; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 12px;"></div>
         <p style="font-size: 13px; font-weight: 500;">Loading Stiknex Workspace...</p>
         <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
       </div>
-    </div>\n    <script type="module"`);
+    </div>`);
 
             if (!html.includes('content="noindex, nofollow"')) {
                 html = html.replace('</head>', `<meta name="robots" content="noindex, nofollow" />\n</head>`);
@@ -65,9 +75,9 @@ export default async function handler(req, res) {
             const blog = await Blog.findOne({ slug, published: true });
 
             if (!blog) {
-                const notFoundHtml = html
-                    .replace(/<title>[\s\S]*?<\/title>/, `<title>404 Blog Post Not Found | Stiknex</title>`)
-                    .replace(/<div id="root">[\s\S]*?<\/div>\s*<script type="module"/, `
+                let notFoundHtml = html
+                    .replace(/<title>[\s\S]*?<\/title>/, `<title>404 Blog Post Not Found | Stiknex</title>`);
+                notFoundHtml = replaceRootHtml(notFoundHtml, `
     <div id="root">
       <header style="padding: 24px 16px; text-align: center; border-bottom: 1px solid #e2e8f0;">
         <a href="${primaryDomain}/" style="font-size: 24px; font-weight: 800; color: #4f46e5; text-decoration: none;">Stiknex</a>
@@ -77,7 +87,7 @@ export default async function handler(req, res) {
         <p style="color: #64748b; margin-top: 12px; font-size: 16px;">The requested article may have been removed or moved to another address.</p>
         <p style="margin-top: 24px;"><a href="${primaryDomain}/blog" style="display: inline-block; padding: 10px 20px; background: #4f46e5; color: #fff; text-decoration: none; border-radius: 8px; font-weight: 600;">Browse All Blog Articles</a></p>
       </main>
-    </div>\n    <script type="module"`);
+    </div>`);
                 res.setHeader('Content-Type', 'text/html; charset=utf-8');
                 return res.status(404).send(notFoundHtml);
             }
@@ -154,7 +164,7 @@ export default async function handler(req, res) {
       </main>
     </div>`;
 
-            html = html.replace(/<div id="root">[\s\S]*?<\/div>\s*<script type="module"/, `${blogRoot}\n    <script type="module"`);
+            html = replaceRootHtml(html, blogRoot);
 
             res.setHeader('Content-Type', 'text/html; charset=utf-8');
             res.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate');
@@ -340,7 +350,7 @@ export default async function handler(req, res) {
     </div>`;
 
         const rootToInject = cleanPath === '/' ? homeRoot : standardRoot;
-        html = html.replace(/<div id="root">[\s\S]*?<\/div>\s*<script type="module"/, `${rootToInject}\n    <script type="module"`);
+        html = replaceRootHtml(html, rootToInject);
 
         res.setHeader('Content-Type', 'text/html; charset=utf-8');
         res.setHeader('Cache-Control', 's-maxage=86400, stale-while-revalidate=43200');

@@ -62,10 +62,17 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     
-    <!-- Primary Critical Fonts (Inter & Caveat) -->
+    <!-- Primary Critical Fonts (Inter & Caveat) with non-blocking load -->
+    <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Inter:wght@300;400;500;600;700;800&display=swap"
+    />
     <link
       href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Inter:wght@300;400;500;600;700;800&display=swap"
       rel="stylesheet"
+      media="print"
+      onload="this.media = 'all'"
     />
     
     <!-- Deferred Secondary Fonts for Sticky Notes Custom Styling -->
@@ -440,7 +447,7 @@
           </nav>
         </section>
       </main>
-    </div>
+    </div><!-- stiknex-root-end -->
 
     <script type="module" src="/src/main.jsx"></script>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8724450228854599"

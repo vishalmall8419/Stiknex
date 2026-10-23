@@ -37,7 +37,7 @@ const AppShell = ({ children, hideNav = false, hideFooter = false, fullWidth = f
             {/* Logo and Desktop Nav */}
             <div className="flex items-center gap-8">
               <Link to="/" className="flex items-center gap-2 group">
-                <img src="/logo.png" alt="Stiknex Logo" className="w-8 h-8 sm:w-10 sm:h-10 object-contain group-hover:scale-105 transition-transform drop-shadow-sm" />
+                <img src="/logo.png" alt="Stiknex Logo" width="40" height="40" loading="eager" fetchpriority="high" decoding="async" className="w-8 h-8 sm:w-10 sm:h-10 object-contain group-hover:scale-105 transition-transform drop-shadow-sm" />
                 <span className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-linear-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400 hidden sm:block">
                   Stiknex
                 </span>
