@@ -5,9 +5,10 @@ import Lenis from "lenis";
 import PageSEO from "../../Component/SEO/PageSEO";
 import { 
   ArrowRight, Sparkles, Layers, PenTool, LayoutDashboard, Code2, Zap, Check,
-  FileText, Type, Timer, Calculator, Ruler, Thermometer, QrCode, StickyNote
+  FileText, Type, Timer, Calculator, Ruler, Thermometer, QrCode, StickyNote, Search, Gamepad2
 } from "lucide-react";
 import { useAppContext } from "../../context/AppContext";
+import { ALL_TOOLS, TOOL_CATEGORIES } from "../../data/toolsRegistry";
 
 const HomeBlogSection = lazy(() => import("./HomeBlogSection"));
 const Testimonials = lazy(() => import("../../Component/Testimonials"));
@@ -53,9 +54,18 @@ const Features = [
 const LandingPage = () => {
   const { darkMode, toggleDarkMode } = useAppContext();
   const [showExtensionModal, setShowExtensionModal] = useState(false);
+  const [heroSearch, setHeroSearch] = useState("");
   const containerRef = useRef(null);
   const { scrollYProgress } = useScroll();
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
+
+  const heroSearchResults = heroSearch.trim()
+    ? ALL_TOOLS.filter(t =>
+        t.title.toLowerCase().includes(heroSearch.toLowerCase()) ||
+        t.tagline.toLowerCase().includes(heroSearch.toLowerCase()) ||
+        t.slug.toLowerCase().includes(heroSearch.toLowerCase())
+      ).slice(0, 5)
+    : [];
   
   useEffect(() => {
     // Only initialize smooth scrolling on desktop devices with fine pointer
@@ -112,7 +122,7 @@ const LandingPage = () => {
 
       <nav className="fixed top-3 sm:top-5 left-1/2 -translate-x-1/2 z-50 px-3 sm:px-6 py-2 sm:py-2.5 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800/60 rounded-full shadow-lg flex items-center gap-2 sm:gap-6 max-w-[96vw] overflow-x-auto no-scrollbar">
         <Link to="/" className="flex items-center gap-1.5 sm:gap-2 shrink-0 group">
-          <img src="/logo.png" alt="Stiknex Logo" width="28" height="28" loading="eager" fetchpriority="high" decoding="async" className="w-6 h-6 sm:w-7 sm:h-7 object-contain group-hover:scale-105 transition-transform" />
+          <img src="/logo.png" alt="Stiknex Logo" width="28" height="28" loading="eager" fetchPriority="high" decoding="async" className="w-6 h-6 sm:w-7 sm:h-7 object-contain group-hover:scale-105 transition-transform" />
           <span className="font-black text-sm sm:text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-600">Stiknex</span>
         </Link>
         <div className="flex items-center gap-1 sm:gap-4 shrink-0 text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300">
@@ -120,6 +130,7 @@ const LandingPage = () => {
           <Link to="/online-notebook" className="px-2 py-1 rounded-lg hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors whitespace-nowrap">Notepad</Link>
           <Link to="/whiteboard" className="px-2 py-1 rounded-lg hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors whitespace-nowrap">Whiteboard</Link>
           <Link to="/tools" className="px-2 py-1 rounded-lg hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors whitespace-nowrap">Tools</Link>
+          <Link to="/typing-lab" className="px-2 py-1 rounded-lg hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors whitespace-nowrap">Typing Lab</Link>
           <Link to="/blog" className="px-2 py-1 rounded-lg hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors whitespace-nowrap">Blog</Link>
           <Link to="/about" className="px-2 py-1 rounded-lg hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors whitespace-nowrap">About</Link>
           <button 
@@ -166,9 +177,41 @@ const LandingPage = () => {
             <Link to="/sticky-notes" className="group px-8 py-4 bg-indigo-600 text-white rounded-full text-lg font-semibold shadow-xl shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:bg-indigo-700 transition-all flex items-center gap-2">
               Start Brainstorming <ArrowRight className="group-hover:translate-x-1 transition-transform" />
             </Link>
-            <a href="#features" className="px-8 py-4 bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-full text-lg font-semibold shadow-sm hover:shadow-md transition-all">
-              Explore Features
-            </a>
+            <Link to="/tools" className="px-8 py-4 bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-full text-lg font-semibold shadow-sm hover:shadow-md transition-all">
+              Browse 200+ Tools
+            </Link>
+          </div>
+
+          {/* Interactive Tool Search Bar */}
+          <div className="w-full max-w-xl mx-auto mt-8 relative text-left">
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-indigo-500" />
+              <input
+                type="text"
+                value={heroSearch}
+                onChange={(e) => setHeroSearch(e.target.value)}
+                placeholder="What do you want to do today? (e.g. EMI, typing, PDF, JSON, UUID)..."
+                className="w-full pl-12 pr-4 py-3.5 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-indigo-200 dark:border-indigo-900/50 rounded-2xl shadow-xl shadow-indigo-500/10 focus:outline-none focus:border-indigo-500 text-slate-900 dark:text-white text-sm"
+              />
+            </div>
+
+            {heroSearchResults.length > 0 && (
+              <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl p-2 z-50 divide-y divide-slate-100 dark:divide-slate-800">
+                {heroSearchResults.map((t) => (
+                  <Link
+                    key={t.slug}
+                    to={`/${t.slug}`}
+                    className="flex items-center justify-between p-3 hover:bg-slate-50 dark:hover:bg-slate-800/60 rounded-xl transition group"
+                  >
+                    <div>
+                      <span className="font-bold text-sm text-slate-900 dark:text-white group-hover:text-indigo-600 block">{t.title}</span>
+                      <span className="text-xs text-slate-500 line-clamp-1">{t.tagline}</span>
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-indigo-600 group-hover:translate-x-1 transition-transform shrink-0" />
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-4 mt-6">
@@ -344,25 +387,101 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* Flagship Stiknex Typing Lab Showcase Section */}
+      <section className="py-16 px-6 relative z-10 max-w-7xl mx-auto">
+        <div className="rounded-3xl bg-gradient-to-br from-indigo-950 via-slate-900 to-purple-950 border border-indigo-500/30 p-8 sm:p-12 shadow-2xl relative overflow-hidden">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+            <div className="space-y-6">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/20 text-indigo-300 font-bold text-xs uppercase tracking-wider border border-indigo-500/30">
+                <Zap size={14} className="text-amber-400" /> Flagship Release
+              </div>
+              <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
+                Master Touch Typing & Speed in the <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-pink-400">Typing Lab</span>
+              </h2>
+              <p className="text-slate-300 text-base sm:text-lg leading-relaxed">
+                Boost your typing speed with instant 15s, 30s, 60s, and 120s WPM benchmark tests, structured touch typing syllabus lessons, developer code syntax challenges, and 6 original arcade typing games.
+              </p>
+              <div className="flex flex-wrap gap-4 pt-2">
+                <Link
+                  to="/typing-lab"
+                  className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-bold text-sm shadow-xl shadow-indigo-600/30 transition-all flex items-center gap-2"
+                >
+                  Launch Typing Lab <ArrowRight size={16} />
+                </Link>
+                <Link
+                  to="/typing-speed-test"
+                  className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-2xl font-semibold text-sm transition-all"
+                >
+                  Quick 60s WPM Test
+                </Link>
+              </div>
+            </div>
+
+            <div className="bg-slate-950/80 border border-white/10 rounded-2xl p-6 font-mono space-y-4">
+              <div className="flex justify-between items-center text-xs text-slate-400 border-b border-white/10 pb-3">
+                <span className="flex items-center gap-1.5"><Zap className="w-4 h-4 text-amber-400" /> Live Benchmark</span>
+                <span className="text-emerald-400 font-bold">100% Free & Local</span>
+              </div>
+              <div className="grid grid-cols-3 gap-3 text-center">
+                <div className="bg-slate-900 p-3 rounded-xl border border-white/5">
+                  <span className="text-[10px] text-slate-400 uppercase">Speed</span>
+                  <div className="text-2xl font-bold text-indigo-400 mt-1">84 WPM</div>
+                </div>
+                <div className="bg-slate-900 p-3 rounded-xl border border-white/5">
+                  <span className="text-[10px] text-slate-400 uppercase">Accuracy</span>
+                  <div className="text-2xl font-bold text-emerald-400 mt-1">98.5%</div>
+                </div>
+                <div className="bg-slate-900 p-3 rounded-xl border border-white/5">
+                  <span className="text-[10px] text-slate-400 uppercase">Lessons</span>
+                  <div className="text-2xl font-bold text-amber-400 mt-1">20+ Levels</div>
+                </div>
+              </div>
+              <div className="p-3 bg-slate-900/50 rounded-xl text-xs text-slate-400 leading-relaxed">
+                "Practice every single day to dramatically boost your typing speed and computer fluency..."
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Popular Online Productivity Tools Section */}
       <section className="py-20 px-6 relative z-10 max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
           <div>
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-bold text-xs uppercase tracking-wider mb-4 border border-indigo-100 dark:border-indigo-900/50">
-              <Sparkles size={14} /> Free Utilities & Generators
+              <Sparkles size={14} /> 200+ Free Browser Utilities
             </div>
             <h2 className="text-3xl sm:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
               Essential Tools for Modern Thinkers
             </h2>
             <p className="text-slate-600 dark:text-slate-300 mt-3 text-base sm:text-lg max-w-2xl">
-              Fast, privacy-first calculators, converters, and text utilities running entirely in your browser with zero registration.
+              Fast, privacy-first calculators, converters, developer utilities, and formatters running entirely in your browser with zero server uploads.
             </p>
           </div>
           <Link
             to="/tools"
             className="inline-flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold text-sm sm:text-base hover:gap-3 transition-all self-start md:self-end"
           >
-            Explore All 15+ Tools <ArrowRight size={18} />
+            Explore All 200+ Tools <ArrowRight size={18} />
+          </Link>
+        </div>
+
+        {/* Categories Bar */}
+        <div className="flex flex-wrap gap-2 mb-8">
+          {TOOL_CATEGORIES.slice(0, 10).map((cat) => (
+            <Link
+              key={cat.id}
+              to="/tools"
+              className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 text-slate-700 dark:text-slate-300 hover:text-indigo-600 text-xs font-semibold transition border border-slate-200/60 dark:border-slate-800"
+            >
+              {cat.name}
+            </Link>
+          ))}
+          <Link
+            to="/tools"
+            className="px-3 py-1.5 rounded-xl bg-indigo-600 text-white text-xs font-bold transition shadow-sm"
+          >
+            +10 More Categories
           </Link>
         </div>
 

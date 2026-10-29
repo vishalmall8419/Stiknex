@@ -1,0 +1,176 @@
+.overlayContainer {
+  position: fixed;
+  pointer-events: none;
+  z-index: 999;
+  box-sizing: border-box;
+}
+
+.selectionBorder {
+  position: absolute;
+  inset: 0;
+  border: 2px solid #6366f1;
+  border-radius: 4px;
+  pointer-events: none;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.6);
+}
+
+.handle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: #ffffff;
+  border: 2px solid #6366f1;
+  border-radius: 50%;
+  pointer-events: auto;
+  cursor: pointer;
+  z-index: 52;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: transform 0.1s ease;
+}
+
+.handle:hover {
+  transform: scale(1.3);
+  background: #6366f1;
+}
+
+.nw {
+  top: -6px;
+  left: -6px;
+  cursor: nwse-resize;
+}
+
+.ne {
+  top: -6px;
+  right: -6px;
+  cursor: nesw-resize;
+}
+
+.se {
+  bottom: -6px;
+  right: -6px;
+  cursor: nwse-resize;
+}
+
+.sw {
+  bottom: -6px;
+  left: -6px;
+  cursor: nesw-resize;
+}
+
+.actionToolbar {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 999px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  pointer-events: auto;
+  z-index: 60;
+  white-space: nowrap;
+  max-width: 95vw;
+  box-sizing: border-box;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.actionToolbar::-webkit-scrollbar {
+  display: none;
+}
+
+.actionToolbarTop {
+  top: auto !important;
+  bottom: calc(100% + 10px) !important;
+}
+
+.darkActionToolbar {
+  background: rgba(30, 30, 35, 0.95);
+  border-color: rgba(255, 255, 255, 0.14);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+.toolGroup {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pillDivider {
+  width: 1px;
+  height: 16px;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.darkActionToolbar .pillDivider {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.pillBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: #374151;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.darkActionToolbar .pillBtn {
+  color: #d1d5db;
+}
+
+.pillBtn:hover {
+  background: rgba(0, 0, 0, 0.08);
+  color: #111827;
+}
+
+.darkActionToolbar .pillBtn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.pillBtnText {
+  padding: 2px 7px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: #f9fafb;
+  color: #374151;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.darkActionToolbar .pillBtnText {
+  background: #27272a;
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #d1d5db;
+}
+
+.pillBtnText:hover {
+  background: #6366f1;
+  color: #ffffff;
+  border-color: #6366f1;
+}
+
+.deleteBtn:hover {
+  background: #fee2e2 !important;
+  color: #dc2626 !important;
+}
+
+.darkActionToolbar .deleteBtn:hover {
+  background: rgba(220, 38, 38, 0.25) !important;
+  color: #f87171 !important;
+}
+

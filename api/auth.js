@@ -3,6 +3,7 @@ import Admin from './_models/Admin.js';
 import speakeasy from 'speakeasy';
 import QRCode from 'qrcode';
 import jwt from 'jsonwebtoken';
+import handleNotebookSync from './_utils/notebookSyncHandler.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_stiknex_super_secret_key_2026';
 const MAX_LOGIN_ATTEMPTS = 5;
@@ -17,7 +18,28 @@ export default async function handler(req, res) {
         return res.status(200).end();
     }
 
+    // Robust query parsing across Vercel, Express, and Vite
+    let urlParams = {};
+    try {
+        const parsedUrl = new URL(req.url || '', 'http://localhost');
+        urlParams = Object.fromEntries(parsedUrl.searchParams);
+    } catch {}
+
+    req.query = {
+        ...urlParams,
+        ...(req.query || {})
+    };
+
     const action = req.query.action || (req.url?.includes('setup-2fa') ? 'setup-2fa' : 'login');
+
+    if (action.startsWith('notebook-')) {
+        return handleNotebookSync(req, res);
+    }
+
+    if (action.startsWith('google-calendar-')) {
+        const { handleGoogleCalendarAction } = await import('./_utils/googleCalendar.js');
+        return handleGoogleCalendarAction(action, req, res);
+    }
 
     if (action === 'setup-2fa') {
         return handleSetup2FA(req, res);
@@ -158,4 +180,3 @@ async function handleLogin(req, res) {
         return res.status(500).json({ success: false, message: 'Server error' });
     }
 }
-

@@ -16,6 +16,7 @@ import Messages from "./Messages";
 import SiteSettings from "./SiteSettings";
 import ExternalProjects from "./ExternalProjects";
 import ReviewManager from "./ReviewManager";
+import GoogleCalendar from "./GoogleCalendar";
 
 const AdminLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -153,6 +154,7 @@ const AdminLayout = () => {
               <Route path="orders" element={<ReviewManager />} />
               <Route path="settings" element={<SiteSettings />} />
               <Route path="external" element={<ExternalProjects />} />
+              <Route path="calendar" element={<GoogleCalendar />} />
               <Route path="*" element={<DashBoard />} />
             </Routes>
           </Suspense>

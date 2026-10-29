@@ -17,6 +17,8 @@ const AppShell = ({ children, hideNav = false, hideFooter = false, fullWidth = f
     { name: "Tools", path: "/tools", icon: "fa-solid fa-screwdriver-wrench" },
     { name: "Blog", path: "/blog", icon: "fa-solid fa-blog" },
   ];
+  const showFeedbackNav = pathname === "/whiteboard";
+  const openFeedback = () => window.dispatchEvent(new Event("stiknex_open_feedback"));
 
   if (hideNav) {
     return (
@@ -37,21 +39,21 @@ const AppShell = ({ children, hideNav = false, hideFooter = false, fullWidth = f
             {/* Logo and Desktop Nav */}
             <div className="flex items-center gap-8">
               <Link to="/" className="flex items-center gap-2 group">
-                <img src="/logo.png" alt="Stiknex Logo" width="40" height="40" loading="eager" fetchpriority="high" decoding="async" className="w-8 h-8 sm:w-10 sm:h-10 object-contain group-hover:scale-105 transition-transform drop-shadow-sm" />
+                <img src="/logo.png" alt="Stiknex Logo" width="40" height="40" loading="eager" fetchPriority="high" decoding="async" className="w-8 h-8 sm:w-10 sm:h-10 object-contain group-hover:scale-105 transition-transform drop-shadow-sm" />
                 <span className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-linear-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400 hidden sm:block">
                   Stiknex
                 </span>
               </Link>
 
               {/* Desktop Links */}
-              <div className="hidden md:flex items-center space-x-1">
+              <div className="hidden md:flex items-center space-x-1 whitespace-nowrap">
                 {navItems.map((item) => {
                   const isActive = pathname === item.path;
                   return (
                     <Link
                       key={item.path}
                       to={item.path}
-                      className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
+                      className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 whitespace-nowrap shrink-0 ${
                         isActive
                           ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400"
                           : "text-slate-600 hover:bg-gray-100 dark:text-slate-400 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-200"
@@ -67,19 +69,18 @@ const AppShell = ({ children, hideNav = false, hideFooter = false, fullWidth = f
 
             {/* Desktop Actions */}
             <div className="hidden md:flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setShowExtensionModal(true)}
-                className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/60 dark:text-indigo-300 border border-indigo-200/80 dark:border-indigo-800/80 transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
-                title="Add Stiknex Chrome Extension"
-              >
-                <i className="fa-brands fa-chrome text-[#4285F4]"></i>
-                <span>Add to Chrome</span>
-              </button>
-
               <Link to="/buy-me-a-coffee" className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 transition-colors flex items-center gap-2">
                 <i className="fa-solid fa-mug-hot"></i> Support
               </Link>
+              {showFeedbackNav && (
+                <button
+                  type="button"
+                  onClick={openFeedback}
+                  className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 transition-colors flex items-center gap-2"
+                >
+                  <i className="fa-solid fa-message"></i> Feedback
+                </button>
+              )}
               <Link to="/about" className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors">
                 About
               </Link>
@@ -150,21 +151,21 @@ const AppShell = ({ children, hideNav = false, hideFooter = false, fullWidth = f
                 
                 <div className="h-px bg-gray-100 dark:bg-slate-800 my-4"></div>
                 
-                <button 
-                  type="button"
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    setShowExtensionModal(true);
-                  }}
-                  className="w-full flex items-center gap-4 px-4 py-3 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 rounded-xl transition-all cursor-pointer text-left"
-                >
-                  <i className="fa-brands fa-chrome w-5 text-center text-[#4285F4]"></i>
-                  <span className="font-semibold text-sm">Add to Chrome</span>
-                </button>
-
                 <Link to="/buy-me-a-coffee" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-4 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 rounded-xl transition-all dark:text-slate-400 dark:hover:text-indigo-400 hover:pl-5">
                   <i className="fa-solid fa-mug-hot w-5 text-center"></i> Support
                 </Link>
+                {showFeedbackNav && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      openFeedback();
+                    }}
+                    className="w-full flex items-center gap-4 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 dark:text-slate-400 dark:hover:text-indigo-400 dark:hover:bg-indigo-500/10 rounded-xl transition-all text-left"
+                  >
+                    <i className="fa-solid fa-message w-5 text-center"></i> Feedback
+                  </button>
+                )}
                 <Link to="/about" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-4 px-4 py-3 text-slate-600 hover:bg-gray-50 rounded-xl transition-all dark:text-slate-400 dark:hover:bg-slate-800/50 hover:pl-5">
                   <i className="fa-solid fa-circle-info w-5 text-center"></i> About
                 </Link>
@@ -284,5 +285,3 @@ const AppShell = ({ children, hideNav = false, hideFooter = false, fullWidth = f
 };
 
 export default AppShell;
-
-

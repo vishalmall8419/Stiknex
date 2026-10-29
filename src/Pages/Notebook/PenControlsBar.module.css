@@ -1,0 +1,232 @@
+.penBar {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 999px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.06);
+  animation: slideUp 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 15px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.darkPenBar {
+  background: rgba(30, 30, 35, 0.95);
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
+}
+
+.toolGroup {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.divider {
+  width: 1px;
+  height: 20px;
+  background: rgba(0, 0, 0, 0.12);
+  margin: 0 4px;
+}
+
+.darkPenBar .divider {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.toolBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #374151;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.darkPenBar .toolBtn {
+  color: #d1d5db;
+}
+
+.toolBtn:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.darkPenBar .toolBtn:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.activeToolBtn {
+  background: #ede9fe !important;
+  color: #6366f1 !important;
+  border-color: #c7d2fe !important;
+  font-weight: 600;
+}
+
+.darkPenBar .activeToolBtn {
+  background: rgba(99, 102, 241, 0.25) !important;
+  color: #a5b4fc !important;
+  border-color: rgba(99, 102, 241, 0.5) !important;
+}
+
+.btnLabel {
+  font-size: 12px;
+}
+
+.colorGroup {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.colorDot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.12s ease;
+}
+
+.colorDot:hover {
+  transform: scale(1.2);
+}
+
+.activeColorDot {
+  border-color: #6366f1 !important;
+  transform: scale(1.15);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.35);
+}
+
+.widthGroup {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.widthBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+}
+
+.widthBtn:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.darkPenBar .widthBtn:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.activeWidthBtn {
+  background: rgba(99, 102, 241, 0.15) !important;
+  border-color: #a5b4fc !important;
+}
+
+.widthIndicator {
+  border-radius: 50%;
+  display: block;
+}
+
+.clearBtn {
+  color: #ef4444 !important;
+}
+
+.clearBtn:hover {
+  background: #fee2e2 !important;
+}
+
+.darkPenBar .clearBtn:hover {
+  background: rgba(239, 68, 68, 0.2) !important;
+}
+
+.doneBtn {
+  background: #16a34a !important;
+  color: #ffffff !important;
+}
+
+.doneBtn:hover {
+  background: #15803d !important;
+}
+
+@media (max-width: 640px) {
+  .penBar {
+    bottom: 1rem;
+    padding: 4px 8px;
+    gap: 4px;
+    max-width: 96vw;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    box-sizing: border-box;
+  }
+
+  .penBar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .btnLabel {
+    display: none !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .penBar {
+    bottom: 0.75rem;
+    padding: 3px 6px;
+    gap: 3px;
+  }
+
+  .toolBtn {
+    height: 28px;
+    padding: 0 6px;
+    font-size: 12px;
+  }
+
+  .colorDot {
+    width: 17px;
+    height: 17px;
+  }
+
+  .widthBtn {
+    width: 24px;
+    height: 24px;
+  }
+
+  .divider {
+    height: 16px;
+    margin: 0 2px;
+  }
+}
+

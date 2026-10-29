@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import swal from "sweetalert";
@@ -43,12 +43,8 @@ const UNICODE_CATEGORIES = [
   },
 ];
 
-// Current Time ΓÇö 12h / 24h format preference, persisted the same
-// way other Notebook prefs are (a plain localStorage key).
 const CLOCK_FORMAT_KEY = "notebookClockFormat";
 
-// No saved preference yet ΓåÆ default to whatever format the user's
-// own browser/locale normally uses for the time.
 const getSystemClockFormat = () => {
   try {
     const { hour12 } = new Intl.DateTimeFormat(undefined, {
@@ -64,15 +60,10 @@ const loadClockFormat = () => {
   try {
     const saved = localStorage.getItem(CLOCK_FORMAT_KEY);
     if (saved === "12" || saved === "24") return saved;
-  } catch {
-    /* localStorage unavailable ΓÇö fall back to system default */
-  }
+  } catch {}
   return getSystemClockFormat();
 };
 
-// `extraRefs` lets a portaled overlay (rendered outside `ref`'s DOM
-// subtree, e.g. via createPortal to document.body) still count as
-// "inside" for outside-click detection.
 const useClickOutside = (onOutside, extraRefs = []) => {
   const ref = useRef(null);
   useEffect(() => {
@@ -85,25 +76,15 @@ const useClickOutside = (onOutside, extraRefs = []) => {
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onOutside, ...extraRefs]);
   return ref;
 };
 
-// The topbar scrolls horizontally (overflow-x: auto), which per the
-// CSS spec forces overflow-y to compute to `auto` as well ΓÇö so any
-// dropdown/popover/tooltip rendered *inside* the topbar gets clipped
-// by that scroll container, even though it's only meant to scroll
-// sideways. This hook tracks a trigger element's live viewport rect
-// so its overlay can instead be rendered in a portal (outside the
-// clipping container) and positioned to match exactly where it would
-// have appeared, updating as the topbar/page scrolls or resizes.
 const useAnchoredRect = (ref, isOpen) => {
   const [rect, setRect] = useState(null);
 
   useEffect(() => {
     if (!isOpen) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setRect(null);
       return undefined;
     }
@@ -113,8 +94,6 @@ const useAnchoredRect = (ref, isOpen) => {
     };
 
     update();
-    // capture: true so this also catches scroll events from the
-    // topbar's own internal horizontal scroll container.
     window.addEventListener("scroll", update, true);
     window.addEventListener("resize", update);
     return () => {
@@ -138,73 +117,161 @@ const formatElapsed = (ms) => {
 const formatClock = (date, format) => {
   const pad = (n) => String(n).padStart(2, "0");
   if (format === "12") {
-    const hours24 = date.getHours();
-    const hours12 = hours24 % 12 === 0 ? 12 : hours24 % 12;
-    const suffix = hours24 >= 12 ? "PM" : "AM";
-    return `${pad(hours12)}:${pad(date.getMinutes())}:${pad(date.getSeconds())} ${suffix}`;
+    let hours = date.getHours();
+    const ampm = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12 || 12;
+    return `${pad(hours)}:${pad(date.getMinutes())}:${pad(date.getSeconds())} ${ampm}`;
   }
   return `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
 };
 
 const NotebookTopbar = ({
   darkMode,
-
+  altKeyActive = false,
+  onToggleSettings,
+  settingsOpen,
+  autoHideNavbar,
+  onToggleAutoHideNavbar,
+  musicOn,
+  setMusicOn,
+  isReading: propIsReading,
+  onReadAloud,
   title,
+  setTitle,
   onTitleChange,
   onDelete,
   onDownload,
   onCopy,
-  copied,
   onShare,
-  settingsOpen,
-  onToggleSettings,
   onToggleZenMode,
   wordCount,
   charCount,
+  saveState = "saved",
   text,
   setText,
   textareaRef,
-  notebooks,
+  notebooks = [],
   activeNotebookId,
   onNewNotebook,
   onSwitchNotebook,
   onDeleteNotebook,
+  onOpenVirtualKeyboard,
   searchOpen,
   onToggleSearch,
   searchQuery,
   onSearchQueryChange,
-  searchMatches,
-  searchMatchIndex,
+  searchMatches = [],
+  searchMatchIndex = 0,
   onSearchNext,
   onSearchPrev,
   onSearchClose,
+  onUndo,
+  onRedo,
+  canUndo = false,
+  canRedo = false,
+  timerRunning: propTimerRunning,
+  elapsedMs: propElapsedMs,
+  onToggleTimer: propToggleTimer,
+  onResetTimer: propResetTimer,
+  snapshots: propSnapshots,
+  onTakeSnapshot: propTakeSnapshot,
+  onRestoreSnapshot: propRestoreSnapshot,
+  onDeleteSnapshot: propDeleteSnapshot,
+  onDeleteAllSnapshots: propDeleteAllSnapshots,
+  onInsertUnicode: propInsertUnicode,
+  onSaveNow,
+  onOpenSyncModal,
+  onDismissAltKeytips,
+  syncStatus = "idle",
+  moreMenuOpen: propMoreMenuOpen,
+  onToggleMoreMenu,
+  drawerOpen: propDrawerOpen,
+  onToggleDrawer,
 }) => {
-  const [titleMenuOpen, setTitleMenuOpen] = useState(false);
-  const [notebookListOpen, setNotebookListOpen] = useState(false);
   const [renaming, setRenaming] = useState(false);
-  const [draftTitle, setDraftTitle] = useState(title);
-  const [shortcutsOpen, setShortcutsOpen] = useState(false);
-  const [musicOn, setMusicOn] = useState(false);
-  const focusSoundRef = useRef(null);
+  const [draftTitle, setDraftTitle] = useState(title || "");
+  const [copied, setCopied] = useState(false);
 
-  // Timer (was: live clock popover)
+  // Sliding Drawer for all notebooks
+  const [internalDrawerOpen, setInternalDrawerOpen] = useState(false);
+  const drawerOpen = propDrawerOpen !== undefined ? propDrawerOpen : internalDrawerOpen;
+  const setDrawerOpen = (updater) => {
+    const next = typeof updater === "function" ? updater(drawerOpen) : updater;
+    if (onToggleDrawer) onToggleDrawer(next);
+    setInternalDrawerOpen(next);
+  };
+  const [drawerSearch, setDrawerSearch] = useState("");
+
+  // More Options Menu (...)
+  const [internalMoreMenuOpen, setInternalMoreMenuOpen] = useState(false);
+  const moreMenuOpen = propMoreMenuOpen !== undefined ? propMoreMenuOpen : internalMoreMenuOpen;
+  const showTopbarKeytips = altKeyActive && !moreMenuOpen;
+  const setMoreMenuOpen = (updater) => {
+    const next = typeof updater === "function" ? updater(moreMenuOpen) : updater;
+    if (onToggleMoreMenu) onToggleMoreMenu(next);
+    setInternalMoreMenuOpen(next);
+  };
+  const moreBtnRef = useRef(null);
+  const moreMenuPortalRef = useRef(null);
+  const moreMenuRef = useClickOutside(() => setMoreMenuOpen(false), [moreMenuPortalRef]);
+  const moreMenuRect = useAnchoredRect(moreBtnRef, moreMenuOpen);
+
+  // Fallback states for Timer
+  const [internalTimerRunning, setInternalTimerRunning] = useState(false);
+  const [internalElapsedMs, setInternalElapsedMs] = useState(0);
   const [timerOpen, setTimerOpen] = useState(false);
-  const [timerRunning, setTimerRunning] = useState(false);
-  const [elapsedMs, setElapsedMs] = useState(0);
-  const timerStartRef = useRef(null);
 
-  // Current Time ΓÇö a separate, always-ticking compact digital clock.
-  // Independent of the Timer above; never replaces it.
+  const timerRunning = propTimerRunning !== undefined ? propTimerRunning : internalTimerRunning;
+  const elapsedMs = propElapsedMs !== undefined ? propElapsedMs : internalElapsedMs;
+
+  const handleToggleTimer = () => {
+    if (propToggleTimer) propToggleTimer();
+    else setInternalTimerRunning((v) => !v);
+  };
+
+  const handleResetTimer = () => {
+    if (propResetTimer) propResetTimer();
+    else {
+      setInternalTimerRunning(false);
+      setInternalElapsedMs(0);
+    }
+  };
+
+  useEffect(() => {
+    if (propTimerRunning !== undefined) return undefined;
+    if (!internalTimerRunning) return undefined;
+    const t = setInterval(() => {
+      setInternalElapsedMs((ms) => ms + 1000);
+    }, 1000);
+    return () => clearInterval(t);
+  }, [internalTimerRunning, propTimerRunning]);
+
+  // Current Time Clock
   const [now, setNow] = useState(() => new Date());
   const [clockFormat, setClockFormat] = useState(loadClockFormat);
   const [clockMenuOpen, setClockMenuOpen] = useState(false);
 
+  useEffect(() => {
+    const t = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(CLOCK_FORMAT_KEY, clockFormat);
+    } catch {}
+  }, [clockFormat]);
+
+  // Snapshots
   const [snapshotsOpen, setSnapshotsOpen] = useState(false);
-  const [snapshots, setSnapshots] = useState(() => JSON.parse(localStorage.getItem("stiknexSnapshots") || "[]"));
+  const [internalSnapshots, setInternalSnapshots] = useState(() =>
+    JSON.parse(localStorage.getItem("stiknexSnapshots") || "[]")
+  );
+  const snapshots = propSnapshots !== undefined ? propSnapshots : internalSnapshots;
   const [snapshotsSearch, setSnapshotsSearch] = useState("");
-  const snapshotsBtnRef = useRef(null);
   const snapshotsPortalRef = useRef(null);
 
+  // Special Characters / Emojis
   const [unicodeOpen, setUnicodeOpen] = useState(false);
   const [unicodeCategory, setUnicodeCategory] = useState("popular");
   const unicodeBtnRef = useRef(null);
@@ -223,58 +290,196 @@ const NotebookTopbar = ({
         try {
           ta.focus();
           ta.setSelectionRange(newCursor, newCursor);
-        } catch {
-          // ignore
-        }
+        } catch {}
       }, 0);
     } else {
       setText((prev) => (prev || "") + char);
     }
   };
 
-  // Read aloud
-  const [isReading, setIsReading] = useState(false);
+  // Read aloud TTS
+  const [internalIsReading, setInternalIsReading] = useState(false);
+  const isReading = propIsReading !== undefined ? propIsReading : internalIsReading;
 
-  // Refs on the portaled overlay content itself, so outside-click
-  // detection still treats clicks inside the (now portaled) menu /
-  // popovers as "inside" even though they're no longer DOM
-  // descendants of the trigger wrapper.
-  const titleMenuPortalRef = useRef(null);
+  const handleReadAloud = useCallback(() => {
+    if (!("speechSynthesis" in window)) {
+      swal({
+        title: "Not supported",
+        text: "Your browser doesn't support Read Aloud.",
+        icon: "warning",
+      });
+      return;
+    }
+    if (isReading) {
+      window.speechSynthesis.cancel();
+      setInternalIsReading(false);
+      return;
+    }
+    if (!text || !text.trim()) {
+      swal({
+        title: "Nothing to read",
+        text: "Your notebook is empty.",
+        icon: "info",
+      });
+      return;
+    }
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.onend = () => setInternalIsReading(false);
+    utterance.onerror = () => setInternalIsReading(false);
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(utterance);
+    setInternalIsReading(true);
+  }, [isReading, text]);
+
+  const triggerReadAloud = () => {
+    if (onReadAloud) onReadAloud();
+    else handleReadAloud();
+  };
+
+  // Full Keyboard Navigation for More Options Menu (...)
+  useEffect(() => {
+    if (!moreMenuOpen) return;
+
+    // Auto-focus first menu item when menu opens
+    const timer = setTimeout(() => {
+      const firstItem = moreMenuPortalRef.current?.querySelector("button");
+      if (firstItem) firstItem.focus();
+    }, 40);
+
+    const handleMenuKeyDown = (e) => {
+      if (!moreMenuPortalRef.current) return;
+      const items = Array.from(
+        moreMenuPortalRef.current.querySelectorAll("button")
+      );
+      if (items.length === 0) return;
+
+      const currentIndex = items.indexOf(document.activeElement);
+
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        const nextIndex = (currentIndex + 1) % items.length;
+        items[nextIndex].focus();
+        return;
+      }
+
+      if (e.key === "ArrowUp") {
+        e.preventDefault();
+        const prevIndex = (currentIndex - 1 + items.length) % items.length;
+        items[prevIndex].focus();
+        return;
+      }
+
+      if (e.key === "Escape") {
+        e.preventDefault();
+        setMoreMenuOpen(false);
+        moreBtnRef.current?.focus();
+        return;
+      }
+
+      if (e.key === "Tab") {
+        e.preventDefault();
+        const nextIndex = e.shiftKey
+          ? (currentIndex - 1 + items.length) % items.length
+          : (currentIndex + 1) % items.length;
+        items[nextIndex].focus();
+        return;
+      }
+
+      // Single-letter hotkeys inside open menu
+      const letter = e.key.toLowerCase();
+      const hotkeyMap = {
+        q: () => { setMoreMenuOpen(false); onOpenSyncModal && onOpenSyncModal(); },
+        f: () => { setMoreMenuOpen(false); onToggleSearch && onToggleSearch(); },
+        d: () => { setMoreMenuOpen(false); onDownload && onDownload(); },
+        c: () => { setMoreMenuOpen(false); onCopy && onCopy(); setCopied(true); setTimeout(() => setCopied(false), 1500); },
+        h: () => { setMoreMenuOpen(false); setSnapshotsOpen(true); },
+        s: () => { setMoreMenuOpen(false); onShare && onShare(); },
+        x: () => { setMoreMenuOpen(false); onDelete && onDelete(); },
+        p: () => { setMoreMenuOpen(false); onToggleAutoHideNavbar && onToggleAutoHideNavbar(); },
+        z: () => { setMoreMenuOpen(false); onToggleZenMode && onToggleZenMode(); },
+        e: () => { setMoreMenuOpen(false); setUnicodeOpen(true); },
+        k: () => { setMoreMenuOpen(false); onOpenVirtualKeyboard && onOpenVirtualKeyboard(); },
+        "/": () => { setMoreMenuOpen(false); setShortcutsOpen(true); },
+        "?": () => { setMoreMenuOpen(false); setShortcutsOpen(true); },
+        t: () => { setMoreMenuOpen(false); setTimerOpen(true); },
+        o: () => { setMoreMenuOpen(false); setClockMenuOpen(true); },
+        m: () => {
+          setMoreMenuOpen(false);
+          if (onDismissAltKeytips) onDismissAltKeytips();
+          if (!musicOn && !(window.AudioContext || window.webkitAudioContext)) {
+            swal({ title: "Not supported", text: "Your browser doesn't support Focus Sound.", icon: "warning" });
+            return;
+          }
+          setMusicOn((v) => !v);
+        },
+        r: () => { setMoreMenuOpen(false); triggerReadAloud(); },
+      };
+
+      if (hotkeyMap[letter]) {
+        e.preventDefault();
+        hotkeyMap[letter]();
+        if (letter !== "m" && onDismissAltKeytips) onDismissAltKeytips();
+      }
+    };
+
+    window.addEventListener("keydown", handleMenuKeyDown);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("keydown", handleMenuKeyDown);
+    };
+  }, [
+    moreMenuOpen,
+    onOpenSyncModal,
+    onToggleSearch,
+    onDownload,
+    onCopy,
+    onShare,
+    onDelete,
+    onToggleAutoHideNavbar,
+    onToggleZenMode,
+    onOpenVirtualKeyboard,
+    onDismissAltKeytips,
+    musicOn,
+    setMusicOn,
+    triggerReadAloud,
+  ]);
+
+  // Full Keyboard Navigation for Sliding Drawer
+  useEffect(() => {
+    if (!drawerOpen) return;
+    const handleDrawerKeyDown = (e) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        setDrawerOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleDrawerKeyDown);
+    return () => window.removeEventListener("keydown", handleDrawerKeyDown);
+  }, [drawerOpen]);
+
+  // Keyboard shortcuts popup
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const shortcutsPortalRef = useRef(null);
+
+  // Outside click & portal tracking
   const timerPortalRef = useRef(null);
   const clockPortalRef = useRef(null);
   const searchPortalRef = useRef(null);
-  const shortcutsPortalRef = useRef(null);
 
-  const titleMenuRef = useClickOutside(() => {
-    setTitleMenuOpen(false);
-    setNotebookListOpen(false);
-  }, [titleMenuPortalRef]);
   const timerRef = useClickOutside(() => setTimerOpen(false), [timerPortalRef]);
   const clockRef = useClickOutside(() => setClockMenuOpen(false), [clockPortalRef]);
-  const shortcutsRef = useClickOutside(
-    () => setShortcutsOpen(false),
-    [shortcutsPortalRef],
-  );
-  const searchRef = useClickOutside(() => onSearchClose(), [searchPortalRef]);
-  const snapshotsRef = useClickOutside(() => setSnapshotsOpen(false), [snapshotsPortalRef]);
+  const shortcutsRef = useClickOutside(() => setShortcutsOpen(false), [shortcutsPortalRef]);
+  const searchRef = useClickOutside(() => onSearchClose && onSearchClose(), [searchPortalRef]);
   const unicodeRef = useClickOutside(() => setUnicodeOpen(false), [unicodePortalRef]);
 
-  // Live viewport rects for each trigger, used to position the
-  // portaled overlays so they land exactly where the old in-flow
-  // absolutely-positioned versions used to.
-  const titleMenuRect = useAnchoredRect(titleMenuRef, titleMenuOpen);
   const timerRect = useAnchoredRect(timerRef, timerOpen);
   const clockRect = useAnchoredRect(clockRef, clockMenuOpen);
   const searchRect = useAnchoredRect(searchRef, searchOpen);
   const shortcutsRect = useAnchoredRect(shortcutsRef, shortcutsOpen);
-  useAnchoredRect(snapshotsBtnRef, snapshotsOpen);
   const unicodeRect = useAnchoredRect(unicodeBtnRef, unicodeOpen);
 
-  // Tooltips were pure-CSS (::after on hover), which meant they were
-  // clipped by the same topbar scroll container. They're now driven
-  // from JS (delegated hover/focus on the topbar) and rendered in a
-  // portal, positioned from the hovered trigger's live rect.
-  const [tooltip, setTooltip] = useState(null); // { text, rect }
+  // Tooltips
+  const [tooltip, setTooltip] = useState(null);
   const tooltipElRef = useRef(null);
 
   const showTooltipFor = (el) => {
@@ -301,850 +506,1090 @@ const NotebookTopbar = ({
   };
   const handleTopbarBlur = () => hideTooltip();
 
-  useEffect(() => {
-    if (!tooltip) return undefined;
-    const update = () => {
-      if (tooltipElRef.current) {
-        setTooltip((t) => t && { ...t, rect: tooltipElRef.current.getBoundingClientRect() });
-      }
-    };
-    window.addEventListener("scroll", update, true);
-    window.addEventListener("resize", update);
-    return () => {
-      window.removeEventListener("scroll", update, true);
-      window.removeEventListener("resize", update);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tooltip !== null]);
-
-  useEffect(() => {
-    if (!timerRunning) return undefined;
-    timerStartRef.current = Date.now() - elapsedMs;
-    const id = setInterval(() => {
-      setElapsedMs(Date.now() - timerStartRef.current);
-    }, 250);
-    return () => clearInterval(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [timerRunning]);
-
-  useEffect(() => {
-    const id = setInterval(() => setNow(new Date()), 1000);
-    return () => clearInterval(id);
-  }, []);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(CLOCK_FORMAT_KEY, clockFormat);
-    } catch {
-      /* localStorage unavailable ΓÇö preference just won't persist */
-    }
-  }, [clockFormat]);
-
-  useEffect(() => {
-    return () => {
-      if ("speechSynthesis" in window) window.speechSynthesis.cancel();
-    };
-  }, []);
-
-  // Focus sound ΓÇö a soft, generated ambient noise bed (no external
-  // audio files needed). Starts/stops with the toolbar toggle and is
-  // always torn down on unmount so it never keeps playing in the background.
-  useEffect(() => {
-    if (!musicOn) {
-      if (focusSoundRef.current) {
-        focusSoundRef.current.stop();
-        focusSoundRef.current = null;
-      }
-      return undefined;
-    }
-
-    const AudioCtx = window.AudioContext || window.webkitAudioContext;
-    const ctx = new AudioCtx();
-    const bufferSize = 2 * ctx.sampleRate;
-    const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-    const output = noiseBuffer.getChannelData(0);
-    // Brown noise: smoother/softer than white noise, better for focus.
-    let lastOut = 0;
-    for (let i = 0; i < bufferSize; i++) {
-      const white = Math.random() * 2 - 1;
-      output[i] = (lastOut + 0.02 * white) / 1.02;
-      lastOut = output[i];
-      output[i] *= 3.5;
-    }
-
-    const source = ctx.createBufferSource();
-    source.buffer = noiseBuffer;
-    source.loop = true;
-
-    const filter = ctx.createBiquadFilter();
-    filter.type = "lowpass";
-    filter.frequency.value = 900;
-
-    const gain = ctx.createGain();
-    gain.gain.value = 0.06;
-
-    source.connect(filter);
-    filter.connect(gain);
-    gain.connect(ctx.destination);
-    source.start();
-
-    focusSoundRef.current = {
-      stop: () => {
-        try {
-          source.stop();
-        } catch {
-          /* already stopped */
-        }
-        ctx.close();
-      },
-    };
-
-    return () => {
-      if (focusSoundRef.current) {
-        focusSoundRef.current.stop();
-        focusSoundRef.current = null;
-      }
-    };
-  }, [musicOn]);
-
-  const handleReadAloud = () => {
-    if (!("speechSynthesis" in window)) {
-      swal({
-        title: "Not supported",
-        text: "Your browser doesn't support Read Aloud.",
-        icon: "warning",
-      });
-      return;
-    }
-    if (isReading) {
-      window.speechSynthesis.cancel();
-      setIsReading(false);
-      return;
-    }
-    if (!text || !text.trim()) {
-      swal({
-        title: "Nothing to read",
-        text: "Your notebook is empty.",
-        icon: "info",
-      });
-      return;
-    }
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.onend = () => setIsReading(false);
-    utterance.onerror = () => setIsReading(false);
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(utterance);
-    setIsReading(true);
-  };
-
-  const toggleTimer = () => setTimerRunning((v) => !v);
-  const resetTimer = () => {
-    setTimerRunning(false);
-    setElapsedMs(0);
-  };
-
   const commitRename = () => {
-    const next = draftTitle.trim() || "Stiknex Notebook";
-    onTitleChange(next);
+    const trimmed = draftTitle.trim();
+    if (trimmed) {
+      if (setTitle) setTitle(trimmed);
+      else if (onTitleChange) onTitleChange(trimmed);
+    } else {
+      setDraftTitle(title);
+    }
     setRenaming(false);
   };
 
+  const handleQuickSave = () => {
+    if (onSaveNow) {
+      onSaveNow();
+    } else if (propTakeSnapshot) {
+      propTakeSnapshot();
+    }
+    swal({
+      title: "Saved",
+      text: "All notebook changes have been saved to local storage.",
+      icon: "success",
+      timer: 1200,
+      buttons: false,
+    });
+  };
+
+  const filteredNotebooks = notebooks.filter(
+    (nb) => !drawerSearch || (nb.title || "").toLowerCase().includes(drawerSearch.toLowerCase())
+  );
+
   return (
-    <div
+    <header
       className={Style.topbar}
       onMouseOver={handleTopbarMouseOver}
       onMouseOut={handleTopbarMouseOut}
       onFocus={handleTopbarFocus}
       onBlur={handleTopbarBlur}
     >
+      {/* ============================================================
+          LEFT SECTION (Home, Notebooks Drawer, Title + Save Subtitle)
+          ============================================================ */}
       <div className={Style.left}>
-        <Link to="/" className={Style.iconBtn} data-tip="Home" aria-label="Home" style={{ marginRight: '8px' }}>
+        {/* 1. Home Link */}
+        <Link
+          to="/"
+          className={Style.iconBtn}
+          data-tip="Back to Home"
+          aria-label="Back to Home"
+        >
           <i className="fa-solid fa-house"></i>
         </Link>
-        <Link to="/whiteboard" className={Style.iconBtn} data-tip="Whiteboard" aria-label="Whiteboard" style={{ marginRight: '8px' }}>
-          <i className="fa-solid fa-pen-nib"></i>
-        </Link>
-        <Link to="/blog" className={Style.iconBtn} data-tip="Blog" aria-label="Blog" style={{ marginRight: '8px' }}>
-          <i className="fa-solid fa-newspaper"></i>
-        </Link>
-        <Link to="/tools" className={Style.iconBtn} data-tip="Tools" aria-label="Tools" style={{ marginRight: '16px' }}>
-          <i className="fa-solid fa-toolbox"></i>
-        </Link>
-        
-        {renaming ? (
-          <input
-            autoFocus
-            className={Style.titleInput}
-            value={draftTitle}
-            onChange={(e) => setDraftTitle(e.target.value)}
-            onBlur={commitRename}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") commitRename();
-              if (e.key === "Escape") {
-                setDraftTitle(title);
-                setRenaming(false);
-              }
-            }}
-          />
-        ) : (
-          <span className={Style.title} onDoubleClick={() => setRenaming(true)}>
-            {title}
-          </span>
-        )}
 
-        <div className={Style.titleMenuWrap} ref={titleMenuRef}>
+        {/* 2. Notebooks Drawer Toggle */}
+        <button
+          type="button"
+          className={`${Style.iconBtn} ${drawerOpen ? Style.iconBtnActive : ""}`}
+          onClick={() => setDrawerOpen((v) => !v)}
+          data-tip="My Notebooks"
+          aria-label="My Notebooks"
+        >
+          <i className="fa-solid fa-book-bookmark"></i>
+          {showTopbarKeytips && <span className={Style.altKeytip}>N</span>}
+        </button>
+
+        {/* Vertical Divider */}
+        <div className={Style.navDivider} />
+
+        {/* 3. Title & Save Subtitle Stack */}
+        <div className={Style.titleStack}>
+          <div className={Style.titleRow}>
+            {renaming ? (
+              <input
+                autoFocus
+                className={Style.titleInput}
+                value={draftTitle}
+                onChange={(e) => setDraftTitle(e.target.value)}
+                onBlur={commitRename}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") commitRename();
+                  if (e.key === "Escape") {
+                    setDraftTitle(title);
+                    setRenaming(false);
+                  }
+                }}
+              />
+            ) : (
+              <span
+                className={Style.titleText}
+                onClick={() => {
+                  setDraftTitle(title);
+                  setRenaming(true);
+                }}
+                data-tip="Click to rename notebook"
+              >
+                {title || "Stiknex Notebook"}
+              </span>
+            )}
+          </div>
+
+          <div className={Style.saveSubtitle}>
+            {saveState === "saving" && (
+              <span className={Style.saveSubtitleSaving}>
+                <i className="fa-solid fa-circle-notch fa-spin"></i> Saving...
+              </span>
+            )}
+            {saveState === "saved" && (
+              <span className={Style.saveSubtitleSaved}>
+                <i className="fa-solid fa-check"></i> All changes saved
+              </span>
+            )}
+            {saveState === "off" && (
+              <span className={Style.saveSubtitleOff}>
+                Autosave off
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* ============================================================
+          RIGHT SECTION (Undo, Redo, Quick Save, More ...)
+          ============================================================ */}
+      <div className={Style.right}>
+        {/* Undo */}
+        {onUndo && (
           <button
             type="button"
             className={Style.iconBtn}
-            onClick={() => setTitleMenuOpen((v) => !v)}
-            aria-label="Notebook menu"
-            data-tip="Notebook menu"
+            data-tip="Undo (Ctrl+Z)"
+            aria-label="Undo"
+            onClick={onUndo}
+            disabled={!canUndo}
+            style={{ opacity: canUndo ? 1 : 0.4 }}
           >
-            <i className="fa-solid fa-chevron-down"></i>
+            <i className="fa-solid fa-rotate-left"></i>
           </button>
+        )}
 
-          {titleMenuOpen &&
-            titleMenuRect &&
-            createPortal(
-              <div
-                ref={titleMenuPortalRef}
-                className={Style.titleMenu}
-                style={{
-                  position: "fixed",
-                  top: titleMenuRect.bottom + 10,
-                  left: titleMenuRect.left,
-                }}
-              >
-                <button
-                  type="button"
-                  onClick={() => {
-                    setDraftTitle(title);
-                    setRenaming(true);
-                    setTitleMenuOpen(false);
-                  }}
-                >
-                  <i className="fa-solid fa-pen"></i> Rename
-                </button>
+        {/* Redo */}
+        {onRedo && (
+          <button
+            type="button"
+            className={Style.iconBtn}
+            data-tip="Redo (Ctrl+Y)"
+            aria-label="Redo"
+            onClick={onRedo}
+            disabled={!canRedo}
+            style={{ opacity: canRedo ? 1 : 0.4 }}
+          >
+            <i className="fa-solid fa-rotate-right"></i>
+          </button>
+        )}
 
-                <button
-                  type="button"
-                  onMouseEnter={onBtnEnter}
-                  onMouseLeave={onBtnLeave}
-                  onClick={() => {
-                    onNewNotebook();
-                    setTitleMenuOpen(false);
-                  }}
-                >
-                  <i className="fa-solid fa-plus"></i> New Notebook
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setNotebookListOpen((v) => !v)}
-                >
-                  <i
-                    className={`fa-solid fa-chevron-${
-                      notebookListOpen ? "up" : "down"
-                    }`}
-                  ></i>
-                  Existing Notebooks
-                </button>
-
-                {notebookListOpen && (
-                  <div className={Style.notebookList}>
-                    {notebooks.map((nb) => (
-                      <div key={nb.id} className={Style.notebookListRow}>
-                        <button
-                          type="button"
-                          className={`${Style.notebookListItem} ${
-                            nb.id === activeNotebookId
-                              ? Style.notebookListItemActive
-                              : ""
-                          }`}
-                          onClick={() => {
-                            onSwitchNotebook(nb.id);
-                            setTitleMenuOpen(false);
-                            setNotebookListOpen(false);
-                          }}
-                        >
-                          <i className="fa-solid fa-book"></i>
-                          <span>{nb.title || "Stiknex Notebook"}</span>
-                        </button>
-                        <span>
-
-                        <button
-                          type="button"
-                          className={Style.notebookDeleteBtn}
-                          data-tip="Delete Notebook"
-                          aria-label={`Delete ${nb.title || "Stiknex Notebook"}`}
-                          onClick={() => onDeleteNotebook(nb.id)}
-                          >
-                          <i className="fa-solid fa-trash-can"></i>
-                        </button>
-                          </span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                <div className={Style.titleMenuStats}>
-                  {wordCount} words ┬╖ {charCount} characters
-                </div>
-              </div>,
-              document.body,
-            )}
-        </div>
-      </div>
-
-      <div className={Style.toolGroup}>
+        {/* Quick Save */}
         <button
           type="button"
           className={Style.iconBtn}
-          data-tip="Delete"
-          onClick={onDelete}
+          data-tip="Save now (Ctrl+S)"
+          aria-label="Save now"
+          onClick={handleQuickSave}
         >
-          <i className="fa-solid fa-trash-can"></i>
+          <i className="fa-solid fa-floppy-disk"></i>
+          {showTopbarKeytips && <span className={Style.altKeytip}>Q</span>}
         </button>
 
+        {/* Cloud Sync & QR Pairing */}
         <button
           type="button"
           className={Style.iconBtn}
-          data-tip="Download"
-          onClick={onDownload}
+          data-tip={
+            syncStatus === "syncing"
+              ? "Syncing with cloud..."
+              : syncStatus === "synced"
+              ? "Cloud Synced (Encrypted / Alt+Y)"
+              : "Multi-Device Sync & QR Pairing (Alt+Y)"
+          }
+          aria-label="Cloud Sync"
+          onClick={onOpenSyncModal}
+          style={{ position: "relative" }}
         >
-          <i className="fa-solid fa-download"></i>
+          <i
+            className={`fa-solid ${
+              syncStatus === "syncing"
+                ? "fa-rotate fa-spin"
+                : syncStatus === "synced"
+                ? "fa-cloud-arrow-up"
+                : "fa-cloud"
+            }`}
+            style={{
+              color: syncStatus === "synced" ? "#22c55e" : syncStatus === "syncing" ? "#818cf8" : "inherit",
+            }}
+          ></i>
+          {showTopbarKeytips && <span className={Style.altKeytip}>Y</span>}
         </button>
 
-        <button
-          type="button"
-          className={Style.iconBtn}
-          data-tip={copied ? "Copied!" : "Copy"}
-          onClick={onCopy}
-        >
-          <i className={`fa-solid ${copied ? "fa-check" : "fa-copy"}`}></i>
-        </button>
-
+        {/* Notebook Settings Button directly on first navbar beside ... */}
         <button
           type="button"
           className={`${Style.iconBtn} ${settingsOpen ? Style.iconBtnActive : ""}`}
-          data-tip="Notebook Settings"
-          onClick={onToggleSettings}
+          data-tip="Notebook Settings (Ctrl+, / Alt+S)"
+          aria-label="Notebook Settings"
+          onClick={() => {
+            if (onToggleSettings) onToggleSettings();
+          }}
+          style={{ position: "relative" }}
         >
           <i className="fa-solid fa-sliders"></i>
+          {showTopbarKeytips && <span className={Style.altKeytip}>S</span>}
         </button>
 
-        <button
-          type="button"
-          className={`${Style.iconBtn} ${musicOn ? Style.iconBtnActive : ""}`}
-          data-tip={musicOn ? "Focus sound: on" : "Focus sound: off"}
-          onClick={() => {
-            if (!musicOn && !(window.AudioContext || window.webkitAudioContext)) {
-              swal({
-                title: "Not supported",
-                text: "Your browser doesn't support Focus Sound.",
-                icon: "warning",
-              });
-              return;
-            }
-            setMusicOn((v) => !v);
-          }}
-        >
-          <i className={`fa-solid ${musicOn ? "fa-music" : "fa-volume-xmark"}`}></i>
-        </button>
-
-        <button
-          type="button"
-          className={`${Style.iconBtn} ${isReading ? Style.iconBtnActive : ""}`}
-          data-tip={isReading ? "Stop Reading" : "Read Aloud"}
-          onClick={handleReadAloud}
-        >
-          <i className={`fa-solid ${isReading ? "fa-stop" : "fa-volume-high"}`}></i>
-        </button>
-
-        <div className={Style.popoverWrap} ref={timerRef}>
+        {/* More Options Menu (...) */}
+        <div className={Style.popoverWrap} ref={moreMenuRef}>
           <button
+            ref={moreBtnRef}
             type="button"
-            className={`${Style.iconBtn} ${timerOpen ? Style.iconBtnActive : ""}`}
-            data-tip="Timer"
-            onClick={() => setTimerOpen((v) => !v)}
+            className={`${Style.iconBtn} ${moreMenuOpen ? Style.iconBtnActive : ""}`}
+            data-tip="More options (Alt+M)"
+            aria-label="More options"
+            onClick={() => setMoreMenuOpen((v) => !v)}
+            style={{ position: "relative" }}
           >
-            <i className="fa-solid fa-stopwatch"></i>
+            <i className="fa-solid fa-ellipsis"></i>
+            {showTopbarKeytips && <span className={Style.altKeytip}>M</span>}
           </button>
-          {timerOpen &&
-            timerRect &&
+
+          {moreMenuOpen &&
+            moreMenuRect &&
             createPortal(
               <div
-                ref={timerPortalRef}
-                className={Style.popover}
+                ref={moreMenuPortalRef}
+                className={Style.moreMenu}
                 style={{
-                  position: "fixed",
-                  top: timerRect.bottom + 10,
-                  right: window.innerWidth - timerRect.right - 8,
+                  top: moreMenuRect.bottom + 8,
+                  right: Math.max(8, window.innerWidth - moreMenuRect.right - 8),
                 }}
               >
-                <span className={Style.clockTime}>{formatElapsed(elapsedMs)}</span>
-                <div className={Style.timerControls}>
-                  <button
-                    type="button"
-                    className={Style.timerBtn}
-                    onMouseEnter={onBtnEnter}
-                    onMouseLeave={onBtnLeave}
-                    onClick={toggleTimer}
-                  >
-                    <i className={`fa-solid ${timerRunning ? "fa-pause" : "fa-play"}`}></i>
-                    {timerRunning ? "Pause" : "Start"}
-                  </button>
-                  <button
-                    type="button"
-                    className={Style.timerBtn}
-                    onMouseEnter={onBtnEnter}
-                    onMouseLeave={onBtnLeave}
-                    onClick={resetTimer}
-                  >
-                    <i className="fa-solid fa-rotate-left"></i> Reset
-                  </button>
-                </div>
-              </div>,
-              document.body,
-            )}
-        </div>
+                {/* CATEGORY 1: NOTEBOOK & FILES */}
+                <div className={Style.moreMenuSectionTitle}>Notebook & Files</div>
+                <button
+                  type="button"
+                  className={Style.moreMenuItem}
+                  onClick={() => {
+                    setMoreMenuOpen(false);
+                    if (onOpenSyncModal) onOpenSyncModal();
+                  }}
+                >
+                  <i className={`fa-solid fa-qrcode ${Style.moreMenuIcon}`} style={{ color: "#818cf8" }}></i>
+                  <span>Connect Another Device</span>
+                  <span className={Style.moreMenuBadge}>{altKeyActive ? "Q" : "QR Sync"}</span>
+                </button>
+                <button
+                  type="button"
+                  className={Style.moreMenuItem}
+                  onClick={() => {
+                    setMoreMenuOpen(false);
+                    if (onToggleSearch) onToggleSearch();
+                  }}
+                >
+                  <i className={`fa-solid fa-magnifying-glass ${Style.moreMenuIcon}`}></i>
+                  <span>Find in Notes</span>
+                  <span className={Style.moreMenuBadge}>{altKeyActive ? "F" : "Ctrl+F"}</span>
+                </button>
+                <button
+                  type="button"
+                  className={Style.moreMenuItem}
+                  onClick={() => {
+                    setMoreMenuOpen(false);
+                    if (onDownload) onDownload();
+                  }}
+                >
+                  <i className={`fa-solid fa-download ${Style.moreMenuIcon}`}></i>
+                  <span>Download / Export</span>
+                  <span className={Style.moreMenuBadge}>{altKeyActive ? "D" : "Ctrl+D"}</span>
+                </button>
+                <button
+                  type="button"
+                  className={Style.moreMenuItem}
+                  onClick={() => {
+                    setMoreMenuOpen(false);
+                    if (onCopy) onCopy();
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 1500);
+                  }}
+                >
+                  <i className={`fa-solid ${copied ? "fa-check" : "fa-copy"} ${Style.moreMenuIcon}`}></i>
+                  <span>{copied ? "Copied!" : "Copy All Text"}</span>
+                  <span className={Style.moreMenuBadge}>{altKeyActive ? "C" : "Ctrl+Shift+C"}</span>
+                </button>
+                <button
+                  type="button"
+                  className={Style.moreMenuItem}
+                  onClick={() => {
+                    setMoreMenuOpen(false);
+                    setSnapshotsOpen(true);
+                  }}
+                >
+                  <i className={`fa-solid fa-clock-rotate-left ${Style.moreMenuIcon}`}></i>
+                  <span>Snapshots & History</span>
+                  <span className={Style.moreMenuBadge}>{altKeyActive ? "H" : "Ctrl+Shift+H"}</span>
+                </button>
+                <button
+                  type="button"
+                  className={Style.moreMenuItem}
+                  onClick={() => {
+                    setMoreMenuOpen(false);
+                    if (onShare) onShare();
+                  }}
+                >
+                  <i className={`fa-solid fa-share-nodes ${Style.moreMenuIcon}`}></i>
+                  <span>Share Notebook</span>
+                  <span className={Style.moreMenuBadge}>{altKeyActive ? "S" : "Ctrl+Shift+S"}</span>
+                </button>
+                <button
+                  type="button"
+                  className={`${Style.moreMenuItem} ${Style.moreMenuItemDanger}`}
+                  onClick={() => {
+                    setMoreMenuOpen(false);
+                    if (onDelete) onDelete();
+                  }}
+                >
+                  <i className={`fa-solid fa-trash-can ${Style.moreMenuIcon}`}></i>
+                  <span>Delete Notebook</span>
+                  <span className={Style.moreMenuBadge}>{altKeyActive ? "X" : "Ctrl+Shift+X"}</span>
+                </button>
 
-        <div className={Style.popoverWrap} ref={clockRef}>
-          <button
-            type="button"
-            className={`${Style.iconBtn} ${Style.clockBtn} ${
-              clockMenuOpen ? Style.iconBtnActive : ""
-            }`}
-            data-tip="Current Time"
-            aria-label="Current time"
-            onClick={() => setClockMenuOpen((v) => !v)}
-          >
-            <i className="fa-solid fa-clock"></i>
-            <span className={Style.clockBtnTime}>{formatClock(now, clockFormat)}</span>
-          </button>
-          {clockMenuOpen &&
-            clockRect &&
-            createPortal(
-              <div
-                ref={clockPortalRef}
-                className={`${Style.popover} ${Style.clockPopover}`}
-                style={{
-                  position: "fixed",
-                  top: clockRect.bottom + 10,
-                  right: window.innerWidth - clockRect.right - 8,
-                }}
-              >
-                <span className={Style.clockTime}>{formatClock(now, clockFormat)}</span>
-                <div className={Style.clockFormatToggle}>
-                  <button
-                    type="button"
-                    className={`${Style.clockFormatOption} ${
-                      clockFormat === "12" ? Style.clockFormatOptionActive : ""
-                    }`}
-                    onClick={() => setClockFormat("12")}
-                    aria-pressed={clockFormat === "12"}
-                  >
-                    12-Hour
-                  </button>
-                  <button
-                    type="button"
-                    className={`${Style.clockFormatOption} ${
-                      clockFormat === "24" ? Style.clockFormatOptionActive : ""
-                    }`}
-                    onClick={() => setClockFormat("24")}
-                    aria-pressed={clockFormat === "24"}
-                  >
-                    24-Hour
-                  </button>
-                </div>
-              </div>,
-              document.body,
-            )}
-        </div>
+                <div className={Style.moreMenuDivider} />
 
-        <div className={Style.popoverWrap} ref={searchRef}>
-          <button
-            type="button"
-            className={`${Style.iconBtn} ${searchOpen ? Style.iconBtnActive : ""}`}
-            data-tip="Search"
-            onClick={onToggleSearch}
-          >
-            <i className="fa-solid fa-magnifying-glass"></i>
-          </button>
-          {searchOpen &&
-            searchRect &&
-            createPortal(
-              <div
-                ref={searchPortalRef}
-                className={`${Style.popover} ${Style.searchPopover}`}
-                style={{
-                  position: "fixed",
-                  top: searchRect.bottom + 10,
-                  right: window.innerWidth - searchRect.right - 8,
-                }}
-              >
-                <div className={Style.searchInputRow}>
-                  <input
-                    autoFocus
-                    type="text"
-                    className={Style.searchInput}
-                    placeholder="Search notebookΓÇª"
-                    value={searchQuery}
-                    onChange={(e) => onSearchQueryChange(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.shiftKey ? onSearchPrev() : onSearchNext();
-                      }
-                      if (e.key === "Escape") onSearchClose();
+                {/* CATEGORY 2: WRITING & ENVIRONMENT */}
+                <div className={Style.moreMenuSectionTitle}>Writing & Layout</div>
+                {onToggleAutoHideNavbar && (
+                  <button
+                    type="button"
+                    className={Style.moreMenuItem}
+                    onClick={() => {
+                      setMoreMenuOpen(false);
+                      onToggleAutoHideNavbar();
                     }}
-                  />
-                  <button
-                    type="button"
-                    className={Style.searchCloseBtn}
-                    onClick={onSearchClose}
-                    aria-label="Close search"
                   >
-                    <i className="fa-solid fa-xmark"></i>
-                  </button>
-                </div>
-
-                <div className={Style.searchStatusRow}>
-                  {searchQuery === "" ? (
-                    <span className={Style.searchStatus}>Type to search</span>
-                  ) : searchMatches.length === 0 ? (
-                    <span className={Style.searchStatus}>No matches</span>
-                  ) : (
-                    <span className={Style.searchStatus}>
-                      {searchMatchIndex + 1} of {searchMatches.length}
-                    </span>
-                  )}
-
-                  <div className={Style.searchNavBtns}>
-                    <button
-                      type="button"
-                      className={Style.timerBtn}
-                      onMouseEnter={onBtnEnter}
-                      onMouseLeave={onBtnLeave}
-                      onClick={onSearchPrev}
-                      disabled={searchMatches.length === 0}
-                      aria-label="Previous match"
-                    >
-                      <i className="fa-solid fa-chevron-up"></i>
-                    </button>
-                    <button
-                      type="button"
-                      className={Style.timerBtn}
-                      onMouseEnter={onBtnEnter}
-                      onMouseLeave={onBtnLeave}
-                      onClick={onSearchNext}
-                      disabled={searchMatches.length === 0}
-                      aria-label="Next match"
-                    >
-                      <i className="fa-solid fa-chevron-down"></i>
-                    </button>
-                  </div>
-                </div>
-              </div>,
-              document.body,
-            )}
-        </div>
-
-        <button
-          type="button"
-          className={Style.iconBtn}
-          data-tip="Share"
-          onClick={onShare}
-        >
-          <i className="fa-solid fa-share-nodes"></i>
-        </button>
-      </div>
-
-      <div className={Style.right}>
-        <button
-          type="button"
-          className={Style.iconBtn}
-          data-tip="Activate Floating Window"
-          onClick={async () => {
-            if ("documentPictureInPicture" in window) {
-              try {
-                const pipWindow = await window.documentPictureInPicture.requestWindow({
-                  width: 500,
-                  height: 600,
-                });
-                
-                // Copy styles for the PiP window
-                const style = pipWindow.document.createElement("style");
-                style.textContent = `
-                  body { margin: 0; background: #2c2c33; display: flex; flex-direction: column; height: 100vh; }
-                  textarea { flex: 1; background: transparent; color: #fff; border: none; outline: none; padding: 20px; font-size: 18px; font-family: sans-serif; resize: none; }
-                `;
-                pipWindow.document.head.appendChild(style);
-
-                const ta = pipWindow.document.createElement("textarea");
-                ta.value = text;
-                ta.placeholder = "Floating notes...";
-                
-                // Two-way binding
-                ta.addEventListener("input", (e) => {
-                  setText(e.target.value);
-                });
-                
-                // Update PiP when main window text changes
-                const syncInterval = setInterval(() => {
-                  if (textareaRef.current && ta.value !== textareaRef.current.value) {
-                    ta.value = textareaRef.current.value;
-                  }
-                }, 500);
-
-                pipWindow.addEventListener("pagehide", () => {
-                  clearInterval(syncInterval);
-                });
-
-                pipWindow.document.body.appendChild(ta);
-              } catch(e) { console.error(e); }
-            } else {
-              swal("Not Supported", "Picture-in-Picture is not supported in this browser.", "info");
-            }
-          }}
-        >
-          <i className="fa-regular fa-window-restore"></i>
-        </button>
-
-        <div className={Style.popoverWrap} ref={snapshotsRef}>
-          <button
-            ref={snapshotsBtnRef}
-            type="button"
-            className={`${Style.iconBtn} ${snapshotsOpen ? Style.iconBtnActive : ""}`}
-            data-tip="View Snapshots"
-            onClick={() => setSnapshotsOpen((v) => !v)}
-          >
-            <i className="fa-solid fa-floppy-disk"></i>
-          </button>
-          {snapshotsOpen &&
-            createPortal(
-              <div
-                className={Style.modalOverlay}
-                onClick={(e) => {
-                  if (e.target === e.currentTarget) setSnapshotsOpen(false);
-                }}
-              >
-                <div ref={snapshotsPortalRef} className={`${Style.snapshotsModal} ${darkMode ? Style.snapshotsModalDark : ""}`}>
-                  <div className={Style.snapshotsHeader}>
-                    <h3>Snapshots</h3>
-                    <button className={Style.snapshotsClose} onClick={() => setSnapshotsOpen(false)}>&times;</button>
-                  </div>
-                  <div className={Style.snapshotsToolbar}>
-                    <button
-                      className={Style.snapshotsTakeBtn}
-                      onClick={() => {
-                        const newSnapshot = {
-                          id: Date.now().toString(),
-                          text: (textareaRef && textareaRef.current?.value) || text || "",
-                          title: title || "Stiknex Notebook",
-                          timestamp: Date.now()
-                        };
-                        const newSnapshots = [newSnapshot, ...snapshots];
-                        setSnapshots(newSnapshots);
-                        localStorage.setItem("stiknexSnapshots", JSON.stringify(newSnapshots));
+                    <i
+                      className={`fa-solid fa-thumbtack ${Style.moreMenuIcon}`}
+                      style={{
+                        transform: autoHideNavbar ? "rotate(45deg)" : "none",
+                        color: autoHideNavbar ? "#818cf8" : undefined,
                       }}
-                    >
-                      + Take Snapshot
-                    </button>
-                    <input
-                      type="text"
-                      placeholder="Search snapshots..."
-                      className={Style.snapshotsSearch}
-                      value={snapshotsSearch}
-                      onChange={(e) => setSnapshotsSearch(e.target.value)}
-                    />
-                  </div>
-                  <div className={Style.snapshotsList}>
-                    {snapshots
-                      .filter(s => s.text?.toLowerCase().includes(snapshotsSearch.toLowerCase()) || s.title?.toLowerCase().includes(snapshotsSearch.toLowerCase()))
-                      .map((snap) => (
-                        <div key={snap.id} className={Style.snapshotItem}>
-                          <div className={Style.snapshotInfo}>
-                            <strong>{snap.title}</strong>
-                            <p>{snap.text.slice(0, 100)}{snap.text.length > 100 ? "..." : ""}</p>
-                            <small>{new Date(snap.timestamp).toLocaleString()}</small>
-                          </div>
-                          <div className={Style.snapshotActions}>
-                            <button title="Restore" onClick={() => {
-                              setText(snap.text);
-                              setSnapshotsOpen(false);
-                            }}><i className="fa-solid fa-rotate-left"></i></button>
-                            <button title="Copy" onClick={() => {
-                              navigator.clipboard.writeText(snap.text);
-                              swal("Copied", "Snapshot text copied to clipboard", "success");
-                            }}><i className="fa-regular fa-copy"></i></button>
-                            <button title="Delete" className={Style.deleteBtn} onClick={() => {
-                              const newSnapshots = snapshots.filter(s => s.id !== snap.id);
-                              setSnapshots(newSnapshots);
-                              localStorage.setItem("stiknexSnapshots", JSON.stringify(newSnapshots));
-                            }}><i className="fa-solid fa-trash"></i></button>
-                          </div>
-                        </div>
-                    ))}
-                  </div>
-                  <div className={Style.snapshotsFooter}>
-                    <span>{snapshots.length} snapshots</span>
-                    <div>
-                      <button className={Style.snapshotsDeleteAll} onClick={() => {
-                        setSnapshots([]);
-                        localStorage.setItem("stiknexSnapshots", "[]");
-                      }}>
-                        <i className="fa-solid fa-trash"></i> Delete All
-                      </button>
-                      <button className={Style.snapshotsCloseBtn} onClick={() => setSnapshotsOpen(false)}>Close</button>
-                    </div>
-                  </div>
-                </div>
-              </div>,
-              document.body,
-            )}
-        </div>
-
-        <button
-          type="button"
-          className={Style.iconBtn}
-          data-tip="Turn On Focus Mode"
-          onClick={onToggleZenMode}
-        >
-          <i className="fa-solid fa-bullseye"></i>
-        </button>
-
-        <div className={Style.popoverWrap} ref={shortcutsRef}>
-          <button
-            type="button"
-            className={`${Style.iconBtn} ${shortcutsOpen ? Style.iconBtnActive : ""}`}
-            data-tip="Keyboard Shortcuts"
-            onClick={() => setShortcutsOpen((v) => !v)}
-          >
-            <i className="fa-solid fa-keyboard"></i>
-          </button>
-          {shortcutsOpen &&
-            shortcutsRect &&
-            createPortal(
-              <div
-                ref={shortcutsPortalRef}
-                className={`${Style.popover} ${Style.shortcutsPopover}`}
-                style={{
-                  position: "fixed",
-                  top: shortcutsRect.bottom + 10,
-                  right: window.innerWidth - shortcutsRect.right - 8,
-                }}
-              >
-                {SHORTCUTS.map((s) => (
-                  <div key={s.keys} className={Style.shortcutRow}>
-                    <kbd>{s.keys}</kbd>
-                    <span>{s.action}</span>
-                  </div>
-                ))}
-              </div>,
-              document.body,
-            )}
-        </div>
-
-        <div className={Style.popoverWrap} ref={unicodeRef}>
-          <button
-            ref={unicodeBtnRef}
-            type="button"
-            className={`${Style.iconBtn} ${unicodeOpen ? Style.iconBtnActive : ""}`}
-            data-tip="Insert Symbol / Emoji"
-            onClick={() => setUnicodeOpen((v) => !v)}
-            aria-label="Insert Symbol or Emoji"
-          >
-            <span className={Style.unicodeTriggerIcon} aria-hidden="true">Ω</span>
-          </button>
-          {unicodeOpen &&
-            unicodeRect &&
-            createPortal(
-              <div
-                ref={unicodePortalRef}
-                className={`${Style.popover} ${Style.unicodePopover} ${darkMode ? Style.unicodePopoverDark : ""}`}
-                style={{
-                  position: "fixed",
-                  top: unicodeRect.bottom + 10,
-                  right: Math.max(8, window.innerWidth - unicodeRect.right - 8),
-                }}
-              >
-                <div className={Style.unicodeHeader}>
-                  <div className={Style.unicodeHeaderTitle}>
-                    <span className={Style.unicodeHeaderIcon}>Ω</span>
-                    <span>Symbols & Emojis</span>
-                  </div>
+                    ></i>
+                    <span>{autoHideNavbar ? "Pin Formatting Bar" : "Auto-Hide Formatting Bar (10s)"}</span>
+                    <span className={Style.moreMenuBadge}>{altKeyActive ? "P" : "Ctrl+Shift+P"}</span>
+                  </button>
+                )}
+                <button
+                  type="button"
+                  className={Style.moreMenuItem}
+                  onClick={() => {
+                    setMoreMenuOpen(false);
+                    if (onToggleZenMode) onToggleZenMode();
+                  }}
+                >
+                  <i className={`fa-solid fa-bullseye ${Style.moreMenuIcon}`}></i>
+                  <span>Focus Mode (Zen)</span>
+                  <span className={Style.moreMenuBadge}>{altKeyActive ? "Z" : "Ctrl+."}</span>
+                </button>
+                <button
+                  type="button"
+                  className={Style.moreMenuItem}
+                  onClick={() => {
+                    setMoreMenuOpen(false);
+                    setUnicodeOpen(true);
+                  }}
+                >
+                  <span className={Style.moreMenuIcon} style={{ fontWeight: "700" }}>Ω</span>
+                  <span>Insert Symbol / Emoji</span>
+                  <span className={Style.moreMenuBadge}>{altKeyActive ? "E" : "Ctrl+Shift+E"}</span>
+                </button>
+                {onOpenVirtualKeyboard && (
                   <button
                     type="button"
-                    className={Style.unicodeCloseBtn}
-                    onClick={() => setUnicodeOpen(false)}
-                    aria-label="Close symbols menu"
+                    className={Style.moreMenuItem}
+                    onClick={() => {
+                      setMoreMenuOpen(false);
+                      onOpenVirtualKeyboard();
+                    }}
                   >
-                    ✕
+                    <i className={`fa-solid fa-keyboard ${Style.moreMenuIcon}`}></i>
+                    <span>Virtual Keyboard</span>
+                    <span className={Style.moreMenuBadge}>{altKeyActive ? "K" : "Ctrl+K"}</span>
                   </button>
-                </div>
+                )}
+                <button
+                  type="button"
+                  className={Style.moreMenuItem}
+                  onClick={() => {
+                    setMoreMenuOpen(false);
+                    setShortcutsOpen(true);
+                  }}
+                >
+                  <i className={`fa-solid fa-circle-question ${Style.moreMenuIcon}`}></i>
+                  <span>Keyboard Shortcuts</span>
+                  <span className={Style.moreMenuBadge}>{altKeyActive ? "?" : "Ctrl+/"}</span>
+                </button>
+                <button
+                  type="button"
+                  className={Style.moreMenuItem}
+                  onClick={() => {
+                    setMoreMenuOpen(false);
+                    if (!document.fullscreenElement) {
+                      document.documentElement.requestFullscreen().catch(() => {});
+                    } else {
+                      document.exitFullscreen();
+                    }
+                  }}
+                >
+                  <i className={`fa-solid fa-expand ${Style.moreMenuIcon}`}></i>
+                  <span>Toggle Full Screen</span>
+                  <span className={Style.moreMenuBadge}>F11</span>
+                </button>
 
-                <div className={Style.unicodeTabs}>
-                  {UNICODE_CATEGORIES.map((cat) => (
-                    <button
-                      key={cat.id}
-                      type="button"
-                      className={`${Style.unicodeTabBtn} ${unicodeCategory === cat.id ? Style.unicodeTabBtnActive : ""}`}
-                      onClick={() => setUnicodeCategory(cat.id)}
-                    >
-                      {cat.label}
-                    </button>
-                  ))}
-                </div>
+                <div className={Style.moreMenuDivider} />
 
-                <div className={Style.unicodeGrid}>
-                  {(
-                    UNICODE_CATEGORIES.find((c) => c.id === unicodeCategory)?.chars ||
-                    UNICODE_CATEGORIES[0].chars
-                  ).map((char, i) => (
-                    <button
-                      key={`${unicodeCategory}_${i}`}
-                      type="button"
-                      className={Style.unicodeCharBtn}
-                      title={`Insert ${char}`}
-                      onClick={() => handleInsertUnicode(char)}
-                    >
-                      {char}
-                    </button>
-                  ))}
-                </div>
+                {/* CATEGORY 3: FOCUS TOOLS */}
+                <div className={Style.moreMenuSectionTitle}>Focus Tools</div>
+                <button
+                  type="button"
+                  className={Style.moreMenuItem}
+                  onClick={() => {
+                    setMoreMenuOpen(false);
+                    setTimerOpen(true);
+                  }}
+                >
+                  <i className={`fa-solid fa-stopwatch ${Style.moreMenuIcon}`}></i>
+                  <span>Stopwatch Timer</span>
+                  <span className={Style.moreMenuBadge}>{altKeyActive ? "T" : "Ctrl+Shift+T"}</span>
+                </button>
+                <button
+                  type="button"
+                  className={Style.moreMenuItem}
+                  onClick={() => {
+                    setMoreMenuOpen(false);
+                    setClockMenuOpen(true);
+                  }}
+                >
+                  <i className={`fa-solid fa-clock ${Style.moreMenuIcon}`}></i>
+                  <span>Digital Clock</span>
+                  <span className={Style.moreMenuBadge}>{altKeyActive ? "O" : "Ctrl+Shift+O"}</span>
+                </button>
+                <button
+                  type="button"
+                  className={Style.moreMenuItem}
+                  onClick={() => {
+                    setMoreMenuOpen(false);
+                    if (!musicOn && !(window.AudioContext || window.webkitAudioContext)) {
+                      swal({
+                        title: "Not supported",
+                        text: "Your browser doesn't support Focus Sound.",
+                        icon: "warning",
+                      });
+                      return;
+                    }
+                    setMusicOn((v) => !v);
+                  }}
+                >
+                  <i className={`fa-solid ${musicOn ? "fa-music" : "fa-volume-xmark"} ${Style.moreMenuIcon}`}></i>
+                  <span>Focus Sound: {musicOn ? "ON" : "OFF"}</span>
+                  <span className={Style.moreMenuBadge}>{altKeyActive ? "M" : "Ctrl+Shift+M"}</span>
+                </button>
+                <button
+                  type="button"
+                  className={Style.moreMenuItem}
+                  onClick={() => {
+                    setMoreMenuOpen(false);
+                    triggerReadAloud();
+                  }}
+                >
+                  <i className={`fa-solid ${isReading ? "fa-stop" : "fa-volume-high"} ${Style.moreMenuIcon}`}></i>
+                  <span>{isReading ? "Stop Reading" : "Read Aloud (TTS)"}</span>
+                  <span className={Style.moreMenuBadge}>{altKeyActive ? "R" : "Ctrl+Shift+R"}</span>
+                </button>
+                <button
+                  type="button"
+                  className={Style.moreMenuItem}
+                  onClick={async () => {
+                    setMoreMenuOpen(false);
+                    if ("documentPictureInPicture" in window) {
+                      try {
+                        const pipWindow = await window.documentPictureInPicture.requestWindow({
+                          width: 500,
+                          height: 600,
+                        });
+                        const style = pipWindow.document.createElement("style");
+                        style.textContent = `
+                          body { margin: 0; background: #2c2c33; display: flex; flex-direction: column; height: 100vh; }
+                          textarea { flex: 1; background: transparent; color: #fff; border: none; outline: none; padding: 20px; font-size: 18px; font-family: sans-serif; resize: none; }
+                        `;
+                        pipWindow.document.head.appendChild(style);
+                        const ta = pipWindow.document.createElement("textarea");
+                        ta.value = text;
+                        ta.placeholder = "Floating notes...";
+                        ta.addEventListener("input", (e) => {
+                          setText(e.target.value);
+                        });
+                        const syncInterval = setInterval(() => {
+                          if (textareaRef.current && ta.value !== textareaRef.current.value) {
+                            ta.value = textareaRef.current.value;
+                          }
+                        }, 500);
+                        pipWindow.addEventListener("pagehide", () => {
+                          clearInterval(syncInterval);
+                        });
+                        pipWindow.document.body.appendChild(ta);
+                      } catch (e) {
+                        console.error(e);
+                      }
+                    } else {
+                      swal("Not Supported", "Picture-in-Picture is not supported in this browser.", "info");
+                    }
+                  }}
+                >
+                  <i className={`fa-regular fa-window-restore ${Style.moreMenuIcon}`}></i>
+                  <span>Floating Window (PiP)</span>
+                  <span className={Style.moreMenuBadge}>Ctrl+Shift+W</span>
+                </button>
+
+                {/* CATEGORY 4: MORE STIKNEX APPS & TOOLS */}
+                <div className={Style.moreMenuDivider}></div>
+                <div className={Style.moreMenuSectionTitle}>Apps & Tools</div>
+                <Link
+                  to="/sticky-notes"
+                  className={Style.moreMenuItem}
+                  onClick={() => setMoreMenuOpen(false)}
+                >
+                  <i className={`fa-solid fa-note-sticky ${Style.moreMenuIcon}`}></i>
+                  <span>Sticky Notes</span>
+                </Link>
+                <Link
+                  to="/whiteboard"
+                  className={Style.moreMenuItem}
+                  onClick={() => setMoreMenuOpen(false)}
+                >
+                  <i className={`fa-solid fa-chalkboard ${Style.moreMenuIcon}`}></i>
+                  <span>Whiteboard</span>
+                </Link>
+                <Link
+                  to="/tools"
+                  className={Style.moreMenuItem}
+                  onClick={() => setMoreMenuOpen(false)}
+                >
+                  <i className={`fa-solid fa-toolbox ${Style.moreMenuIcon}`}></i>
+                  <span>Productivity Tools</span>
+                </Link>
+                <Link
+                  to="/blog"
+                  className={Style.moreMenuItem}
+                  onClick={() => setMoreMenuOpen(false)}
+                >
+                  <i className={`fa-solid fa-newspaper ${Style.moreMenuIcon}`}></i>
+                  <span>Blog & Articles</span>
+                </Link>
+                <Link
+                  to="/buy-me-a-coffee"
+                  className={Style.moreMenuItem}
+                  onClick={() => setMoreMenuOpen(false)}
+                >
+                  <i className={`fa-solid fa-heart ${Style.moreMenuIcon}`}></i>
+                  <span>Support Stiknex</span>
+                </Link>
+
+                <div className={Style.moreMenuDivider}></div>
+
+                <button
+                  type="button"
+                  className={Style.moreMenuItem}
+                  onClick={() => {
+                    setMoreMenuOpen(false);
+                    window.dispatchEvent(new Event("stiknex_open_feedback"));
+                  }}
+                >
+                  <i className={`fa-solid fa-message ${Style.moreMenuIcon}`}></i>
+                  <span>Message & Feedback</span>
+                </button>
+
+                <Link
+                  to="/about"
+                  className={Style.moreMenuItem}
+                  onClick={() => setMoreMenuOpen(false)}
+                >
+                  <i className={`fa-solid fa-circle-info ${Style.moreMenuIcon}`}></i>
+                  <span>About Stiknex</span>
+                </Link>
               </div>,
               document.body,
             )}
         </div>
-
-        <button
-          type="button"
-          className={Style.iconBtn}
-          data-tip="Toggle Full Screen"
-          onClick={() => {
-            if (!document.fullscreenElement) {
-              document.documentElement.requestFullscreen().catch((err) => {
-                console.log(err);
-              });
-            } else {
-              document.exitFullscreen();
-            }
-          }}
-        >
-          <i className="fa-solid fa-expand"></i>
-        </button>
-
-        <Link to="/about" className={Style.aboutLink} data-tip="About">
-          About
-        </Link>
       </div>
 
+      {/* ============================================================
+          SLIDING NOTEBOOKS DRAWER MODAL
+          ============================================================ */}
+      {drawerOpen &&
+        createPortal(
+          <div
+            className={Style.drawerOverlay}
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setDrawerOpen(false);
+            }}
+          >
+            <div className={Style.drawer}>
+              <div className={Style.drawerHeader}>
+                <div className={Style.drawerTitle}>
+                  <i className="fa-solid fa-book-bookmark" style={{ color: "#818cf8" }}></i>
+                  <span>My Notebooks ({notebooks.length})</span>
+                </div>
+                <button
+                  type="button"
+                  className={Style.newNotebookBtn}
+                  onClick={() => {
+                    if (onNewNotebook) onNewNotebook();
+                    setDrawerOpen(false);
+                  }}
+                >
+                  <i className="fa-solid fa-plus"></i> New
+                </button>
+              </div>
+
+              <div className={Style.drawerSearch}>
+                <input
+                  type="text"
+                  autoFocus
+                  placeholder="Search notebooks..."
+                  value={drawerSearch}
+                  onChange={(e) => setDrawerSearch(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape") {
+                      e.preventDefault();
+                      setDrawerOpen(false);
+                    } else if (e.key === "ArrowDown") {
+                      e.preventDefault();
+                      const first = e.currentTarget.closest(`.${Style.drawer}`)?.querySelector(`.${Style.drawerItem}`);
+                      if (first) first.focus();
+                    }
+                  }}
+                />
+              </div>
+
+              <div className={Style.drawerList}>
+                {filteredNotebooks.length === 0 ? (
+                  <div style={{ textAlign: "center", color: "#64748b", padding: "2rem 1rem", fontSize: "13px" }}>
+                    No notebooks found
+                  </div>
+                ) : (
+                  filteredNotebooks.map((nb) => {
+                    const isActive = nb.id === activeNotebookId;
+                    return (
+                      <div
+                        key={nb.id}
+                        tabIndex={0}
+                        role="button"
+                        aria-label={`Open notebook ${nb.title || 'Stiknex Notebook'}`}
+                        className={`${Style.drawerItem} ${isActive ? Style.drawerItemActive : ""}`}
+                        onClick={() => {
+                          if (onSwitchNotebook) onSwitchNotebook(nb.id);
+                          setDrawerOpen(false);
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            if (onSwitchNotebook) onSwitchNotebook(nb.id);
+                            setDrawerOpen(false);
+                          } else if (e.key === "ArrowDown") {
+                            e.preventDefault();
+                            const next = e.currentTarget.nextElementSibling;
+                            if (next && next.classList.contains(Style.drawerItem)) next.focus();
+                          } else if (e.key === "ArrowUp") {
+                            e.preventDefault();
+                            const prev = e.currentTarget.previousElementSibling;
+                            if (prev && prev.classList.contains(Style.drawerItem)) prev.focus();
+                            else e.currentTarget.closest(`.${Style.drawer}`)?.querySelector(`.${Style.drawerSearch} input`)?.focus();
+                          } else if (e.key === "Escape") {
+                            setDrawerOpen(false);
+                          }
+                        }}
+                      >
+                        <div className={Style.drawerItemInfo}>
+                          <span className={Style.drawerItemTitle}>
+                            <i className="fa-solid fa-file-lines" style={{ marginRight: "8px", opacity: 0.7 }}></i>
+                            {nb.title || "Stiknex Notebook"}
+                          </span>
+                          <span className={Style.drawerItemMeta}>
+                            {nb.updatedAt ? new Date(nb.updatedAt).toLocaleDateString() : "Just now"}
+                          </span>
+                        </div>
+                        {notebooks.length > 1 && (
+                          <button
+                            type="button"
+                            className={Style.drawerItemDelete}
+                            title="Delete Notebook"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (onDeleteNotebook) onDeleteNotebook(nb.id);
+                            }}
+                          >
+                            <i className="fa-solid fa-trash-can"></i>
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+          </div>,
+          document.body,
+        )}
+
+      {/* ============================================================
+          PORTAL OVERLAYS (Timer, Clock, Search, Shortcuts, Emojis, Snapshots)
+          ============================================================ */}
+
+      {/* Timer Popover */}
+      {timerOpen &&
+        timerRect &&
+        createPortal(
+          <div
+            ref={timerPortalRef}
+            className={Style.popover}
+            style={{
+              position: "fixed",
+              top: timerRect.bottom + 10,
+              right: window.innerWidth - timerRect.right - 8,
+            }}
+          >
+            <span className={Style.clockTime}>{formatElapsed(elapsedMs)}</span>
+            <div className={Style.timerControls}>
+              <button
+                type="button"
+                className={Style.timerBtn}
+                onMouseEnter={onBtnEnter}
+                onMouseLeave={onBtnLeave}
+                onClick={handleToggleTimer}
+              >
+                <i className={`fa-solid ${timerRunning ? "fa-pause" : "fa-play"}`}></i>
+                {timerRunning ? "Pause" : "Start"}
+              </button>
+              <button
+                type="button"
+                className={Style.timerBtn}
+                onMouseEnter={onBtnEnter}
+                onMouseLeave={onBtnLeave}
+                onClick={handleResetTimer}
+              >
+                <i className="fa-solid fa-rotate-left"></i> Reset
+              </button>
+            </div>
+          </div>,
+          document.body,
+        )}
+
+      {/* Digital Clock Popover */}
+      {clockMenuOpen &&
+        clockRect &&
+        createPortal(
+          <div
+            ref={clockPortalRef}
+            className={`${Style.popover} ${Style.clockPopover}`}
+            style={{
+              position: "fixed",
+              top: clockRect.bottom + 10,
+              right: window.innerWidth - clockRect.right - 8,
+            }}
+          >
+            <span className={Style.clockTime}>{formatClock(now, clockFormat)}</span>
+            <div className={Style.clockFormatToggle}>
+              <button
+                type="button"
+                className={`${Style.clockFormatOption} ${
+                  clockFormat === "12" ? Style.clockFormatOptionActive : ""
+                }`}
+                onClick={() => setClockFormat("12")}
+                aria-pressed={clockFormat === "12"}
+              >
+                12-Hour
+              </button>
+              <button
+                type="button"
+                className={`${Style.clockFormatOption} ${
+                  clockFormat === "24" ? Style.clockFormatOptionActive : ""
+                }`}
+                onClick={() => setClockFormat("24")}
+                aria-pressed={clockFormat === "24"}
+              >
+                24-Hour
+              </button>
+            </div>
+          </div>,
+          document.body,
+        )}
+
+      {/* Search Popover */}
+      {searchOpen &&
+        searchRect &&
+        createPortal(
+          <div
+            ref={searchPortalRef}
+            className={`${Style.popover} ${Style.searchPopover}`}
+            style={{
+              position: "fixed",
+              top: searchRect.bottom + 10,
+              right: window.innerWidth - searchRect.right - 8,
+            }}
+          >
+            <div className={Style.searchInputRow}>
+              <input
+                autoFocus
+                type="text"
+                className={Style.searchInput}
+                placeholder="Search notebook…"
+                value={searchQuery}
+                onChange={(e) => onSearchQueryChange && onSearchQueryChange(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.shiftKey ? onSearchPrev && onSearchPrev() : onSearchNext && onSearchNext();
+                  }
+                  if (e.key === "Escape") onSearchClose && onSearchClose();
+                }}
+              />
+              <button
+                type="button"
+                className={Style.searchCloseBtn}
+                onClick={onSearchClose}
+                aria-label="Close search"
+              >
+                <i className="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+
+            <div className={Style.searchStatusRow}>
+              {searchQuery === "" ? (
+                <span className={Style.searchStatus}>Type to search</span>
+              ) : searchMatches.length === 0 ? (
+                <span className={Style.searchStatus}>No matches</span>
+              ) : (
+                <span className={Style.searchStatus}>
+                  {searchMatchIndex + 1} of {searchMatches.length}
+                </span>
+              )}
+
+              <div className={Style.searchNavBtns}>
+                <button
+                  type="button"
+                  className={Style.timerBtn}
+                  onMouseEnter={onBtnEnter}
+                  onMouseLeave={onBtnLeave}
+                  onClick={onSearchPrev}
+                  disabled={searchMatches.length === 0}
+                  aria-label="Previous match"
+                >
+                  <i className="fa-solid fa-chevron-up"></i>
+                </button>
+                <button
+                  type="button"
+                  className={Style.timerBtn}
+                  onMouseEnter={onBtnEnter}
+                  onMouseLeave={onBtnLeave}
+                  onClick={onSearchNext}
+                  disabled={searchMatches.length === 0}
+                  aria-label="Next match"
+                >
+                  <i className="fa-solid fa-chevron-down"></i>
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body,
+        )}
+
+      {/* Snapshots Modal */}
+      {snapshotsOpen &&
+        createPortal(
+          <div
+            className={Style.modalOverlay}
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setSnapshotsOpen(false);
+            }}
+          >
+            <div ref={snapshotsPortalRef} className={`${Style.snapshotsModal} ${darkMode ? Style.snapshotsModalDark : ""}`}>
+              <div className={Style.snapshotsHeader}>
+                <h3>Snapshots</h3>
+                <button className={Style.snapshotsClose} onClick={() => setSnapshotsOpen(false)}>&times;</button>
+              </div>
+              <div className={Style.snapshotsToolbar}>
+                <button
+                  className={Style.snapshotsTakeBtn}
+                  onClick={() => {
+                    const newSnapshot = {
+                      id: Date.now().toString(),
+                      text: (textareaRef && textareaRef.current?.value) || text || "",
+                      title: title || "Stiknex Notebook",
+                      timestamp: Date.now(),
+                    };
+                    const newSnapshots = [newSnapshot, ...snapshots];
+                    if (propTakeSnapshot) propTakeSnapshot();
+                    else {
+                      setInternalSnapshots(newSnapshots);
+                      localStorage.setItem("stiknexSnapshots", JSON.stringify(newSnapshots));
+                    }
+                  }}
+                >
+                  + Take Snapshot
+                </button>
+                <input
+                  type="text"
+                  placeholder="Search snapshots..."
+                  className={Style.snapshotsSearch}
+                  value={snapshotsSearch}
+                  onChange={(e) => setSnapshotsSearch(e.target.value)}
+                />
+              </div>
+              <div className={Style.snapshotsList}>
+                {snapshots
+                  .filter(
+                    (s) =>
+                      s.text?.toLowerCase().includes(snapshotsSearch.toLowerCase()) ||
+                      s.title?.toLowerCase().includes(snapshotsSearch.toLowerCase())
+                  )
+                  .map((snap) => (
+                    <div key={snap.id} className={Style.snapshotItem}>
+                      <div className={Style.snapshotInfo}>
+                        <strong>{snap.title}</strong>
+                        <p>{snap.text.slice(0, 100)}{snap.text.length > 100 ? "..." : ""}</p>
+                        <small>{new Date(snap.timestamp).toLocaleString()}</small>
+                      </div>
+                      <div className={Style.snapshotActions}>
+                        <button
+                          title="Restore"
+                          onClick={() => {
+                            if (propRestoreSnapshot) propRestoreSnapshot(snap);
+                            else setText(snap.text);
+                            setSnapshotsOpen(false);
+                          }}
+                        >
+                          <i className="fa-solid fa-rotate-left"></i>
+                        </button>
+                        <button
+                          title="Copy"
+                          onClick={() => {
+                            navigator.clipboard.writeText(snap.text);
+                            swal("Copied", "Snapshot text copied to clipboard", "success");
+                          }}
+                        >
+                          <i className="fa-regular fa-copy"></i>
+                        </button>
+                        <button
+                          title="Delete"
+                          className={Style.deleteBtn}
+                          onClick={() => {
+                            if (propDeleteSnapshot) propDeleteSnapshot(snap.id);
+                            else {
+                              const newSnapshots = snapshots.filter((s) => s.id !== snap.id);
+                              setInternalSnapshots(newSnapshots);
+                              localStorage.setItem("stiknexSnapshots", JSON.stringify(newSnapshots));
+                            }
+                          }}
+                        >
+                          <i className="fa-solid fa-trash"></i>
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+              <div className={Style.snapshotsFooter}>
+                <span>{snapshots.length} snapshots</span>
+                <div>
+                  <button
+                    className={Style.snapshotsDeleteAll}
+                    onClick={() => {
+                      if (propDeleteAllSnapshots) propDeleteAllSnapshots();
+                      else {
+                        setInternalSnapshots([]);
+                        localStorage.setItem("stiknexSnapshots", "[]");
+                      }
+                    }}
+                  >
+                    <i className="fa-solid fa-trash"></i> Delete All
+                  </button>
+                  <button className={Style.snapshotsCloseBtn} onClick={() => setSnapshotsOpen(false)}>
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>,
+          document.body,
+        )}
+
+      {/* Keyboard Shortcuts Popover */}
+      {shortcutsOpen &&
+        shortcutsRect &&
+        createPortal(
+          <div
+            ref={shortcutsPortalRef}
+            className={`${Style.popover} ${Style.shortcutsPopover}`}
+            style={{
+              position: "fixed",
+              top: shortcutsRect.bottom + 10,
+              right: window.innerWidth - shortcutsRect.right - 8,
+            }}
+          >
+            {SHORTCUTS.map((s) => (
+              <div key={s.keys} className={Style.shortcutRow}>
+                <kbd>{s.keys}</kbd>
+                <span>{s.action}</span>
+              </div>
+            ))}
+          </div>,
+          document.body,
+        )}
+
+      {/* Insert Unicode / Emojis Popover */}
+      {unicodeOpen &&
+        unicodeRect &&
+        createPortal(
+          <div
+            ref={unicodePortalRef}
+            className={`${Style.popover} ${Style.unicodePopover} ${darkMode ? Style.unicodePopoverDark : ""}`}
+            style={{
+              position: "fixed",
+              top: unicodeRect.bottom + 10,
+              right: Math.max(8, window.innerWidth - unicodeRect.right - 8),
+            }}
+          >
+            <div className={Style.unicodeHeader}>
+              <div className={Style.unicodeHeaderTitle}>
+                <span className={Style.unicodeHeaderIcon}>Ω</span>
+                <span>Symbols & Emojis</span>
+              </div>
+              <button
+                type="button"
+                className={Style.unicodeCloseBtn}
+                onClick={() => setUnicodeOpen(false)}
+                aria-label="Close symbols menu"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className={Style.unicodeTabs}>
+              {UNICODE_CATEGORIES.map((cat) => (
+                <button
+                  key={cat.id}
+                  type="button"
+                  className={`${Style.unicodeTabBtn} ${unicodeCategory === cat.id ? Style.unicodeTabBtnActive : ""}`}
+                  onClick={() => setUnicodeCategory(cat.id)}
+                >
+                  {cat.label}
+                </button>
+              ))}
+            </div>
+
+            <div className={Style.unicodeGrid}>
+              {(
+                UNICODE_CATEGORIES.find((c) => c.id === unicodeCategory)?.chars ||
+                UNICODE_CATEGORIES[0].chars
+              ).map((char, i) => (
+                <button
+                  key={`${unicodeCategory}_${i}`}
+                  type="button"
+                  className={Style.unicodeCharBtn}
+                  title={`Insert ${char}`}
+                  onClick={() => {
+                    if (propInsertUnicode) propInsertUnicode(char);
+                    else handleInsertUnicode(char);
+                  }}
+                >
+                  {char}
+                </button>
+              ))}
+            </div>
+          </div>,
+          document.body,
+        )}
+
+      {/* Tooltip Bubble */}
       {tooltip &&
         createPortal(
           <div
-            className={`${Style.tooltipBubble} ${
-              !darkMode ? Style.tooltipBubbleLight : ""
-            }`}
+            className={`${Style.tooltipBubble} ${!darkMode ? Style.tooltipBubbleLight : ""}`}
             style={{
               position: "fixed",
               top: tooltip.rect.bottom + 8,
@@ -1155,9 +1600,8 @@ const NotebookTopbar = ({
           </div>,
           document.body,
         )}
-    </div>
+    </header>
   );
 };
 
 export default NotebookTopbar;
-

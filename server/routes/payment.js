@@ -6,21 +6,19 @@ import { getCount, recordSupporter } from "../supporterStore.js";
 const router = Router();
 
 const MIN_AMOUNT_INR = 10;
-const FALLBACK_RAZORPAY_KEY_ID = "rzp_test_TMMQZgMhvSGNKx";
-const FALLBACK_RAZORPAY_KEY_SECRET = "JABhiZQ72yyDbLeKhnUasFbz";
-
-const activeKeyId = process.env.RAZORPAY_KEY_ID || FALLBACK_RAZORPAY_KEY_ID;
-const activeKeySecret = process.env.RAZORPAY_KEY_SECRET || FALLBACK_RAZORPAY_KEY_SECRET;
+const activeKeyId = process.env.RAZORPAY_KEY_ID;
+const activeKeySecret = process.env.RAZORPAY_KEY_SECRET;
+const paymentConfigured = Boolean(activeKeyId && activeKeySecret);
 
 let razorpay;
 try {
-  if (activeKeyId && activeKeySecret) {
+  if (paymentConfigured) {
     razorpay = new Razorpay({
       key_id: activeKeyId,
       key_secret: activeKeySecret,
     });
   } else {
-    console.warn("RAZORPAY_KEY_ID or RAZORPAY_KEY_SECRET is not set in environment. Payments will not work.");
+    console.warn("RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET must be set in the environment. Payments are disabled.");
   }
 } catch (error) {
   console.error("Error initializing Razorpay:", error);
@@ -64,6 +62,9 @@ router.post("/create-order", async (req, res) => {
 });
 
 router.post("/verify-payment", async (req, res) => {
+  if (!paymentConfigured) {
+    return res.status(503).json({ success: false, error: "Payment gateway is not configured." });
+  }
   try {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature, amount, donorName, donorEmail } = req.body;
 

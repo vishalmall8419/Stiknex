@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   MessageSquare,
@@ -9,7 +9,7 @@ import {
   Loader2,
 } from "lucide-react";
 
-const FeedbackWidget = ({ tool = "stiknex" }) => {
+const FeedbackWidget = ({ tool = "stiknex", showButton = true }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [mode, setMode] = useState("message"); // "message" or "review"
   const [rating, setRating] = useState(5);
@@ -19,6 +19,12 @@ const FeedbackWidget = ({ tool = "stiknex" }) => {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState("idle"); // idle, submitting, success, error
   const [errorMessage, setErrorMessage] = useState("");
+
+  useEffect(() => {
+    const openFeedback = () => setIsOpen(true);
+    window.addEventListener("stiknex_open_feedback", openFeedback);
+    return () => window.removeEventListener("stiknex_open_feedback", openFeedback);
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -92,6 +98,8 @@ const FeedbackWidget = ({ tool = "stiknex" }) => {
       }, 2500);
     }
   };
+
+  if (!showButton && !isOpen) return null;
 
   return (
     <div className="fixed bottom-6 right-6 z-[9999] font-sans">
@@ -260,15 +268,17 @@ const FeedbackWidget = ({ tool = "stiknex" }) => {
         )}
       </AnimatePresence>
 
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3.5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-xl hover:scale-105 transition-all text-xs font-bold group"
-        title="Send Message or Leave Feedback"
-        aria-label="Send Message or Leave Feedback"
-      >
-        {isOpen ? <X size={18} /> : <MessageSquare size={18} className="group-hover:rotate-12 transition-transform" />}
-        <span className="hidden sm:inline">Message & Feedback</span>
-      </button>
+      {showButton && (
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="flex items-center gap-2 px-3.5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-xl hover:scale-105 transition-all text-xs font-bold group"
+          title="Send Message or Leave Feedback"
+          aria-label="Send Message or Leave Feedback"
+        >
+          {isOpen ? <X size={18} /> : <MessageSquare size={18} className="group-hover:rotate-12 transition-transform" />}
+          <span className="hidden sm:inline">Message & Feedback</span>
+        </button>
+      )}
     </div>
   );
 };

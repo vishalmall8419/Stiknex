@@ -1,8 +1,7 @@
-import { Suspense, lazy, useEffect } from "react";
+import { Suspense, lazy } from "react";
 import {
   Routes,
   Route,
-  useNavigate,
   useLocation,
 } from "react-router-dom";
 
@@ -44,14 +43,22 @@ const Blog = lazy(
   () => import("./Pages/Blog/Blog")
 );
 
+const UrlShortener = lazy(() => import("./Pages/Tools/UrlShortener/UrlShortener"));
+const UrlShortenerAnalytics = lazy(() => import("./Pages/Tools/UrlShortener/UrlShortenerAnalytics"));
 const Setup2FA = lazy(() => import('./Pages/Admin2/Setup2FA'));
 const AdminLogin = lazy(() => import('./Pages/Admin2/AdminLogin'));
 const AdminLayout = lazy(() => import('./Pages/Admin2/AdminLayout'));
 const BlogDetail = lazy(
   () => import("./Pages/Blog/BlogDetail")
 );
+const TypingLab = lazy(
+  () => import("./Pages/TypingLab/TypingLab")
+);
 const FeedbackWidget = lazy(
   () => import("./Component/FeedbackWidget")
+);
+const CommandPalette = lazy(
+  () => import("./Component/CommandPalette")
 );
 
 // ============================================================
@@ -77,7 +84,6 @@ const PageLoader = () => {
 // ============================================================
 
 const App = () => {
-  const navigate = useNavigate();
   const location = useLocation();
 
   // Check if current route is an admin or login route
@@ -85,6 +91,12 @@ const App = () => {
     location.pathname.startsWith('/dashboard') || 
     location.pathname.startsWith('/stiknex-secure-login-portal') ||
     location.pathname.startsWith('/setup-2fa-admin');
+
+  const isNotebookRoute =
+    location.pathname === '/notebook' ||
+    location.pathname === '/online-notebook';
+  const isStickyNotesRoute = location.pathname === '/sticky-notes';
+  const isWhiteboardRoute = location.pathname === '/whiteboard';
 
   // ==========================================================
   // RENDER
@@ -99,9 +111,10 @@ const App = () => {
       <Suspense fallback={<PageLoader />}>
         {/* Render Modals and Widgets ONLY on public pages */}
         {!isAdminRoute && (
-          <>
-            <FeedbackWidget />
-          </>
+          <FeedbackWidget showButton={!isNotebookRoute && !isStickyNotesRoute && !isWhiteboardRoute} />
+        )}
+        {!isAdminRoute && (
+          <CommandPalette />
         )}
 
         {/* Application Routes */}
@@ -126,6 +139,10 @@ const App = () => {
             path="/about"
             element={<About />}
           />
+
+          {/* URL Shortener & Click Tracking Analytics */}
+          <Route path="/url-shortener" element={<UrlShortener />} />
+          <Route path="/url-shortener/analytics/:code" element={<UrlShortenerAnalytics />} />
 
           {/* Direct Clean Tool Routes */}
           <Route path="/sticky-notes" element={<Home />} />
@@ -184,10 +201,22 @@ const App = () => {
             element={<Blog />}
           />
 
+          {/* Typing Lab */}
+          <Route
+            path="/typing-lab"
+            element={<TypingLab />}
+          />
+
           {/* Blog Details */}
           <Route
             path="/blog/:id"
             element={<BlogDetail />}
+          />
+
+          {/* All 200 Clean Tool Slug Routes */}
+          <Route
+            path="/:toolSlug"
+            element={<Tools />}
           />
         </Routes>
       </Suspense>
@@ -196,4 +225,3 @@ const App = () => {
 };
 
 export default App;
-

@@ -2,8 +2,8 @@ import { useEffect, useRef } from "react";
 import Style from "./NotebookSettingsPanel.module.css";
 
 const FONT_OPTIONS = [
-  { id: "poppins", label: "Poppins", family: "'Poppins', sans-serif" },
   { id: "inter", label: "Inter", family: "'Inter', sans-serif" },
+  { id: "poppins", label: "Poppins", family: "'Poppins', sans-serif" },
   { id: "roboto", label: "Roboto", family: "'Roboto', sans-serif" },
   { id: "nunito", label: "Nunito", family: "'Nunito', sans-serif" },
   { id: "caveat", label: "Caveat", family: "'Caveat', cursive" },
@@ -29,6 +29,15 @@ const WIDTH_OPTIONS = [
   { id: "wide", label: "Wide" },
 ];
 
+const PAPER_OPTIONS = [
+  { id: "dotted", label: "Dotted", icon: "fa-braille" },
+  { id: "ruled", label: "Lined", icon: "fa-bars" },
+  { id: "grid", label: "Grid", icon: "fa-border-all" },
+  { id: "graph", label: "Graph", icon: "fa-table-cells" },
+  { id: "blank", label: "Plain", icon: "fa-square" },
+  { id: "sepia", label: "Vintage", icon: "fa-scroll" },
+];
+
 const LINE_HEIGHT_OPTIONS = [
   { id: "compact", label: "Compact" },
   { id: "comfortable", label: "Comfortable" },
@@ -45,11 +54,49 @@ const NotebookSettingsPanel = ({
   const panelRef = useRef(null);
 
   useEffect(() => {
+    // Focus close button on mount so keyboard navigation is immediately active
+    const timer = setTimeout(() => {
+      const closeBtn = panelRef.current?.querySelector("button");
+      if (closeBtn) closeBtn.focus();
+    }, 40);
+
+    const onKeyDown = (e) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        onClose();
+        return;
+      }
+      if (!panelRef.current) return;
+      const buttons = Array.from(panelRef.current.querySelectorAll("button"));
+      if (buttons.length === 0) return;
+      const idx = buttons.indexOf(document.activeElement);
+
+      if (e.key === "ArrowDown" || e.key === "ArrowRight") {
+        if (idx !== -1) {
+          e.preventDefault();
+          const next = (idx + 1) % buttons.length;
+          buttons[next].focus();
+        }
+      } else if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
+        if (idx !== -1) {
+          e.preventDefault();
+          const prev = (idx - 1 + buttons.length) % buttons.length;
+          buttons[prev].focus();
+        }
+      }
+    };
+
     const onClickOutside = (e) => {
       if (panelRef.current && !panelRef.current.contains(e.target)) onClose();
     };
+
     document.addEventListener("mousedown", onClickOutside);
-    return () => document.removeEventListener("mousedown", onClickOutside);
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener("mousedown", onClickOutside);
+      window.removeEventListener("keydown", onKeyDown);
+    };
   }, [onClose]);
 
   return (
@@ -197,6 +244,24 @@ const NotebookSettingsPanel = ({
             aria-checked={settings.showStats}
             className={`${Style.switch} ${settings.showStats ? Style.switchOn : ""}`}
             onClick={() => onChange("showStats", !settings.showStats)}
+          >
+            <span className={Style.switchKnob}></span>
+          </button>
+        </div>
+
+        <div className={Style.switchRow}>
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            <span>Auto-hide Formatting Bar</span>
+            <span style={{ fontSize: "11px", opacity: 0.6, marginTop: "2px" }}>
+              Slides up after 10s, hover top to reveal
+            </span>
+          </div>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={settings.autoHideNavbar}
+            className={`${Style.switch} ${settings.autoHideNavbar ? Style.switchOn : ""}`}
+            onClick={() => onChange("autoHideNavbar", !settings.autoHideNavbar)}
           >
             <span className={Style.switchKnob}></span>
           </button>

@@ -1,0 +1,457 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(6px);
+  z-index: 100000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: fadeIn 0.18s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal {
+  background: #ffffff;
+  color: #1e293b;
+  width: 100%;
+  max-width: 520px;
+  border-radius: 18px;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  max-height: 90vh;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.darkModal {
+  background: #18181b;
+  color: #f4f4f5;
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.7);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.darkModal .header {
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+.headerTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.headerIcon {
+  color: #6366f1;
+  font-size: 19px;
+}
+
+.closeBtn {
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.closeBtn:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: #334155;
+}
+
+.darkModal .closeBtn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.tabs {
+  display: flex;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  background: #f8fafc;
+}
+
+.darkModal .tabs {
+  background: #202024;
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+.tabBtn {
+  flex: 1;
+  padding: 12px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s ease;
+}
+
+.darkModal .tabBtn {
+  color: #a1a1aa;
+}
+
+.tabBtn:hover {
+  color: #4f46e5;
+}
+
+.darkModal .tabBtn:hover {
+  color: #818cf8;
+}
+
+.activeTab {
+  color: #4f46e5 !important;
+  border-bottom-color: #4f46e5 !important;
+  background: #ffffff;
+}
+
+.darkModal .activeTab {
+  color: #818cf8 !important;
+  border-bottom-color: #818cf8 !important;
+  background: #18181b;
+}
+
+.body {
+  padding: 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* Security Badge */
+.securityBadge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  background: #eef2ff;
+  color: #4338ca;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.darkModal .securityBadge {
+  background: rgba(99, 102, 241, 0.16);
+  color: #c7d2fe;
+}
+
+/* QR Code Section */
+.qrCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 14px;
+}
+
+.qrContainer {
+  padding: 14px;
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  display: inline-block;
+}
+
+.qrTimer {
+  font-size: 12px;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.darkModal .qrTimer {
+  color: #a1a1aa;
+}
+
+.statusIndicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: #f1f5f9;
+  color: #334155;
+}
+
+.darkModal .statusIndicator {
+  background: #27272a;
+  color: #e4e4e7;
+}
+
+.pulseDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+  animation: pulse 1.6s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.9); opacity: 0.6; }
+  50% { transform: scale(1.3); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0.6; }
+}
+
+.copyLinkRow {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+.inputField {
+  flex: 1;
+  padding: 9px 12px;
+  font-size: 13px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #1e293b;
+  outline: none;
+}
+
+.darkModal .inputField {
+  background: #27272a;
+  border-color: #3f3f46;
+  color: #f4f4f5;
+}
+
+.btnPrimary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 8px;
+  background: #4f46e5;
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.btnPrimary:hover {
+  background: #4338ca;
+}
+
+.btnSecondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 8px;
+  background: #f1f5f9;
+  color: #334155;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.darkModal .btnSecondary {
+  background: #27272a;
+  color: #e4e4e7;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.btnSecondary:hover {
+  background: #e2e8f0;
+}
+
+.darkModal .btnSecondary:hover {
+  background: #3f3f46;
+}
+
+/* Devices List */
+.deviceList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.deviceItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #f8fafc;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.darkModal .deviceItem {
+  background: #202024;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.deviceInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.deviceIcon {
+  font-size: 18px;
+  color: #6366f1;
+}
+
+.deviceName {
+  font-size: 13.5px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.thisDeviceBadge {
+  font-size: 10px;
+  background: #dcfce7;
+  color: #166534;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 700;
+}
+
+.darkModal .thisDeviceBadge {
+  background: rgba(34, 197, 94, 0.2);
+  color: #4ade80;
+}
+
+.deviceMeta {
+  font-size: 11.5px;
+  color: #64748b;
+}
+
+.darkModal .deviceMeta {
+  color: #a1a1aa;
+}
+
+.revokeBtn {
+  font-size: 12px;
+  padding: 5px 10px;
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.revokeBtn:hover {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+/* Recovery Key Box */
+.recoveryCard {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 10px;
+  background: #fffbeb;
+  border: 1px solid #fef3c7;
+}
+
+.darkModal .recoveryCard {
+  background: rgba(245, 158, 11, 0.1);
+  border-color: rgba(245, 158, 11, 0.2);
+}
+
+.recoveryWarning {
+  font-size: 12px;
+  color: #b45309;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.darkModal .recoveryWarning {
+  color: #fcd34d;
+}
+
+.recoveryKeyText {
+  font-family: monospace;
+  font-size: 12px;
+  background: #ffffff;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #fde68a;
+  word-break: break-all;
+  user-select: all;
+  color: #1e293b;
+}
+
+.darkModal .recoveryKeyText {
+  background: #18181b;
+  border-color: rgba(245, 158, 11, 0.3);
+  color: #fef3c7;
+}
+
+.dangerSection {
+  margin-top: 10px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.darkModal .dangerSection {
+  border-top-color: rgba(255, 255, 255, 0.08);
+}
+
+.dangerBtn {
+  font-size: 12px;
+  padding: 7px 12px;
+  color: #ef4444;
+  background: transparent;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.dangerBtn:hover {
+  background: #ef4444;
+  color: #ffffff;
+}
+

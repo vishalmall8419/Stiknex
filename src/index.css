@@ -21,6 +21,19 @@ body {
   color: #f1f5f9; /* Tailwind slate-100 */
 }
 
+/* Global Selection Styling (High Contrast) */
+::selection {
+  background-color: #bfdbfe;
+  color: #0f172a;
+}
+
+.dark ::selection,
+:where(.dark, .dark *) ::selection {
+  background-color: #2563eb !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
 /* Custom Scrollbar for a premium feel */
 ::-webkit-scrollbar {
   width: 8px;
@@ -438,11 +451,24 @@ html {
 }
 
 /* =================================
-   SELECTION
+   HIGH-CONTRAST TEXT SELECTION
 ================================= */
 
 ::selection {
-  background: rgba(8, 127, 141, 0.2);
-  color: var(--text-primary);
+  background-color: #bfdbfe !important; /* Soft high-visibility blue in light mode */
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  text-shadow: none !important;
+}
+
+.dark ::selection,
+[data-theme="dark"] ::selection,
+html.dark ::selection,
+body.dark ::selection,
+.darkNotebookPage ::selection {
+  background-color: #2563eb !important; /* Crisp vibrant royal blue in dark mode */
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  text-shadow: none !important;
 }
 

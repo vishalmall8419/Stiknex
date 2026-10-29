@@ -30,6 +30,12 @@ const VirtualKeyboard = ({ darkMode, text, setText, textareaRef, onClose }) => {
   };
 
   const insert = (str) => {
+    const ta = textareaRef?.current;
+    if (ta && ta.isContentEditable) {
+      ta.focus();
+      document.execCommand('insertText', false, str);
+      return;
+    }
     const { start, end } = getSelection();
     const next = text.slice(0, start) + str + text.slice(end);
     setText(next);
@@ -37,6 +43,12 @@ const VirtualKeyboard = ({ darkMode, text, setText, textareaRef, onClose }) => {
   };
 
   const handleBackspace = () => {
+    const ta = textareaRef?.current;
+    if (ta && ta.isContentEditable) {
+      ta.focus();
+      document.execCommand('delete');
+      return;
+    }
     const { start, end } = getSelection();
     if (start !== end) {
       const next = text.slice(0, start) + text.slice(end);

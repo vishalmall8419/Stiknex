@@ -18,27 +18,36 @@
   overflow-y: auto;
   flex: 1;
   width: 100%;
-  padding: 0 clamp(0.85rem, 2.3vw, 4rem);
+  padding: 0 clamp(0.85rem, 2.3vw, 4rem) 0;
   background-color: #fdfbf3;
   background-image: radial-gradient(#d4d2cc 1.5px, transparent 1.5px);
   background-size: 24px 24px;
   background-position: 0 0;
+  background-attachment: local !important;
+  display: flex;
+  flex-direction: column;
 }
 
 .darkPaperArea {
   background-color: #1c1c20;
   background-image: radial-gradient(#3a3a40 1.5px, transparent 1.5px);
   background-size: 24px 24px;
+  background-attachment: local !important;
 }
 
 .paperColumn {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  flex: 1 0 auto;
   width: 100%;
   position: relative;
-  max-width: var(--nb-writing-width, 820px);
+  max-width: var(--nb-writing-width, 1160px);
   margin: 0 auto;
   padding-left: 2.4rem;
-  min-height: calc(100vh - 200px);
+  padding-top: 0;
+  padding-bottom: max(220px, calc(env(safe-area-inset-bottom, 20px) + 180px));
+  min-height: 100%;
+  box-sizing: border-box;
 }
 
 .marginLine {
@@ -46,8 +55,10 @@
   top: 0;
   bottom: 0;
   left: 0.9rem;
-  width: 1px;
+  width: 1.5px;
   background: #eec3c3;
+  pointer-events: none;
+  z-index: 2;
 }
 
 .darkNotebookPage .marginLine {
@@ -57,27 +68,57 @@
 .editorWrap {
   position: relative;
   width: 100%;
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .editor {
   position: relative;
   z-index: 1;
   width: 100%;
+  flex: 1 0 auto;
   min-height: calc(100vh - 70px);
   padding: 0;
   border: none;
   outline: none;
   resize: none;
   background: transparent;
-  font-family: var(--nb-font-family, "'Caveat', cursive");
+  font-family: var(--nb-font-family, "'Inter', sans-serif");
   font-size: var(--nb-font-size, 19px);
   line-height: var(--nb-line-height, 34px);
   color: #2a2a30;
   caret-color: #4f5cff;
 }
 
+.editor > *:first-child {
+  margin-top: 0 !important;
+}
+
 .darkNotebookPage .editor {
   color: #eceef2;
+  caret-color: #818cf8;
+}
+
+/* Custom High-Contrast Text Selection (Light Mode) */
+.editor ::selection,
+.editor::selection {
+  background-color: #bfdbfe !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  text-shadow: none !important;
+}
+
+/* Custom High-Contrast Text Selection (Dark Mode) */
+.darkNotebookPage .editor ::selection,
+.darkNotebookPage .editor::selection,
+.darkNotebookPage ::selection,
+:global(.dark) .editor ::selection,
+:global(.dark) .editor::selection {
+  background-color: #2563eb !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  text-shadow: none !important;
 }
 
 .editor::placeholder {
@@ -101,7 +142,7 @@
   padding: 0;
   border: none;
   margin: 0;
-  font-family: var(--nb-font-family, "'Caveat', cursive");
+  font-family: var(--nb-font-family, "'Inter', sans-serif");
   font-size: var(--nb-font-size, 19px);
   line-height: var(--nb-line-height, 34px);
   color: transparent;
@@ -133,28 +174,57 @@
 
 .statusPill {
   position: fixed;
-  right: 3.95rem;
-  bottom: 1.65rem;
+  right: 1rem;
+  bottom: 1.5rem;
   z-index: 40;
   display: flex;
   align-items: center;
-  gap: 0.55rem;
-  padding: 0.6em 1.1em;
+  justify-content: flex-end;
+  height: 38px;
+  width: 38px;
+  padding: 0;
   border-radius: 999px;
-  font-size: 0.57rem;
-  font-weight: 600;
-  color: #2a2a30;
-  background: rgba(255, 255, 255, 0.409);
+  font-size: 12px;
+  font-weight: 500;
+  color: #374151;
+  background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 207, 207, 0.413);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.201);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  user-select: none;
+  pointer-events: auto;
+  overflow: hidden;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.statusPillContent {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding-left: 14px;
+  padding-right: 4px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.statusPillIcon {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: inherit;
+  font-size: 13px;
 }
 
 .darkStatusPill {
-  color: #f4f4f5;
-  background: rgba(35, 35, 39, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  color: #e5e7eb;
+  background: rgba(30, 30, 35, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
 }
 
 .dot {
@@ -200,29 +270,31 @@
 
 @media (min-width: 1800px) {
   .paperArea {
-    padding-left: 8vw;
-    padding-right: 8vw;
+    padding-left: clamp(1rem, 2vw, 3rem);
+    padding-right: clamp(1rem, 2vw, 3rem);
   }
 }
 
 @media (max-width: 900px) {
   .paperArea {
-    padding: 2rem 1.5rem;
+    padding: 0.85rem 1.5rem max(180px, calc(env(safe-area-inset-bottom, 20px) + 160px)) 1.5rem !important;
   }
 
   .paperColumn {
     padding-left: 1.8rem;
+    padding-bottom: 4rem !important;
   }
 }
 
 @media (max-width: 640px) {
   .paperArea {
-    padding: 1.5rem 1rem;
+    padding: 0.75rem 1rem max(200px, calc(env(safe-area-inset-bottom, 20px) + 180px)) 1rem !important;
     background-position: 0 3.5rem;
   }
 
   .paperColumn {
     padding-left: 1.4rem;
+    padding-bottom: 6rem !important;
     min-height: calc(100vh - 160px);
   }
 
@@ -232,13 +304,14 @@
 
   .editor {
     min-height: calc(100vh - 50px);
+    padding-bottom: 2.5rem !important;
   }
 
   .statusPill {
-    right: 3.47rem;
-    bottom: 1.25rem;
-    padding: 0.5em 0.85em;
-    font-size: 0.54rem;
+    right: 0.85rem;
+    bottom: 0.85rem;
+    padding: 4px 10px;
+    font-size: 11px;
     gap: 0.4rem;
   }
 }
@@ -287,4 +360,565 @@
 .darkPopover {
   background: #232327;
   border: 1px solid #333;
+}
+
+/* Rich Text & To-do styles */
+.editor p {
+  margin: 0;
+  min-height: 1.2em;
+}
+
+.editor ul,
+.editor ol {
+  margin: 4px 0;
+  padding-left: 1.8em;
+  line-height: var(--nb-line-height, 1.85em);
+}
+
+.editor ul {
+  list-style-type: disc;
+}
+
+.editor ol {
+  list-style-type: decimal;
+}
+
+.editor li {
+  margin: 2px 0;
+  line-height: inherit;
+}
+
+.editor h1 {
+  font-size: 1.8em;
+  font-weight: 700;
+  margin: 0.6em 0 0.3em;
+  line-height: 1.25;
+}
+
+.editor h2 {
+  font-size: 1.4em;
+  font-weight: 600;
+  margin: 0.5em 0 0.25em;
+  line-height: 1.3;
+}
+
+.editor h3 {
+  font-size: 1.15em;
+  font-weight: 600;
+  margin: 0.4em 0 0.2em;
+  line-height: 1.35;
+}
+
+.editor[data-empty="true"]::before {
+  content: attr(data-placeholder);
+  color: #a8a8a8;
+  pointer-events: none;
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.darkNotebookPage .editor[data-empty="true"]::before {
+  color: #6b6b74;
+}
+
+.editor :global(.nb-todo-item) {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  flex-wrap: nowrap !important;
+  gap: 0.6em !important;
+  margin: 4px 0 !important;
+  font-size: var(--nb-font-size, 18px) !important;
+  line-height: var(--nb-line-height, 1.85) !important;
+  min-height: var(--nb-line-height, 34px) !important;
+}
+
+.editor :global(.nb-todo-cb) {
+  appearance: auto;
+  -webkit-appearance: auto;
+  box-sizing: border-box !important;
+  font-size: var(--nb-font-size, 18px) !important;
+  width: 1.15em !important;
+  height: 1.15em !important;
+  min-width: 1.15em !important;
+  min-height: 1.15em !important;
+  max-width: 1.15em !important;
+  max-height: 1.15em !important;
+  margin: 0 !important;
+  /* vertically centered with text */
+  cursor: pointer !important;
+  accent-color: #16a34a !important;
+  flex-shrink: 0 !important;
+  align-self: center !important;
+  border-radius: 4px !important;
+}
+
+.editor :global(.nb-todo-text) {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  outline: none !important;
+  font-size: var(--nb-font-size, 18px) !important;
+  line-height: var(--nb-line-height, inherit) !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  word-break: break-word !important;
+}
+
+.editor :global(.nb-todo-text) p,
+.editor :global(.nb-todo-text) div {
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: inherit !important;
+  font-size: inherit !important;
+}
+
+.editor :global(.nb-todo-completed) :global(.nb-todo-text) {
+  text-decoration: line-through;
+  opacity: 0.55;
+  color: #6b7280;
+}
+
+.darkNotebookPage .editor :global(.nb-todo-completed) :global(.nb-todo-text) {
+  color: #9ca3af;
+}
+
+.editor :global(.nb-resizable-image) {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: box-shadow 0.15s ease;
+}
+
+.editor :global(.nb-resizable-image:hover) {
+  box-shadow: 0 0 0 2px #6366f1;
+}
+
+.editor :global(.align-left) {
+  margin: 12px auto 12px 0 !important;
+  display: block;
+}
+
+.editor :global(.align-center) {
+  margin: 12px auto !important;
+  display: block;
+}
+
+.editor :global(.align-right) {
+  margin: 12px 0 12px auto !important;
+  display: block;
+}
+
+.editor :global(.align-full) {
+  width: 100% !important;
+  margin: 12px 0 !important;
+  display: block;
+}
+
+
+
+.editor,
+.editor,
+.editor *:not(i):not([class*="fa-"]):not([class*="icon"]) {
+  font-family: var(--nb-font-family, "'Inter', sans-serif") !important;
+}
+
+
+@media (max-width: 768px) {
+  .statusPill {
+    display: none !important;
+  }
+}
+
+/* ============================================================
+   MULTIPLE PAPER TYPES / BACKGROUNDS
+   ============================================================ */
+
+/* 1. Dotted Paper (Default) */
+.paperDotted {
+  background-color: #fdfbf3 !important;
+  background-image: radial-gradient(#d4d2cc 1.5px, transparent 1.5px) !important;
+  background-size: 24px 24px !important;
+}
+.darkPaperArea.paperDotted {
+  background-color: #1c1c20 !important;
+  background-image: radial-gradient(#3a3a40 1.5px, transparent 1.5px) !important;
+  background-size: 24px 24px !important;
+}
+
+/* 2. Lined / Ruled Notebook Paper - Scrolls with typed text to maintain perfect baseline alignment */
+.paperRuled {
+  background-color: #fdfbf3 !important;
+  background-image: linear-gradient(rgba(224, 220, 208, 0.75) 1px, transparent 1px) !important;
+  background-size: 100% var(--nb-line-height, 34px) !important;
+  background-position: 0 0 !important;
+  background-attachment: local !important;
+}
+.darkPaperArea.paperRuled {
+  background-color: #1c1c20 !important;
+  background-image: linear-gradient(rgba(58, 58, 64, 0.85) 1px, transparent 1px) !important;
+  background-size: 100% var(--nb-line-height, 34px) !important;
+  background-position: 0 0 !important;
+  background-attachment: local !important;
+}
+
+/* 3. Grid / Math / Graph Paper */
+.paperGrid {
+  background-color: #fdfbf3 !important;
+  background-image: linear-gradient(#e5e3db 1px, transparent 1px),
+                    linear-gradient(90deg, #e5e3db 1px, transparent 1px) !important;
+  background-size: 24px 24px !important;
+}
+.darkPaperArea.paperGrid {
+  background-color: #1c1c20 !important;
+  background-image: linear-gradient(#2d2d34 1px, transparent 1px),
+                    linear-gradient(90deg, #2d2d34 1px, transparent 1px) !important;
+  background-size: 24px 24px !important;
+}
+
+/* 4. Blank / Plain Paper */
+.paperBlank {
+  background-color: #fdfbf3 !important;
+  background-image: none !important;
+}
+.darkPaperArea.paperBlank {
+  background-color: #1c1c20 !important;
+  background-image: none !important;
+}
+.paperBlank .marginLine {
+  display: none !important;
+}
+
+/* 5. Vintage Sepia Parchment Paper */
+.paperSepia {
+  background-color: #f7f1e3 !important;
+  background-image: linear-gradient(rgba(224, 212, 188, 0.9) 1px, transparent 1px) !important;
+  background-size: 100% var(--nb-line-height, 34px) !important;
+  background-position: 0 0 !important;
+}
+.darkPaperArea.paperSepia {
+  background-color: #24201c !important;
+  background-image: linear-gradient(rgba(65, 55, 45, 0.9) 1px, transparent 1px) !important;
+  background-size: 100% var(--nb-line-height, 34px) !important;
+  background-position: 0 0 !important;
+}
+
+
+/* 6. Engineering Graph Paper */
+.paperGraph {
+  background-color: #f8fafc !important;
+  background-image:
+    linear-gradient(rgba(148, 163, 184, 0.45) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.45) 1px, transparent 1px),
+    linear-gradient(rgba(203, 213, 225, 0.25) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(203, 213, 225, 0.25) 1px, transparent 1px) !important;
+  background-size: 48px 48px, 48px 48px, 12px 12px, 12px 12px !important;
+  background-position: 0 0 !important;
+}
+.darkPaperArea.paperGraph {
+  background-color: #0f172a !important;
+  background-image:
+    linear-gradient(rgba(59, 130, 246, 0.35) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(59, 130, 246, 0.35) 1px, transparent 1px),
+    linear-gradient(rgba(51, 65, 85, 0.35) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(51, 65, 85, 0.35) 1px, transparent 1px) !important;
+  background-size: 48px 48px, 48px 48px, 12px 12px, 12px 12px !important;
+  background-position: 0 0 !important;
+}
+
+/* Plain White Paper */
+.paperWhite {
+  background-color: #ffffff !important;
+  background-image: none !important;
+}
+.darkPaperArea.paperWhite {
+  background-color: #18181b !important;
+  background-image: none !important;
+}
+.paperWhite .marginLine {
+  display: none !important;
+}
+
+/* Dark Slate / Obsidian Paper */
+.paperDark {
+  background-color: #18181b !important;
+  background-image: radial-gradient(#333338 1.5px, transparent 1.5px) !important;
+  background-size: 24px 24px !important;
+}
+.paperDark .marginLine {
+  background: #3f3f46 !important;
+}
+
+/* ============================================================
+   RESPONSIVE EDITABLE TABLES (Excel, Sheets, Word, Docs Paste)
+   ============================================================ */
+.editor :global(.nb-table-container) {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  margin: 16px 0;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(4px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  display: block;
+  box-sizing: border-box;
+}
+
+.darkNotebookPage .editor :global(.nb-table-container) {
+  border-color: rgba(255, 255, 255, 0.15);
+  background: rgba(28, 28, 30, 0.88);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+}
+
+.paperVintage .editor :global(.nb-table-container) {
+  background: rgba(254, 250, 238, 0.92);
+  border-color: rgba(180, 150, 100, 0.35);
+}
+
+.editor :global(.nb-table),
+.editor :global(table) {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95em;
+  line-height: 1.5;
+  color: inherit;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.editor :global(.nb-table th),
+.editor :global(table th) {
+  padding: 8px 12px;
+  font-weight: 600;
+  text-align: left;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  background-color: rgba(0, 0, 0, 0.04);
+  color: #1e293b;
+  box-sizing: border-box;
+}
+
+.darkNotebookPage .editor :global(.nb-table th),
+.darkNotebookPage .editor :global(table th) {
+  border-color: rgba(255, 255, 255, 0.16);
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #f8fafc;
+}
+
+.editor :global(.nb-table td),
+.editor :global(table td) {
+  padding: 8px 12px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  min-width: 48px;
+  color: inherit;
+  box-sizing: border-box;
+}
+
+.darkNotebookPage .editor :global(.nb-table td),
+.darkNotebookPage .editor :global(table td) {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.editor :global(.nb-table td:focus),
+.editor :global(.nb-table th:focus),
+.editor :global(table td:focus),
+.editor :global(table th:focus) {
+  outline: 2px solid #6366f1 !important;
+  outline-offset: -1px;
+}
+
+.editor :global(.nb-table tr:hover td) {
+  background-color: rgba(0, 0, 0, 0.015);
+}
+
+.darkNotebookPage .editor :global(.nb-table tr:hover td) {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+/* Two-Page Horizontal Book Mode */
+.editor.bookMode {
+  column-count: 2 !important;
+  column-gap: 56px !important;
+  column-rule: 1px solid rgba(0, 0, 0, 0.1) !important;
+  max-width: 1100px !important;
+  transition: all 0.25s ease !important;
+}
+
+.darkNotebookPage .editor.bookMode {
+  column-rule-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+@media (max-width: 860px) {
+  .editor.bookMode {
+    column-count: 1 !important;
+    column-gap: 0 !important;
+    column-rule: none !important;
+  }
+}
+
+/* Floating Exit Read Mode Pill */
+.exitReadModePill {
+  position: fixed;
+  top: 16px;
+  right: 20px;
+  z-index: 99999;
+  background: #6366f1;
+  color: #ffffff;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4);
+  transition: all 0.2s ease;
+  animation: slideDownFade 0.22s ease-out;
+}
+
+@keyframes slideDownFade {
+  from {
+    transform: translateY(-12px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.exitReadModePill:hover {
+  background: #4f46e5;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+}
+
+/* Anchored Comments in Document */
+.editor :global(.nb-comment-anchor) {
+  background: rgba(254, 240, 138, 0.45);
+  border-bottom: 2px solid #eab308;
+  cursor: pointer;
+  border-radius: 2px;
+  padding: 0 1px;
+  transition: background 0.15s ease;
+}
+
+.editor :global(.nb-comment-anchor:hover),
+.editor :global(.nb-comment-anchor.nb-active-comment) {
+  background: rgba(254, 240, 138, 0.85);
+  box-shadow: 0 0 0 2px rgba(234, 179, 8, 0.3);
+}
+
+.darkNotebookPage .editor :global(.nb-comment-anchor) {
+  background: rgba(234, 179, 8, 0.25);
+  border-bottom-color: #facc15;
+}
+
+/* Document Page Break Component */
+.editor :global(.nb-page-break) {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 32px 0 !important;
+  position: relative !important;
+  user-select: none !important;
+  page-break-after: always !important;
+}
+
+.editor :global(.nb-page-break)::before {
+  content: "" !important;
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 1px !important;
+  background: repeating-linear-gradient(90deg, #94a3b8, #94a3b8 6px, transparent 6px, transparent 12px) !important;
+}
+
+.editor :global(.nb-page-break-label) {
+  position: relative !important;
+  background: #f1f5f9 !important;
+  color: #64748b !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  padding: 3px 12px !important;
+  border-radius: 12px !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+.darkNotebookPage .editor :global(.nb-page-break-label) {
+  background: #27272a !important;
+  color: #a1a1aa !important;
+  border-color: #3f3f46 !important;
+}
+
+/* Multilevel List (1. > 1.1 > 1.1.1) */
+.editor :global(ol.nb-multilevel-list) {
+  counter-reset: nb-ml;
+  list-style-type: none !important;
+  padding-left: 1.4em !important;
+  margin: 4px 0 !important;
+}
+.editor :global(ol.nb-multilevel-list > li) {
+  counter-increment: nb-ml;
+  list-style-type: none !important;
+  position: relative !important;
+  margin: 3px 0 !important;
+  display: block !important;
+}
+.editor :global(ol.nb-multilevel-list > li)::before {
+  content: counter(nb-ml, decimal) ". ";
+  font-weight: 700;
+  color: inherit;
+  margin-right: 0.4em;
+  display: inline-block;
+  min-width: 1.2em;
+}
+.editor :global(ol.nb-multilevel-list ol) {
+  counter-reset: nb-ml-sub;
+  list-style-type: none !important;
+  padding-left: 1.5em !important;
+  margin: 3px 0 !important;
+}
+.editor :global(ol.nb-multilevel-list ol > li) {
+  counter-increment: nb-ml-sub;
+  list-style-type: none !important;
+  position: relative !important;
+  margin: 2px 0 !important;
+  display: block !important;
+}
+.editor :global(ol.nb-multilevel-list ol > li)::before {
+  content: counter(nb-ml, decimal) "." counter(nb-ml-sub, decimal) " ";
+  font-weight: 700;
+  color: inherit;
+  margin-right: 0.4em;
+  display: inline-block;
+  min-width: 1.6em;
+}
+.editor :global(ol.nb-multilevel-list ol ol) {
+  counter-reset: nb-ml-subsub;
+  list-style-type: none !important;
+  padding-left: 1.5em !important;
+  margin: 2px 0 !important;
+}
+.editor :global(ol.nb-multilevel-list ol ol > li) {
+  counter-increment: nb-ml-subsub;
+  list-style-type: none !important;
+  position: relative !important;
+  margin: 2px 0 !important;
+  display: block !important;
+}
+.editor :global(ol.nb-multilevel-list ol ol > li)::before {
+  content: counter(nb-ml, decimal) "." counter(nb-ml-sub, decimal) "." counter(nb-ml-subsub, decimal) " ";
+  font-weight: 700;
+  color: inherit;
+  margin-right: 0.4em;
+  display: inline-block;
+  min-width: 2em;
 }

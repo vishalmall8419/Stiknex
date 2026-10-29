@@ -879,3 +879,496 @@
   transform: scale(0.95);
 }
 
+
+
+@media (max-width: 768px) {
+  .hideOnMobile {
+    display: none !important;
+  }
+
+  /* .topbar stays visible on mobile */
+
+  .mobileHeader {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    height: 46px;
+    padding: 0 12px;
+    background: #111114;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+    user-select: none;
+    flex-shrink: 0;
+    z-index: 50;
+  }
+
+  .mobileHeaderLeft,
+  .mobileHeaderRight {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 68px;
+  }
+
+  .mobileHeaderNewBtn {
+    background: #4f46e5 !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(79, 70, 229, 0.35);
+  }
+
+  .mobileHeaderNewBtn:active {
+    background: #4338ca !important;
+    transform: scale(0.92);
+  }
+
+  .mobileHeaderRight {
+    justify-content: flex-end;
+  }
+
+  .mobileHeaderBtn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .mobileHeaderBtn:hover,
+  .mobileHeaderBtn:active {
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+  }
+
+  .mobileHeaderBtn:disabled {
+    opacity: 0.3;
+    pointer-events: none;
+  }
+
+  .mobileHeaderCenter {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    overflow: hidden;
+  }
+
+  .mobileTitleText {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: #f1f5f9;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+    cursor: pointer;
+  }
+
+  .mobileTitleInput {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid #6366f1;
+    color: #ffffff;
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+    outline: none;
+    max-width: 180px;
+  }
+}
+
+.mobileHeader {
+  display: none;
+}
+
+
+/* Top Hover Trigger Strip for Auto-Hide (Catches cursor at top edge) */
+.topHoverTrigger {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 24px;
+  z-index: 999;
+  pointer-events: auto;
+  background: transparent;
+}
+
+/* Auto-Hide Mode for Desktop: Smooth Slide & Layout Preservation */
+.topbar.autoHideMode {
+  position: relative !important;
+  z-index: 50 !important;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+              margin-top 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.3s ease !important;
+}
+
+.topbar.autoHideHidden {
+  transform: translateY(-100%) !important;
+  margin-top: -54px !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.topbar.autoHideVisible {
+  transform: translateY(0) !important;
+  margin-top: 0 !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+/* Auto-Hide Mode for Mobile Header */
+@media (max-width: 768px) {
+  .mobileHeader.autoHideMode {
+    position: relative !important;
+    z-index: 50 !important;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                margin-top 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                opacity 0.3s ease !important;
+  }
+
+  .mobileHeader.autoHideHidden {
+    transform: translateY(-100%) !important;
+    margin-top: -46px !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
+  .mobileHeader.autoHideVisible {
+    transform: translateY(0) !important;
+    margin-top: 0 !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+}
+
+
+/* Redesigned Modern Minimalist Topbar */
+.navDivider {
+  width: 1px;
+  height: 22px;
+  background: rgba(255, 255, 255, 0.14);
+  margin: 0 0.45rem;
+  flex-shrink: 0;
+}
+
+.titleStack {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1px;
+  min-width: 0;
+  margin-left: 0.2rem;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.titleText {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #f4f4f5;
+  cursor: pointer;
+  white-space: nowrap;
+  max-width: 38vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.15s ease;
+}
+
+.titleText:hover {
+  color: #a5b4fc;
+}
+
+.saveSubtitle {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: #9ca3af;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  line-height: 1;
+}
+
+.saveSubtitleSaved {
+  color: #9ca3af;
+}
+
+.saveSubtitleSaving {
+  color: #818cf8;
+}
+
+.saveSubtitleOff {
+  color: #6b7280;
+}
+
+/* More Menu Popover */
+.moreMenu {
+  position: fixed;
+  width: 260px;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 6px;
+  border-radius: 12px;
+  background: #1e1e24;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 13px;
+  color: #e4e4e7;
+  scrollbar-width: thin;
+}
+
+.moreMenuSectionTitle {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #71717a;
+  padding: 6px 10px 2px;
+}
+
+.moreMenuItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 7px 10px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #e4e4e7;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  text-align: left;
+}
+
+.moreMenuItem:hover,
+.moreMenuItem:focus,
+.moreMenuItem:focus-visible {
+  background: rgba(99, 102, 241, 0.22);
+  color: #ffffff;
+  outline: 1.5px solid #818cf8;
+  outline-offset: -1px;
+}
+
+.moreMenuItemDanger:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+}
+
+.moreMenuIcon {
+  width: 16px;
+  font-size: 13px;
+  text-align: center;
+  color: #94a3b8;
+}
+
+.moreMenuItem:hover .moreMenuIcon {
+  color: #818cf8;
+}
+
+.moreMenuBadge {
+  margin-left: auto;
+  font-size: 10px;
+  font-family: monospace;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 2px 5px;
+  border-radius: 4px;
+  color: #94a3b8;
+}
+
+.moreMenuDivider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 4px 6px;
+}
+
+/* Sliding Notebooks Drawer */
+.drawerOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 99998;
+  display: flex;
+}
+
+.drawer {
+  width: 320px;
+  max-width: 85vw;
+  height: 100%;
+  background: #18181b;
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+  animation: drawerSlide 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes drawerSlide {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+.drawerHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.drawerTitle {
+  font-weight: 700;
+  font-size: 1rem;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.newNotebookBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  background: #4f46e5;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.newNotebookBtn:hover {
+  background: #4338ca;
+}
+
+.drawerSearch {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.drawerSearch input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 6px 10px;
+  color: #fff;
+  font-size: 13px;
+  outline: none;
+}
+
+.drawerSearch input:focus {
+  border-color: #6366f1;
+}
+
+.drawerList {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.drawerItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+  color: #cbd5e1;
+}
+
+.drawerItem:hover,
+.drawerItem:focus,
+.drawerItem:focus-visible {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+}
+
+.drawerItemActive {
+  background: rgba(99, 102, 241, 0.18) !important;
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  color: #a5b4fc !important;
+}
+
+.drawerItemInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.drawerItemTitle {
+  font-weight: 600;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.drawerItemMeta {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.drawerItemDelete {
+  opacity: 0;
+  padding: 4px 6px;
+  border-radius: 4px;
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: opacity 0.15s, color 0.15s;
+}
+
+.drawerItem:hover .drawerItemDelete {
+  opacity: 1;
+}
+
+.drawerItemDelete:hover {
+  color: #f87171;
+}
+.altKeytip {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  background: #6366f1;
+  color: #ffffff;
+  font-size: 9px;
+  font-weight: 700;
+  font-family: monospace;
+  padding: 1px 3px;
+  border-radius: 3px;
+  line-height: 1;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+  z-index: 10;
+}

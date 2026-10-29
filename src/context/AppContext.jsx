@@ -58,6 +58,33 @@ export const AppProvider = ({ children }) => {
   }, [notes]);
 
   useEffect(() => {
+    const refreshNotesFromStorage = (event) => {
+      if (event.type === "storage" && event.key !== "notes") return;
+      const syncedNotes = event.detail?.remotePayload?.stickyNotes;
+      try {
+        const stored = Array.isArray(syncedNotes)
+          ? syncedNotes
+          : JSON.parse(localStorage.getItem("notes") || "[]");
+        if (Array.isArray(stored)) {
+          setNotes(stored.map((note, idx) => ({
+            ...note,
+            zIndex: note.zIndex !== undefined ? note.zIndex : idx + 1,
+          })));
+        }
+      } catch (error) {
+        console.error("Could not load synchronized sticky notes:", error);
+      }
+    };
+
+    window.addEventListener("storage", refreshNotesFromStorage);
+    window.addEventListener("stiknex_notebook_synced", refreshNotesFromStorage);
+    return () => {
+      window.removeEventListener("storage", refreshNotesFromStorage);
+      window.removeEventListener("stiknex_notebook_synced", refreshNotesFromStorage);
+    };
+  }, []);
+
+  useEffect(() => {
     localStorage.setItem("whiteboards", JSON.stringify(whiteboards));
   }, [whiteboards]);
 
@@ -68,6 +95,7 @@ export const AppProvider = ({ children }) => {
       const newNote = {
         ...note,
         zIndex: maxZ + 1,
+        createdAt: note.createdAt || Date.now(),
         updatedAt: Date.now(),
       };
       return [...prev, newNote];
@@ -83,26 +111,32 @@ export const AppProvider = ({ children }) => {
     });
   };
   const deleteNote = (id) => {
-    swal({
-      title: "Delete Note?",
-      text: "This note will be permanently deleted.",
-      icon: "warning",
-      buttons: ["Cancel", "Delete"],
-      dangerMode: true,
-    }).then((willDelete) => {
-      if (willDelete) setNotes((prev) => prev.filter((note) => note.id !== id));
-    });
+    setNotes((prev) => prev.map((note) =>
+      note.id === id ? { ...note, trashedAt: Date.now(), updatedAt: Date.now() } : note,
+    ));
   };
   const deleteMultipleNotes = (ids) => {
     swal({
-      title: "Delete Selected Notes?",
-      text: "These notes will be permanently deleted.",
+      title: "Move notes to Trash?",
+      text: "You can restore these notes from the Trash section.",
       icon: "warning",
-      buttons: ["Cancel", "Delete"],
-      dangerMode: true,
-    }).then((willDelete) => {
-      if (willDelete) setNotes((prev) => prev.filter((note) => !ids.includes(note.id)));
+      buttons: ["Cancel", "Move to Trash"],
+    }).then((shouldTrash) => {
+      if (shouldTrash) setNotes((prev) => prev.map((note) => ids.includes(note.id)
+        ? { ...note, trashedAt: Date.now(), updatedAt: Date.now() }
+        : note));
     });
+  };
+  const restoreNote = (id) => {
+    setNotes((prev) => prev.map((note) => note.id === id
+      ? { ...note, trashedAt: null, updatedAt: Date.now() }
+      : note));
+  };
+  const permanentlyDeleteNote = (id) => {
+    setNotes((prev) => prev.filter((note) => note.id !== id));
+  };
+  const emptyTrash = () => {
+    setNotes((prev) => prev.filter((note) => !note.trashedAt));
   };
   const updateNote = (id, updatedData) => {
     setNotes((prev) => prev.map((note) => (note.id === id ? { ...note, ...updatedData, updatedAt: Date.now() } : note)));
@@ -125,6 +159,12 @@ export const AppProvider = ({ children }) => {
     });
   };
 
+  const importNotes = (importedNotes) => {
+    if (Array.isArray(importedNotes)) {
+      setNotes(importedNotes);
+    }
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -134,8 +174,12 @@ export const AppProvider = ({ children }) => {
         addNote,
         deleteNote,
         deleteMultipleNotes,
+        restoreNote,
+        permanentlyDeleteNote,
+        emptyTrash,
         updateNote,
         bringToFront,
+        importNotes,
         whiteboards,
         addWhiteboard,
         updateWhiteboard,
@@ -149,4 +193,3 @@ export const AppProvider = ({ children }) => {
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const useAppContext = () => useContext(AppContext);
-

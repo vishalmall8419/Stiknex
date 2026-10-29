@@ -1,3 +1,4 @@
+import handleUrlShortener from './_utils/urlShortenerHandler.js';
 import { BetaAnalyticsDataClient } from '@google-analytics/data';
 import { verifyAdminToken } from './_utils/auth.js';
 import fs from 'fs';
@@ -34,6 +35,12 @@ function getAnalyticsClient() {
 const PROPERTY_ID = process.env.GA4_PROPERTY_ID || '556064917';
 
 export default async function handler(req, res) {
+  // 1. Dispatch URL Shortener, Click Tracking, & Redirects
+  const action = req.query.action || (req.query.code ? 'redirect' : '');
+  if (action && action !== 'admin-ga4') {
+    return handleUrlShortener(req, res);
+  }
+
   try {
     const auth = verifyAdminToken(req);
     if (!auth.valid) return res.status(401).json({ success: false, message: auth.message });

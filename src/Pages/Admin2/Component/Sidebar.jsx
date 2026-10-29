@@ -10,7 +10,8 @@ import {
   PenTool,
   Settings,
   Globe,
-  Star
+  Star,
+  CalendarDays
 } from "lucide-react";
 
 const Sidebar = ({ isSidebarOpen, onClose }) => {
@@ -56,6 +57,11 @@ const Sidebar = ({ isSidebarOpen, onClose }) => {
       name: "Google Trends",
       path: "/dashboard/trends",
       icon: TrendingUp,
+    },
+    {
+      name: "Google Calendar",
+      path: "/dashboard/calendar",
+      icon: CalendarDays,
     },
         {
       name: "SEO Intelligence",

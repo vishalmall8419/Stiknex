@@ -40,12 +40,56 @@
   ],
   "rewrites": [
     {
+      "source": "/s/:code",
+      "destination": "/api/analytics?action=redirect&code=:code"
+    },
+    {
+      "source": "/api/shortener/:subAction",
+      "destination": "/api/analytics?action=shortener-$1"
+    },
+    {
+      "source": "/api/notebook-sync",
+      "destination": "/api/auth?action=notebook-sync-push"
+    },
+    {
+      "source": "/api/notebook-sync/pull",
+      "destination": "/api/auth?action=notebook-sync-pull"
+    },
+    {
+      "source": "/api/notebook-sync/revoke",
+      "destination": "/api/auth?action=notebook-sync-revoke-device"
+    },
+    {
+      "source": "/api/notebook-pair/:subAction",
+      "destination": "/api/auth?action=notebook-pair-$1"
+    },
+    {
       "source": "/api/auth/login",
       "destination": "/api/auth?action=login"
     },
     {
       "source": "/api/auth/setup-2fa",
       "destination": "/api/auth?action=setup-2fa"
+    },
+    {
+      "source": "/api/google-calendar/connect",
+      "destination": "/api/auth?action=google-calendar-connect"
+    },
+    {
+      "source": "/api/google-calendar/callback",
+      "destination": "/api/auth?action=google-calendar-callback"
+    },
+    {
+      "source": "/api/google-calendar/events",
+      "destination": "/api/auth?action=google-calendar-events"
+    },
+    {
+      "source": "/api/google-calendar/events/create",
+      "destination": "/api/auth?action=google-calendar-events-create"
+    },
+    {
+      "source": "/api/google-calendar/timeline",
+      "destination": "/api/auth?action=google-calendar-timeline"
     },
     {
       "source": "/api/admin-blogs",

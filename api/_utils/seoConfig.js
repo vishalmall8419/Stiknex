@@ -1,7 +1,31 @@
+import { ALL_TOOLS } from "../../src/data/toolsRegistry.js";
+
 export const SITE_URL = "https://stiknex.site";
 export const BASE_URL = SITE_URL;
 
 export const seoConfig = {
+  "/url-shortener": {
+    path: "/url-shortener",
+    canonical: `${BASE_URL}/url-shortener`,
+    title: "Free URL Shortener with Real-Time Click Analytics & QR Code | Stiknex",
+    h1: "Free URL Shortener & Live Click Tracking Analytics",
+    description: "Shorten links, track real-time clicks, unique visitors, countries, referrers, and UTM campaigns. Fast server-side redirects, privacy-friendly, zero signup required.",
+    primaryIntent: "free url shortener with analytics",
+    secondaryIntents: ["link shortener click tracking", "custom url shortener", "utm link shortener", "qr code url shortener"],
+    keywords: "url shortener, link shortener, click tracking, url analytics, utm campaign tracking, qr code generator, free link shortener with analytics",
+    schemaType: "WebApplication",
+    breadcrumbs: [
+      { name: "Home", item: `${BASE_URL}/` },
+      { name: "URL Shortener", item: `${BASE_URL}/url-shortener` }
+    ],
+    cluster: "SEO & Web Utilities",
+    relatedTools: ["/tools", "/qr-code-generator", "/online-notebook"],
+    faqs: [
+      { q: "Is Stiknex URL Shortener free?", a: "Yes, Stiknex URL Shortener is 100% free with unlimited link creation and real-time click tracking." },
+      { q: "Does Stiknex store my visitors' IP addresses?", a: "No. Raw IP addresses are never saved. Stiknex uses pseudonymous cryptographic hashing to estimate unique visitors while protecting privacy." },
+      { q: "Can I use custom aliases and UTM campaign tracking?", a: "Yes, you can specify custom short aliases and build full UTM campaign tags for marketing attribution." }
+    ]
+  },
   "/": {
     path: "/",
     canonical: `${BASE_URL}/`,
@@ -217,8 +241,31 @@ export const seoConfig = {
     h1: "Support Stiknex Development",
     description: "Support the ongoing maintenance and development of Stiknex free productivity tools. Your support keeps Stiknex ad-light, free, and accessible for everyone.",
     keywords: "support stiknex, buy me a coffee, support developer, vishal mall, donate"
+  },
+  "/typing-lab": {
+    path: "/typing-lab",
+    canonical: `${BASE_URL}/typing-lab`,
+    title: "Stiknex Typing Lab – Free Typing Speed Test, Lessons & Arcade Games",
+    h1: "Stiknex Flagship Typing Lab",
+    description: "Improve your typing speed and accuracy with 15s/30s/60s/120s WPM tests, interactive touch typing lessons, developer code challenges, and arcade typing games.",
+    keywords: "typing speed test, typing test online, wpm test, learn touch typing, typing practice, typing games, code typing challenge"
   }
 };
+
+// Augment with all 200 tools from ALL_TOOLS
+ALL_TOOLS.forEach((t) => {
+  const route = `/${t.slug}`;
+  if (!seoConfig[route]) {
+    seoConfig[route] = {
+      path: route,
+      canonical: `${BASE_URL}${route}`,
+      title: `${t.title} – Free Online Utility | Stiknex`,
+      h1: t.h1 || `Free Online ${t.title}`,
+      description: t.tagline,
+      keywords: Array.isArray(t.keywords) ? t.keywords.join(", ") : t.keywords
+    };
+  }
+});
 
 export const seoAliases = {
   "/notes": "/sticky-notes",
@@ -246,6 +293,7 @@ export const seoAliases = {
 
 export const getSeoForPath = (path) => {
   const clean = path.startsWith("/") ? path : `/${path}`;
-  const unaliased = seoAliases[clean] || clean;
+  if (seoConfig[clean]) return seoConfig[clean];
+  const unaliased = seoAliases[clean] || (clean.startsWith("/tools/") ? clean.replace(/^\/tools\//, "/") : clean);
   return seoConfig[unaliased] || seoConfig["/"];
 };

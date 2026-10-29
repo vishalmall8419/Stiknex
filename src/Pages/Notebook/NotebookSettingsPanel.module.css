@@ -158,15 +158,17 @@
   transform: translateX(18px);
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .panel {
     top: auto;
     bottom: 0;
     right: 0;
     left: 0;
     width: 100%;
-    max-height: 70vh;
+    max-height: 82vh;
     border-radius: 1.25rem 1.25rem 0 0;
+    padding: 1.2rem 1.1rem max(160px, calc(env(safe-area-inset-bottom, 20px) + 140px)) 1.1rem !important;
+    z-index: 2100 !important;
   }
 }
 .darkPanel .optionBtn.optionActive {
@@ -175,4 +177,11 @@
 }
 .darkPanel .switch.switchOn {
   background: linear-gradient(135deg, #8b2cf5, #4f5cff, #2eb8ff);
+}
+
+.optionBtn:focus-visible,
+.switch:focus-visible,
+.closeBtn:focus-visible {
+  outline: 2px solid #818cf8 !important;
+  outline-offset: 2px;
 }

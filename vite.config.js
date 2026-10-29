@@ -12,6 +12,12 @@ function localApiPlugin() {
     name: 'local-api-handler',
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
+        // Intercept /s/:code short redirects in local Vite dev server
+        if (req.url.startsWith('/s/')) {
+          const code = req.url.split('/')[2]?.split('?')[0];
+          req.url = `/api/analytics?action=redirect&code=${code}`;
+        }
+
         if (!req.url.startsWith('/api/')) return next();
 
         const urlObj = new URL(req.url, 'http://localhost:5173');
@@ -26,6 +32,37 @@ function localApiPlugin() {
         else if (scriptName === 'external-services' || scriptName === 'monitor-external') { scriptName = 'seo-stats'; extraQuery.action = 'monitor-external'; }
         else if (scriptName === 'create-order') { scriptName = 'supporters'; extraQuery.action = 'create-order'; }
         else if (scriptName === 'verify-payment') { scriptName = 'supporters'; extraQuery.action = 'verify-payment'; }
+        else if (scriptName === 'notebook-pair') {
+          const parts = urlObj.pathname.split('/');
+          const subAction = parts[3] || '';
+          scriptName = 'auth';
+          extraQuery.action = `notebook-pair-${subAction}`;
+        }
+        else if (scriptName === 'notebook-sync') {
+          const parts = urlObj.pathname.split('/');
+          const subAction = parts[3] || '';
+          scriptName = 'auth';
+          extraQuery.action = subAction ? `notebook-sync-${subAction}` : 'notebook-sync-push';
+        }
+        else if (scriptName === 'google-calendar') {
+          const parts = urlObj.pathname.split('/');
+          const subAction = parts[3] || '';
+          const nestedAction = parts[4] || '';
+          scriptName = 'auth';
+          if (subAction === 'events' && nestedAction === 'create') {
+            extraQuery.action = 'google-calendar-events-create';
+          } else if (subAction === 'timeline') {
+            extraQuery.action = 'google-calendar-timeline';
+          } else {
+            extraQuery.action = `google-calendar-${subAction}`;
+          }
+        }
+        else if (scriptName === 'shortener') {
+          const parts = urlObj.pathname.split('/');
+          const subAction = parts[3] || '';
+          scriptName = 'analytics';
+          extraQuery.action = `shortener-${subAction}`;
+        }
 
         const filePath = path.resolve(process.cwd(), 'api', `${scriptName}.js`);
 

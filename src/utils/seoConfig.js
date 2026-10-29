@@ -1,3 +1,5 @@
+import { ALL_TOOLS } from "../data/toolsRegistry.js";
+
 // Centralized SEO Configuration for Stiknex
 // Supports Phase 2, Phase 3, Phase 4, Phase 6, Phase 10, Phase 12
 
@@ -5,6 +7,28 @@ export const SITE_URL = "https://stiknex.site";
 export const BASE_URL = SITE_URL;
 
 export const seoConfig = {
+  "/url-shortener": {
+    path: "/url-shortener",
+    canonical: `${BASE_URL}/url-shortener`,
+    title: "Free URL Shortener with Real-Time Click Analytics & QR Code | Stiknex",
+    h1: "Free URL Shortener & Live Click Tracking Analytics",
+    description: "Shorten links, track real-time clicks, unique visitors, countries, referrers, and UTM campaigns. Fast server-side redirects, privacy-friendly, zero signup required.",
+    primaryIntent: "free url shortener with analytics",
+    secondaryIntents: ["link shortener click tracking", "custom url shortener", "utm link shortener", "qr code url shortener"],
+    keywords: "url shortener, link shortener, click tracking, url analytics, utm campaign tracking, qr code generator, free link shortener with analytics",
+    schemaType: "WebApplication",
+    breadcrumbs: [
+      { name: "Home", item: `${BASE_URL}/` },
+      { name: "URL Shortener", item: `${BASE_URL}/url-shortener` }
+    ],
+    cluster: "SEO & Web Utilities",
+    relatedTools: ["/tools", "/qr-code-generator", "/online-notebook"],
+    faqs: [
+      { q: "Is Stiknex URL Shortener free?", a: "Yes, Stiknex URL Shortener is 100% free with unlimited link creation and real-time click tracking." },
+      { q: "Does Stiknex store my visitors' IP addresses?", a: "No. Raw IP addresses are never saved. Stiknex uses pseudonymous cryptographic hashing to estimate unique visitors while protecting privacy." },
+      { q: "Can I use custom aliases and UTM campaign tracking?", a: "Yes, you can specify custom short aliases and build full UTM campaign tags for marketing attribution." }
+    ]
+  },
   "/": {
     path: "/",
     canonical: `${BASE_URL}/`,
@@ -577,8 +601,58 @@ export const seoConfig = {
       { name: "Support", item: `${BASE_URL}/buy-me-a-coffee` }
     ],
     relatedTools: ["/about", "/tools"]
+  },
+
+  "/typing-lab": {
+    path: "/typing-lab",
+    canonical: `${BASE_URL}/typing-lab`,
+    title: "Stiknex Typing Lab – Free Typing Speed Test, Lessons & Arcade Games",
+    h1: "Stiknex Typing Lab",
+    description: "Improve your typing speed and accuracy with 15s/30s/60s/120s WPM tests, interactive touch typing lessons, developer code challenges, and arcade typing games.",
+    primaryIntent: "typing speed test / learn touch typing",
+    secondaryIntents: ["wpm test", "typing games", "code typing practice"],
+    keywords: "typing speed test, typing test online, wpm test, learn touch typing, typing practice, typing games, code typing challenge",
+    schemaType: "WebApplication",
+    breadcrumbs: [
+      { name: "Home", item: `${BASE_URL}/` },
+      { name: "Typing Lab", item: `${BASE_URL}/typing-lab` }
+    ],
+    relatedTools: ["/tools", "/word-counter", "/sticky-notes"],
+    faqs: [
+      { q: "How is typing speed (WPM) calculated?", a: "Words Per Minute (WPM) is calculated as (Characters Typed / 5) divided by the time elapsed in minutes, penalized for uncorrected errors." },
+      { q: "Is the Typing Lab free?", a: "Yes, the Stiknex Typing Lab is completely free with zero ads, signups, or usage limits." }
+    ]
   }
 };
+
+// Augment with all 200 tools from ALL_TOOLS
+ALL_TOOLS.forEach((t) => {
+  const route = `/${t.slug}`;
+  if (!seoConfig[route]) {
+    seoConfig[route] = {
+      path: route,
+      canonical: `${BASE_URL}${route}`,
+      title: `${t.title} – Free Online Utility | Stiknex`,
+      h1: t.h1 || `Free Online ${t.title}`,
+      description: t.tagline,
+      primaryIntent: `${t.title.toLowerCase()} online / free ${t.title.toLowerCase()}`,
+      secondaryIntents: [`browser ${t.title.toLowerCase()}`, `free online ${t.title.toLowerCase()}`],
+      keywords: Array.isArray(t.keywords) ? t.keywords.join(", ") : t.keywords,
+      schemaType: "WebApplication",
+      breadcrumbs: [
+        { name: "Home", item: `${BASE_URL}/` },
+        { name: "Tools", item: `${BASE_URL}/tools` },
+        { name: t.title, item: `${BASE_URL}${route}` }
+      ],
+      relatedTools: ALL_TOOLS.filter(ot => ot.category === t.category && ot.slug !== t.slug).slice(0, 4).map(ot => `/${ot.slug}`),
+      faqs: [
+        { q: `What is the Stiknex ${t.title}?`, a: `The Stiknex ${t.title} is a free, browser-based online utility designed for instant calculation, conversion, and formatting with zero server uploads.` },
+        { q: `Is the ${t.title} free to use?`, a: "Yes, all tools on Stiknex are 100% free with no account creation, subscriptions, or hidden limits." },
+        { q: `Does ${t.title} store my data?`, a: "No. All computations run 100% client-side in your device's browser memory. Your data is never transmitted to any external server." }
+      ]
+    };
+  }
+});
 
 // Aliases for legacy and sub-path links
 export const seoAliases = {
@@ -607,7 +681,7 @@ export const seoAliases = {
 
 export const getSeoForPath = (path) => {
   const clean = path.startsWith("/") ? path : `/${path}`;
-  const unaliased = seoAliases[clean] || clean;
+  if (seoConfig[clean]) return seoConfig[clean];
+  const unaliased = seoAliases[clean] || (clean.startsWith("/tools/") ? clean.replace(/^\/tools\//, "/") : clean);
   return seoConfig[unaliased] || seoConfig["/"];
 };
-
