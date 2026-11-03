@@ -1,13 +1,14 @@
 import React, { useState, useMemo } from "react";
-import { Copy, Check, Trash2, Clock, AlignLeft, Type, FileText, Volume2 } from "lucide-react";
+import { Copy, Check, Trash2, Clock, AlignLeft, Type, FileText, Volume2, Share2, BarChart2 } from "lucide-react";
 
-const WordCounter = ({ initialMode = "word" }) => {
+export default function WordCounter({ initialMode = "word" }) {
   const [text, setText] = useState("");
   const [copied, setCopied] = useState(false);
 
   const stats = useMemo(() => {
     const trimmed = text.trim();
-    const words = trimmed ? trimmed.split(/\s+/).filter(Boolean).length : 0;
+    const wordsArray = trimmed ? trimmed.split(/\s+/).filter(Boolean) : [];
+    const words = wordsArray.length;
     const characters = text.length;
     const charactersNoSpaces = text.replace(/\s/g, "").length;
     const sentences = trimmed ? (trimmed.match(/[.!?]+(?:\s+|$)/g) || []).length || (trimmed.length > 0 ? 1 : 0) : 0;
@@ -23,6 +24,23 @@ const WordCounter = ({ initialMode = "word" }) => {
     const speakingSeconds = Math.round((words / 130) * 60);
     const speakingTimeStr = words === 0 ? "0 sec" : speakingSeconds < 60 ? `${speakingSeconds} sec` : `${speakingMinutes} min`;
 
+    // Keyword density: top 4 frequent words of length >= 3
+    const freqMap = {};
+    wordsArray.forEach((w) => {
+      const clean = w.toLowerCase().replace(/[^a-z0-9]/g, "");
+      if (clean.length >= 3) {
+        freqMap[clean] = (freqMap[clean] || 0) + 1;
+      }
+    });
+    const topKeywords = Object.entries(freqMap)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 4)
+      .map(([word, count]) => ({
+        word,
+        count,
+        percent: ((count / Math.max(1, words)) * 100).toFixed(1),
+      }));
+
     return {
       words,
       characters,
@@ -31,6 +49,7 @@ const WordCounter = ({ initialMode = "word" }) => {
       paragraphs,
       readingTime: readingTimeStr,
       speakingTime: speakingTimeStr,
+      topKeywords,
     };
   }, [text]);
 
@@ -58,6 +77,12 @@ const WordCounter = ({ initialMode = "word" }) => {
       );
     }
   };
+
+  const SOCIAL_LIMITS = [
+    { name: "Twitter / X", max: 280, count: stats.characters },
+    { name: "Instagram Caption", max: 2200, count: stats.characters },
+    { name: "LinkedIn Post", max: 3000, count: stats.characters },
+  ];
 
   return (
     <div className="w-full flex flex-col gap-6">
@@ -113,14 +138,14 @@ const WordCounter = ({ initialMode = "word" }) => {
           <div className="absolute top-3 right-3 flex items-center gap-2">
             <button
               onClick={handleCopy}
-              className="p-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur rounded-xl text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 shadow-sm border border-slate-200 dark:border-slate-700 transition"
+              className="p-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur rounded-xl text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 shadow-sm border border-slate-200 dark:border-slate-700 transition cursor-pointer"
               title="Copy Text"
             >
               {copied ? <Check size={16} className="text-emerald-500" /> : <Copy size={16} />}
             </button>
             <button
               onClick={handleClear}
-              className="p-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur rounded-xl text-slate-600 dark:text-slate-300 hover:text-red-600 dark:hover:text-red-400 shadow-sm border border-slate-200 dark:border-slate-700 transition"
+              className="p-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur rounded-xl text-slate-600 dark:text-slate-300 hover:text-red-600 dark:hover:text-red-400 shadow-sm border border-slate-200 dark:border-slate-700 transition cursor-pointer"
               title="Clear Text"
             >
               <Trash2 size={16} />
@@ -130,7 +155,7 @@ const WordCounter = ({ initialMode = "word" }) => {
       </div>
 
       {/* Secondary Detailed Breakdown & Actions */}
-      <div className="flex flex-wrap items-center justify-between gap-4 pt-2">
+      <div className="flex flex-wrap items-center justify-between gap-4 pt-1">
         <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-slate-500 dark:text-slate-400">
           <span>
             No spaces: <strong className="text-slate-800 dark:text-slate-200 font-bold">{stats.charactersNoSpaces}</strong>
@@ -149,29 +174,78 @@ const WordCounter = ({ initialMode = "word" }) => {
           <button
             onClick={() => transformCase("upper")}
             disabled={!text}
-            className="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition disabled:opacity-40"
+            className="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition disabled:opacity-40 cursor-pointer"
           >
             UPPERCASE
           </button>
           <button
             onClick={() => transformCase("lower")}
             disabled={!text}
-            className="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition disabled:opacity-40"
+            className="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition disabled:opacity-40 cursor-pointer"
           >
             lowercase
           </button>
           <button
             onClick={() => transformCase("title")}
             disabled={!text}
-            className="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition disabled:opacity-40"
+            className="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition disabled:opacity-40 cursor-pointer"
           >
             Title Case
           </button>
         </div>
       </div>
+
+      {/* Social Media Character Limits Counter */}
+      <div className="p-4 bg-slate-50 dark:bg-slate-900/60 rounded-2xl border border-slate-200/80 dark:border-slate-800 space-y-3">
+        <div className="flex items-center gap-2">
+          <Share2 className="w-4 h-4 text-indigo-500" />
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            Social Media Character Limits
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {SOCIAL_LIMITS.map((soc) => {
+            const pct = Math.min(100, Math.round((soc.count / soc.max) * 100));
+            const isExceeded = soc.count > soc.max;
+            return (
+              <div key={soc.name} className="p-3 rounded-xl bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700">
+                <div className="flex items-center justify-between text-xs mb-1">
+                  <span className="font-bold text-slate-700 dark:text-slate-200">{soc.name}</span>
+                  <span className={`font-mono text-[11px] font-bold ${isExceeded ? "text-rose-500" : "text-slate-400"}`}>
+                    {soc.count} / {soc.max}
+                  </span>
+                </div>
+                <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full transition-all duration-300 ${
+                      isExceeded ? "bg-rose-500" : pct > 80 ? "bg-amber-500" : "bg-indigo-500"
+                    }`}
+                    style={{ width: `${pct}%` }}
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Top Keywords Density */}
+      {stats.topKeywords.length > 0 && (
+        <div className="flex items-center gap-2 flex-wrap text-xs text-slate-500 dark:text-slate-400">
+          <span className="font-bold uppercase tracking-wider text-[11px] flex items-center gap-1 text-slate-400">
+            <BarChart2 className="w-3.5 h-3.5" /> Top Keywords:
+          </span>
+          {stats.topKeywords.map((k) => (
+            <span
+              key={k.word}
+              className="px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-900/40 font-medium"
+            >
+              <strong>{k.word}</strong>: {k.count}× ({k.percent}%)
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   );
-};
-
-export default WordCounter;
-
+}

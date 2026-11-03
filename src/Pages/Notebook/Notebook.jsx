@@ -1,3 +1,4 @@
+import { uploadImageToCloud } from '../../utils/imageUpload';
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import swal from "sweetalert";
@@ -405,18 +406,20 @@ const Notebook = () => {
         setNotebooks(updated);
         localStorage.removeItem(TEXT_KEY);
 
+        // 1. Save only lightweight metadata to localStorage (safely caught so QuotaExceeded never fails save)
         try {
+          localStorage.removeItem(TEXT_KEY);
           localStorage.setItem(NOTEBOOKS_KEY, JSON.stringify(notebookMetadata(updated)));
-        } catch (_) {
-          localStorage.setItem(NOTEBOOKS_KEY, JSON.stringify(updated));
+        } catch (lsErr) {
+          console.warn("localStorage quota reached, note safely stored in IndexedDB:", lsErr);
         }
 
-        // Instant save feedback to user
+        // Instant save feedback to user (< 5ms)
         setSaveState("saved");
 
-        // Background persistence to IndexedDB
-        saveExtendedNote(activeNotebookId, htmlToSave).catch((err) => {
-          console.warn("Background IndexedDB note save notice:", err);
+        // 2. High-capacity content persistence to IndexedDB (asynchronous & non-blocking)
+        saveExtendedNote(activeNotebookId, htmlToSave).catch((idbErr) => {
+          console.warn("IndexedDB background save error:", idbErr);
         });
 
         scheduleCloudSync();
@@ -896,6 +899,10 @@ const Notebook = () => {
       const hash = window.location.hash ? window.location.hash.substring(1) : "";
 
       if (pairingId && hash) {
+        if (typeof window !== 'undefined' && window.location.protocol === 'http:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+          window.location.replace(`https://${window.location.host}${window.location.pathname}${window.location.search}${window.location.hash}`);
+          return;
+        }
         setSyncStatus("syncing");
         swal({
           title: "Connecting Device...",

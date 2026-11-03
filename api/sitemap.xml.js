@@ -1,11 +1,22 @@
 import connectToDatabase from './_utils/db.js';
 import Blog from './_models/Blog.js';
 import { seoConfig, BASE_URL } from './_utils/seoConfig.js';
+import fs from 'fs';
+import path from 'path';
+
+// Load pre-generated genuine route dates if available
+let routeDates = {};
+try {
+    const datesPath = path.join(process.cwd(), 'api', '_utils', 'routeDates.json');
+    if (fs.existsSync(datesPath)) {
+        routeDates = JSON.parse(fs.readFileSync(datesPath, 'utf8'));
+    }
+} catch (_) {}
 
 export default async function handler(req, res) {
     try {
         const baseUrl = BASE_URL || 'https://stiknex.site';
-        const today = new Date().toISOString().split('T')[0];
+        const defaultDate = '2026-10-30';
         
         let blogs = [];
         try {
@@ -22,31 +33,13 @@ export default async function handler(req, res) {
         xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
 
         // Core Public Pages from seoConfig (Excludes private / admin routes)
-        for (const [path, config] of Object.entries(seoConfig)) {
-            let priority = "0.8";
-            let changefreq = "weekly";
-
-            if (path === "/") {
-                priority = "1.0";
-                changefreq = "daily";
-            } else if (["/sticky-notes", "/online-notebook", "/whiteboard", "/tools"].includes(path)) {
-                priority = "0.9";
-                changefreq = "daily";
-            } else if (path === "/blog") {
-                priority = "0.8";
-                changefreq = "daily";
-            } else if (["/about", "/buy-me-a-coffee"].includes(path)) {
-                priority = "0.6";
-                changefreq = "monthly";
-            }
-
-            const fullUrl = path === "/" ? `${baseUrl}/` : `${baseUrl}${path}`;
+        for (const [routePath, config] of Object.entries(seoConfig)) {
+            const fullUrl = routePath === "/" ? `${baseUrl}/` : `${baseUrl}${routePath}`;
+            const lastmod = routeDates[routePath] || defaultDate;
 
             xml += `  <url>\n`;
             xml += `    <loc>${fullUrl}</loc>\n`;
-            xml += `    <lastmod>${today}</lastmod>\n`;
-            xml += `    <changefreq>${changefreq}</changefreq>\n`;
-            xml += `    <priority>${priority}</priority>\n`;
+            xml += `    <lastmod>${lastmod}</lastmod>\n`;
             xml += `  </url>\n`;
         }
 
@@ -56,7 +49,7 @@ export default async function handler(req, res) {
             blogs.forEach(blog => {
                 if (!blog.slug || seenSlugs.has(blog.slug)) return;
                 seenSlugs.add(blog.slug);
-                let modDate = today;
+                let modDate = defaultDate;
                 const dateVal = blog.updatedAt || blog.publishedAt;
                 if (dateVal) {
                     try {
@@ -67,8 +60,6 @@ export default async function handler(req, res) {
                 xml += `  <url>\n`;
                 xml += `    <loc>${baseUrl}/blog/${encodeURIComponent(blog.slug)}</loc>\n`;
                 xml += `    <lastmod>${modDate}</lastmod>\n`;
-                xml += `    <changefreq>monthly</changefreq>\n`;
-                xml += `    <priority>0.7</priority>\n`;
                 xml += `  </url>\n`;
             });
         }

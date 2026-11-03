@@ -46,10 +46,9 @@ const fetchJson = async (url, options = {}, retries = 2) => {
 };
 
 const CANDIDATE_MODELS = [
-    'gemini-2.5-flash-lite',
-    'gemini-2.5-flash',
-    'gemini-flash-latest',
     'gemini-3.5-flash-lite',
+    'gemini-3.8-flash',
+    'gemini-flash-latest',
     'gemini-flash-lite-latest'
 ];
 
@@ -745,9 +744,9 @@ RULES: Authoritative paragraphs. Output directly in clean Markdown without backt
         console.log(`[BlogEngine] Initiating parallel generation for "${keyword}"...`);
         const startTime = Date.now();
 
-        const p1Promise = callGeminiWithFallback(promptPart1, true, 2200, 11000);
-        const p2Promise = callGeminiWithFallback(promptPart2, false, 2200, 11000);
-        const p3Promise = callGeminiWithFallback(promptPart3, false, 2200, 11000);
+        const p1Promise = callGeminiWithFallback(promptPart1, true, 1800, 13000);
+        const p2Promise = callGeminiWithFallback(promptPart2, false, 1800, 13000);
+        const p3Promise = callGeminiWithFallback(promptPart3, false, 1800, 13000);
 
         const [p1Res, p2Res, p3Res] = await Promise.all([p1Promise, p2Promise, p3Promise]);
 

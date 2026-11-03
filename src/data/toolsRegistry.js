@@ -3,6 +3,87 @@
 // Single Source of Truth for Tools, Categories, Routes, Engines & SEO
 // ============================================================================
 
+// 9 Approved Strategic Category Hubs (Synthesized from 20 Subcategories)
+export const TOOL_HUBS = [
+  {
+    id: "notes-planning",
+    name: "Notes & Planning",
+    icon: "fa-solid fa-note-sticky",
+    color: "from-amber-500 to-orange-500",
+    description: "Digital notebooks, sticky notes boards, infinite whiteboards, to-do lists, and productivity planners.",
+    subcategories: ["productivity", "helpers"]
+  },
+  {
+    id: "typing-keyboard",
+    name: "Typing & Keyboard",
+    icon: "fa-solid fa-keyboard",
+    color: "from-violet-500 to-indigo-500",
+    description: "WPM typing speed tests, interactive touch typing lessons, developer code challenges, and accuracy benchmarks.",
+    subcategories: ["typing"]
+  },
+  {
+    id: "writing-text",
+    name: "Writing & Text",
+    icon: "fa-solid fa-pen-nib",
+    color: "from-blue-500 to-cyan-500",
+    description: "Real-time word & character counters, text diff comparators, case transformers, and markdown editors.",
+    subcategories: ["writing", "text-analysis"]
+  },
+  {
+    id: "calculators",
+    name: "Calculators",
+    icon: "fa-solid fa-calculator",
+    color: "from-emerald-500 to-teal-500",
+    description: "Scientific computation, age, percentage, date differences, EMI, compound interest, and financial calculators.",
+    subcategories: ["calculators", "math", "finance", "time"]
+  },
+  {
+    id: "converters",
+    name: "Converters",
+    icon: "fa-solid fa-ruler-combined",
+    color: "from-pink-500 to-rose-500",
+    description: "Universal unit, live currency, metric to imperial, length, area, volume, and binary data storage converters.",
+    subcategories: ["measurement"]
+  },
+  {
+    id: "developer-tools",
+    name: "Developer Tools",
+    icon: "fa-solid fa-code",
+    color: "from-indigo-500 to-purple-600",
+    description: "JSON formatters & validators, regex testers, CSV converters, code minifiers, Base64, and URL encoders.",
+    subcategories: ["developer", "encoding", "data"]
+  },
+  {
+    id: "security-generators",
+    name: "Security & Generators",
+    icon: "fa-solid fa-shield-halved",
+    color: "from-amber-600 to-yellow-500",
+    description: "Cryptographic password generators, SHA/HMAC hash utilities, QR code generators, and randomizers.",
+    subcategories: ["security", "generators"]
+  },
+  {
+    id: "seo-tools",
+    name: "SEO Tools",
+    icon: "fa-solid fa-magnifying-glass-chart",
+    color: "from-cyan-500 to-blue-600",
+    description: "Free URL shortener with live click analytics, SERP preview simulator, meta tag counters, and slug checkers.",
+    subcategories: ["seo"]
+  },
+  {
+    id: "image-media",
+    name: "Image, PDF & Media",
+    icon: "fa-solid fa-image",
+    color: "from-rose-500 to-red-600",
+    description: "Client-side image compressors, resizers, color pickers, PDF document tools, and audio/video utilities.",
+    subcategories: ["image", "pdf", "design", "media"]
+  }
+];
+
+export const getHubForCategory = (categoryId) => {
+  const hub = TOOL_HUBS.find(h => h.subcategories.includes(categoryId));
+  return hub || TOOL_HUBS[3];
+};
+
 export const TOOL_CATEGORIES = [
   { id: "calculators", name: "Calculators & Converters", icon: "fa-solid fa-calculator", description: "Everyday arithmetic, percentages, dates, and measurement conversions." },
   { id: "measurement", name: "Advanced Measurement", icon: "fa-solid fa-ruler-combined", description: "Engineering, speed, volume, pressure, and ratio calculations." },

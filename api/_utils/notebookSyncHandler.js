@@ -292,8 +292,8 @@ export default async function handleNotebookSync(req, res) {
         if (!record) {
           record = new NotebookSync({
             syncGroupId,
-            ciphertext: '',
-            iv: '',
+            ciphertext: 'init',
+            iv: 'init',
             version: 1,
             devices: [{
               deviceId,
@@ -373,8 +373,8 @@ export default async function handleNotebookSync(req, res) {
           // Auto-create sync group for valid recovery key holder if Device A has not pushed initial payload yet
           record = new NotebookSync({
             syncGroupId,
-            ciphertext: '',
-            iv: '',
+            ciphertext: 'init',
+            iv: 'init',
             version: 1,
             devices: [{
               deviceId,

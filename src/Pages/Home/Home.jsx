@@ -1,3 +1,4 @@
+import { uploadImageToCloud } from '../../utils/imageUpload';
 import { useState, useRef, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { Link, useLocation } from "react-router-dom";
@@ -1092,7 +1093,11 @@ const Home = () => {
         const id = typeof crypto.randomUUID === "function"
           ? crypto.randomUUID()
           : `sticky_image_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
-        const dataUrl = await compressImage(file);
+        let dataUrl = await compressImage(file);
+        try {
+          const cloudRes = await uploadImageToCloud(dataUrl);
+          if (cloudRes?.url) dataUrl = cloudRes.url;
+        } catch (_) {}
         const saved = await saveImageToDb(id, dataUrl);
         if (!saved) throw new Error("Could not save this image in browser storage.");
         savedImageIds.push(id);
@@ -1576,7 +1581,9 @@ const Home = () => {
             {/* Drop-up panel — rendered above the bar */}
             {workspaceOpen && (
               <div
-                className="absolute bottom-full left-0 right-0 z-[70] mb-1 rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-900"
+                className={`absolute bottom-full left-0 z-[70] mb-1 rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-900 ${
+                  sidebarExpanded || mobileSidebarOpen ? "w-full right-0" : "w-60 left-1 shadow-2xl"
+                }`}
                 onMouseLeave={() => setWorkspaceOpen(false)}
               >
                 {/* Workspace stats grid */}
@@ -1619,22 +1626,27 @@ const Home = () => {
               </div>
             )}
 
-            {/* Single compact bar — always visible */}
+            {/* Single compact bar — always visible, icon-only when collapsed */}
             <button
               type="button"
               onClick={() => setWorkspaceOpen((v) => !v)}
               title="Settings & More"
               aria-label="Settings & More"
               aria-expanded={workspaceOpen}
-              className={`flex h-8 w-full items-center gap-2 border-t px-3 text-xs font-semibold transition
+              className={`flex h-10 w-full items-center border-t text-xs font-semibold transition cursor-pointer overflow-hidden
+                ${sidebarExpanded || mobileSidebarOpen ? "justify-start gap-3 px-3.5" : "justify-center px-0"}
                 ${workspaceOpen
                   ? "border-indigo-300 bg-indigo-50 text-indigo-600 dark:border-indigo-500/40 dark:bg-indigo-500/10 dark:text-indigo-300"
-                  : "border-slate-200 bg-slate-50 text-slate-500 hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-600 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-400 dark:hover:bg-indigo-500/10"
+                  : "border-slate-200 bg-slate-50 text-slate-500 hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-600 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-400 dark:hover:bg-indigo-500/10"
                 }`}
             >
-              <i className="fa-solid fa-sliders w-3.5 shrink-0 text-center text-[11px]"></i>
-              <span className="flex-1 text-left">Settings &amp; More</span>
-              <i className={`fa-solid fa-chevron-${workspaceOpen ? "down" : "up"} text-[10px]`}></i>
+              <i className="fa-solid fa-sliders w-5 shrink-0 text-center text-xs"></i>
+              {(sidebarExpanded || mobileSidebarOpen) && (
+                <>
+                  <span className="min-w-0 flex-1 overflow-hidden whitespace-nowrap text-left">Settings &amp; More</span>
+                  <i className={`fa-solid fa-chevron-${workspaceOpen ? "down" : "up"} text-[10px] shrink-0`}></i>
+                </>
+              )}
             </button>
           </div>
           <input ref={importInputRef} type="file" accept=".json,application/json" onChange={(event) => { handleImportJson(event); event.target.value = ""; }} className="hidden" />

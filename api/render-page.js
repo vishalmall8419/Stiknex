@@ -1,4 +1,6 @@
-import { getSeoForPath, BASE_URL, SITE_URL } from './_utils/seoConfig.js';
+import { getSeoForPath, isKnownRoute, BASE_URL, SITE_URL } from './_utils/seoConfig.js';
+import { ALL_TOOLS, TOOL_CATEGORIES, TOOL_HUBS } from '../src/data/toolsRegistry.js';
+import { getBespokeDataForSlug } from '../src/data/bespokeToolsData.js';
 import connectToDatabase from './_utils/db.js';
 import Blog from './_models/Blog.js';
 import fs from 'fs';
@@ -21,6 +23,12 @@ export default async function handler(req, res) {
 
     // Always use authoritative primary production domain for SEO metadata & canonicals
     const primaryDomain = SITE_URL || BASE_URL || 'https://stiknex.site';
+    // 301 Permanent Redirect for obsolete /dataconverter route
+    if (cleanPath === '/dataconverter' || cleanPath === '/tools/dataconverter') {
+        res.setHeader('Location', `${primaryDomain}/data-converter`);
+        return res.status(301).end();
+    }
+
 
     try {
         // Load index.html: try local dist first, then fetch fallback
@@ -128,6 +136,47 @@ export default async function handler(req, res) {
                 html = html.replace('</head>', `<link rel="canonical" href="${blogUrl}" />\n</head>`);
             }
 
+            const blogSchemas = [
+                {
+                    "@context": "https://schema.org",
+                    "@type": "BlogPosting",
+                    "headline": title,
+                    "description": description,
+                    "image": imageUrl,
+                    "url": blogUrl,
+                    "datePublished": blog.publishedAt || blog.createdAt || new Date().toISOString(),
+                    "dateModified": blog.updatedAt || blog.publishedAt || new Date().toISOString(),
+                    "author": {
+                        "@type": "Person",
+                        "name": blog.author || "Vishal Mall",
+                        "url": `${primaryDomain}/about`
+                    },
+                    "publisher": {
+                        "@type": "Organization",
+                        "name": "Stiknex",
+                        "url": primaryDomain,
+                        "logo": {
+                            "@type": "ImageObject",
+                            "url": `${primaryDomain}/Stiknex.png`
+                        }
+                    },
+                    "mainEntityOfPage": {
+                        "@type": "WebPage",
+                        "@id": blogUrl
+                    }
+                },
+                {
+                    "@context": "https://schema.org",
+                    "@type": "BreadcrumbList",
+                    "itemListElement": [
+                        { "@type": "ListItem", "position": 1, "name": "Home", "item": `${primaryDomain}/` },
+                        { "@type": "ListItem", "position": 2, "name": "Blog", "item": `${primaryDomain}/blog` },
+                        { "@type": "ListItem", "position": 3, "name": title, "item": blogUrl }
+                    ]
+                }
+            ];
+            html = html.replace('</head>', `<script type="application/ld+json">${JSON.stringify(blogSchemas)}</script>\n</head>`);
+
             const blogRoot = `
     <div id="root">
       <header style="padding: 20px 16px; border-bottom: 1px solid #e2e8f0; text-align: center;">
@@ -176,6 +225,57 @@ export default async function handler(req, res) {
         if (matchPath.length > 1 && matchPath.endsWith('/')) {
             matchPath = matchPath.slice(0, -1);
         }
+        
+        // Check if route is known. If unknown, return true HTTP 404
+        const isAnalyticsRoute = cleanPath.startsWith('/url-shortener/analytics/');
+        const isKnown = isKnownRoute(matchPath) || isAnalyticsRoute;
+
+        if (!isKnown && cleanPath !== '/') {
+            let notFoundHtml = html
+                .replace(/<title>[\s\S]*?<\/title>/, `<title>404 Page Not Found | Stiknex</title>`)
+                .replace(/<meta\s+name="robots"[\s\S]*?>/i, `<meta name="robots" content="noindex, nofollow" />`);
+
+            if (!notFoundHtml.includes('content="noindex, nofollow"')) {
+                notFoundHtml = notFoundHtml.replace('</head>', `<meta name="robots" content="noindex, nofollow" />\n</head>`);
+            }
+
+            const notFoundRoot = `
+    <div id="root">
+      <header style="padding: 24px 16px; text-align: center; border-bottom: 1px solid #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+        <a href="${primaryDomain}/" style="font-size: 24px; font-weight: 800; color: #4f46e5; text-decoration: none;">Stiknex</a>
+        <p style="margin-top: 6px; color: #64748b; font-size: 14px;">Free Online Sticky Notes, Digital Notebook &amp; Productivity Tools</p>
+      </header>
+      <main style="max-width: 800px; margin: 0 auto; padding: 48px 16px; text-align: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+        <div style="display: inline-block; padding: 6px 14px; background: #fee2e2; color: #b91c1c; border-radius: 9999px; font-size: 13px; font-weight: 700; margin-bottom: 20px;">
+          HTTP 404 — Page Not Found
+        </div>
+        <h1 style="font-size: 36px; font-weight: 900; color: #0f172a; margin-bottom: 12px;">Oops! That page doesn't exist.</h1>
+        <p style="color: #64748b; font-size: 16px; margin-bottom: 32px; max-width: 600px; margin-left: auto; margin-right: auto; line-height: 1.6;">
+          The requested URL path <code style="padding: 2px 6px; background: #f1f5f9; border-radius: 4px; color: #e11d48; font-family: monospace;">${cleanPath}</code> could not be found or has been moved.
+        </p>
+        <div style="display: flex; justify-content: center; gap: 14px; margin-bottom: 40px; flex-wrap: wrap;">
+          <a href="${primaryDomain}/" style="padding: 12px 24px; background: #0f172a; color: #fff; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px;">Return to Homepage</a>
+          <a href="${primaryDomain}/tools" style="padding: 12px 24px; background: #4f46e5; color: #fff; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px;">Browse 200+ Free Tools</a>
+        </div>
+        <div style="text-align: left; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px;">
+          <h2 style="font-size: 16px; font-weight: 700; color: #0f172a; margin-bottom: 12px;">Popular Stiknex Applications:</h2>
+          <ul style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; list-style: none; padding: 0; margin: 0;">
+            <li><a href="${primaryDomain}/sticky-notes" style="color: #4f46e5; text-decoration: none; font-weight: 600; font-size: 14px;">Sticky Notes Canvas</a></li>
+            <li><a href="${primaryDomain}/online-notebook" style="color: #4f46e5; text-decoration: none; font-weight: 600; font-size: 14px;">Online Notebook &amp; Notepad</a></li>
+            <li><a href="${primaryDomain}/whiteboard" style="color: #4f46e5; text-decoration: none; font-weight: 600; font-size: 14px;">Interactive Whiteboard</a></li>
+            <li><a href="${primaryDomain}/data-converter" style="color: #4f46e5; text-decoration: none; font-weight: 600; font-size: 14px;">Data Storage Converter</a></li>
+            <li><a href="${primaryDomain}/url-shortener" style="color: #4f46e5; text-decoration: none; font-weight: 600; font-size: 14px;">URL Shortener &amp; Analytics</a></li>
+            <li><a href="${primaryDomain}/blog" style="color: #4f46e5; text-decoration: none; font-weight: 600; font-size: 14px;">Productivity &amp; Tech Blog</a></li>
+          </ul>
+        </div>
+      </main>
+    </div>`;
+
+            notFoundHtml = replaceRootHtml(notFoundHtml, notFoundRoot);
+            res.setHeader('Content-Type', 'text/html; charset=utf-8');
+            return res.status(404).send(notFoundHtml);
+        }
+
         const seo = getSeoForPath(matchPath);
 
         const title = seo.title;
@@ -199,6 +299,113 @@ export default async function handler(req, res) {
             html = html.replace('</head>', `<link rel="canonical" href="${canonicalUrl}" />\n</head>`);
         }
 
+        // Schema.org structured data injection for SEO, AEO & Google AI search
+        const pageSchemas = [
+            {
+                "@context": "https://schema.org",
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    { "@type": "ListItem", "position": 1, "name": "Home", "item": `${primaryDomain}/` },
+                    ...(cleanPath !== '/' ? [{
+                        "@type": "ListItem",
+                        "position": 2,
+                        "name": seo.h1 || title.split('–')[0].split('-')[0].trim(),
+                        "item": canonicalUrl
+                    }] : [])
+                ]
+            }
+        ];
+
+        if (cleanPath === '/') {
+            pageSchemas.push({
+                "@context": "https://schema.org",
+                "@type": "WebSite",
+                "name": "Stiknex",
+                "url": primaryDomain,
+                "description": description,
+                "potentialAction": {
+                    "@type": "SearchAction",
+                    "target": `${primaryDomain}/search?q={search_term_string}`,
+                    "query-input": "required name=search_term_string"
+                }
+            });
+        } else if (cleanPath === '/about') {
+            pageSchemas.push({
+                "@context": "https://schema.org",
+                "@type": "AboutPage",
+                "name": title,
+                "url": canonicalUrl,
+                "description": description,
+                "mainEntity": {
+                    "@type": "Organization",
+                    "name": "Stiknex",
+                    "url": primaryDomain,
+                    "founder": {
+                        "@type": "Person",
+                        "name": "Vishal Mall"
+                    }
+                }
+            });
+        } else {
+            pageSchemas.push({
+                "@context": "https://schema.org",
+                "@type": "WebApplication",
+                "name": title.split('–')[0].split('-')[0].trim(),
+                "url": canonicalUrl,
+                "description": description,
+                "applicationCategory": "ProductivityApplication",
+                "operatingSystem": "All",
+                "browserRequirements": "Requires JavaScript and HTML5 support",
+                "offers": {
+                    "@type": "Offer",
+                    "price": "0",
+                    "priceCurrency": "USD"
+                }
+            });
+        }
+
+        if (seo.faqs && seo.faqs.length > 0) {
+            pageSchemas.push({
+                "@context": "https://schema.org",
+                "@type": "FAQPage",
+                "mainEntity": seo.faqs.map(f => ({
+                    "@type": "Question",
+                    "name": f.q,
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": f.a
+                    }
+                }))
+            });
+        }
+
+        html = html.replace('</head>', `<script type="application/ld+json">${JSON.stringify(pageSchemas)}</script>\n</head>`);
+
+        // Fetch bespoke howTo, guide and features for AI search / GEO / AEO
+        const toolSlug = cleanPath.replace(/^\//, '');
+        const bespoke = getBespokeDataForSlug(toolSlug);
+        let bespokeHtml = '';
+        if (bespoke) {
+            if (bespoke.howTo && bespoke.howTo.length > 0) {
+                bespokeHtml += `
+        <section style="margin: 28px 0;">
+            <h2 style="font-size: 18px; font-weight: 700; color: #0f172a; margin-bottom: 12px;">Step-by-Step Instructions</h2>
+            <ol style="padding-left: 20px; color: #334155; font-size: 14px; line-height: 1.8;">
+                ${bespoke.howTo.map(step => `<li style="margin-bottom: 6px;">${step}</li>`).join('')}
+            </ol>
+        </section>`;
+            }
+            if (bespoke.features && bespoke.features.length > 0) {
+                bespokeHtml += `
+        <section style="margin: 28px 0;">
+            <h2 style="font-size: 18px; font-weight: 700; color: #0f172a; margin-bottom: 12px;">Specifications &amp; Calculation Rules</h2>
+            <ul style="padding-left: 20px; color: #334155; font-size: 14px; line-height: 1.8;">
+                ${bespoke.features.map(feat => `<li style="margin-bottom: 6px;">${feat}</li>`).join('')}
+            </ul>
+        </section>`;
+            }
+        }
+
         let faqsHtml = '';
         if (seo.faqs && seo.faqs.length > 0) {
             faqsHtml = `
@@ -212,6 +419,21 @@ export default async function handler(req, res) {
             `).join('')}
         </section>`;
         }
+
+        
+        // Generate categorized tools directory across the 9 primary hubs for comprehensive static HTML internal linking
+        const categorizedToolsHtml = TOOL_HUBS.map(hub => {
+            const hubTools = ALL_TOOLS.filter(t => hub.subcategories.includes(t.category));
+            if (!hubTools.length) return '';
+            return `
+            <div style="margin-bottom: 24px;">
+              <h3 style="font-size: 16px; font-weight: 700; color: #1e293b; margin-bottom: 6px; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px;">${hub.name} (${hubTools.length} Utilities)</h3>
+              <p style="font-size: 13px; color: #64748b; margin-bottom: 10px;">${hub.description}</p>
+              <ul style="display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; list-style: none; padding: 0; margin: 0;">
+                ${hubTools.map(t => `<li><a href="${primaryDomain}/${t.slug}" style="color: #4f46e5; text-decoration: none; font-size: 13px; font-weight: 500;">${t.title}</a></li>`).join('')}
+              </ul>
+            </div>`;
+        }).join('');
 
         let relatedHtml = '';
         if (seo.relatedTools && seo.relatedTools.length > 0) {
@@ -285,13 +507,16 @@ export default async function handler(req, res) {
               <li><a href="${primaryDomain}/speed-converter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Speed Converter</a></li>
               <li><a href="${primaryDomain}/pressure-converter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Pressure Converter</a></li>
               <li><a href="${primaryDomain}/power-converter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Power Converter</a></li>
-              <li><a href="${primaryDomain}/dataconverter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Data Storage Converter</a></li>
+              <li><a href="${primaryDomain}/data-converter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Data Storage Converter</a></li>
               <li><a href="${primaryDomain}/qr-code-generator" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">QR Code Generator</a></li>
               <li><a href="${primaryDomain}/password-generator" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Password Generator</a></li>
               <li><a href="${primaryDomain}/color-picker" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Color Picker</a></li>
               <li><a href="${primaryDomain}/tools" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">All Tools Directory</a></li>
               <li><a href="${primaryDomain}/blog" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Productivity Blog</a></li>
               <li><a href="${primaryDomain}/about" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">About Stiknex</a></li>
+              <li><a href="${primaryDomain}/contact" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Contact Us</a></li>
+              <li><a href="${primaryDomain}/privacy-policy" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Privacy Policy</a></li>
+              <li><a href="${primaryDomain}/terms-of-service" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Terms of Service</a></li>
             </ul>
           </nav>
         </section>
@@ -311,40 +536,23 @@ export default async function handler(req, res) {
       <main style="max-width: 960px; margin: 0 auto; padding: 32px 16px;">
         <h1 style="font-size: 30px; font-weight: 800; color: #0f172a; margin-bottom: 12px; line-height: 1.3;">${seo.h1 || title}</h1>
         <p style="color: #475569; font-size: 16px; line-height: 1.6; margin-bottom: 24px;">${description}</p>
+        ${bespokeHtml}
         ${faqsHtml}
         ${relatedHtml}
         <section style="margin-top: 36px; padding-top: 24px; border-top: 1px solid #e2e8f0;">
-          <h2 style="font-size: 18px; font-weight: 700; color: #0f172a; margin-bottom: 14px;">Stiknex Online Tools Directory</h2>
-          <nav aria-label="Tools Directory">
-            <ul style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; list-style: none; padding: 0;">
-              <li><a href="${primaryDomain}/sticky-notes" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Sticky Notes Board</a></li>
-              <li><a href="${primaryDomain}/online-notebook" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Online Notebook</a></li>
-              <li><a href="${primaryDomain}/whiteboard" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Online Whiteboard</a></li>
-              <li><a href="${primaryDomain}/word-counter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Word Counter Online</a></li>
-              <li><a href="${primaryDomain}/character-counter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Character Counter</a></li>
-              <li><a href="${primaryDomain}/reading-time-calculator" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Reading Time Calculator</a></li>
-              <li><a href="${primaryDomain}/simple-calculator" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Simple Calculator</a></li>
-              <li><a href="${primaryDomain}/scientific-calculator" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Scientific Calculator</a></li>
-              <li><a href="${primaryDomain}/date-calculator" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Date &amp; Time Calculator</a></li>
-              <li><a href="${primaryDomain}/currency-converter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Live Currency Converter</a></li>
-              <li><a href="${primaryDomain}/unit-converter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Universal Unit Converter</a></li>
-              <li><a href="${primaryDomain}/length-converter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Length Converter</a></li>
-              <li><a href="${primaryDomain}/area-converter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Area Converter</a></li>
-              <li><a href="${primaryDomain}/volume-converter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Volume Converter</a></li>
-              <li><a href="${primaryDomain}/weight-converter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Weight Converter</a></li>
-              <li><a href="${primaryDomain}/temperature-converter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Temperature Converter</a></li>
-              <li><a href="${primaryDomain}/speed-converter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Speed Converter</a></li>
-              <li><a href="${primaryDomain}/pressure-converter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Pressure Converter</a></li>
-              <li><a href="${primaryDomain}/power-converter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Power Converter</a></li>
-              <li><a href="${primaryDomain}/dataconverter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Data Storage Converter</a></li>
-              <li><a href="${primaryDomain}/qr-code-generator" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">QR Code Generator</a></li>
-              <li><a href="${primaryDomain}/password-generator" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Password Generator</a></li>
-              <li><a href="${primaryDomain}/color-picker" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Color Picker</a></li>
-              <li><a href="${primaryDomain}/tools" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">All Tools Directory</a></li>
-              <li><a href="${primaryDomain}/blog" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Productivity Blog</a></li>
-              <li><a href="${primaryDomain}/about" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">About Stiknex</a></li>
-            </ul>
+          <h2 style="font-size: 18px; font-weight: 700; color: #0f172a; margin-bottom: 14px;">Stiknex 200+ Free Online Tools Directory</h2>
+          <nav aria-label="Categorized Tools Directory">
+            ${categorizedToolsHtml}
           </nav>
+          <div style="margin-top: 32px; padding-top: 16px; border-top: 1px solid #e2e8f0; display: flex; flex-wrap: wrap; gap: 16px; font-size: 13px; color: #64748b;">
+            <a href="${primaryDomain}/" style="color: #64748b; text-decoration: none;">Home</a>
+            <a href="${primaryDomain}/about" style="color: #64748b; text-decoration: none;">About</a>
+            <a href="${primaryDomain}/contact" style="color: #64748b; text-decoration: none;">Contact Us</a>
+            <a href="${primaryDomain}/privacy-policy" style="color: #64748b; text-decoration: none;">Privacy Policy</a>
+            <a href="${primaryDomain}/terms-of-service" style="color: #64748b; text-decoration: none;">Terms of Service</a>
+            <a href="${primaryDomain}/blog" style="color: #64748b; text-decoration: none;">Blog</a>
+            <a href="${primaryDomain}/buy-me-a-coffee" style="color: #64748b; text-decoration: none;">Support</a>
+          </div>
         </section>
       </main>
     </div>`;

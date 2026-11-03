@@ -1,0 +1,449 @@
+{
+  "item1_tools": {
+    "totalTools": 201
+  },
+  "item2_hubs": {
+    "hubs": {
+      "notes-planning": {
+        "name": "Notes & Planning",
+        "count": 20
+      },
+      "typing-keyboard": {
+        "name": "Typing & Keyboard",
+        "count": 10
+      },
+      "writing-text": {
+        "name": "Writing & Text",
+        "count": 20
+      },
+      "calculators": {
+        "name": "Calculators",
+        "count": 40
+      },
+      "converters": {
+        "name": "Converters",
+        "count": 10
+      },
+      "developer-tools": {
+        "name": "Developer Tools",
+        "count": 31
+      },
+      "security-generators": {
+        "name": "Security & Generators",
+        "count": 20
+      },
+      "seo-tools": {
+        "name": "SEO Tools",
+        "count": 10
+      },
+      "image-media": {
+        "name": "Image, PDF & Media",
+        "count": 40
+      }
+    },
+    "totalInHubs": 201,
+    "orphans": 0
+  },
+  "item3_routes": {
+    "hasDynamicToolRoute": true,
+    "sampleToolSlugsInRegistry": [
+      "basic-calculator",
+      "scientific-calculator",
+      "percentage-calculator",
+      "age-calculator",
+      "date-difference-calculator"
+    ]
+  },
+  "item4_ssr": {
+    "/typing-speed-test": {
+      "statusCode": 200,
+      "title": "Typing Speed Test – Free WPM Test & Accuracy Check | Stiknex",
+      "description": "Test your typing speed (WPM) and accuracy with 1-minute, 2-minute, and 5-minute timed challenges. Real-time error tracking and speed benchmarks.",
+      "descriptionLength": 144,
+      "h1": "Free Online Typing Speed Test (WPM)",
+      "hasFaq": true,
+      "hasHubsInHtml": true,
+      "hasInternalLinks": true,
+      "htmlLength": 58476,
+      "htmlPreviewSnippet": "<h1 style=\"font-size: 30px; font-weight: 800; color: #0f172a; margin-bottom: 12px; line-height: 1.3;\">Free Online Typing Speed Test (WPM)</h1>\n        <p style=\"color: #475569; font-size: 16px; line-height: 1.6; margin-bottom: 24px;\">Test your typing speed (WPM) and accuracy with 1-minute, 2-minute, and 5-minute timed challenges. Real-time error tracking and speed benchmarks.</p>\n        \n        "
+    },
+    "/emi-calculator": {
+      "statusCode": 200,
+      "title": "EMI Calculator – Calculate Loan EMI, Interest & Total Payoff | Stiknex",
+      "description": "Calculate Equated Monthly Installments (EMI) for home loans, car loans, and personal loans. Amortization schedule, total interest breakdown in ₹ / $.",
+      "descriptionLength": 149,
+      "h1": "Free Online EMI Calculator (Loan & Interest)",
+      "hasFaq": true,
+      "hasHubsInHtml": true,
+      "hasInternalLinks": true,
+      "htmlLength": 57982,
+      "htmlPreviewSnippet": "<h1 style=\"font-size: 30px; font-weight: 800; color: #0f172a; margin-bottom: 12px; line-height: 1.3;\">Free Online EMI Calculator (Loan & Interest)</h1>\n        <p style=\"color: #475569; font-size: 16px; line-height: 1.6; margin-bottom: 24px;\">Calculate Equated Monthly Installments (EMI) for home loans, car loans, and personal loans. Amortization schedule, total interest breakdown in ₹ / $.</p>\n   "
+    },
+    "/sip-calculator": {
+      "statusCode": 200,
+      "title": "SIP Calculator – Calculate Mutual Fund Returns & Wealth | Stiknex",
+      "description": "Calculate future value of Systematic Investment Plans (SIP) in mutual funds. Compounded monthly investment returns, wealth gain, and growth visualizer.",
+      "descriptionLength": 151,
+      "h1": "Free Online SIP Calculator (Mutual Funds & Wealth)",
+      "hasFaq": true,
+      "hasHubsInHtml": true,
+      "hasInternalLinks": true,
+      "htmlLength": 57975,
+      "htmlPreviewSnippet": "<h1 style=\"font-size: 30px; font-weight: 800; color: #0f172a; margin-bottom: 12px; line-height: 1.3;\">Free Online SIP Calculator (Mutual Funds & Wealth)</h1>\n        <p style=\"color: #475569; font-size: 16px; line-height: 1.6; margin-bottom: 24px;\">Calculate future value of Systematic Investment Plans (SIP) in mutual funds. Compounded monthly investment returns, wealth gain, and growth visualizer."
+    },
+    "/data-converter": {
+      "statusCode": 200,
+      "title": "Data Storage Converter – Bytes, KB, MB, GB, TB, PB | Stiknex",
+      "description": "Convert digital storage units between bytes, kilobytes, megabytes, gigabytes, terabytes, and petabytes in decimal (1000) and binary (1024) standards instantly.",
+      "descriptionLength": 159,
+      "h1": "Free Online Data Storage Converter",
+      "hasFaq": true,
+      "hasHubsInHtml": true,
+      "hasInternalLinks": true,
+      "htmlLength": 57932,
+      "htmlPreviewSnippet": "<h1 style=\"font-size: 30px; font-weight: 800; color: #0f172a; margin-bottom: 12px; line-height: 1.3;\">Free Online Data Storage Converter</h1>\n        <p style=\"color: #475569; font-size: 16px; line-height: 1.6; margin-bottom: 24px;\">Convert digital storage units between bytes, kilobytes, megabytes, gigabytes, terabytes, and petabytes in decimal (1000) and binary (1024) standards instantly.</p>\n   "
+    },
+    "/word-counter": {
+      "statusCode": 200,
+      "title": "Free Online Word Counter – Real-Time Word & Character Count | Stiknex",
+      "description": "Count words, characters, sentences, and paragraphs in real time. Accurately calculate reading time, speaking time, and convert text case instantly.",
+      "descriptionLength": 147,
+      "h1": "Free Online Word Counter",
+      "hasFaq": false,
+      "hasHubsInHtml": true,
+      "hasInternalLinks": true,
+      "htmlLength": 55537,
+      "htmlPreviewSnippet": "<h1 style=\"font-size: 30px; font-weight: 800; color: #0f172a; margin-bottom: 12px; line-height: 1.3;\">Free Online Word Counter</h1>\n        <p style=\"color: #475569; font-size: 16px; line-height: 1.6; margin-bottom: 24px;\">Count words, characters, sentences, and paragraphs in real time. Accurately calculate reading time, speaking time, and convert text case instantly.</p>\n        \n        \n       "
+    }
+  },
+  "item5_tier1": [
+    {
+      "route": "/typing-speed-test",
+      "status": "OK",
+      "title": "Typing Speed Test – Free WPM Test & Accuracy Check | Stiknex",
+      "titleLength": 60,
+      "titleUnique": true,
+      "descLength": 144,
+      "canonical": "https://stiknex.site/typing-speed-test",
+      "canonicalMatchesRoute": true,
+      "h1": "Free Online Typing Speed Test (WPM)",
+      "faqCount": 3
+    },
+    {
+      "route": "/typing-test-10-fast-fingers",
+      "status": "MISSING"
+    },
+    {
+      "route": "/word-counter",
+      "status": "OK",
+      "title": "Free Online Word Counter – Real-Time Word & Character Count | Stiknex",
+      "titleLength": 69,
+      "titleUnique": true,
+      "descLength": 147,
+      "canonical": "https://stiknex.site/word-counter",
+      "canonicalMatchesRoute": true,
+      "h1": "Free Online Word Counter",
+      "faqCount": 2
+    },
+    {
+      "route": "/character-counter",
+      "status": "OK",
+      "title": "Character Counter Online – Characters With & Without Spaces | Stiknex",
+      "titleLength": 69,
+      "titleUnique": true,
+      "descLength": 136,
+      "canonical": "https://stiknex.site/character-counter",
+      "canonicalMatchesRoute": true,
+      "h1": "Free Online Character Counter",
+      "faqCount": 1
+    },
+    {
+      "route": "/reading-time-calculator",
+      "status": "OK",
+      "title": "Reading Time Calculator – Estimate Article & Speech Duration | Stiknex",
+      "titleLength": 70,
+      "titleUnique": true,
+      "descLength": 141,
+      "canonical": "https://stiknex.site/reading-time-calculator",
+      "canonicalMatchesRoute": true,
+      "h1": "Free Reading Time Calculator",
+      "faqCount": 1
+    },
+    {
+      "route": "/simple-calculator",
+      "status": "OK",
+      "title": "Simple Calculator Online – Quick Arithmetic & Math | Stiknex",
+      "titleLength": 60,
+      "titleUnique": true,
+      "descLength": 142,
+      "canonical": "https://stiknex.site/simple-calculator",
+      "canonicalMatchesRoute": true,
+      "h1": "Free Simple Online Calculator",
+      "faqCount": 1
+    },
+    {
+      "route": "/scientific-calculator",
+      "status": "OK",
+      "title": "Online Scientific Calculator – Trig, Log & Powers | Stiknex",
+      "titleLength": 59,
+      "titleUnique": true,
+      "descLength": 149,
+      "canonical": "https://stiknex.site/scientific-calculator",
+      "canonicalMatchesRoute": true,
+      "h1": "Free Online Scientific Calculator",
+      "faqCount": 1
+    },
+    {
+      "route": "/percentage-calculator",
+      "status": "OK",
+      "title": "Percentage Calculator – Fast Percentage Increases & Diffs | Stiknex",
+      "titleLength": 67,
+      "titleUnique": true,
+      "descLength": 153,
+      "canonical": "https://stiknex.site/percentage-calculator",
+      "canonicalMatchesRoute": true,
+      "h1": "Free Online Percentage Calculator",
+      "faqCount": 2
+    },
+    {
+      "route": "/emi-calculator",
+      "status": "OK",
+      "title": "EMI Calculator – Calculate Loan EMI, Interest & Total Payoff | Stiknex",
+      "titleLength": 70,
+      "titleUnique": true,
+      "descLength": 149,
+      "canonical": "https://stiknex.site/emi-calculator",
+      "canonicalMatchesRoute": true,
+      "h1": "Free Online EMI Calculator (Loan & Interest)",
+      "faqCount": 2
+    },
+    {
+      "route": "/sip-calculator",
+      "status": "OK",
+      "title": "SIP Calculator – Calculate Mutual Fund Returns & Wealth | Stiknex",
+      "titleLength": 65,
+      "titleUnique": true,
+      "descLength": 151,
+      "canonical": "https://stiknex.site/sip-calculator",
+      "canonicalMatchesRoute": true,
+      "h1": "Free Online SIP Calculator (Mutual Funds & Wealth)",
+      "faqCount": 2
+    },
+    {
+      "route": "/compound-interest-calculator",
+      "status": "OK",
+      "title": "Compound Interest Calculator – Free Online Utility | Stiknex",
+      "titleLength": 60,
+      "titleUnique": true,
+      "descLength": 84,
+      "canonical": "https://stiknex.site/compound-interest-calculator",
+      "canonicalMatchesRoute": true,
+      "h1": "Free Online Compound Interest Calculator",
+      "faqCount": 3
+    },
+    {
+      "route": "/mortgage-calculator",
+      "status": "MISSING"
+    },
+    {
+      "route": "/currency-converter",
+      "status": "OK",
+      "title": "Live Currency Converter – Real-Time Foreign Exchange Rates | Stiknex",
+      "titleLength": 68,
+      "titleUnique": true,
+      "descLength": 131,
+      "canonical": "https://stiknex.site/currency-converter",
+      "canonicalMatchesRoute": true,
+      "h1": "Free Live Currency Converter",
+      "faqCount": 1
+    },
+    {
+      "route": "/unit-converter",
+      "status": "OK",
+      "title": "Free Online Unit Converter – Metric & Imperial Conversion | Stiknex",
+      "titleLength": 67,
+      "titleUnique": true,
+      "descLength": 135,
+      "canonical": "https://stiknex.site/unit-converter",
+      "canonicalMatchesRoute": true,
+      "h1": "Free Universal Unit Converter",
+      "faqCount": 1
+    },
+    {
+      "route": "/length-converter",
+      "status": "OK",
+      "title": "Length Converter – Meters, Feet, Inches, Miles & Kilometers | Stiknex",
+      "titleLength": 69,
+      "titleUnique": true,
+      "descLength": 123,
+      "canonical": "https://stiknex.site/length-converter",
+      "canonicalMatchesRoute": true,
+      "h1": "Free Online Length Converter",
+      "faqCount": 1
+    },
+    {
+      "route": "/weight-converter",
+      "status": "OK",
+      "title": "Weight Converter – Kilograms, Pounds, Ounces & Grams | Stiknex",
+      "titleLength": 62,
+      "titleUnique": true,
+      "descLength": 123,
+      "canonical": "https://stiknex.site/weight-converter",
+      "canonicalMatchesRoute": true,
+      "h1": "Free Online Weight & Mass Converter",
+      "faqCount": 1
+    },
+    {
+      "route": "/data-converter",
+      "status": "OK",
+      "title": "Data Storage Converter – Bytes, KB, MB, GB, TB, PB | Stiknex",
+      "titleLength": 60,
+      "titleUnique": true,
+      "descLength": 159,
+      "canonical": "https://stiknex.site/data-converter",
+      "canonicalMatchesRoute": true,
+      "h1": "Free Online Data Storage Converter",
+      "faqCount": 2
+    },
+    {
+      "route": "/json-formatter",
+      "status": "OK",
+      "title": "JSON Formatter & Validator – Beautify, Minify & Fix JSON | Stiknex",
+      "titleLength": 66,
+      "titleUnique": true,
+      "descLength": 151,
+      "canonical": "https://stiknex.site/json-formatter",
+      "canonicalMatchesRoute": true,
+      "h1": "Free Online JSON Formatter & Validator",
+      "faqCount": 2
+    },
+    {
+      "route": "/json-validator",
+      "status": "OK",
+      "title": "JSON Validator – Free Online Utility | Stiknex",
+      "titleLength": 46,
+      "titleUnique": true,
+      "descLength": 85,
+      "canonical": "https://stiknex.site/json-validator",
+      "canonicalMatchesRoute": true,
+      "h1": "Free Online JSON Validator & Syntax Checker",
+      "faqCount": 3
+    },
+    {
+      "route": "/base64-encoder-decoder",
+      "status": "OK",
+      "title": "Base64 Encoder / Decoder – Free Online Utility | Stiknex",
+      "titleLength": 56,
+      "titleUnique": true,
+      "descLength": 84,
+      "canonical": "https://stiknex.site/base64-encoder-decoder",
+      "canonicalMatchesRoute": true,
+      "h1": "Free Online Base64 Encoder & Decoder",
+      "faqCount": 3
+    },
+    {
+      "route": "/qr-code-generator",
+      "status": "OK",
+      "title": "Free QR Code Generator – Custom Colors & Instant Download | Stiknex",
+      "titleLength": 67,
+      "titleUnique": true,
+      "descLength": 147,
+      "canonical": "https://stiknex.site/qr-code-generator",
+      "canonicalMatchesRoute": true,
+      "h1": "Free Custom QR Code Generator",
+      "faqCount": 2
+    },
+    {
+      "route": "/password-generator",
+      "status": "OK",
+      "title": "Random Password Generator – Strong & Secure Password Maker | Stiknex",
+      "titleLength": 68,
+      "titleUnique": true,
+      "descLength": 142,
+      "canonical": "https://stiknex.site/password-generator",
+      "canonicalMatchesRoute": true,
+      "h1": "Free Strong Random Password Generator",
+      "faqCount": 1
+    },
+    {
+      "route": "/password-strength-checker",
+      "status": "OK",
+      "title": "Password Strength Checker – Free Online Utility | Stiknex",
+      "titleLength": 57,
+      "titleUnique": true,
+      "descLength": 85,
+      "canonical": "https://stiknex.site/password-strength-checker",
+      "canonicalMatchesRoute": true,
+      "h1": "Free Online Password Strength & Entropy Checker",
+      "faqCount": 3
+    },
+    {
+      "route": "/meta-description-counter",
+      "status": "OK",
+      "title": "Meta Description Counter – Free Online Utility | Stiknex",
+      "titleLength": 56,
+      "titleUnique": true,
+      "descLength": 73,
+      "canonical": "https://stiknex.site/meta-description-counter",
+      "canonicalMatchesRoute": true,
+      "h1": "Free Online Meta Description Counter",
+      "faqCount": 3
+    },
+    {
+      "route": "/slug-generator",
+      "status": "OK",
+      "title": "URL Slug Generator – Free Online Utility | Stiknex",
+      "titleLength": 50,
+      "titleUnique": true,
+      "descLength": 82,
+      "canonical": "https://stiknex.site/slug-generator",
+      "canonicalMatchesRoute": true,
+      "h1": "Free Online URL Slug Generator",
+      "faqCount": 3
+    },
+    {
+      "route": "/image-compressor",
+      "status": "OK",
+      "title": "Image Compressor – Free Online Utility | Stiknex",
+      "titleLength": 48,
+      "titleUnique": true,
+      "descLength": 96,
+      "canonical": "https://stiknex.site/image-compressor",
+      "canonicalMatchesRoute": true,
+      "h1": "Free Online Image Compressor (Client-Side)",
+      "faqCount": 3
+    }
+  ],
+  "item6_schema": {},
+  "item7_formulas": {
+    "wpmInCode": false,
+    "emiFormulaFound": false,
+    "sipFormulaFound": false
+  },
+  "item8_sitemap": {
+    "totalInSitemap": 234,
+    "uniqueCount": 234,
+    "duplicates": 0,
+    "hasDataConverter": true,
+    "hasObsoleteDataconverter": false
+  },
+  "item9_vercel": {
+    "functionCount": 11,
+    "functions": [
+      "analytics.js",
+      "auth.js",
+      "blogs.js",
+      "fetch-trends.js",
+      "generate-blog.js",
+      "render-page.js",
+      "reviews.js",
+      "seo-stats.js",
+      "sitemap.xml.js",
+      "supporters.js",
+      "trends.js"
+    ],
+    "maxDuration": [
+      15
+    ]
+  }
+}

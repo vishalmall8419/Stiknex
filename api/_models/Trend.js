@@ -41,7 +41,7 @@ const TrendSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'relevant', 'used', 'ignored'],
+    enum: ['pending', 'relevant', 'used', 'ignored', 'covered'],
     default: 'pending'
   }
 }, { timestamps: true });

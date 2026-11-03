@@ -361,7 +361,7 @@ export async function pullFromCloud(customIdentity = null, customCryptoKey = nul
     }
 
     const data = await response.json();
-    if (!data.ciphertext || !data.iv) {
+    if (!data.ciphertext || !data.iv || data.ciphertext === 'init') {
       return { success: true, message: 'No remote data yet' };
     }
 
@@ -646,6 +646,12 @@ export async function createQRPairingSession() {
 
   // The pairing key is in the hash (#) so it is NEVER sent to the server in HTTP headers
   const pairingOrigin = new URL(typeof window !== 'undefined' ? window.location.origin : 'https://stiknex.site');
+  if (pairingOrigin.protocol === 'http:' && pairingOrigin.hostname !== 'localhost' && pairingOrigin.hostname !== '127.0.0.1') {
+    pairingOrigin.protocol = 'https:';
+  }
+  if (pairingOrigin.hostname === 'stiknex.site' || pairingOrigin.hostname.endsWith('stiknex.site')) {
+    pairingOrigin.protocol = 'https:';
+  }
   const devLanHost = import.meta.env.VITE_DEV_LAN_HOST;
   if (
     import.meta.env.DEV &&

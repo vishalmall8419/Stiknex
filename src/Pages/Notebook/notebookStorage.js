@@ -147,10 +147,45 @@ export async function saveExtendedNote(id, html) {
     const db = await getDb();
     if (!db || !db.objectStoreNames.contains(NOTE_STORE)) return false;
     return new Promise((resolve) => {
-      const tx = db.transaction(NOTE_STORE, "readwrite");
-      tx.objectStore(NOTE_STORE).put({ id, html, updatedAt: Date.now() });
-      tx.oncomplete = () => resolve(true);
-      tx.onerror = () => resolve(false);
+      let settled = false;
+      const timeout = setTimeout(() => {
+        if (!settled) {
+          settled = true;
+          resolve(false);
+        }
+      }, 2000);
+
+      try {
+        const tx = db.transaction(NOTE_STORE, "readwrite");
+        tx.objectStore(NOTE_STORE).put({ id, html, updatedAt: Date.now() });
+        tx.oncomplete = () => {
+          if (!settled) {
+            settled = true;
+            clearTimeout(timeout);
+            resolve(true);
+          }
+        };
+        tx.onerror = () => {
+          if (!settled) {
+            settled = true;
+            clearTimeout(timeout);
+            resolve(false);
+          }
+        };
+        tx.onabort = () => {
+          if (!settled) {
+            settled = true;
+            clearTimeout(timeout);
+            resolve(false);
+          }
+        };
+      } catch (err) {
+        if (!settled) {
+          settled = true;
+          clearTimeout(timeout);
+          resolve(false);
+        }
+      }
     });
   } catch {
     return false;

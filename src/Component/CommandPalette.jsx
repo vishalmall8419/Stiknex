@@ -456,7 +456,7 @@ export default function CommandPalette() {
 
   return (
     <>
-      {!["/sticky-notes", "/notes"].includes(location.pathname) && <button
+      {!["/", "/sticky-notes", "/notes"].includes(location.pathname) && <button
         ref={btnRef}
         onClick={() => {
           setQuery("");
@@ -465,22 +465,22 @@ export default function CommandPalette() {
         }}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
-        className="fixed bottom-6 left-6 z-40 flex items-center h-[38px] bg-slate-900/90 hover:bg-slate-800 backdrop-blur-md text-slate-300 border border-white/10 rounded-full shadow-xl text-xs font-semibold overflow-hidden p-0 cursor-pointer"
+        className="fixed bottom-6 left-6 z-40 flex items-center h-[38px] bg-white/95 dark:bg-slate-900/95 hover:bg-slate-50 dark:hover:bg-slate-800 backdrop-blur-md text-slate-700 dark:text-slate-200 border border-slate-200/90 dark:border-slate-800 rounded-full shadow-lg shadow-slate-900/5 dark:shadow-black/40 text-xs font-semibold overflow-hidden p-0 cursor-pointer transition-all hover:border-indigo-400 dark:hover:border-indigo-500 hover:shadow-indigo-500/10"
         title={`Quick Search (${shortcutLabel})`}
         aria-label={`Quick Search (${shortcutLabel})`}
       >
         <span className="w-[38px] h-[38px] flex items-center justify-center shrink-0">
-          <Search className="w-4 h-4 text-indigo-400" />
+          <Search className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
         </span>
         <span ref={labelRef} className="flex items-center gap-2 pr-3.5 whitespace-nowrap opacity-0 pointer-events-none">
-          <span>Quick Search</span>
-          <kbd className="px-1.5 py-0.5 bg-white/10 rounded text-[10px] font-mono text-slate-400">{shortcutLabel}</kbd>
+          <span className="text-slate-800 dark:text-slate-100 font-bold">Quick Search</span>
+          <kbd className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded text-[10px] font-mono border border-slate-200 dark:border-slate-700">{shortcutLabel}</kbd>
         </span>
       </button>}
 
       {isOpen && (
         <div
-          className="fixed inset-0 z-[2147483000] flex items-start justify-center overflow-y-auto px-4 py-[max(2rem,8vh)] bg-slate-950/75 backdrop-blur-xl"
+          className="fixed inset-0 z-[2147483000] flex items-start justify-center overflow-y-auto px-4 py-[max(2rem,8vh)] bg-slate-900/50 dark:bg-slate-950/80 backdrop-blur-md transition-all"
           onMouseDown={(event) => {
             if (event.target === event.currentTarget) {
               setIsOpen(false);
@@ -492,10 +492,10 @@ export default function CommandPalette() {
             role="dialog"
             aria-modal="true"
             aria-label="Stiknex Quick Search"
-            className="w-full max-w-3xl bg-slate-900 border border-white/10 rounded-2xl shadow-2xl overflow-hidden text-white font-sans flex flex-col"
+            className="w-full max-w-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-2xl shadow-slate-900/10 dark:shadow-black/60 overflow-hidden text-slate-900 dark:text-white font-sans flex flex-col transition-all"
           >
-            <div className="flex items-center gap-3 px-4 py-4 border-b border-white/10 bg-slate-950/70">
-              <Search className="w-5 h-5 text-indigo-400 shrink-0" />
+            <div className="flex items-center gap-3 px-4 py-4 border-b border-slate-200/80 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/70">
+              <Search className="w-5 h-5 text-indigo-600 dark:text-indigo-400 shrink-0" />
               <input
                 ref={inputRef}
                 type="text"
@@ -503,14 +503,14 @@ export default function CommandPalette() {
                 onChange={(event) => setQuery(event.target.value)}
                 onKeyDown={handleInputKeyDown}
                 placeholder="Ask in your own words or search pages, tools, blogs, and your notes..."
-                className="w-full bg-transparent outline-none text-white placeholder-slate-500 text-sm"
+                className="w-full bg-transparent outline-none text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-sm"
               />
-              <button onClick={() => { setIsOpen(false); setQuery(""); }} className="p-2 text-slate-400 hover:text-white rounded-lg" aria-label="Close Quick Search">
+              <button onClick={() => { setIsOpen(false); setQuery(""); }} className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-white rounded-lg transition-colors" aria-label="Close Quick Search">
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="max-h-[min(65vh,560px)] overflow-y-auto divide-y divide-white/5 p-2">
+            <div className="max-h-[min(65vh,560px)] overflow-y-auto divide-y divide-slate-100 dark:divide-white/5 p-2">
               {results.map((item, index) => {
                 const isSelected = index === selectedIndex;
                 return (
@@ -519,27 +519,45 @@ export default function CommandPalette() {
                     key={item.id}
                     onClick={() => handleSelect(item)}
                     onMouseEnter={() => setSelectedIndex(index)}
-                    className={`w-full flex items-center justify-between gap-3 p-3 rounded-xl text-left transition ${
-                      isSelected ? "bg-indigo-600 text-white" : "hover:bg-white/5 text-slate-300"
+                    className={`w-full flex items-center justify-between gap-3 p-3 rounded-xl text-left transition border ${
+                      isSelected
+                        ? "bg-indigo-50/90 dark:bg-indigo-500/15 border-indigo-200 dark:border-indigo-500/30 text-indigo-950 dark:text-white shadow-xs"
+                        : "border-transparent hover:bg-slate-100/70 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-300"
                     }`}
                   >
                     <span className="flex items-center gap-3 overflow-hidden">
-                      <span className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm shrink-0 ${isSelected ? "bg-white/20 text-white" : "bg-slate-800 text-indigo-400"}`}>
+                      <span className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm shrink-0 transition-colors ${
+                        isSelected
+                          ? "bg-indigo-600 dark:bg-indigo-500 text-white shadow-xs"
+                          : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-indigo-400"
+                      }`}>
                         <i className={item.icon}></i>
                       </span>
                       <span className="overflow-hidden">
                         <span className="flex items-center gap-2">
                           <span className="font-bold text-sm truncate">{item.title}</span>
-                          <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider ${isSelected ? "bg-white/20 text-white" : "bg-indigo-950 text-indigo-300 border border-indigo-500/20"}`}>
+                          <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider ${
+                            isSelected
+                              ? "bg-indigo-100 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/40"
+                              : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700/60"
+                          }`}>
                             {item.category}
                           </span>
                         </span>
-                        <span className={`block text-xs truncate mt-0.5 ${isSelected ? "text-indigo-100" : "text-slate-400"}`}>
+                        <span className={`block text-xs truncate mt-0.5 ${
+                          isSelected
+                            ? "text-indigo-700 dark:text-indigo-200/90 font-medium"
+                            : "text-slate-500 dark:text-slate-400"
+                        }`}>
                           {item.description || item.tagline}
                         </span>
                       </span>
                     </span>
-                    <ArrowRight className={`w-4 h-4 shrink-0 ${isSelected ? "text-white" : "text-slate-600"}`} />
+                    <ArrowRight className={`w-4 h-4 shrink-0 transition-transform ${
+                      isSelected
+                        ? "text-indigo-600 dark:text-indigo-400 translate-x-0.5"
+                        : "text-slate-400 dark:text-slate-600"
+                    }`} />
                   </button>
                 );
               })}
@@ -552,7 +570,7 @@ export default function CommandPalette() {
               {blogError && <p className="px-3 py-2 text-xs text-amber-300">{blogError}</p>}
             </div>
 
-            <div className="px-4 py-3 bg-slate-950/80 border-t border-white/10 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-400">
+            <div className="px-4 py-3 bg-slate-50/80 dark:bg-slate-950/80 border-t border-slate-200/80 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-500 dark:text-slate-400">
               <div className="flex items-center gap-3">
                 <span>↑↓ navigate</span>
                 <span>↵ open</span>

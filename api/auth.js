@@ -12,7 +12,7 @@ const LOCK_TIME_MS = 15 * 60 * 1000; // 15 minutes
 export default async function handler(req, res) {
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, x-sync-group-id, x-device-id");
 
     if (req.method === 'OPTIONS') {
         return res.status(200).end();
@@ -31,6 +31,23 @@ export default async function handler(req, res) {
     };
 
     const action = req.query.action || (req.url?.includes('setup-2fa') ? 'setup-2fa' : 'login');
+
+    if (action === 'upload-image' || action === 'notebook-upload-image') {
+        if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+        try {
+            const { uploadToCloudinary } = await import('./_utils/cloudinary.js');
+            const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body || {};
+            const { image, folder } = body;
+            if (!image) {
+                return res.status(400).json({ success: false, error: 'No image data provided' });
+            }
+            const result = await uploadToCloudinary(image, folder || 'stiknex');
+            return res.status(200).json({ success: true, ...result });
+        } catch (uploadErr) {
+            console.error('Image upload error:', uploadErr);
+            return res.status(500).json({ success: false, error: uploadErr.message });
+        }
+    }
 
     if (action.startsWith('notebook-')) {
         return handleNotebookSync(req, res);

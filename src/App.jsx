@@ -57,6 +57,11 @@ const TypingLab = lazy(
 const FeedbackWidget = lazy(
   () => import("./Component/FeedbackWidget")
 );
+const PrivacyPolicy = lazy(() => import("./Pages/Legal/PrivacyPolicy"));
+const TermsOfService = lazy(() => import("./Pages/Legal/TermsOfService"));
+const ContactUs = lazy(() => import("./Pages/Legal/ContactUs"));
+const NotFound = lazy(() => import("./Pages/NotFound/NotFound"));
+
 const CommandPalette = lazy(
   () => import("./Component/CommandPalette")
 );
@@ -166,6 +171,7 @@ const App = () => {
           <Route path="/qr-code-generator" element={<Tools directSlug="qr-code-generator" />} />
           <Route path="/password-generator" element={<Tools directSlug="password-generator" />} />
           <Route path="/color-picker" element={<Tools directSlug="color-picker" />} />
+          <Route path="/data-converter" element={<Tools directSlug="data-converter" />} />
 
           {/* Tools Catalog & Subroutes */}
           <Route

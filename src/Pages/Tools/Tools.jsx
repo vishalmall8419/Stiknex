@@ -17,8 +17,9 @@ import {
 } from "lucide-react";
 import AppShell from "../../Component/Layout/AppShell";
 import PageSEO from "../../Component/SEO/PageSEO";
+import NotFound from "../NotFound/NotFound";
 import { getSeoForPath, seoConfig } from "../../utils/seoConfig";
-import { ALL_TOOLS, TOOL_CATEGORIES } from "../../data/toolsRegistry";
+import { ALL_TOOLS, TOOL_CATEGORIES, TOOL_HUBS, getHubForCategory } from "../../data/toolsRegistry";
 
 // 20 Specialized Category Engines
 import CalculatorsEngine from "./engines/CalculatorsEngine";
@@ -41,7 +42,12 @@ import DataEngine from "./engines/DataEngine";
 import MediaEngine from "./engines/MediaEngine";
 import GeneratorsEngine from "./engines/GeneratorsEngine";
 import HelpersEngine from "./engines/HelpersEngine";
+import ToolHelpAccordion from "./components/ToolHelpAccordion";
+import { TIER_1_BESPOKE } from "../../data/bespokeToolsData";
 
+
+// Bespoke editorial data & formulas for Tier 1 tools (Research Phase 1 Standards)
+// Map ALL_TOOLS to rich catalog entities
 // Map ALL_TOOLS to rich catalog entities
 export const toolsData = ALL_TOOLS.map(t => {
   const catObj = TOOL_CATEGORIES.find(c => c.id === t.category);
@@ -127,6 +133,8 @@ const Tools = ({ directSlug = null }) => {
     
     return null;
   }, [directSlug, paramSlug, toolSlug, location.pathname]);
+
+  const isCatalogRoute = location.pathname === "/tools" || location.pathname === "/tools/";
 
   const activeToolData = useMemo(() => {
     if (!activeSlug) return null;
@@ -277,7 +285,7 @@ const Tools = ({ directSlug = null }) => {
                 <ChevronRight size={14} />
                 <Link to="/tools" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition">Tools</Link>
                 <ChevronRight size={14} />
-                <span className="capitalize">{activeToolData.categoryName}</span>
+                <span className="capitalize">{activeToolData.hubName || activeToolData.categoryName}</span>
                 <ChevronRight size={14} />
                 <span className="text-slate-900 dark:text-white font-bold">{activeToolData.title}</span>
               </nav>
@@ -311,94 +319,12 @@ const Tools = ({ directSlug = null }) => {
                 {renderToolEngine(activeToolData)}
               </div>
 
-              {/* Instructions & Features */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
-                <div className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-lg border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 sm:p-8 space-y-4">
-                  <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2.5">
-                    <BookOpen size={20} className="text-indigo-600 dark:text-indigo-400" />
-                    How to Use {activeToolData.title}
-                  </h2>
-                  <ol className="space-y-3">
-                    {activeToolData.howTo.map((step, idx) => (
-                      <li key={idx} className="flex items-start gap-3 text-sm sm:text-base text-slate-600 dark:text-slate-300">
-                        <span className="w-6 h-6 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
-                          {idx + 1}
-                        </span>
-                        <span>{step}</span>
-                      </li>
-                    ))}
-                  </ol>
-                </div>
-
-                <div className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-lg border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 sm:p-8 space-y-4">
-                  <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2.5">
-                    <Sparkles size={20} className="text-indigo-600 dark:text-indigo-400" />
-                    Key Features & Privacy Standards
-                  </h2>
-                  <ul className="space-y-3">
-                    {activeToolData.features.map((feat, idx) => (
-                      <li key={idx} className="flex items-start gap-3 text-sm sm:text-base text-slate-600 dark:text-slate-300">
-                        <CheckCircle2 size={18} className="text-emerald-500 shrink-0 mt-0.5" />
-                        <span>{feat}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-
-              {/* Contextual Deep Dive */}
-              <div className="bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 sm:p-8">
-                <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-3">
-                  Why Choose Stiknex for {activeToolData.title}?
-                </h2>
-                <p className="text-slate-600 dark:text-slate-300 leading-relaxed text-sm sm:text-base">
-                  {activeToolData.guide}
-                </p>
-              </div>
-
-              {/* Related Tools Cluster */}
-              <div className="pt-6 space-y-4">
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  <Layers size={18} className="text-indigo-600" /> Related {activeToolData.categoryName} Tools
-                </h3>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {activeToolData.related.map((relPath) => {
-                    const slug = relPath.replace(/^\//, "");
-                    const sibling = toolsData.find(t => t.slug === slug);
-                    return (
-                      <Link
-                        key={relPath}
-                        to={relPath}
-                        className="p-3.5 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-indigo-500 dark:hover:border-indigo-500 shadow-sm transition group"
-                      >
-                        <span className="text-xs font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 transition block truncate">
-                          {sibling ? sibling.title : slug.replace(/-/g, " ")}
-                        </span>
-                        <span className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1 mt-0.5">
-                          {sibling ? sibling.tagline : "Fast online browser utility"}
-                        </span>
-                      </Link>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Frequently Asked Questions */}
-              {seoData.faqs && seoData.faqs.length > 0 && (
-                <div className="pt-6 space-y-4">
-                  <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    <HelpCircle size={20} className="text-indigo-600" /> Frequently Asked Questions
-                  </h3>
-                  <div className="space-y-3">
-                    {seoData.faqs.map((faq, idx) => (
-                      <div key={idx} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm">
-                        <h4 className="font-bold text-slate-900 dark:text-white text-base mb-1.5">{faq.q}</h4>
-                        <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{faq.a}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+              {/* Contextual Expandable Help, Features, Formulas & FAQs (Collapsed by default so Tool has 100% hero focus) */}
+              <ToolHelpAccordion
+                tool={activeToolData}
+                seoData={seoData}
+                siblingTools={toolsData}
+              />
             </motion.div>
           ) : (
 

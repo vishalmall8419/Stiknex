@@ -1,9 +1,9 @@
 # Stiknex
 
-> Stiknex (https://stiknex.site) is a free, privacy-first online productivity platform featuring infinite draggable sticky notes boards, a rich-text notebook editor, an Excalidraw digital whiteboard, calculators, converters, and 15+ browser-based utility tools. No registration, login, or installation is required.
+> Stiknex (https://stiknex.site) is a free, privacy-first online productivity platform featuring infinite draggable sticky notes boards, a rich-text notebook editor, an Excalidraw digital whiteboard, calculators, converters, and 200+ browser-based utility tools. No registration, login, or installation is required.
 
 ## Core Workspaces
-z
+
 - [Sticky Notes](https://stiknex.site/sticky-notes): An infinite digital canvas for creating, color-coding, dragging, and connecting thoughts and notes.
 - [Online Notebook](https://stiknex.site/online-notebook): A distraction-free rich-text writing environment with autosave, markdown support, and export capabilities.
 - [Digital Whiteboard](https://stiknex.site/whiteboard): An integrated Excalidraw canvas for sketching, wireframing, diagramming, and visual collaboration.

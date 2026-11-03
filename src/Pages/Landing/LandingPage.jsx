@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState, lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import Lenis from "lenis";
 import PageSEO from "../../Component/SEO/PageSEO";
 import { 
   ArrowRight, Sparkles, Layers, PenTool, LayoutDashboard, Code2, Zap, Check,
-  FileText, Type, Timer, Calculator, Ruler, Thermometer, QrCode, StickyNote, Search, Gamepad2
+  FileText, Type, Timer, Calculator, Ruler, Thermometer, QrCode, StickyNote, Search, Gamepad2,
+  Menu, X, Smartphone, Globe, Download, Laptop
 } from "lucide-react";
 import { useAppContext } from "../../context/AppContext";
 import { ALL_TOOLS, TOOL_CATEGORIES } from "../../data/toolsRegistry";
@@ -54,18 +55,10 @@ const Features = [
 const LandingPage = () => {
   const { darkMode, toggleDarkMode } = useAppContext();
   const [showExtensionModal, setShowExtensionModal] = useState(false);
-  const [heroSearch, setHeroSearch] = useState("");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const containerRef = useRef(null);
   const { scrollYProgress } = useScroll();
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
-
-  const heroSearchResults = heroSearch.trim()
-    ? ALL_TOOLS.filter(t =>
-        t.title.toLowerCase().includes(heroSearch.toLowerCase()) ||
-        t.tagline.toLowerCase().includes(heroSearch.toLowerCase()) ||
-        t.slug.toLowerCase().includes(heroSearch.toLowerCase())
-      ).slice(0, 5)
-    : [];
   
   useEffect(() => {
     // Only initialize smooth scrolling on desktop devices with fine pointer
@@ -120,41 +113,166 @@ const LandingPage = () => {
       />
       <AuroraBackground />
 
-      <nav className="fixed top-3 sm:top-5 left-1/2 -translate-x-1/2 z-50 px-3 sm:px-6 py-2 sm:py-2.5 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800/60 rounded-full shadow-lg flex items-center gap-2 sm:gap-6 max-w-[96vw] overflow-x-auto no-scrollbar">
-        <Link to="/" className="flex items-center gap-1.5 sm:gap-2 shrink-0 group">
-          <img src="/logo.png" alt="Stiknex Logo" width="28" height="28" loading="eager" fetchPriority="high" decoding="async" className="w-6 h-6 sm:w-7 sm:h-7 object-contain group-hover:scale-105 transition-transform" />
-          <span className="font-black text-sm sm:text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-600">Stiknex</span>
-        </Link>
-        <div className="flex items-center gap-1 sm:gap-4 shrink-0 text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300">
-          <Link to="/sticky-notes" className="px-2 py-1 rounded-lg hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors whitespace-nowrap">Sticky Notes</Link>
-          <Link to="/online-notebook" className="px-2 py-1 rounded-lg hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors whitespace-nowrap">Notepad</Link>
-          <Link to="/whiteboard" className="px-2 py-1 rounded-lg hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors whitespace-nowrap">Whiteboard</Link>
-          <Link to="/tools" className="px-2 py-1 rounded-lg hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors whitespace-nowrap">Tools</Link>
-          <Link to="/typing-lab" className="px-2 py-1 rounded-lg hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors whitespace-nowrap">Typing Lab</Link>
-          <Link to="/blog" className="px-2 py-1 rounded-lg hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors whitespace-nowrap">Blog</Link>
-          <Link to="/about" className="px-2 py-1 rounded-lg hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors whitespace-nowrap">About</Link>
-          <button 
-            type="button"
-            onClick={() => setShowExtensionModal(true)} 
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-semibold border border-indigo-200/80 dark:border-indigo-800/80 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 transition-colors whitespace-nowrap cursor-pointer shadow-xs text-xs"
-            title="Add Stiknex Chrome Extension"
-            aria-label="Add Stiknex Chrome Extension"
-          >
-            <ChromeIcon className="w-3.5 h-3.5" />
-            <span>Add to Chrome</span>
-          </button>
-        </div>
-        <div className="flex items-center gap-2 shrink-0 pl-1 border-l border-slate-200 dark:border-slate-800">
-          <button 
-            onClick={toggleDarkMode} 
-            className="p-1.5 rounded-full text-slate-600 dark:text-slate-400 hover:text-indigo-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" 
-            title="Toggle Dark Mode"
-            aria-label="Toggle Dark Mode"
-          >
-            {darkMode ? <Sparkles size={16} /> : <Zap size={16} />}
-          </button>
-        </div>
-      </nav>
+      <header className="fixed top-3 sm:top-5 left-1/2 -translate-x-1/2 z-50 w-full max-w-6xl px-3 sm:px-6 pointer-events-none">
+        <nav className="w-full px-4 sm:px-6 py-2.5 sm:py-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl border border-slate-200/70 dark:border-slate-800/70 rounded-full shadow-xl shadow-slate-900/5 flex items-center justify-between pointer-events-auto transition-all">
+          {/* Logo & Brand */}
+          <Link to="/" className="flex items-center gap-2 shrink-0 group">
+            <img src="/logo.png" alt="Stiknex Logo" width="30" height="30" loading="eager" fetchPriority="high" decoding="async" className="w-7 h-7 sm:w-8 sm:h-8 object-contain group-hover:scale-105 transition-transform" />
+            <span className="font-black text-base sm:text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
+              Stiknex
+            </span>
+          </Link>
+
+          {/* Desktop Navigation Links */}
+          <div className="hidden lg:flex items-center gap-1 xl:gap-2 text-sm font-semibold text-slate-600 dark:text-slate-300">
+            <Link to="/sticky-notes" className="px-3 py-1.5 rounded-full hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">Sticky Notes</Link>
+            <Link to="/online-notebook" className="px-3 py-1.5 rounded-full hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">Notebook</Link>
+            <Link to="/whiteboard" className="px-3 py-1.5 rounded-full hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">Whiteboard</Link>
+            <Link to="/tools" className="px-3 py-1.5 rounded-full hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center gap-1.5">
+              <span>Tools</span>
+              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300">200+</span>
+            </Link>
+            <Link to="/typing-lab" className="px-3 py-1.5 rounded-full hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">Typing Lab</Link>
+            <Link to="/blog" className="px-3 py-1.5 rounded-full hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">Blog</Link>
+          </div>
+
+          {/* Right Action Icons & Buttons */}
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            {/* Quick Global Search Trigger Button */}
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new Event("stiknex_open_quick_search"))}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800/80 hover:bg-indigo-50 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 border border-slate-200/60 dark:border-slate-700/60 text-xs font-medium transition cursor-pointer"
+              title="Search tools, notes and blogs (Ctrl+K)"
+              aria-label="Search tools and notes"
+            >
+              <Search size={14} className="text-indigo-500" />
+              <span className="hidden sm:inline">Search</span>
+              <kbd className="hidden sm:inline-block text-[10px] bg-white dark:bg-slate-900 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700 font-mono text-slate-400">⌘K</kbd>
+            </button>
+
+            {/* Dark Mode Toggle */}
+            <button 
+              onClick={toggleDarkMode} 
+              className="p-2 rounded-full text-slate-600 dark:text-slate-400 hover:text-indigo-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer" 
+              title="Toggle Theme"
+              aria-label="Toggle Theme"
+            >
+              {darkMode ? <Sparkles size={16} /> : <Zap size={16} />}
+            </button>
+
+            {/* Extension CTA (Tablet & Desktop) */}
+            <button 
+              type="button"
+              onClick={() => setShowExtensionModal(true)} 
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-bold border border-indigo-200/80 dark:border-indigo-800/80 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 transition-colors text-xs cursor-pointer shadow-xs"
+              title="Add Stiknex Chrome Extension"
+            >
+              <ChromeIcon className="w-3.5 h-3.5" />
+              <span>Extension</span>
+            </button>
+
+            {/* Mobile Menu Hamburger (Visible on < lg) */}
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(prev => !prev)}
+              className="lg:hidden p-2 rounded-full text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              aria-label="Toggle Navigation Menu"
+              aria-expanded={mobileMenuOpen}
+            >
+              {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
+          </div>
+        </nav>
+
+        {/* Mobile Dropdown Menu (Zero horizontal scroll, clean vertical cards) */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -10, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -10, scale: 0.98 }}
+              transition={{ duration: 0.2 }}
+              className="lg:hidden mt-2 p-4 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl space-y-3 pointer-events-auto"
+            >
+              <div className="grid grid-cols-2 gap-2 text-sm font-semibold">
+                <Link
+                  to="/sticky-notes"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-2 p-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 text-slate-800 dark:text-slate-200 hover:text-indigo-600 transition"
+                >
+                  <StickyNote size={16} className="text-amber-500" />
+                  <span>Sticky Notes</span>
+                </Link>
+                <Link
+                  to="/online-notebook"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-2 p-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 text-slate-800 dark:text-slate-200 hover:text-indigo-600 transition"
+                >
+                  <FileText size={16} className="text-blue-500" />
+                  <span>Notebook</span>
+                </Link>
+                <Link
+                  to="/whiteboard"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-2 p-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 text-slate-800 dark:text-slate-200 hover:text-indigo-600 transition"
+                >
+                  <PenTool size={16} className="text-emerald-500" />
+                  <span>Whiteboard</span>
+                </Link>
+                <Link
+                  to="/tools"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-2 p-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 text-slate-800 dark:text-slate-200 hover:text-indigo-600 transition"
+                >
+                  <Calculator size={16} className="text-purple-500" />
+                  <span>200+ Tools</span>
+                </Link>
+                <Link
+                  to="/typing-lab"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-2 p-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 text-slate-800 dark:text-slate-200 hover:text-indigo-600 transition"
+                >
+                  <Gamepad2 size={16} className="text-pink-500" />
+                  <span>Typing Lab</span>
+                </Link>
+                <Link
+                  to="/blog"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-2 p-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 text-slate-800 dark:text-slate-200 hover:text-indigo-600 transition"
+                >
+                  <Sparkles size={16} className="text-indigo-500" />
+                  <span>Blog</span>
+                </Link>
+              </div>
+
+              {/* Quick Actions in Mobile Drawer */}
+              <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex flex-col gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    window.dispatchEvent(new Event("stiknex_open_quick_search"));
+                  }}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-xl text-xs font-bold"
+                >
+                  <Search size={14} className="text-indigo-500" /> Open Quick Search (Ctrl+K)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    setShowExtensionModal(true);
+                  }}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-900/50 rounded-xl text-xs font-bold"
+                >
+                  <ChromeIcon className="w-4 h-4" /> Add Chrome Extension
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </header>
 
       <section className="relative pt-40 pb-20 px-6 min-h-screen flex items-center justify-center">
         <motion.div style={{ y }} className="max-w-5xl mx-auto text-center z-10 w-full">
@@ -182,86 +300,12 @@ const LandingPage = () => {
             </Link>
           </div>
 
-          {/* Interactive Tool Search Bar */}
-          <div className="w-full max-w-xl mx-auto mt-8 relative text-left">
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-indigo-500" />
-              <input
-                type="text"
-                value={heroSearch}
-                onChange={(e) => setHeroSearch(e.target.value)}
-                placeholder="What do you want to do today? (e.g. EMI, typing, PDF, JSON, UUID)..."
-                className="w-full pl-12 pr-4 py-3.5 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-indigo-200 dark:border-indigo-900/50 rounded-2xl shadow-xl shadow-indigo-500/10 focus:outline-none focus:border-indigo-500 text-slate-900 dark:text-white text-sm"
-              />
-            </div>
-
-            {heroSearchResults.length > 0 && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl p-2 z-50 divide-y divide-slate-100 dark:divide-slate-800">
-                {heroSearchResults.map((t) => (
-                  <Link
-                    key={t.slug}
-                    to={`/${t.slug}`}
-                    className="flex items-center justify-between p-3 hover:bg-slate-50 dark:hover:bg-slate-800/60 rounded-xl transition group"
-                  >
-                    <div>
-                      <span className="font-bold text-sm text-slate-900 dark:text-white group-hover:text-indigo-600 block">{t.title}</span>
-                      <span className="text-xs text-slate-500 line-clamp-1">{t.tagline}</span>
-                    </div>
-                    <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-indigo-600 group-hover:translate-x-1 transition-transform shrink-0" />
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="flex flex-wrap items-center justify-center gap-4 mt-6">
-            <a href="/Stiknex.apk" download className="group flex items-center gap-3 px-6 py-3 bg-slate-900 dark:bg-black text-white border border-slate-700 dark:border-slate-800 rounded-2xl hover:bg-slate-800 transition-all shadow-md">
-              <svg viewBox="0 0 512 512" className="w-[20px] h-[20px] shrink-0" aria-hidden="true">
-                <path fill="#4caf50" d="M38.8 13.9C36.3 16.4 35 20.3 35 25.3v461.3c0 5 1.3 8.9 3.8 11.4l1.3 1.3 259.9-259.9V237L40.1 12.6l-1.3 1.3z" />
-                <path fill="#4caf50" d="M386.4 352.5l-86.4-86.4v-20.2l86.4-86.4 2.8 1.6 102.4 58.2c29.1 16.5 29.1 43.4 0 59.9l-102.4 58.2-2.8 1.5z" />
-                <path fill="#4caf50" d="M300 286.3l86.4 86.4L114.7 527.2c-19.1 10.9-40.4 1.3-40.4-21.7L300 286.3z" />
-                <path fill="#4caf50" d="M300 225.7L74.3 6.5C74.3 6.5 74.3 6.5 74.3 6.5c0-23 21.3-32.6 40.4-21.7L386.4 159.5 300 225.7z" />
-              </svg>
-              <div className="flex flex-col items-start leading-[1.1] text-left">
-                <span className="text-[10px] text-slate-300 font-semibold tracking-wide uppercase">Download</span>
-                <span className="text-[14px] font-bold">Android App</span>
-              </div>
-            </a>
-
-            <button 
-              type="button"
-              onClick={() => setShowExtensionModal(true)} 
-              className="group flex items-center gap-3 px-6 py-3 bg-white dark:bg-slate-800 text-slate-800 dark:text-white border border-indigo-200/80 dark:border-indigo-900/50 rounded-2xl hover:bg-indigo-50/50 dark:hover:bg-slate-700/60 transition-all shadow-md cursor-pointer"
-              aria-label="Add Stiknex Chrome Extension"
-            >
-              <ChromeIcon className="w-[20px] h-[20px] shrink-0" />
-              <div className="flex flex-col items-start leading-[1.1] text-left">
-                <span className="text-[10px] text-indigo-500 dark:text-indigo-400 font-semibold tracking-wide uppercase">Browser Tool</span>
-                <span className="text-[14px] font-bold">Add to Chrome</span>
-              </div>
-            </button>
-
-            <button 
-              type="button"
-              onClick={() => {
-                if (window.deferredPWA) {
-                  window.deferredPWA.prompt();
-                  window.deferredPWA.userChoice.then(() => { window.deferredPWA = null; });
-                } else {
-                  alert("To install the PWA, please use 'Add to Home Screen' in your browser menu (or Share -> Add to Home Screen on iOS).");
-                }
-              }} 
-              className="group flex items-center gap-3 px-6 py-3 bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-900/50 rounded-2xl hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-all shadow-md"
-              aria-label="Install Stiknex Progressive Web App"
-            >
-              <svg viewBox="0 0 24 24" className="w-[20px] h-[20px] shrink-0 fill-none stroke-current" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M12 15V3m0 12l-4-4m4 4l4-4M2 17l.621 2.485A2 2 0 0 0 4.561 21h14.878a2 2 0 0 0 1.94-1.515L22 17"></path>
-              </svg>
-              <div className="flex flex-col items-start leading-[1.1] text-left">
-                <span className="text-[10px] text-indigo-500 dark:text-indigo-300 font-semibold tracking-wide uppercase">Fast & Light</span>
-                <span className="text-[14px] font-bold">Install PWA</span>
-              </div>
-            </button>
+          {/* Hero Value Props: Clean, uncluttered and high-converting */}
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 mt-10 text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400">
+            <span className="inline-flex items-center gap-1.5"><Check size={16} className="text-emerald-500 shrink-0" /> 100% Free Forever</span>
+            <span className="inline-flex items-center gap-1.5"><Check size={16} className="text-emerald-500 shrink-0" /> Zero Sign-Up Required</span>
+            <span className="inline-flex items-center gap-1.5"><Check size={16} className="text-emerald-500 shrink-0" /> Private & Client-Side</span>
+            <span className="inline-flex items-center gap-1.5"><Check size={16} className="text-emerald-500 shrink-0" /> Works Offline</span>
           </div>
         </motion.div>
 
@@ -384,6 +428,109 @@ const LandingPage = () => {
               <div className="absolute -inset-10 bg-gradient-to-r from-blue-500/20 to-purple-500/20 blur-3xl -z-10 rounded-full"></div>
             </div>
           </div>
+        </div>
+      </section>
+
+      
+      {/* Dedicated Multi-Platform Ecosystem & Apps Section with Rich SEO Internal Linking */}
+      <section className="py-24 px-6 relative z-10 max-w-7xl mx-auto">
+        <div className="text-center max-w-3xl mx-auto mb-16">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold text-xs uppercase tracking-wider mb-4 border border-indigo-100 dark:border-indigo-500/20">
+            <Globe size={14} /> Multi-Platform Productivity
+          </div>
+          <h2 className="text-3xl sm:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
+            Work Seamlessly On <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-600">Every Screen</span>
+          </h2>
+          <p className="text-slate-600 dark:text-slate-300 mt-4 text-base sm:text-lg leading-relaxed">
+            Whether you are capturing thoughts on your phone, writing inside Google Chrome, or running fully offline on your desktop, Stiknex delivers instantaneous speed and zero friction.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          
+          {/* Card 1: Android Mobile App */}
+          <div className="p-8 rounded-3xl bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800 shadow-xl flex flex-col justify-between hover:-translate-y-1.5 transition-all">
+            <div>
+              <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-6 border border-emerald-200/60 dark:border-emerald-800/60">
+                <Smartphone size={28} />
+              </div>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Mobile Edition</span>
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white mt-1 mb-3">Android Mobile App</h3>
+              <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-6">
+                Native gesture navigation, touch-optimized canvas for <Link to="/sticky-notes" className="text-indigo-600 dark:text-indigo-400 hover:underline font-medium">sticky notes</Link>, and instant offline access to your <Link to="/online-notebook" className="text-indigo-600 dark:text-indigo-400 hover:underline font-medium">online notebook</Link>.
+              </p>
+            </div>
+            <div>
+              <a
+                href="/Stiknex.apk"
+                download
+                className="w-full flex items-center justify-center gap-2.5 py-3.5 px-5 bg-slate-900 dark:bg-black hover:bg-slate-800 text-white rounded-2xl font-bold text-sm shadow-lg transition"
+              >
+                <Download size={16} className="text-emerald-400" />
+                <span>Download Android APK</span>
+              </a>
+              <p className="text-[11px] text-slate-400 text-center mt-2.5">Direct APK download • Virus-free • No Play Store login</p>
+            </div>
+          </div>
+
+          {/* Card 2: Chrome Extension */}
+          <div className="p-8 rounded-3xl bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-indigo-200/80 dark:border-indigo-900/50 shadow-xl flex flex-col justify-between hover:-translate-y-1.5 transition-all relative overflow-hidden">
+            <div className="absolute top-0 right-0 px-3 py-1 bg-indigo-500 text-white text-[10px] font-black uppercase tracking-wider rounded-bl-xl">Popular</div>
+            <div>
+              <div className="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-6 border border-indigo-200/60 dark:border-indigo-800/60">
+                <ChromeIcon className="w-7 h-7" />
+              </div>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Browser Toolbar</span>
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white mt-1 mb-3">Google Chrome Extension</h3>
+              <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-6">
+                One-click scratchpad side panel on any webpage. Jot thoughts while browsing, calculate formulas, or open our <Link to="/tools" className="text-indigo-600 dark:text-indigo-400 hover:underline font-medium">200+ browser tools</Link> instantly.
+              </p>
+            </div>
+            <div>
+              <button
+                type="button"
+                onClick={() => setShowExtensionModal(true)}
+                className="w-full flex items-center justify-center gap-2.5 py-3.5 px-5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-bold text-sm shadow-lg shadow-indigo-600/30 transition cursor-pointer"
+              >
+                <ChromeIcon className="w-4 h-4" />
+                <span>Add to Google Chrome</span>
+              </button>
+              <p className="text-[11px] text-slate-400 text-center mt-2.5">Lightweight manifest v3 • Works on Chrome & Brave</p>
+            </div>
+          </div>
+
+          {/* Card 3: Desktop & Mobile PWA */}
+          <div className="p-8 rounded-3xl bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800 shadow-xl flex flex-col justify-between hover:-translate-y-1.5 transition-all">
+            <div>
+              <div className="w-14 h-14 rounded-2xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center mb-6 border border-purple-200/60 dark:border-purple-800/60">
+                <Laptop size={28} />
+              </div>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400">Desktop & Tablet</span>
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white mt-1 mb-3">Offline Progressive Web App</h3>
+              <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-6">
+                Install Stiknex directly on Windows, macOS, iPad, or Linux. Launches in a standalone borderless window with full offline access to our <Link to="/whiteboard" className="text-indigo-600 dark:text-indigo-400 hover:underline font-medium">digital whiteboard</Link>.
+              </p>
+            </div>
+            <div>
+              <button
+                type="button"
+                onClick={() => {
+                  if (window.deferredPWA) {
+                    window.deferredPWA.prompt();
+                    window.deferredPWA.userChoice.then(() => { window.deferredPWA = null; });
+                  } else {
+                    alert("To install the PWA, please use 'Add to Home Screen' in your browser menu (or Share -> Add to Home Screen on iOS).");
+                  }
+                }}
+                className="w-full flex items-center justify-center gap-2.5 py-3.5 px-5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/60 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-2xl font-bold text-sm shadow-md transition cursor-pointer"
+              >
+                <Download size={16} className="text-purple-500" />
+                <span>Install Web App (PWA)</span>
+              </button>
+              <p className="text-[11px] text-slate-400 text-center mt-2.5">No app store download • 100% offline capable</p>
+            </div>
+          </div>
+
         </div>
       </section>
 

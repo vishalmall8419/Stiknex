@@ -28,6 +28,11 @@
       "permanent": true
     },
     {
+      "source": "/dataconverter",
+      "destination": "/data-converter",
+      "permanent": true
+    },
+    {
       "source": "/notebook",
       "destination": "/online-notebook",
       "permanent": true
