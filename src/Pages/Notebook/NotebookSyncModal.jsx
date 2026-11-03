@@ -51,6 +51,11 @@ const NotebookSyncModal = ({ isOpen, onClose, darkMode }) => {
     setPairingError(null);
     setPairingSession(null);
     try {
+      let cur = getSyncIdentity();
+      if (!cur) {
+        cur = await enableCloudSync();
+        setIdentity(cur);
+      }
       const session = await createQRPairingSession();
       setPairingSession(session);
       setPairingStatus('waiting');
@@ -121,13 +126,13 @@ const NotebookSyncModal = ({ isOpen, onClose, darkMode }) => {
 
   // Start QR Pairing session when QR tab is opened
   useEffect(() => {
-    if (isOpen && activeTab === 'qr' && identity) {
+    if (isOpen && activeTab === 'qr') {
       initQRSession();
     }
     return () => {
       if (pollTimerRef.current) clearInterval(pollTimerRef.current);
     };
-  }, [isOpen, activeTab, identity?.syncGroupId, initQRSession]);
+  }, [isOpen, activeTab, initQRSession]);
 
   // Timer countdown
   useEffect(() => {
@@ -313,7 +318,7 @@ const NotebookSyncModal = ({ isOpen, onClose, darkMode }) => {
                   </p>
                 )}
 
-              {pairingStatus === 'generating' ? (
+              {(pairingStatus === 'generating' || pairingStatus === 'idle') ? (
                 <div style={{ textAlign: 'center', padding: '36px 0' }}>
                   <i className="fa-solid fa-spinner fa-spin" style={{ fontSize: '32px', color: '#6366f1', marginBottom: '14px' }}></i>
                   <p style={{ fontSize: '14px', color: darkMode ? '#a1a1aa' : '#64748b', fontWeight: 500, margin: 0 }}>

@@ -288,9 +288,21 @@ export default async function handleNotebookSync(req, res) {
         }
 
         // Authorize Device B in the sync group
-        const record = await NotebookSync.findOne({ syncGroupId });
+        let record = await NotebookSync.findOne({ syncGroupId });
         if (!record) {
-          return res.status(404).json({ success: false, error: 'Sync group not found' });
+          record = new NotebookSync({
+            syncGroupId,
+            ciphertext: '',
+            iv: '',
+            version: 1,
+            devices: [{
+              deviceId,
+              deviceName: deviceName || 'Connected Device',
+              tokenHash: deviceTokenHash,
+              lastActiveAt: new Date(),
+            }],
+          });
+          await record.save();
         }
 
         const existingDevice = record.devices.find((d) => d.deviceId === deviceId);
@@ -356,9 +368,23 @@ export default async function handleNotebookSync(req, res) {
         }
 
         const tokenHash = hashToken(deviceToken);
-        const record = await NotebookSync.findOne({ syncGroupId });
+        let record = await NotebookSync.findOne({ syncGroupId });
         if (!record) {
-          return res.status(404).json({ success: false, error: 'Sync group not found' });
+          // Auto-create sync group for valid recovery key holder if Device A has not pushed initial payload yet
+          record = new NotebookSync({
+            syncGroupId,
+            ciphertext: '',
+            iv: '',
+            version: 1,
+            devices: [{
+              deviceId,
+              deviceName: deviceName || 'Manual Paired Device',
+              tokenHash,
+              lastActiveAt: new Date(),
+            }],
+          });
+          await record.save();
+          return res.status(200).json({ success: true, message: 'Sync group created and device registered' });
         }
 
         const existingDevice = record.devices.find((d) => d.deviceId === deviceId);

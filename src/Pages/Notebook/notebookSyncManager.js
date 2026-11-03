@@ -107,11 +107,19 @@ export async function enableCloudSync() {
     lastSyncTime: Date.now(),
   };
 
-  // Initial push of existing local notes to cloud
-  const syncResult = await pushToCloud(identity, cryptoKey);
-  if (!syncResult.success) {
-    throw new Error(syncResult.error || 'Could not initialize the cloud sync group.');
+  // Save identity immediately so it persists locally
+  saveSyncIdentity(identity);
+
+  // Initial push of existing local notes to cloud (non-blocking)
+  try {
+    const syncResult = await pushToCloud(identity, cryptoKey);
+    if (!syncResult.success) {
+      console.warn('Initial sync push notice:', syncResult.error || syncResult.reason);
+    }
+  } catch (pushErr) {
+    console.warn('Initial push non-blocking notice:', pushErr);
   }
+
   return identity;
 }
 
@@ -171,28 +179,29 @@ export async function collectLocalPayload(version) {
   try {
     const raw = localStorage.getItem(NOTEBOOKS_KEY) || localStorage.getItem('stiknex_notebooks');
     if (raw) {
-      notebooks = JSON.parse(raw);
-      if (!Array.isArray(notebooks)) throw new Error('Stored notebook list is not an array.');
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) notebooks = parsed;
     }
   } catch (e) {
-    console.error('Failed to read local notebooks for sync:', e);
-    throw e;
+    console.warn('Failed to read local notebooks for sync:', e);
   }
   try {
     const raw = localStorage.getItem('notes');
-    if (raw) stickyNotes = JSON.parse(raw);
-    if (!Array.isArray(stickyNotes)) throw new Error('Stored sticky notes are not an array.');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) stickyNotes = parsed;
+    }
   } catch (e) {
-    console.error('Failed to read local sticky notes for sync:', e);
-    throw e;
+    console.warn('Failed to read local sticky notes for sync:', e);
   }
   try {
     const raw = localStorage.getItem('stiknex_connections');
-    if (raw) stickyConnections = JSON.parse(raw);
-    if (!Array.isArray(stickyConnections)) throw new Error('Stored sticky-note connections are not an array.');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) stickyConnections = parsed;
+    }
   } catch (e) {
-    console.error('Failed to read sticky-note connections for sync:', e);
-    throw e;
+    console.warn('Failed to read sticky-note connections for sync:', e);
   }
 
   // Fetch high-capacity full content from IndexedDB if available
@@ -203,22 +212,20 @@ export async function collectLocalPayload(version) {
         nb.content = fullContent;
       }
     } catch (e) {
-      console.error('Failed to read notebook content from IndexedDB:', e);
-      throw e;
+      console.warn('Failed to read notebook content from IndexedDB:', e);
     }
 
     try {
-      comments[nb.id] = await getNotebookComments(nb.id);
-      if (!comments[nb.id]) {
+      const nbComments = await getNotebookComments(nb.id);
+      if (Array.isArray(nbComments)) {
+        comments[nb.id] = nbComments;
+      } else {
         const rawComments = localStorage.getItem(`nb_comments_${nb.id}`);
         comments[nb.id] = rawComments ? JSON.parse(rawComments) : [];
       }
-      if (!Array.isArray(comments[nb.id])) {
-        throw new Error(`Invalid comments data for notebook ${nb.id}.`);
-      }
     } catch (e) {
-      console.error('Failed to read notebook comments for sync:', e);
-      throw e;
+      console.warn('Failed to read notebook comments for sync:', e);
+      comments[nb.id] = [];
     }
   }
 
@@ -227,8 +234,7 @@ export async function collectLocalPayload(version) {
     const raw = localStorage.getItem(SETTINGS_KEY) || localStorage.getItem('stiknex_notebook_settings');
     if (raw) settings = JSON.parse(raw);
   } catch (e) {
-    console.error('Failed to parse notebook settings for sync:', e);
-    throw e;
+    console.warn('Failed to parse notebook settings for sync:', e);
   }
 
   // Gather drawing data for notebooks
@@ -238,8 +244,7 @@ export async function collectLocalPayload(version) {
       const drawingData = (await getDrawingFromDb(nb.id)) || (await getImageFromDb(`drawing_${nb.id}`));
       if (drawingData) drawings[nb.id] = drawingData;
     } catch (e) {
-      console.error('Failed to read notebook drawing for sync:', e);
-      throw e;
+      console.warn('Failed to read notebook drawing for sync:', e);
     }
   }
 
@@ -249,11 +254,11 @@ export async function collectLocalPayload(version) {
       if (!image?.id) continue;
       try {
         const imageData = await getImageFromDb(image.id);
-        if (!imageData) throw new Error(`Sticky note image ${image.id} is missing from browser storage.`);
-        stickyImages[image.id] = imageData;
+        if (imageData) {
+          stickyImages[image.id] = imageData;
+        }
       } catch (e) {
-        console.error('Failed to read sticky note image for sync:', e);
-        throw e;
+        console.warn('Failed to read sticky note image for sync:', e);
       }
     }
   }
