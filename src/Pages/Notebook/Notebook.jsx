@@ -397,8 +397,6 @@ const Notebook = () => {
   const persistContent = useCallback(
     async (htmlToSave) => {
       try {
-        const indexedDbSaved = await saveExtendedNote(activeNotebookId, htmlToSave);
-
         const updated = notebooks.map((notebook) =>
           notebook.id === activeNotebookId
             ? { ...notebook, content: htmlToSave, updatedAt: Date.now() }
@@ -408,13 +406,19 @@ const Notebook = () => {
         localStorage.removeItem(TEXT_KEY);
 
         try {
-          const storageData = indexedDbSaved ? notebookMetadata(updated) : updated;
-          localStorage.setItem(NOTEBOOKS_KEY, JSON.stringify(storageData));
-        } catch (_) {
           localStorage.setItem(NOTEBOOKS_KEY, JSON.stringify(notebookMetadata(updated)));
+        } catch (_) {
+          localStorage.setItem(NOTEBOOKS_KEY, JSON.stringify(updated));
         }
 
+        // Instant save feedback to user
         setSaveState("saved");
+
+        // Background persistence to IndexedDB
+        saveExtendedNote(activeNotebookId, htmlToSave).catch((err) => {
+          console.warn("Background IndexedDB note save notice:", err);
+        });
+
         scheduleCloudSync();
       } catch (err) {
         console.error("Notebook save failed:", err);

@@ -11,8 +11,8 @@ const DeviceSchema = new mongoose.Schema({
 
 const NotebookSyncSchema = new mongoose.Schema({
   syncGroupId: { type: String, required: true, unique: true, index: true },
-  ciphertext: { type: String, required: true },
-  iv: { type: String, required: true },
+  ciphertext: { type: String, default: '' },
+  iv: { type: String, default: '' },
   version: { type: Number, default: 1, index: true },
   devices: [DeviceSchema],
   payloadSize: { type: Number, default: 0 },

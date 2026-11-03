@@ -16,6 +16,15 @@ function getDb() {
   }
 
   dbPromise = new Promise((resolve) => {
+    let resolved = false;
+    const timer = setTimeout(() => {
+      if (!resolved) {
+        resolved = true;
+        console.warn("IndexedDB open timed out, falling back to localStorage.");
+        resolve(null);
+      }
+    }, 1500);
+
     try {
       const request = indexedDB.open(DB_NAME, DB_VERSION);
       request.onupgradeneeded = (e) => {
@@ -29,32 +38,49 @@ function getDb() {
       };
       request.onblocked = () => {
         console.warn("IndexedDB upgrade blocked by another open tab.");
+        if (!resolved) {
+          resolved = true;
+          clearTimeout(timer);
+          resolve(null);
+        }
       };
       request.onsuccess = (e) => {
-        const db = e.target.result;
-        db.onversionchange = () => {
-          db.close();
-          dbPromise = null;
-        };
-        if (navigator.storage?.persist) {
-          navigator.storage.persist().then((granted) => {
-            if (!granted) {
-              console.warn("Browser storage may be cleared when device storage is low.");
-            }
-          }).catch((error) => {
-            console.warn("Could not request persistent browser storage:", error);
-          });
+        if (!resolved) {
+          resolved = true;
+          clearTimeout(timer);
+          const db = e.target.result;
+          db.onversionchange = () => {
+            db.close();
+            dbPromise = null;
+          };
+          if (navigator.storage?.persist) {
+            navigator.storage.persist().then((granted) => {
+              if (!granted) {
+                console.warn("Browser storage may be cleared when device storage is low.");
+              }
+            }).catch((error) => {
+              console.warn("Could not request persistent browser storage:", error);
+            });
+          }
+          resolve(db);
         }
-        resolve(db);
       };
       request.onerror = () => {
-        console.error("Could not open notebook IndexedDB:", request.error);
-        dbPromise = null;
-        resolve(null);
+        if (!resolved) {
+          resolved = true;
+          clearTimeout(timer);
+          console.error("Could not open notebook IndexedDB:", request.error);
+          dbPromise = null;
+          resolve(null);
+        }
       };
     } catch {
-      dbPromise = null;
-      resolve(null);
+      if (!resolved) {
+        resolved = true;
+        clearTimeout(timer);
+        dbPromise = null;
+        resolve(null);
+      }
     }
   });
 
