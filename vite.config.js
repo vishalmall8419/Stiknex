@@ -3,9 +3,26 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import path from 'path'
 import fs from 'fs'
+import os from 'os'
 import dotenv from 'dotenv'
 
 dotenv.config();
+
+function getLanIPv4() {
+  const candidates = Object.values(os.networkInterfaces())
+    .flatMap((interfaces) => interfaces || [])
+    .filter((address) => {
+      if (address.internal || (address.family !== 'IPv4' && address.family !== 4)) return false;
+      const octets = address.address.split('.').map(Number);
+      return octets[0] === 10 ||
+        (octets[0] === 172 && octets[1] >= 16 && octets[1] <= 31) ||
+        (octets[0] === 192 && octets[1] === 168);
+    });
+
+  return candidates.find((address) => address.address.startsWith('192.168.'))?.address ||
+    candidates[0]?.address ||
+    '';
+}
 
 function localApiPlugin() {
   return {
@@ -115,8 +132,21 @@ function localApiPlugin() {
   }
 }
 
-export default defineConfig({
-  plugins: [react(), tailwindcss(), localApiPlugin()],
+export default defineConfig(({ command }) => {
+  if (command === 'serve') {
+    const lanHost = getLanIPv4();
+    if (lanHost) process.env.VITE_DEV_LAN_HOST = lanHost;
+  }
+
+  return {
+    plugins: [react(), tailwindcss(), localApiPlugin()],
+    ...(command === 'serve'
+      ? {
+          server: {
+            host: true,
+          },
+        }
+      : {}),
   build: {
     target: 'es2022',
     cssCodeSplit: true,
@@ -143,4 +173,5 @@ export default defineConfig({
       }
     }
   }
+  };
 })

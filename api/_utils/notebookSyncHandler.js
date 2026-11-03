@@ -289,17 +289,22 @@ export default async function handleNotebookSync(req, res) {
 
         // Authorize Device B in the sync group
         const record = await NotebookSync.findOne({ syncGroupId });
-        if (record) {
-          const alreadyExists = record.devices.some((d) => d.deviceId === deviceId);
-          if (!alreadyExists) {
-            record.devices.push({
-              deviceId,
-              deviceName: deviceName || 'Connected Device',
-              tokenHash: deviceTokenHash,
-              lastActiveAt: new Date(),
-            });
-            await record.save();
-          }
+        if (!record) {
+          return res.status(404).json({ success: false, error: 'Sync group not found' });
+        }
+
+        const existingDevice = record.devices.find((d) => d.deviceId === deviceId);
+        if (existingDevice && existingDevice.tokenHash !== deviceTokenHash) {
+          return res.status(409).json({ success: false, error: 'Device is already registered with different credentials' });
+        }
+        if (!existingDevice) {
+          record.devices.push({
+            deviceId,
+            deviceName: deviceName || 'Connected Device',
+            tokenHash: deviceTokenHash,
+            lastActiveAt: new Date(),
+          });
+          await record.save();
         }
 
         pairing.encryptedPayload = encryptedPayload;
@@ -379,7 +384,6 @@ export default async function handleNotebookSync(req, res) {
     }
   } catch (err) {
     console.error('NotebookSync Handler Error:', err);
-    return res.status(500).json({ success: false, error: 'Internal server error', details: err.message });
+    return res.status(500).json({ success: false, error: err.message || 'Internal server error', details: err.stack });
   }
 }
-

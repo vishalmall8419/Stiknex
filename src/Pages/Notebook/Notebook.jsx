@@ -47,6 +47,10 @@ import {
   deleteImageFromDb,
   saveExtendedNote,
   getExtendedNote,
+  deleteExtendedNote,
+  saveNotebookComments,
+  getNotebookComments,
+  deleteNotebookComments,
   saveDrawingToDb,
   getDrawingFromDb,
   deleteDrawingFromDb,
@@ -77,6 +81,9 @@ const nextNotebookTitle = (existing) =>
     ? DEFAULT_NOTEBOOK_TITLE
     : `${DEFAULT_NOTEBOOK_TITLE} ${existing.length + 1}`;
 
+const notebookMetadata = (notebooks) =>
+  notebooks.map((notebook) => ({ ...notebook, content: "" }));
+
 // Loads the notebook list, migrating older single-notebook storage
 const loadNotebooks = () => {
   try {
@@ -104,7 +111,11 @@ const loadNotebooks = () => {
     },
   ];
 
-  localStorage.setItem(NOTEBOOKS_KEY, JSON.stringify(migrated));
+  try {
+    localStorage.setItem(NOTEBOOKS_KEY, JSON.stringify(notebookMetadata(migrated)));
+  } catch (error) {
+    console.error("Could not save migrated notebook metadata:", error);
+  }
   return migrated;
 };
 
@@ -271,6 +282,28 @@ const Notebook = () => {
   const statsPillRef = useRef(null);
   const statsContentRef = useRef(null);
 
+  const scheduleCloudSync = useCallback(() => {
+    if (!getSyncIdentity()) return;
+    setSyncStatus("syncing");
+    clearTimeout(cloudSyncTimeoutRef.current);
+    cloudSyncTimeoutRef.current = setTimeout(async () => {
+      try {
+        const result = await pushToCloud();
+        if (result?.success) {
+          setSyncStatus("synced");
+        } else if (result?.reason === "Offline") {
+          setSyncStatus("offline");
+        } else {
+          console.error("Notebook cloud sync failed:", result?.error || result?.reason);
+          setSyncStatus("idle");
+        }
+      } catch (error) {
+        console.error("Notebook cloud sync failed:", error);
+        setSyncStatus("idle");
+      }
+    }, 2500);
+  }, []);
+
   const handleStatsMouseEnter = useCallback(() => {
     if (!statsPillRef.current || !statsContentRef.current) return;
     gsap.killTweensOf([statsPillRef.current, statsContentRef.current]);
@@ -325,17 +358,30 @@ const Notebook = () => {
     if (!drawingCanvasRef.current) return;
     try {
       const dataUrl = drawingCanvasRef.current.toDataURL();
-      saveDrawingToDb(activeNotebookId, dataUrl);
-    } catch {}
-  }, [activeNotebookId]);
+      saveDrawingToDb(activeNotebookId, dataUrl).then((saved) => {
+        if (saved) scheduleCloudSync();
+      }).catch((error) => {
+        console.warn("Could not save notebook drawing:", error);
+      });
+    } catch (error) {
+      console.error("Could not read notebook drawing:", error);
+      setSaveState("error");
+    }
+  }, [activeNotebookId, scheduleCloudSync]);
 
   const handleClearDrawing = useCallback(() => {
     if (!drawingCanvasRef.current) return;
     const canvas = drawingCanvasRef.current;
     const ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    deleteDrawingFromDb(activeNotebookId);
-  }, [activeNotebookId]);
+    deleteDrawingFromDb(activeNotebookId).then((deleted) => {
+      if (!deleted) throw new Error("Could not clear the notebook drawing from IndexedDB.");
+      scheduleCloudSync();
+    }).catch((error) => {
+      console.error("Could not clear notebook drawing:", error);
+      setSaveState("error");
+    });
+  }, [activeNotebookId, scheduleCloudSync]);
 
   // Helper to update text statistics from innerText
   const updateStats = useCallback(() => {
@@ -347,51 +393,35 @@ const Notebook = () => {
     editorRef.current.setAttribute("data-empty", clean === "" ? "true" : "false");
   }, []);
 
-  // Save content to localStorage and IndexedDB
+  // Keep large editor content in IndexedDB and only notebook metadata in localStorage.
   const persistContent = useCallback(
     async (htmlToSave) => {
-      let localSaved = false;
       try {
-        localStorage.setItem(TEXT_KEY, htmlToSave);
-        setNotebooks((prev) => {
-          const updated = prev.map((nb) =>
-            nb.id === activeNotebookId
-              ? { ...nb, content: htmlToSave, updatedAt: Date.now() }
-              : nb,
-          );
-          localStorage.setItem(NOTEBOOKS_KEY, JSON.stringify(updated));
-          return updated;
-        });
-        localSaved = true;
-      } catch (err) {
-        console.warn("localStorage quota exceeded, using IndexedDB:", err);
-      }
+        const indexedDbSaved = await saveExtendedNote(activeNotebookId, htmlToSave);
 
-      // High-capacity backing store in IndexedDB
-      await saveExtendedNote(activeNotebookId, htmlToSave);
+        const updated = notebooks.map((notebook) =>
+          notebook.id === activeNotebookId
+            ? { ...notebook, content: htmlToSave, updatedAt: Date.now() }
+            : notebook,
+        );
+        setNotebooks(updated);
+        localStorage.removeItem(TEXT_KEY);
 
-      // Lightweight fallback if localStorage threw quota error
-      if (!localSaved) {
         try {
-          const lightweight = htmlToSave.replace(
-            /src="data:image\/[^"]+"/g,
-            'src=""',
-          );
-          setNotebooks((prev) => {
-            const updated = prev.map((nb) =>
-              nb.id === activeNotebookId
-                ? { ...nb, content: lightweight, updatedAt: Date.now() }
-                : nb,
-            );
-            localStorage.setItem(NOTEBOOKS_KEY, JSON.stringify(updated));
-            return updated;
-          });
-        } catch {}
-      }
+          const storageData = indexedDbSaved ? notebookMetadata(updated) : updated;
+          localStorage.setItem(NOTEBOOKS_KEY, JSON.stringify(storageData));
+        } catch (_) {
+          localStorage.setItem(NOTEBOOKS_KEY, JSON.stringify(notebookMetadata(updated)));
+        }
 
-      setSaveState("saved");
+        setSaveState("saved");
+        scheduleCloudSync();
+      } catch (err) {
+        console.error("Notebook save failed:", err);
+        setSaveState("error");
+      }
     },
-    [activeNotebookId],
+    [activeNotebookId, notebooks, scheduleCloudSync],
   );
 
   // Push new snapshot to history
@@ -469,7 +499,11 @@ const Notebook = () => {
 
   // Synchronize localStorage list & title
   useEffect(() => {
-    localStorage.setItem(NOTEBOOKS_KEY, JSON.stringify(notebooks));
+    try {
+      localStorage.setItem(NOTEBOOKS_KEY, JSON.stringify(notebookMetadata(notebooks)));
+    } catch (error) {
+      console.error("Could not save notebook list metadata:", error);
+    }
     window.dispatchEvent(new Event("stiknex_notebooks_updated"));
   }, [notebooks]);
 
@@ -482,7 +516,11 @@ const Notebook = () => {
   }, [title]);
 
   useEffect(() => {
-    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+    try {
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+    } catch (error) {
+      console.error("Could not save notebook settings locally:", error);
+    }
   }, [settings]);
 
   const updateTitle = (newTitle) => {
@@ -492,6 +530,7 @@ const Notebook = () => {
         nb.id === activeNotebookId ? { ...nb, title: newTitle } : nb,
       ),
     );
+    scheduleCloudSync();
   };
 
   // Trigger content change: updates stats, updates text state, records history, debounces autosave
@@ -523,47 +562,50 @@ const Notebook = () => {
       persistContent(currentHtml);
     }, 400);
 
-    // Debounce encrypted cloud sync if enabled
-    if (getSyncIdentity()) {
-      setSyncStatus("syncing");
-      clearTimeout(cloudSyncTimeoutRef.current);
-      cloudSyncTimeoutRef.current = setTimeout(async () => {
-        try {
-          const res = await pushToCloud();
-          if (res?.success) {
-            setSyncStatus("synced");
-          } else if (res?.reason === "Offline") {
-            setSyncStatus("offline");
-          } else {
-            setSyncStatus("idle");
-          }
-        } catch {
-          setSyncStatus("idle");
-        }
-      }, 2500);
-    }
   }, [settings.autoSave, persistContent, updateStats, pushHistorySnapshot]);
 
   // Load saved comments for active note
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(`nb_comments_${activeNotebookId}`);
-      if (raw) {
-        setComments(JSON.parse(raw));
-      } else {
-        setComments([]);
+    let cancelled = false;
+    const loadComments = async () => {
+      try {
+        const indexedDbComments = await getNotebookComments(activeNotebookId);
+        if (cancelled) return;
+        if (indexedDbComments) {
+          setComments(indexedDbComments);
+          return;
+        }
+      } catch (error) {
+        console.warn("Could not read notebook comments from IndexedDB:", error);
       }
-    } catch {
-      setComments([]);
-    }
+
+      try {
+        const raw = localStorage.getItem(`nb_comments_${activeNotebookId}`);
+        if (!cancelled) setComments(raw ? JSON.parse(raw) : []);
+      } catch (error) {
+        console.error("Could not read notebook comments:", error);
+        if (!cancelled) setComments([]);
+      }
+    };
+    loadComments();
+    return () => {
+      cancelled = true;
+    };
   }, [activeNotebookId]);
 
   const saveComments = useCallback((newComments) => {
     setComments(newComments);
     try {
       localStorage.setItem(`nb_comments_${activeNotebookId}`, JSON.stringify(newComments));
-    } catch {}
-  }, [activeNotebookId]);
+    } catch (error) {
+      console.error("Could not save notebook comments locally:", error);
+    }
+    saveNotebookComments(activeNotebookId, newComments).then((saved) => {
+      if (saved) scheduleCloudSync();
+    }).catch((error) => {
+      console.warn("Could not save notebook comments to IndexedDB:", error);
+    });
+  }, [activeNotebookId, scheduleCloudSync]);
 
   // Handle Translate button click
   const handleOpenTranslate = useCallback(() => {
@@ -737,12 +779,29 @@ const Notebook = () => {
 
     async function loadContent() {
       // 1. Try IndexedDB first
-      let rawContent = await getExtendedNote(activeNotebookId);
+      let rawContent = null;
+      try {
+        rawContent = await getExtendedNote(activeNotebookId);
+      } catch (error) {
+        console.warn("Could not read notebook content from IndexedDB:", error);
+      }
 
       // 2. Fallback to localStorage notebook record
       if (!rawContent) {
         const found = notebooks.find((nb) => nb.id === activeNotebookId);
         rawContent = found ? found.content : "";
+        if (rawContent) {
+          const migrated = await saveExtendedNote(activeNotebookId, rawContent);
+          if (migrated) {
+            try {
+              localStorage.removeItem(TEXT_KEY);
+              localStorage.setItem(NOTEBOOKS_KEY, JSON.stringify(notebookMetadata(notebooks)));
+            } catch (error) {
+              console.error("Could not migrate notebook metadata to localStorage:", error);
+              setSaveState("error");
+            }
+          }
+        }
       }
 
       if (cancelled) return;
@@ -845,19 +904,15 @@ const Notebook = () => {
         try {
           const res = await joinPairingSession(pairingId, hash);
           if (res?.success) {
-            // Pull latest notes
-            const syncRes = await pullFromCloud(res.identity);
-            if (syncRes?.success) {
-              const list = loadNotebooks();
-              if (list.length > 0) {
-                setNotebooks(list);
-                const active = list[0];
-                setActiveNotebookId(active.id);
-                setTitle(active.title);
-                setText(active.content || "");
-                if (editorRef.current) {
-                  editorRef.current.innerHTML = plainTextToHtml(active.content || "");
-                }
+            const list = loadNotebooks();
+            if (list.length > 0) {
+              setNotebooks(list);
+              const active = list[0];
+              setActiveNotebookId(active.id);
+              setTitle(active.title);
+              setText(active.content || "");
+              if (editorRef.current) {
+                editorRef.current.innerHTML = plainTextToHtml(active.content || "");
               }
             }
             setSyncStatus("synced");
@@ -902,10 +957,14 @@ const Notebook = () => {
         if (active) {
           setTitle(active.title);
           setText(active.content || "");
+          setComments(payload.comments?.[active.id] || []);
           if (editorRef.current && editorRef.current.innerHTML !== active.content) {
             editorRef.current.innerHTML = plainTextToHtml(active.content || "");
           }
         }
+      }
+      if (payload.settings && typeof payload.settings === "object") {
+        setSettings((current) => ({ ...current, ...payload.settings }));
       }
       setSyncStatus("synced");
     };
@@ -934,6 +993,11 @@ const Notebook = () => {
       content: "<p><br></p>",
       updatedAt: Date.now(),
     };
+    saveExtendedNote(newNotebook.id, newNotebook.content).then((saved) => {
+      if (saved) scheduleCloudSync();
+    }).catch((error) => {
+      console.warn("Could not initialize new notebook storage:", error);
+    });
     setNotebooks((prev) => [newNotebook, ...prev]);
     setActiveNotebookId(newNotebook.id);
     setTitle(newNotebook.title);
@@ -965,7 +1029,16 @@ const Notebook = () => {
       const remaining = notebooks.filter((nb) => nb.id !== id);
       const wasActive = id === activeNotebookId;
 
-      deleteDrawingFromDb(id);
+      Promise.all([deleteDrawingFromDb(id), deleteExtendedNote(id), deleteNotebookComments(id)])
+        .catch((error) => {
+          console.warn("Could not delete all notebook data from IndexedDB:", error);
+        });
+      try {
+        localStorage.removeItem(`nb_comments_${id}`);
+      } catch (error) {
+        console.error("Could not remove notebook comments:", error);
+      }
+      scheduleCloudSync();
 
       if (remaining.length === 0) {
         handleClearDrawing();
@@ -999,6 +1072,7 @@ const Notebook = () => {
 
   const updateSetting = (key, value) => {
     setSettings((prev) => ({ ...prev, [key]: value }));
+    scheduleCloudSync();
   };
 
   const handleManualSave = () => {
@@ -1827,6 +1901,7 @@ const Notebook = () => {
               onDrop={handleEditorDrop}
               onDragOver={(e) => e.preventDefault()}
               data-placeholder="Start writing, pasting images, or make a to-do list…"
+              data-empty={!text || text.replace(/<[^>]*>/g, "").trim() === "" ? "true" : "false"}
               spellCheck={true}
               style={{
                 ...editorVars,

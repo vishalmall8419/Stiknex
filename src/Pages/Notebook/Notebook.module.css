@@ -1,5 +1,7 @@
 .notebookPage {
-  height: 100dvh; overflow: hidden;
+  height: 100dvh;
+  min-height: 100svh;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   background: #fdfbf3;
@@ -16,7 +18,9 @@
 
 .paperArea {
   overflow-y: auto;
-  flex: 1;
+  flex: 1 1 0%;
+  min-height: 0;
+  height: 100%;
   width: 100%;
   padding: 0 clamp(0.85rem, 2.3vw, 4rem) 0;
   background-color: #fdfbf3;
@@ -26,6 +30,8 @@
   background-attachment: local !important;
   display: flex;
   flex-direction: column;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
 }
 
 .darkPaperArea {
@@ -44,10 +50,14 @@
   max-width: var(--nb-writing-width, 1160px);
   margin: 0 auto;
   padding-left: 2.4rem;
-  padding-top: 0;
-  padding-bottom: max(220px, calc(env(safe-area-inset-bottom, 20px) + 180px));
+  padding-top: 0.25rem;
+  padding-bottom: 0;
   min-height: 100%;
   box-sizing: border-box;
+}
+
+.paperColumn:has(.editor[data-empty="false"]) {
+  padding-bottom: 3.5rem;
 }
 
 .marginLine {
@@ -78,7 +88,7 @@
   z-index: 1;
   width: 100%;
   flex: 1 0 auto;
-  min-height: calc(100vh - 70px);
+  min-height: 0;
   padding: 0;
   border: none;
   outline: none;
@@ -89,6 +99,7 @@
   line-height: var(--nb-line-height, 34px);
   color: #2a2a30;
   caret-color: #4f5cff;
+  overflow-wrap: anywhere;
 }
 
 .editor > *:first-child {
@@ -277,25 +288,32 @@
 
 @media (max-width: 900px) {
   .paperArea {
-    padding: 0.85rem 1.5rem max(180px, calc(env(safe-area-inset-bottom, 20px) + 160px)) 1.5rem !important;
+    padding: 0 1.5rem 0 1.5rem !important;
   }
 
   .paperColumn {
     padding-left: 1.8rem;
-    padding-bottom: 4rem !important;
+    min-height: 100%;
+  }
+
+  .paperColumn:has(.editor[data-empty="false"]) {
+    padding-bottom: 3.5rem;
   }
 }
 
 @media (max-width: 640px) {
   .paperArea {
-    padding: 0.75rem 1rem max(200px, calc(env(safe-area-inset-bottom, 20px) + 180px)) 1rem !important;
-    background-position: 0 3.5rem;
+    padding: 0 1rem 0 1rem !important;
+    background-position: 0 0;
   }
 
   .paperColumn {
     padding-left: 1.4rem;
-    padding-bottom: 6rem !important;
-    min-height: calc(100vh - 160px);
+    min-height: 100%;
+  }
+
+  .paperColumn:has(.editor[data-empty="false"]) {
+    padding-bottom: max(75px, calc(env(safe-area-inset-bottom, 16px) + 60px));
   }
 
   .marginLine {
@@ -303,8 +321,7 @@
   }
 
   .editor {
-    min-height: calc(100vh - 50px);
-    padding-bottom: 2.5rem !important;
+    min-height: 0;
   }
 
   .statusPill {
@@ -417,6 +434,15 @@
   position: absolute;
   top: 0;
   left: 0;
+}
+
+.editor :global(mark),
+.editor :global(span[style*="background-color"]) {
+  padding: 0 !important;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  line-height: inherit;
+  vertical-align: baseline;
 }
 
 .darkNotebookPage .editor[data-empty="true"]::before {

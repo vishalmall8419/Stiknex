@@ -3,7 +3,7 @@
 // without exceeding the browser's 5MB localStorage quota.
 
 const DB_NAME = "stiknex_notebook_db";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 const IMAGE_STORE = "images";
 const NOTE_STORE = "notes_extended";
 
@@ -27,9 +27,33 @@ function getDb() {
           db.createObjectStore(NOTE_STORE, { keyPath: "id" });
         }
       };
-      request.onsuccess = (e) => resolve(e.target.result);
-      request.onerror = () => resolve(null);
+      request.onblocked = () => {
+        console.warn("IndexedDB upgrade blocked by another open tab.");
+      };
+      request.onsuccess = (e) => {
+        const db = e.target.result;
+        db.onversionchange = () => {
+          db.close();
+          dbPromise = null;
+        };
+        if (navigator.storage?.persist) {
+          navigator.storage.persist().then((granted) => {
+            if (!granted) {
+              console.warn("Browser storage may be cleared when device storage is low.");
+            }
+          }).catch((error) => {
+            console.warn("Could not request persistent browser storage:", error);
+          });
+        }
+        resolve(db);
+      };
+      request.onerror = () => {
+        console.error("Could not open notebook IndexedDB:", request.error);
+        dbPromise = null;
+        resolve(null);
+      };
     } catch {
+      dbPromise = null;
       resolve(null);
     }
   });
@@ -95,7 +119,7 @@ export async function deleteImageFromDb(id) {
 export async function saveExtendedNote(id, html) {
   try {
     const db = await getDb();
-    if (!db) return false;
+    if (!db || !db.objectStoreNames.contains(NOTE_STORE)) return false;
     return new Promise((resolve) => {
       const tx = db.transaction(NOTE_STORE, "readwrite");
       tx.objectStore(NOTE_STORE).put({ id, html, updatedAt: Date.now() });
@@ -111,18 +135,69 @@ export async function saveExtendedNote(id, html) {
  * Retrieves extended content from IndexedDB
  */
 export async function getExtendedNote(id) {
+  const db = await getDb();
+  if (!db || !db.objectStoreNames.contains(NOTE_STORE)) return null;
+  return new Promise((resolve) => {
+    const tx = db.transaction(NOTE_STORE, "readonly");
+    const req = tx.objectStore(NOTE_STORE).get(id);
+    req.onsuccess = () => resolve(req.result ? req.result.html : null);
+    req.onerror = () => resolve(null);
+    tx.onerror = () => resolve(null);
+  });
+}
+
+export async function deleteExtendedNote(id) {
   try {
     const db = await getDb();
-    if (!db) return null;
+    if (!db || !db.objectStoreNames.contains(NOTE_STORE)) return false;
+    return new Promise((resolve) => {
+      const tx = db.transaction(NOTE_STORE, "readwrite");
+      tx.objectStore(NOTE_STORE).delete(id);
+      tx.oncomplete = () => resolve(true);
+      tx.onerror = () => resolve(false);
+    });
+  } catch {
+    return false;
+  }
+}
+
+export async function saveNotebookComments(notebookId, comments) {
+  try {
+    const db = await getDb();
+    if (!db) return false;
+    return new Promise((resolve) => {
+      const tx = db.transaction(NOTE_STORE, "readwrite");
+      tx.objectStore(NOTE_STORE).put({
+        id: `comments_${notebookId}`,
+        comments,
+        updatedAt: Date.now(),
+      });
+      tx.oncomplete = () => resolve(true);
+      tx.onerror = () => resolve(false);
+    });
+  } catch {
+    return false;
+  }
+}
+
+export async function getNotebookComments(notebookId) {
+  try {
+    const db = await getDb();
+    if (!db || !db.objectStoreNames.contains(NOTE_STORE)) return null;
     return new Promise((resolve) => {
       const tx = db.transaction(NOTE_STORE, "readonly");
-      const req = tx.objectStore(NOTE_STORE).get(id);
-      req.onsuccess = () => resolve(req.result ? req.result.html : null);
+      const req = tx.objectStore(NOTE_STORE).get(`comments_${notebookId}`);
+      req.onsuccess = () => resolve(Array.isArray(req.result?.comments) ? req.result.comments : null);
       req.onerror = () => resolve(null);
+      tx.onerror = () => resolve(null);
     });
   } catch {
     return null;
   }
+}
+
+export async function deleteNotebookComments(notebookId) {
+  return deleteExtendedNote(`comments_${notebookId}`);
 }
 
 /**
@@ -136,7 +211,19 @@ export async function saveDrawingToDb(noteId, dataUrl) {
  * Retrieves canvas drawing for a note
  */
 export async function getDrawingFromDb(noteId) {
-  return getImageFromDb(`drawing_${noteId}`);
+  try {
+    const db = await getDb();
+    if (!db || !db.objectStoreNames.contains(IMAGE_STORE)) return null;
+    return new Promise((resolve) => {
+      const tx = db.transaction(IMAGE_STORE, "readonly");
+      const req = tx.objectStore(IMAGE_STORE).get(`drawing_${noteId}`);
+      req.onsuccess = () => resolve(req.result ? req.result.data : null);
+      req.onerror = () => resolve(null);
+      tx.onerror = () => resolve(null);
+    });
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -145,5 +232,3 @@ export async function getDrawingFromDb(noteId) {
 export async function deleteDrawingFromDb(noteId) {
   return deleteImageFromDb(`drawing_${noteId}`);
 }
-
-

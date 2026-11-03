@@ -122,7 +122,7 @@ const BlogDetail = () => {
   const coverImage = post.image || '';
 
   return (
-    <div className="relative min-h-screen text-slate-900 dark:text-slate-100 selection:bg-indigo-500/30 font-sans pb-16 w-full max-w-full overflow-x-hidden">
+    <div className="relative min-h-screen text-slate-900 dark:text-slate-100 selection:bg-indigo-500/30 font-sans pb-16 w-full max-w-full overflow-x-clip">
       <PageSEO title={`${post.title} | Stiknex`} description={post.briefDescription} path={`/blog/${id}`} />
       <AuroraBackground />
 
@@ -147,7 +147,7 @@ const BlogDetail = () => {
         </div>
       </nav>
 
-      <main className="pt-24 sm:pt-28 md:pt-36 px-4 sm:px-6 max-w-4xl mx-auto relative z-10 w-full overflow-x-hidden">
+      <main className="pt-24 sm:pt-28 md:pt-36 px-4 sm:px-6 max-w-4xl mx-auto relative z-10 w-full overflow-x-clip">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 mb-8 w-full">
           <Link to="/blog" className="inline-flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-semibold hover:-translate-x-2 transition-transform text-sm sm:text-base shrink-0">
             <ArrowLeft size={18} /> Back to Articles
@@ -205,7 +205,7 @@ const BlogDetail = () => {
           initial={{ opacity: 0, y: 40 }} 
           animate={{ opacity: 1, y: 0 }} 
           transition={{ duration: 0.8, delay: 0.4 }}
-          className="w-full max-w-full bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl p-4 sm:p-8 md:p-12 rounded-2xl sm:rounded-3xl border border-white/50 dark:border-slate-800/80 shadow-md text-base sm:text-lg text-slate-700 dark:text-slate-300 leading-relaxed space-y-6 break-words overflow-x-hidden"
+          className="w-full max-w-full bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl p-4 sm:p-8 md:p-12 rounded-2xl sm:rounded-3xl border border-white/50 dark:border-slate-800/80 shadow-md text-base sm:text-lg text-slate-700 dark:text-slate-300 leading-relaxed space-y-6 break-words overflow-x-clip"
         >
           {(translatedContent ? translatedContent.fullContent : post.fullContent).split('\n').map((paragraph, idx) => {
             const trimmed = paragraph.trim();

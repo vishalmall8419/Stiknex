@@ -702,7 +702,6 @@ export function applyHighlightColor(editor, color) {
         const mark = document.createElement("mark");
         mark.style.backgroundColor = color;
         mark.style.color = "inherit";
-        mark.style.padding = "0.1em 0.25em";
         mark.style.borderRadius = "3px";
         mark.appendChild(range.extractContents());
         range.insertNode(mark);

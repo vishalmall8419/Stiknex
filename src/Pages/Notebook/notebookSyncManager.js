@@ -18,6 +18,8 @@ import {
   getDrawingFromDb,
   saveExtendedNote,
   getExtendedNote,
+  saveNotebookComments,
+  getNotebookComments,
 } from './notebookStorage';
 
 const SYNC_IDENTITY_KEY = 'stiknex_sync_identity';
@@ -25,6 +27,10 @@ const DEVICE_ID_KEY = 'stiknex_device_id';
 const DEVICE_NAME_KEY = 'stiknex_device_name';
 const NOTEBOOKS_KEY = 'stiknexNotebooks';
 const SETTINGS_KEY = 'notebookSettings';
+
+function notebookMetadata(notebooks) {
+  return notebooks.map((notebook) => ({ ...notebook, content: '' }));
+}
 
 // Helper to get or create this device's unique ID
 export function getOrCreateDeviceId() {
@@ -101,10 +107,11 @@ export async function enableCloudSync() {
     lastSyncTime: Date.now(),
   };
 
-  saveSyncIdentity(identity);
-
   // Initial push of existing local notes to cloud
-  await pushToCloud(identity, cryptoKey);
+  const syncResult = await pushToCloud(identity, cryptoKey);
+  if (!syncResult.success) {
+    throw new Error(syncResult.error || 'Could not initialize the cloud sync group.');
+  }
   return identity;
 }
 
@@ -145,10 +152,11 @@ export async function connectWithRecoveryKey(recoveryKeyHex, customDeviceName) {
     lastSyncTime: Date.now(),
   };
 
-  saveSyncIdentity(identity);
-
   // Pull latest notebooks from cloud
-  await pullFromCloud(identity, cryptoKey);
+  const syncResult = await pullFromCloud(identity, cryptoKey);
+  if (!syncResult.success) {
+    throw new Error(syncResult.error || 'Failed to load the recovery-key sync group.');
+  }
   return identity;
 }
 
@@ -159,25 +167,32 @@ export async function collectLocalPayload(version) {
   let notebooks = [];
   let stickyNotes = [];
   let stickyConnections = [];
+  const comments = {};
   try {
     const raw = localStorage.getItem(NOTEBOOKS_KEY) || localStorage.getItem('stiknex_notebooks');
-    if (raw) notebooks = JSON.parse(raw);
+    if (raw) {
+      notebooks = JSON.parse(raw);
+      if (!Array.isArray(notebooks)) throw new Error('Stored notebook list is not an array.');
+    }
   } catch (e) {
-    console.warn('Failed to parse local notebooks:', e);
+    console.error('Failed to read local notebooks for sync:', e);
+    throw e;
   }
   try {
     const raw = localStorage.getItem('notes');
     if (raw) stickyNotes = JSON.parse(raw);
-    if (!Array.isArray(stickyNotes)) stickyNotes = [];
+    if (!Array.isArray(stickyNotes)) throw new Error('Stored sticky notes are not an array.');
   } catch (e) {
-    console.warn('Failed to parse local sticky notes:', e);
+    console.error('Failed to read local sticky notes for sync:', e);
+    throw e;
   }
   try {
     const raw = localStorage.getItem('stiknex_connections');
     if (raw) stickyConnections = JSON.parse(raw);
-    if (!Array.isArray(stickyConnections)) stickyConnections = [];
+    if (!Array.isArray(stickyConnections)) throw new Error('Stored sticky-note connections are not an array.');
   } catch (e) {
-    console.warn('Failed to parse sticky note connections:', e);
+    console.error('Failed to read sticky-note connections for sync:', e);
+    throw e;
   }
 
   // Fetch high-capacity full content from IndexedDB if available
@@ -188,7 +203,22 @@ export async function collectLocalPayload(version) {
         nb.content = fullContent;
       }
     } catch (e) {
-      console.warn('Failed to read note from IndexedDB:', e);
+      console.error('Failed to read notebook content from IndexedDB:', e);
+      throw e;
+    }
+
+    try {
+      comments[nb.id] = await getNotebookComments(nb.id);
+      if (!comments[nb.id]) {
+        const rawComments = localStorage.getItem(`nb_comments_${nb.id}`);
+        comments[nb.id] = rawComments ? JSON.parse(rawComments) : [];
+      }
+      if (!Array.isArray(comments[nb.id])) {
+        throw new Error(`Invalid comments data for notebook ${nb.id}.`);
+      }
+    } catch (e) {
+      console.error('Failed to read notebook comments for sync:', e);
+      throw e;
     }
   }
 
@@ -197,7 +227,8 @@ export async function collectLocalPayload(version) {
     const raw = localStorage.getItem(SETTINGS_KEY) || localStorage.getItem('stiknex_notebook_settings');
     if (raw) settings = JSON.parse(raw);
   } catch (e) {
-    console.warn('Failed to parse notebook settings:', e);
+    console.error('Failed to parse notebook settings for sync:', e);
+    throw e;
   }
 
   // Gather drawing data for notebooks
@@ -207,7 +238,8 @@ export async function collectLocalPayload(version) {
       const drawingData = (await getDrawingFromDb(nb.id)) || (await getImageFromDb(`drawing_${nb.id}`));
       if (drawingData) drawings[nb.id] = drawingData;
     } catch (e) {
-      console.warn('Failed to read drawing data:', e);
+      console.error('Failed to read notebook drawing for sync:', e);
+      throw e;
     }
   }
 
@@ -228,6 +260,7 @@ export async function collectLocalPayload(version) {
 
   return {
     notebooks,
+    comments,
     stickyNotes,
     stickyImages,
     stickyConnections,
@@ -281,7 +314,10 @@ export async function pushToCloud(customIdentity = null, customCryptoKey = null)
 
     if (!response.ok) {
       const err = await response.json().catch(() => ({}));
-      return { success: false, error: err.error || 'Sync push failed' };
+      const message = response.status === 413
+        ? 'Cloud sync payload is too large for the API request limit. Reduce large attachments before syncing.'
+        : err.error || `Sync push failed (HTTP ${response.status}).`;
+      return { success: false, error: message };
     }
 
     const data = await response.json();
@@ -413,22 +449,41 @@ async function handleConflictResolution(identity, cryptoKey, conflictData) {
         ...(Array.isArray(localPayload.stickyConnections) ? localPayload.stickyConnections : []),
       ].filter((connection) => connection?.id).map((connection) => [connection.id, connection]),
     ).values()];
+    const mergedComments = {};
+    for (const notebookId of new Set([
+      ...Object.keys(remotePayload.comments || {}),
+      ...Object.keys(localPayload.comments || {}),
+    ])) {
+      mergedComments[notebookId] = [...new Map([
+        ...(remotePayload.comments?.[notebookId] || []),
+        ...(localPayload.comments?.[notebookId] || []),
+      ].filter((comment) => comment?.id).map((comment) => [comment.id, comment])).values()];
+    }
 
     // Merge drawings
     const mergedDrawings = { ...(remotePayload.drawings || {}), ...(localPayload.drawings || {}) };
 
     // Apply merged state locally
-    localStorage.setItem(NOTEBOOKS_KEY, JSON.stringify(mergedList));
+    localStorage.setItem(NOTEBOOKS_KEY, JSON.stringify(notebookMetadata(mergedList)));
     localStorage.setItem('notes', JSON.stringify(stickyNotes));
     localStorage.setItem('stiknex_connections', JSON.stringify(stickyConnections));
+    for (const [notebookId, notebookComments] of Object.entries(mergedComments)) {
+      if (!(await saveNotebookComments(notebookId, notebookComments))) {
+        throw new Error(`Could not save comments for notebook ${notebookId} to IndexedDB.`);
+      }
+      localStorage.setItem(`nb_comments_${notebookId}`, JSON.stringify(notebookComments));
+    }
     for (const nb of mergedList) {
       if (nb.id && nb.content) {
-        await saveExtendedNote(nb.id, nb.content);
+        if (!(await saveExtendedNote(nb.id, nb.content))) {
+          throw new Error(`Could not save notebook ${nb.id} to IndexedDB.`);
+        }
       }
     }
     for (const [noteId, dataUrl] of Object.entries(mergedDrawings)) {
-      await saveDrawingToDb(noteId, dataUrl);
-      await saveImageToDb(`drawing_${noteId}`, dataUrl);
+      if (!(await saveDrawingToDb(noteId, dataUrl)) || !(await saveImageToDb(`drawing_${noteId}`, dataUrl))) {
+        throw new Error(`Could not save drawing for notebook ${noteId} to IndexedDB.`);
+      }
     }
     for (const [imageId, dataUrl] of Object.entries(stickyImages)) {
       if (!(await saveImageToDb(imageId, dataUrl))) {
@@ -445,6 +500,7 @@ async function handleConflictResolution(identity, cryptoKey, conflictData) {
       stickyNotes,
       stickyImages,
       stickyConnections,
+      comments: mergedComments,
       settings: localPayload.settings,
       drawings: mergedDrawings,
       version: identity.version,
@@ -509,11 +565,22 @@ async function applyRemotePayload(payload) {
   }
 
   if (Array.isArray(payload.notebooks)) {
-    localStorage.setItem(NOTEBOOKS_KEY, JSON.stringify(payload.notebooks));
+    localStorage.setItem(NOTEBOOKS_KEY, JSON.stringify(notebookMetadata(payload.notebooks)));
     for (const nb of payload.notebooks) {
       if (nb.id && nb.content) {
-        await saveExtendedNote(nb.id, nb.content);
+        if (!(await saveExtendedNote(nb.id, nb.content))) {
+          throw new Error(`Could not save notebook ${nb.id} to IndexedDB.`);
+        }
       }
+    }
+  }
+
+  if (payload.comments && typeof payload.comments === 'object') {
+    for (const [notebookId, notebookComments] of Object.entries(payload.comments)) {
+      if (!(await saveNotebookComments(notebookId, notebookComments))) {
+        throw new Error(`Could not save comments for notebook ${notebookId} to IndexedDB.`);
+      }
+      localStorage.setItem(`nb_comments_${notebookId}`, JSON.stringify(notebookComments));
     }
   }
 
@@ -522,14 +589,16 @@ async function applyRemotePayload(payload) {
       const existing = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
       localStorage.setItem(SETTINGS_KEY, JSON.stringify({ ...existing, ...payload.settings }));
     } catch (e) {
-      console.warn('Failed to parse existing settings:', e);
+      console.error('Failed to restore notebook settings:', e);
+      throw e;
     }
   }
 
   if (payload.drawings && typeof payload.drawings === 'object') {
     for (const [noteId, dataUrl] of Object.entries(payload.drawings)) {
-      await saveDrawingToDb(noteId, dataUrl);
-      await saveImageToDb(`drawing_${noteId}`, dataUrl);
+      if (!(await saveDrawingToDb(noteId, dataUrl)) || !(await saveImageToDb(`drawing_${noteId}`, dataUrl))) {
+        throw new Error(`Could not save drawing for notebook ${noteId} to IndexedDB.`);
+      }
     }
   }
 }
@@ -542,7 +611,19 @@ async function applyRemotePayload(payload) {
  * Starts a 5-minute ephemeral QR pairing session on Device A
  */
 export async function createQRPairingSession() {
-  if (!getSyncIdentity()) await enableCloudSync();
+  const identity = getSyncIdentity();
+  if (!identity) {
+    await enableCloudSync();
+  } else {
+    try {
+      const syncResult = await pushToCloud(identity);
+      if (!syncResult.success) {
+        console.warn('Pre-pairing push notice:', syncResult.error || syncResult.reason);
+      }
+    } catch (pushErr) {
+      console.warn('Pre-pairing push non-blocking notice:', pushErr);
+    }
+  }
 
   const pairingId = 'pair_' + Math.random().toString(36).substring(2, 12) + Date.now().toString(36);
   const { cryptoKey: pairingCryptoKey, pairingKeyHex } = await generatePairingKey();
@@ -559,8 +640,16 @@ export async function createQRPairingSession() {
   }
 
   // The pairing key is in the hash (#) so it is NEVER sent to the server in HTTP headers
-  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://stiknex.site';
-  const pairingUrl = `${origin}/online-notebook?pair=${encodeURIComponent(pairingId)}#${pairingKeyHex}`;
+  const pairingOrigin = new URL(typeof window !== 'undefined' ? window.location.origin : 'https://stiknex.site');
+  const devLanHost = import.meta.env.VITE_DEV_LAN_HOST;
+  if (
+    import.meta.env.DEV &&
+    devLanHost &&
+    (pairingOrigin.hostname === 'localhost' || pairingOrigin.hostname === '127.0.0.1')
+  ) {
+    pairingOrigin.hostname = devLanHost;
+  }
+  const pairingUrl = `${pairingOrigin.origin}/online-notebook?pair=${encodeURIComponent(pairingId)}#${pairingKeyHex}`;
 
   return {
     pairingId,
@@ -630,7 +719,10 @@ export async function transferPairingCredentials(pairingId, pairingCryptoKey, cl
     }),
   });
 
-  if (!res.ok) throw new Error('Failed to transfer pairing credentials.');
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || 'Failed to transfer pairing credentials.');
+  }
   return { success: true };
 }
 
@@ -676,6 +768,9 @@ export async function joinPairingSession(pairingId, pairingKeyHex, customDeviceN
         payload = await decryptData(data.encryptedPayload, data.iv, pairingCryptoKey);
         break;
       }
+    } else if (fetchRes.status !== 202) {
+      const err = await fetchRes.json().catch(() => ({}));
+      throw new Error(err.error || 'The pairing session is no longer available.');
     }
   }
 
@@ -693,12 +788,13 @@ export async function joinPairingSession(pairingId, pairingKeyHex, customDeviceN
     lastSyncTime: Date.now(),
   };
 
-  saveSyncIdentity(identity);
+  // Only persist the new identity after confirming the cloud group is available.
+  const syncResult = await pullFromCloud(identity);
+  if (!syncResult.success) {
+    throw new Error(syncResult.error || 'Could not load the existing sync group.');
+  }
 
-  // Pull all encrypted notes immediately
-  await pullFromCloud(identity);
-
-  return identity;
+  return { success: true, identity };
 }
 
 /**

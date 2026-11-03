@@ -49,6 +49,7 @@ const NotebookSyncModal = ({ isOpen, onClose, darkMode }) => {
     if (pollTimerRef.current) clearInterval(pollTimerRef.current);
     setPairingStatus('generating');
     setPairingError(null);
+    setPairingSession(null);
     try {
       const session = await createQRPairingSession();
       setPairingSession(session);
@@ -56,7 +57,6 @@ const NotebookSyncModal = ({ isOpen, onClose, darkMode }) => {
       setTimeLeft(300);
 
       // Start polling for claim with transient retry resilience
-      let consecutive404s = 0;
       pollTimerRef.current = setInterval(async () => {
         try {
           const res = await checkPairingStatus(session.pairingId);
@@ -64,22 +64,30 @@ const NotebookSyncModal = ({ isOpen, onClose, darkMode }) => {
             setPairingStatus('claimed');
             clearInterval(pollTimerRef.current);
 
-            // Transfer encrypted credentials to claimed device
-            await transferPairingCredentials(session.pairingId, session.pairingCryptoKey, res.claimedDevice);
-            setPairingStatus('completed');
+            try {
+              await transferPairingCredentials(session.pairingId, session.pairingCryptoKey, res.claimedDevice);
+              setPairingStatus('completed');
 
-            // Refresh device list
-            const pullRes = await pullFromCloud();
-            if (pullRes?.devices) {
-              setIdentity((prev) => (prev ? { ...prev, devices: pullRes.devices } : prev));
+              const pullRes = await pullFromCloud();
+              if (!pullRes.success) {
+                throw new Error(pullRes.error || 'Could not verify the connected device.');
+              }
+              if (pullRes.devices) {
+                setIdentity((prev) => (prev ? { ...prev, devices: pullRes.devices } : prev));
+              }
+
+              swal({
+                title: 'Device Connected!',
+                text: `"${res.claimedDevice.deviceName}" is now synced with your notebook.`,
+                icon: 'success',
+                timer: 3000,
+              });
+            } catch (transferError) {
+              console.error('Pairing transfer failed:', transferError);
+              setPairingStatus('error');
+              setPairingError(transferError.message || 'Could not transfer sync credentials.');
+              swal('Pairing Failed', transferError.message || 'Could not transfer sync credentials.', 'error');
             }
-
-            swal({
-              title: 'Device Connected!',
-              text: `"${res.claimedDevice.deviceName}" is now synced with your notebook.`,
-              icon: 'success',
-              timer: 3000,
-            });
           } else if (res.status === 'expired') {
             // Only expire if server confirms session was explicitly marked expired
             setPairingStatus('expired');
@@ -297,6 +305,13 @@ const NotebookSyncModal = ({ isOpen, onClose, darkMode }) => {
               <p style={{ fontSize: '13px', margin: 0, color: darkMode ? '#a1a1aa' : '#64748b' }}>
                 Scan this single-use pairing code with your phone or second device camera to instantly sync all notes.
               </p>
+              {import.meta.env.DEV &&
+                pairingSession?.pairingUrl &&
+                (pairingSession.pairingUrl.includes('localhost') || pairingSession.pairingUrl.includes('127.0.0.1')) && (
+                  <p style={{ fontSize: '12px', margin: 0, color: '#b45309' }}>
+                    A phone cannot open localhost from this computer. Open the dev site using your computer's Wi-Fi IP, then generate a new QR code.
+                  </p>
+                )}
 
               {pairingStatus === 'generating' ? (
                 <div style={{ textAlign: 'center', padding: '36px 0' }}>
@@ -313,6 +328,16 @@ const NotebookSyncModal = ({ isOpen, onClose, darkMode }) => {
                   <button type="button" className={Style.btnPrimary} onClick={initQRSession}>
                     <i className="fa-solid fa-rotate-right"></i>
                     <span>Generate New Code</span>
+                  </button>
+                </div>
+              ) : pairingStatus === 'error' ? (
+                <div style={{ textAlign: 'center', padding: '24px 0' }}>
+                  <p style={{ color: '#ef4444', fontSize: '14px', fontWeight: 600, marginBottom: '12px' }}>
+                    {pairingError || 'Could not complete device pairing.'}
+                  </p>
+                  <button type="button" className={Style.btnPrimary} onClick={initQRSession}>
+                    <i className="fa-solid fa-rotate-right"></i>
+                    <span>Try Again</span>
                   </button>
                 </div>
               ) : pairingSession?.pairingUrl ? (
@@ -517,4 +542,3 @@ const NotebookSyncModal = ({ isOpen, onClose, darkMode }) => {
 };
 
 export default NotebookSyncModal;
-

@@ -603,6 +603,13 @@ const NotebookTopbar = ({
                 {title || "Stiknex Notebook"}
               </span>
             )}
+            {saveState === "error" && (
+              <i
+                className={`fa-solid fa-triangle-exclamation ${Style.mobileSaveError}`}
+                title="Could not save notebook data locally"
+                aria-label="Notebook save failed"
+              />
+            )}
           </div>
 
           <div className={Style.saveSubtitle}>
@@ -619,6 +626,11 @@ const NotebookTopbar = ({
             {saveState === "off" && (
               <span className={Style.saveSubtitleOff}>
                 Autosave off
+              </span>
+            )}
+            {saveState === "error" && (
+              <span className={Style.saveSubtitleError} title="Could not save notebook data locally">
+                <i className="fa-solid fa-triangle-exclamation"></i> Save failed
               </span>
             )}
           </div>

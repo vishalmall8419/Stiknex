@@ -46,17 +46,17 @@ const fetchJson = async (url, options = {}, retries = 2) => {
 };
 
 const CANDIDATE_MODELS = [
+    'gemini-2.5-flash-lite',
+    'gemini-2.5-flash',
+    'gemini-flash-latest',
     'gemini-3.5-flash-lite',
-    'gemini-3.1-flash-lite',
-    'gemini-3.5-flash',
-    'gemini-3.6-flash',
     'gemini-flash-lite-latest'
 ];
 
 /**
  * Executes a Gemini prompt with automatic model fallback and retry logic.
  */
-async function callGeminiWithFallback(prompt, isJson = false, maxTokens = 2200, timeoutMs = 25000) {
+async function callGeminiWithFallback(prompt, isJson = false, maxTokens = 2200, timeoutMs = 12000) {
     let lastError = null;
     for (const model of CANDIDATE_MODELS) {
         try {
@@ -668,7 +668,7 @@ RULES: Rich, highly descriptive paragraphs. DO NOT repeat existing paragraphs. F
         try {
             const wikiRes = await fetchJson(
                 `https://en.wikipedia.org/w/api.php?action=query&prop=extracts|pageimages&exintro&piprop=original|thumbnail&pithumbsize=1200&titles=${encodeURIComponent(keyword)}&format=json`,
-                { timeoutMs: 5000 }
+                { timeoutMs: 2500 }
             );
             if (wikiRes?.query?.pages) {
                 const pages = wikiRes.query.pages;
@@ -745,15 +745,9 @@ RULES: Authoritative paragraphs. Output directly in clean Markdown without backt
         console.log(`[BlogEngine] Initiating parallel generation for "${keyword}"...`);
         const startTime = Date.now();
 
-        const p1Promise = callGeminiWithFallback(promptPart1, true, 2200, 25000);
-        const p2Promise = (async () => {
-            await new Promise(r => setTimeout(r, 600));
-            return callGeminiWithFallback(promptPart2, false, 2200, 25000);
-        })();
-        const p3Promise = (async () => {
-            await new Promise(r => setTimeout(r, 1200));
-            return callGeminiWithFallback(promptPart3, false, 2200, 25000);
-        })();
+        const p1Promise = callGeminiWithFallback(promptPart1, true, 2200, 11000);
+        const p2Promise = callGeminiWithFallback(promptPart2, false, 2200, 11000);
+        const p3Promise = callGeminiWithFallback(promptPart3, false, 2200, 11000);
 
         const [p1Res, p2Res, p3Res] = await Promise.all([p1Promise, p2Promise, p3Promise]);
 

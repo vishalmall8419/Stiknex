@@ -21,8 +21,12 @@ const NotebookDrawingCanvas = ({
     if (!canvas || !canvas.parentElement) return;
 
     const parent = canvas.parentElement;
-    const width = parent.clientWidth;
-    const height = Math.max(parent.scrollHeight, window.innerHeight);
+    const bounds = parent.getBoundingClientRect();
+    const width = bounds.width;
+    const editor = parent.querySelector('[contenteditable="true"]');
+    const editorOverflowHeight =
+      editor && editor.scrollHeight > editor.clientHeight ? editor.scrollHeight : 0;
+    const height = Math.max(editorOverflowHeight, bounds.height);
     const dpr = window.devicePixelRatio || 1;
 
     if (width <= 0 || height <= 0) return;
@@ -43,8 +47,6 @@ const NotebookDrawingCanvas = ({
 
       canvas.width = newPixelWidth;
       canvas.height = newPixelHeight;
-      canvas.style.width = `${width}px`;
-      canvas.style.height = `${height}px`;
 
       const ctx = canvas.getContext("2d");
       if (ctx) {
@@ -56,6 +58,8 @@ const NotebookDrawingCanvas = ({
         }
       }
     }
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
   }, [activeCanvasRef]);
 
   useEffect(() => {

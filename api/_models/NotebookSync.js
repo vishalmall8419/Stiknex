@@ -21,13 +21,11 @@ const NotebookSyncSchema = new mongoose.Schema({
 });
 
 // Auto-update updatedAt on save
-NotebookSyncSchema.pre('save', function (next) {
+NotebookSyncSchema.pre('save', function () {
   this.updatedAt = new Date();
   if (this.ciphertext) {
     this.payloadSize = Buffer.byteLength(this.ciphertext, 'utf8');
   }
-  next();
 });
 
 export default mongoose.models.NotebookSync || mongoose.model('NotebookSync', NotebookSyncSchema);
-
