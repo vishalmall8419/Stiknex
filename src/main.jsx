@@ -3,6 +3,7 @@ import { BrowserRouter } from "react-router-dom";
 import "./index.css";
 import App from "./App";
 import { AppProvider } from "./context/AppContext";
+import { resolveStartupRestoration } from "./utils/routeRestoration";
 
 // Automatically reload if a Vite dynamic import chunk fails (e.g. after a new deployment)
 window.addEventListener('vite:preloadError', (event) => {
@@ -19,6 +20,9 @@ window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   window.deferredPWA = e;
 });
+
+// Synchronous restoration before BrowserRouter mounts — eliminates homepage flash on PWA / app cold start
+resolveStartupRestoration();
 
 createRoot(document.getElementById("root")).render(
   <AppProvider>

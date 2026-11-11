@@ -65,6 +65,7 @@ const NotFound = lazy(() => import("./Pages/NotFound/NotFound"));
 const CommandPalette = lazy(
   () => import("./Component/CommandPalette")
 );
+import RouteRestorationTracker from "./Component/RouteRestorationTracker";
 
 // ============================================================
 // PAGE LOADER
@@ -121,6 +122,9 @@ const App = () => {
         {!isAdminRoute && (
           <CommandPalette />
         )}
+
+        {/* Persistent Last Visited Page Restoration */}
+        <RouteRestorationTracker />
 
         {/* Application Routes */}
         <Routes>

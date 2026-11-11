@@ -1,6 +1,31 @@
 {
   "redirects": [
     {
+      "source": "/tools/dataconverter",
+      "destination": "https://stiknex.site/data-converter",
+      "permanent": true
+    },
+    {
+      "source": "/dataconverter",
+      "destination": "https://stiknex.site/data-converter",
+      "permanent": true
+    },
+    {
+      "source": "/notes",
+      "destination": "https://stiknex.site/sticky-notes",
+      "permanent": true
+    },
+    {
+      "source": "/notebook",
+      "destination": "https://stiknex.site/online-notebook",
+      "permanent": true
+    },
+    {
+      "source": "/tools/:tool",
+      "destination": "https://stiknex.site/:tool",
+      "permanent": true
+    },
+    {
       "source": "/:path*",
       "has": [
         {
@@ -20,26 +45,6 @@
         }
       ],
       "destination": "https://stiknex.site/:path*",
-      "permanent": true
-    },
-    {
-      "source": "/notes",
-      "destination": "/sticky-notes",
-      "permanent": true
-    },
-    {
-      "source": "/dataconverter",
-      "destination": "/data-converter",
-      "permanent": true
-    },
-    {
-      "source": "/notebook",
-      "destination": "/online-notebook",
-      "permanent": true
-    },
-    {
-      "source": "/tools/:tool(word-counter|character-counter|reading-time-calculator|simple-calculator|scientific-calculator|date-calculator|currency-converter|unit-converter|length-converter|area-converter|volume-converter|weight-converter|temperature-converter|speed-converter|pressure-converter|power-converter|qr-code-generator|password-generator|color-picker)",
-      "destination": "/:tool",
       "permanent": true
     }
   ],

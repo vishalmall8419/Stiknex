@@ -15,6 +15,11 @@ try {
 
 export default async function handler(req, res) {
     try {
+        const hostHeader = (req.headers['x-forwarded-host'] || req.headers.host || '').toLowerCase().split(':')[0];
+        if (hostHeader === 'stiknex.vercel.app' || (hostHeader.endsWith('.vercel.app') && !hostHeader.includes('localhost')) || hostHeader === 'www.stiknex.site') {
+            res.setHeader('Location', 'https://stiknex.site/sitemap.xml');
+            return res.status(301).end();
+        }
         const baseUrl = BASE_URL || 'https://stiknex.site';
         const defaultDate = '2026-10-30';
         

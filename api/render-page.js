@@ -23,10 +23,61 @@ export default async function handler(req, res) {
 
     // Always use authoritative primary production domain for SEO metadata & canonicals
     const primaryDomain = SITE_URL || BASE_URL || 'https://stiknex.site';
-    // 301 Permanent Redirect for obsolete /dataconverter route
-    if (cleanPath === '/dataconverter' || cleanPath === '/tools/dataconverter') {
-        res.setHeader('Location', `${primaryDomain}/data-converter`);
+
+    // Extract query string to preserve all tracking / external query parameters, filtering internal rewrites
+    let queryString = '';
+    try {
+        const parsed = new URL(req.url || cleanPath, 'https://stiknex.site');
+        parsed.searchParams.delete('slug');
+        parsed.searchParams.delete('type');
+        parsed.searchParams.delete('path');
+        queryString = parsed.search;
+    } catch (_) {}
+
+    // 1. Host canonicalization fallback (stiknex.vercel.app / www.stiknex.site -> stiknex.site)
+    const hostHeader = (req.headers['x-forwarded-host'] || req.headers.host || '').toLowerCase().split(':')[0];
+    const isVercelDomain = hostHeader === 'stiknex.vercel.app' || (hostHeader.endsWith('.vercel.app') && !hostHeader.includes('localhost'));
+    const isWwwDomain = hostHeader === 'www.stiknex.site';
+
+    if (isVercelDomain || isWwwDomain) {
+        let destPath = cleanPath;
+        if (slug || type === 'blog') {
+            destPath = `/blog/${slug}`;
+        } else if (destPath === '/notes') {
+            destPath = '/sticky-notes';
+        } else if (destPath === '/notebook') {
+            destPath = '/online-notebook';
+        } else if (destPath === '/dataconverter' || destPath === '/tools/dataconverter') {
+            destPath = '/data-converter';
+        } else if (destPath.startsWith('/tools/') && destPath.length > 7) {
+            const potentialSlug = destPath.slice(7);
+            if (isKnownRoute(`/${potentialSlug}`)) {
+                destPath = `/${potentialSlug}`;
+            }
+        }
+        res.setHeader('Location', `${primaryDomain}${destPath}${queryString}`);
         return res.status(301).end();
+    }
+
+    // 2. Path canonicalization on stiknex.site (1-hop permanent 301 redirects)
+    if (cleanPath === '/notes') {
+        res.setHeader('Location', `${primaryDomain}/sticky-notes${queryString}`);
+        return res.status(301).end();
+    }
+    if (cleanPath === '/notebook') {
+        res.setHeader('Location', `${primaryDomain}/online-notebook${queryString}`);
+        return res.status(301).end();
+    }
+    if (cleanPath === '/dataconverter' || cleanPath === '/tools/dataconverter') {
+        res.setHeader('Location', `${primaryDomain}/data-converter${queryString}`);
+        return res.status(301).end();
+    }
+    if (cleanPath.startsWith('/tools/') && cleanPath.length > 7) {
+        const potentialSlug = cleanPath.slice(7);
+        if (isKnownRoute(`/${potentialSlug}`)) {
+            res.setHeader('Location', `${primaryDomain}/${potentialSlug}${queryString}`);
+            return res.status(301).end();
+        }
     }
 
 

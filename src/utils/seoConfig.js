@@ -1504,8 +1504,12 @@ ALL_TOOLS.forEach((t) => {
 // Aliases for legacy and sub-path links
 export const seoAliases = {
   "/dataconverter": "/data-converter",
+  "/tools/dataconverter": "/data-converter",
   "/tools/data-converter": "/data-converter",
   "/notes": "/sticky-notes",
+  "/tools/notes": "/sticky-notes",
+  "/notebook": "/online-notebook",
+  "/tools/notebook": "/online-notebook",
   "/tools/word-counter": "/word-counter",
   "/tools/character-counter": "/character-counter",
   "/tools/reading-time-calculator": "/reading-time-calculator",
