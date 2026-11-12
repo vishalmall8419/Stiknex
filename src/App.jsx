@@ -103,6 +103,10 @@ const App = () => {
     location.pathname === '/online-notebook';
   const isStickyNotesRoute = location.pathname === '/sticky-notes';
   const isWhiteboardRoute = location.pathname === '/whiteboard';
+  const isCalculatorRoute =
+    location.pathname === '/basic-calculator' ||
+    location.pathname === '/simple-calculator' ||
+    location.pathname === '/scientific-calculator';
 
   // ==========================================================
   // RENDER
@@ -117,7 +121,7 @@ const App = () => {
       <Suspense fallback={<PageLoader />}>
         {/* Render Modals and Widgets ONLY on public pages */}
         {!isAdminRoute && (
-          <FeedbackWidget showButton={!isNotebookRoute && !isStickyNotesRoute && !isWhiteboardRoute} />
+          <FeedbackWidget showButton={!isNotebookRoute && !isStickyNotesRoute && !isWhiteboardRoute && !isCalculatorRoute} />
         )}
         {!isAdminRoute && (
           <CommandPalette />
@@ -159,6 +163,7 @@ const App = () => {
           <Route path="/word-counter" element={<Tools directSlug="word-counter" />} />
           <Route path="/character-counter" element={<Tools directSlug="character-counter" />} />
           <Route path="/reading-time-calculator" element={<Tools directSlug="reading-time-calculator" />} />
+          <Route path="/basic-calculator" element={<Tools directSlug="basic-calculator" />} />
           <Route path="/simple-calculator" element={<Tools directSlug="simple-calculator" />} />
           <Route path="/scientific-calculator" element={<Tools directSlug="scientific-calculator" />} />
           <Route path="/date-calculator" element={<Tools directSlug="date-calculator" />} />

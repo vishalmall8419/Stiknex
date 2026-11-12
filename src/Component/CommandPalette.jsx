@@ -456,7 +456,7 @@ export default function CommandPalette() {
 
   return (
     <>
-      {!["/", "/sticky-notes", "/notes"].includes(location.pathname) && <button
+      {!["/", "/sticky-notes", "/notes", "/basic-calculator", "/simple-calculator", "/scientific-calculator"].includes(location.pathname) && <button
         ref={btnRef}
         onClick={() => {
           setQuery("");

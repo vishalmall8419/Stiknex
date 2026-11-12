@@ -226,7 +226,7 @@ const Tools = ({ directSlug = null }) => {
   const renderToolEngine = (tool) => {
     const { category, slug, id } = tool;
     switch (category) {
-      case "calculators": return <CalculatorsEngine slug={slug} toolId={id} />;
+      case "calculators": return <CalculatorsEngine slug={slug} toolId={id} tool={tool} seoData={seoData} />;
       case "measurement": return <MeasurementEngine slug={slug} toolId={id} />;
       case "writing": return <WritingEngine slug={slug} toolId={id} />;
       case "text-analysis": return <TextAnalysisEngine slug={slug} toolId={id} />;
@@ -246,12 +246,14 @@ const Tools = ({ directSlug = null }) => {
       case "media": return <MediaEngine slug={slug} toolId={id} />;
       case "generators": return <GeneratorsEngine slug={slug} toolId={id} />;
       case "helpers": return <HelpersEngine slug={slug} toolId={id} />;
-      default: return <CalculatorsEngine slug={slug} toolId={id} />;
+      default: return <CalculatorsEngine slug={slug} toolId={id} tool={tool} seoData={seoData} />;
     }
   };
 
+  const isCalculatorFullscreen = Boolean(activeToolData && (activeToolData.slug === "basic-calculator" || activeToolData.slug === "simple-calculator" || activeToolData.slug === "scientific-calculator"));
+
   return (
-    <AppShell fullWidth={true}>
+    <AppShell fullWidth={true} hideNav={isCalculatorFullscreen} hideFooter={isCalculatorFullscreen}>
       <PageSEO
         title={seoData.title || (activeToolData ? `${activeToolData.title} | Free Online Utility – Stiknex` : "Free Online Tools Directory (200+ Utilities) – Stiknex")}
         description={seoData.description || (activeToolData ? activeToolData.tagline : "Explore 200+ free online utility tools across 20 categories. Calculators, converters, developer tools, formatters, and typing lab.")}
@@ -261,7 +263,12 @@ const Tools = ({ directSlug = null }) => {
         faqs={seoData.faqs || null}
       />
 
-      <div className="relative min-h-screen pb-32 overflow-x-clip font-sans">
+      {isCalculatorFullscreen ? (
+        <div className="w-full min-h-screen">
+          {renderToolEngine(activeToolData)}
+        </div>
+      ) : (
+        <div className="relative min-h-screen pb-32 overflow-x-clip font-sans">
         {/* Background Gradients */}
         <div className="absolute inset-0 bg-[radial-gradient(#cbd5e1_1.5px,transparent_1.5px)] dark:bg-[radial-gradient(#334155_1.5px,transparent_1.5px)] [background-size:40px_40px] opacity-25 -z-10 pointer-events-none"></div>
         <div className="absolute top-0 right-0 w-80 h-80 md:w-[600px] md:h-[600px] bg-indigo-500/10 dark:bg-indigo-500/15 rounded-full blur-[120px] -z-10 pointer-events-none"></div>
@@ -461,6 +468,7 @@ const Tools = ({ directSlug = null }) => {
 
         </div>
       </div>
+      )}
     </AppShell>
   );
 };

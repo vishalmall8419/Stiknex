@@ -7,7 +7,7 @@ import UnitConverter from "../UnitConverter/UnitConverter";
 import TemperatureConverter from "../UnitConverter/TemperatureConverter";
 import { LENGTH_UNITS, WEIGHT_UNITS } from "../UnitConverter/unitData";
 
-export default function CalculatorsEngine({ toolId, slug }) {
+export default function CalculatorsEngine({ toolId, slug, tool, seoData }) {
   const [copied, setCopied] = useState(false);
 
   const copyText = (txt) => {
@@ -17,8 +17,8 @@ export default function CalculatorsEngine({ toolId, slug }) {
   };
 
   // 1. BASIC CALCULATOR
-  if (slug === "basic-calculator" || toolId === "basic-calculator") {
-    return <SimpleCalculator />;
+  if (slug === "basic-calculator" || toolId === "basic-calculator" || slug === "simple-calculator" || toolId === "simple-calculator") {
+    return <SimpleCalculator tool={tool} seoData={seoData} />;
   }
 
   // 2. SCIENTIFIC CALCULATOR
