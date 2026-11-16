@@ -10,7 +10,7 @@
   </url>
   <url>
     <loc>https://stiknex.site/tools</loc>
-    <lastmod>2026-11-03</lastmod>
+    <lastmod>2026-11-12</lastmod>
   </url>
   <url>
     <loc>https://stiknex.site/whiteboard</loc>
@@ -22,7 +22,7 @@
   </url>
   <url>
     <loc>https://stiknex.site/typing-practice-lessons</loc>
-    <lastmod>2026-10-30</lastmod>
+    <lastmod>2026-11-03</lastmod>
   </url>
   <url>
     <loc>https://stiknex.site/pomodoro-timer</loc>
@@ -46,7 +46,7 @@
   </url>
   <url>
     <loc>https://stiknex.site/unit-converter</loc>
-    <lastmod>2026-10-30</lastmod>
+    <lastmod>2026-11-12</lastmod>
   </url>
   <url>
     <loc>https://stiknex.site/currency-converter</loc>
@@ -62,15 +62,15 @@
   </url>
   <url>
     <loc>https://stiknex.site/age-calculator</loc>
-    <lastmod>2026-10-30</lastmod>
+    <lastmod>2026-11-12</lastmod>
   </url>
   <url>
     <loc>https://stiknex.site/percentage-calculator</loc>
-    <lastmod>2026-10-30</lastmod>
+    <lastmod>2026-11-12</lastmod>
   </url>
   <url>
     <loc>https://stiknex.site/scientific-calculator</loc>
-    <lastmod>2026-10-30</lastmod>
+    <lastmod>2026-11-12</lastmod>
   </url>
   <url>
     <loc>https://stiknex.site/simple-calculator</loc>
@@ -86,7 +86,7 @@
   </url>
   <url>
     <loc>https://stiknex.site/typing-speed-test</loc>
-    <lastmod>2026-10-30</lastmod>
+    <lastmod>2026-11-03</lastmod>
   </url>
   <url>
     <loc>https://stiknex.site/online-notebook</loc>
@@ -126,11 +126,11 @@
   </url>
   <url>
     <loc>https://stiknex.site/date-calculator</loc>
-    <lastmod>2026-11-03</lastmod>
+    <lastmod>2026-11-12</lastmod>
   </url>
   <url>
     <loc>https://stiknex.site/length-converter</loc>
-    <lastmod>2026-10-30</lastmod>
+    <lastmod>2026-11-12</lastmod>
   </url>
   <url>
     <loc>https://stiknex.site/area-converter</loc>
@@ -142,11 +142,11 @@
   </url>
   <url>
     <loc>https://stiknex.site/weight-converter</loc>
-    <lastmod>2026-10-30</lastmod>
+    <lastmod>2026-11-12</lastmod>
   </url>
   <url>
     <loc>https://stiknex.site/temperature-converter</loc>
-    <lastmod>2026-10-30</lastmod>
+    <lastmod>2026-11-12</lastmod>
   </url>
   <url>
     <loc>https://stiknex.site/speed-converter</loc>
@@ -169,20 +169,16 @@
     <lastmod>2026-10-18</lastmod>
   </url>
   <url>
-    <loc>https://stiknex.site/typing-lab</loc>
+    <loc>https://stiknex.site/stiknex-typing</loc>
     <lastmod>2026-10-30</lastmod>
   </url>
   <url>
     <loc>https://stiknex.site/basic-calculator</loc>
-    <lastmod>2026-10-30</lastmod>
-  </url>
-  <url>
-    <loc>https://stiknex.site/date-difference-calculator</loc>
-    <lastmod>2026-10-30</lastmod>
+    <lastmod>2026-11-12</lastmod>
   </url>
   <url>
     <loc>https://stiknex.site/time-calculator</loc>
-    <lastmod>2026-10-30</lastmod>
+    <lastmod>2026-11-12</lastmod>
   </url>
   <url>
     <loc>https://stiknex.site/fuel-economy-converter</loc>
@@ -513,10 +509,6 @@
     <lastmod>2026-10-30</lastmod>
   </url>
   <url>
-    <loc>https://stiknex.site/stopwatch</loc>
-    <lastmod>2026-10-30</lastmod>
-  </url>
-  <url>
     <loc>https://stiknex.site/calendar-generator</loc>
     <lastmod>2026-10-30</lastmod>
   </url>
@@ -530,6 +522,10 @@
   </url>
   <url>
     <loc>https://stiknex.site/birthday-countdown</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://stiknex.site/live-clock</loc>
     <lastmod>2026-10-30</lastmod>
   </url>
   <url>
@@ -602,38 +598,6 @@
   </url>
   <url>
     <loc>https://stiknex.site/savings-goal-calculator</loc>
-    <lastmod>2026-10-30</lastmod>
-  </url>
-  <url>
-    <loc>https://stiknex.site/typing-accuracy-test</loc>
-    <lastmod>2026-10-30</lastmod>
-  </url>
-  <url>
-    <loc>https://stiknex.site/falling-words-game</loc>
-    <lastmod>2026-10-30</lastmod>
-  </url>
-  <url>
-    <loc>https://stiknex.site/word-rush-game</loc>
-    <lastmod>2026-10-30</lastmod>
-  </url>
-  <url>
-    <loc>https://stiknex.site/code-typing-challenge</loc>
-    <lastmod>2026-10-30</lastmod>
-  </url>
-  <url>
-    <loc>https://stiknex.site/keyboard-shortcut-finder</loc>
-    <lastmod>2026-10-30</lastmod>
-  </url>
-  <url>
-    <loc>https://stiknex.site/keyboard-key-tester</loc>
-    <lastmod>2026-10-30</lastmod>
-  </url>
-  <url>
-    <loc>https://stiknex.site/typing-error-analyzer</loc>
-    <lastmod>2026-10-30</lastmod>
-  </url>
-  <url>
-    <loc>https://stiknex.site/daily-typing-challenge</loc>
     <lastmod>2026-10-30</lastmod>
   </url>
   <url>
@@ -859,6 +823,10 @@
   <url>
     <loc>https://stiknex.site/decision-helper</loc>
     <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://stiknex.site/blog/architecture-of-command-masterclass-taskmaster</loc>
+    <lastmod>2026-11-14</lastmod>
   </url>
   <url>
     <loc>https://stiknex.site/blog/daily-tea-drinking-and-heart-health-masterclass-part-1</loc>

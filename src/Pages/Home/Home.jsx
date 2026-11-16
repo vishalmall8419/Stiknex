@@ -620,6 +620,8 @@ const Home = () => {
     importNotes,
     darkMode,
     toggleDarkMode,
+    user,
+    openAuthModal,
   } = useAppContext();
   const location = useLocation();
   const [searchTerm, setSearchTerm] = useState(
@@ -1575,6 +1577,38 @@ const Home = () => {
                 <i className={`${icon} w-5 shrink-0 text-center`}></i><span className={`overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-200 ${sidebarExpanded || mobileSidebarOpen ? "max-w-40 opacity-100" : "max-w-0 opacity-0"}`}>{label}</span>
               </Link>
             ))}
+
+            <div className="my-2 border-t border-slate-200 dark:border-slate-800"></div>
+
+            {/* User Account / Profile / Cloud Sync Status */}
+            {user ? (
+              <Link
+                to="/dashboard"
+                title={`Signed in as @${user.username}`}
+                onClick={() => setMobileSidebarOpen(false)}
+                className="flex min-h-11 items-center gap-3 rounded-xl px-3 py-2 text-sm font-bold text-amber-500 hover:bg-amber-500/10 transition lg:min-h-0"
+              >
+                <i className="fa-solid fa-circle-user w-5 shrink-0 text-center text-amber-500"></i>
+                <span className={`overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-200 ${sidebarExpanded || mobileSidebarOpen ? "max-w-40 opacity-100" : "max-w-0 opacity-0"}`}>
+                  @{user.username}
+                </span>
+              </Link>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileSidebarOpen(false);
+                  openAuthModal("login");
+                }}
+                title="Sign in to save notes & sync across devices"
+                className="flex min-h-11 items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 transition lg:min-h-0 w-full text-left cursor-pointer"
+              >
+                <i className="fa-solid fa-arrow-right-to-bracket w-5 shrink-0 text-center text-indigo-500"></i>
+                <span className={`overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-200 ${sidebarExpanded || mobileSidebarOpen ? "max-w-40 opacity-100" : "max-w-0 opacity-0"}`}>
+                  Sign In / Sync
+                </span>
+              </button>
+            )}
           </nav>
           {/* ── Compact bottom action bar with drop-up panel ─────────────────── */}
           <div className="relative mt-2 shrink-0">

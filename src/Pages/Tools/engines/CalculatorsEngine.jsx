@@ -2,6 +2,10 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import { Copy, Check, RotateCcw, Download, Sparkles, ArrowRightLeft, Calendar, Clock, Percent, Calculator } from "lucide-react";
 import SimpleCalculator from "../Simplecalculator/Simplecalculator";
 import ScientificCalculator from "../Scientificcalculator/Scientificcalculator";
+import PercentageCalculator from "../PercentageCalculator/PercentageCalculator";
+import AgeCalculator from "../AgeCalculator/AgeCalculator";
+import DateCalculator from "../DateCalculator/DateCalculator";
+import TimeCalculator from "../TimeCalculator/TimeCalculator";
 import DateTimeCalculator from "../Datetimecalculator/Datetimecalculator";
 import UnitConverter from "../UnitConverter/UnitConverter";
 import TemperatureConverter from "../UnitConverter/TemperatureConverter";
@@ -28,39 +32,39 @@ export default function CalculatorsEngine({ toolId, slug, tool, seoData }) {
 
   // 3. DATE DIFFERENCE CALCULATOR
   if (slug === "date-difference-calculator" || slug === "date-calculator" || toolId === "date-calculator") {
-    return <DateTimeCalculator />;
+    return <DateCalculator tool={tool} seoData={seoData} />;
   }
 
   // 4. UNIT CONVERTERS
   if (slug === "length-converter" || toolId === "length-converter") {
-    return <UnitConverter units={LENGTH_UNITS} defaultUnit="m" />;
+    return <UnitConverter units={LENGTH_UNITS} defaultUnit="m" tool={tool} seoData={seoData} title="Length Converter" />;
   }
 
   if (slug === "weight-converter" || toolId === "weight-converter") {
-    return <UnitConverter units={WEIGHT_UNITS} defaultUnit="kg" />;
+    return <UnitConverter units={WEIGHT_UNITS} defaultUnit="kg" tool={tool} seoData={seoData} title="Weight Converter" />;
   }
 
   if (slug === "temperature-converter" || toolId === "temperature-converter") {
-    return <TemperatureConverter />;
+    return <TemperatureConverter tool={tool} seoData={seoData} />;
   }
 
   if (slug === "unit-converter" || toolId === "unit-converter") {
-    return <UnitConverter units={LENGTH_UNITS} defaultUnit="m" />;
+    return <UnitConverter units={LENGTH_UNITS} defaultUnit="m" tool={tool} seoData={seoData} title="Universal Unit Converter" />;
   }
 
   // 5. PERCENTAGE CALCULATOR (Big Tool)
   if (slug === "percentage-calculator" || toolId === "percentage-calculator") {
-    return <PercentageCalculatorTool copyText={copyText} copied={copied} />;
+    return <PercentageCalculator tool={tool} seoData={seoData} />;
   }
 
   // 6. AGE CALCULATOR (Big Tool)
   if (slug === "age-calculator" || toolId === "age-calculator") {
-    return <AgeCalculatorTool copyText={copyText} copied={copied} />;
+    return <AgeCalculator tool={tool} seoData={seoData} />;
   }
 
   // 7. TIME CALCULATOR (Big Tool)
   if (slug === "time-calculator" || toolId === "time-calculator") {
-    return <TimeCalculatorTool copyText={copyText} copied={copied} />;
+    return <TimeCalculator tool={tool} seoData={seoData} />;
   }
 
   return <SimpleCalculator />;

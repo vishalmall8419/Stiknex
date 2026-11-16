@@ -58,6 +58,20 @@ export default async function handler(req, res) {
         return handleGoogleCalendarAction(action, req, res);
     }
 
+    if (
+        action.startsWith('user-') ||
+        action === 'save-typing-score' ||
+        action === 'typing-leaderboard'
+    ) {
+        const { handleUserAuthAction } = await import(`./_utils/userAuthHandler.js?t=${Date.now()}`);
+        return handleUserAuthAction(action, req, res);
+    }
+
+    if (action === 'ai-math-solve' || action === 'ai-fraction-solve') {
+        const { handleAiMathSolver } = await import(`./_utils/aiMathSolver.js?t=${Date.now()}`);
+        return handleAiMathSolver(action, req, res);
+    }
+
     if (action === 'setup-2fa') {
         return handleSetup2FA(req, res);
     }

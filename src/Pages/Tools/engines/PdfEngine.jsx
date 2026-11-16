@@ -1,32 +1,195 @@
-import { useState, useMemo } from "react";
-import { Upload, Download, Copy, Check, FileText, RotateCw, Layers, Split, Eye, BookOpen } from "lucide-react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Upload,
+  Download,
+  Copy,
+  Check,
+  FileText,
+  RotateCw,
+  Layers,
+  Split,
+  Eye,
+  BookOpen,
+  Sparkles,
+  Menu,
+  Sun,
+  Moon,
+  CheckCircle2,
+  Trash2,
+  FileSpreadsheet,
+  Images,
+  Hash
+} from "lucide-react";
+import ToolSidebarDrawer from "../components/ToolSidebarDrawer";
+import { useAppContext } from "../../../context/AppContext";
 
-export default function PdfEngine({ slug, toolId }) {
+/* =========================================================================================
+   PDF & DOCUMENT UTILITY TOOLS METADATA
+   ========================================================================================= */
+const PDF_TOOLS = [
+  { slug: "images-to-pdf", title: "Images to PDF", highlight: "CONVERT & BIND", tag: "JPG/PNG to PDF", desc: "Convert photo collections into clean multi-page printable PDF documents", icon: <Images size={16} /> },
+  { slug: "merge-pdf", title: "Merge PDF", highlight: "CLIENT BINDER", tag: "Combine Documents", desc: "Combine multiple PDF documents into one seamless file locally", icon: <Layers size={16} /> },
+  { slug: "split-pdf", title: "Split PDF", highlight: "EXTRACT PAGES", tag: "Page Range Picker", desc: "Extract specific individual pages or custom ranges from PDFs", icon: <Split size={16} /> },
+  { slug: "rotate-pdf", title: "Rotate PDF", highlight: "ORIENTATION", tag: "90° & 180° Turns", desc: "Rotate upside-down and sideways PDF pages permanently", icon: <RotateCw size={16} /> },
+  { slug: "reorder-pdf-pages", title: "Reorder Pages", highlight: "PAGINATION", tag: "Rearrange Order", desc: "Reorganize and reorder PDF page sequencing effortlessly", icon: <Layers size={16} /> },
+  { slug: "pdf-to-images", title: "PDF to Images", highlight: "EXPORT", tag: "PNG & JPG Pages", desc: "Convert each PDF document page into high-resolution image files", icon: <FileText size={16} /> },
+  { slug: "pdf-metadata-viewer", title: "PDF Metadata", highlight: "INSPECTOR", tag: "Author, Title, Version", desc: "Inspect hidden PDF metadata, creation timestamps, and software versions", icon: <Eye size={16} /> },
+  { slug: "extract-pdf-text", title: "Extract PDF Text", highlight: "TEXT PARSER", tag: "Content Scraper", desc: "Extract raw plaintext, paragraphs, and tables from PDF documents", icon: <FileText size={16} /> },
+  { slug: "word-counter-for-documents", title: "Doc Word Counter", highlight: "METRICS", tag: "Words & Characters", desc: "Accurately count words, reading time, and lines in uploaded PDFs", icon: <BookOpen size={16} /> },
+  { slug: "document-page-counter", title: "Page Counter", highlight: "SHEET COUNT", tag: "Page Dimensions", desc: "Count total pages and inspect sheet sizes (A4, Letter, Legal)", icon: <Hash size={16} /> }
+];
+
+export default function PdfEngine({ slug = "images-to-pdf", toolId = "images-to-pdf" }) {
+  const { theme, toggleTheme, openFeedback } = useAppContext();
+  const navigate = useNavigate();
+
+  const [activeSlug, setActiveSlug] = useState(slug || "images-to-pdf");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [copied, setCopied] = useState(false);
-  const copyText = (txt) => {
+
+  useEffect(() => {
+    if (slug && slug !== activeSlug) {
+      setActiveSlug(slug);
+    }
+  }, [slug]);
+
+  const handleSelectTool = (targetSlug) => {
+    setActiveSlug(targetSlug);
+    window.history.replaceState(null, "", `/${targetSlug}`);
+  };
+
+  const copyText = useCallback((txt) => {
+    if (!txt) return;
     navigator.clipboard.writeText(String(txt));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  };
+  }, []);
 
-  if (slug === "images-to-pdf" || toolId === "images-to-pdf") {
-    return <ImagesToPdfTool />;
-  }
-  if (slug === "extract-pdf-text" || toolId === "extract-pdf-text" || slug === "word-counter-for-documents") {
-    return <ExtractTextTool copyText={copyText} copied={copied} />;
-  }
-  if (slug === "pdf-metadata-viewer" || toolId === "pdf-metadata-viewer") {
-    return <PdfMetadataTool copyText={copyText} copied={copied} />;
-  }
-  if (slug === "document-page-counter" || toolId === "document-page-counter") {
-    return <DocumentPageCounterTool />;
-  }
-  if (slug === "rotate-pdf" || toolId === "rotate-pdf") {
-    return <RotatePdfTool />;
-  }
+  const currentTool = useMemo(() => {
+    return PDF_TOOLS.find((t) => t.slug === activeSlug) || PDF_TOOLS[0];
+  }, [activeSlug]);
 
-  // Universal PDF Workspace for Merge, Split, Reorder
-  return <UniversalPdfWorkspace slug={slug} />;
+  const relatedToolsForDrawer = useMemo(() => {
+    return PDF_TOOLS.map((t) => ({
+      slug: t.slug,
+      name: t.title,
+      desc: t.desc,
+      icon: t.icon
+    }));
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0b0f17] text-slate-900 dark:text-slate-100 transition-colors flex flex-col font-sans">
+      <ToolSidebarDrawer
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        relatedTools={relatedToolsForDrawer}
+        categoryTitle="PDF & Document Tools"
+        onFeedback={openFeedback}
+      />
+
+      {/* Top Header */}
+      <header className="sticky top-0 z-40 bg-white/80 dark:bg-[#0f172a]/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+            aria-label="Open Tools Menu"
+          >
+            <Menu size={20} />
+          </button>
+          <Link to="/tools" className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold text-sm hover:underline">
+            <span>Tools</span>
+            <span className="text-slate-400">/</span>
+            <span className="text-slate-900 dark:text-white capitalize">PDF</span>
+          </Link>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+            aria-label="Toggle theme"
+          >
+            {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
+          <Link
+            to="/tools"
+            className="px-3.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+          >
+            All 200 Tools
+          </Link>
+        </div>
+      </header>
+
+      {/* Horizontal Tool Selector Tab Bar */}
+      <div className="bg-white dark:bg-[#0f172a] border-b border-slate-200/80 dark:border-slate-800/80 px-4 sm:px-6 py-2.5 overflow-x-auto no-scrollbar">
+        <div className="flex items-center gap-2 min-w-max max-w-7xl mx-auto">
+          {PDF_TOOLS.map((tool) => {
+            const isActive = tool.slug === activeSlug;
+            return (
+              <button
+                key={tool.slug}
+                onClick={() => handleSelectTool(tool.slug)}
+                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl font-bold text-xs transition-all ${
+                  isActive
+                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/25 scale-[1.02]"
+                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
+                }`}
+              >
+                <span>{tool.icon}</span>
+                <span>{tool.title}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Main Workstation Body */}
+      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 md:p-8 space-y-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200/60 dark:border-slate-800/60">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="px-2.5 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 text-[11px] font-black uppercase tracking-wider border border-indigo-200/60 dark:border-indigo-800/50">
+                {currentTool.highlight}
+              </span>
+              <span className="text-xs text-slate-500 font-semibold">{currentTool.tag}</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+              {currentTool.title}
+            </h1>
+            <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+              {currentTool.desc}
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 self-start sm:self-center">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/60 dark:border-emerald-800/40">
+              <CheckCircle2 size={13} /> 100% In-Browser Privacy
+            </span>
+          </div>
+        </div>
+
+        {/* Dynamic Tool Rendering */}
+        <div className="bg-white dark:bg-[#131b2e] rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xl shadow-slate-200/30 dark:shadow-black/40 p-5 sm:p-8">
+          {(activeSlug === "images-to-pdf" || toolId === "images-to-pdf") && <ImagesToPdfTool />}
+          {(activeSlug === "extract-pdf-text" || toolId === "extract-pdf-text" || activeSlug === "word-counter-for-documents") && (
+            <ExtractTextTool copyText={copyText} copied={copied} />
+          )}
+          {(activeSlug === "pdf-metadata-viewer" || toolId === "pdf-metadata-viewer") && (
+            <PdfMetadataTool copyText={copyText} copied={copied} />
+          )}
+          {(activeSlug === "document-page-counter" || toolId === "document-page-counter") && <DocumentPageCounterTool />}
+          {(activeSlug === "rotate-pdf" || toolId === "rotate-pdf") && <RotatePdfTool />}
+          {(activeSlug === "merge-pdf" || activeSlug === "split-pdf" || activeSlug === "reorder-pdf-pages" || activeSlug === "pdf-to-images") && (
+            <UniversalPdfWorkspace slug={activeSlug} />
+          )}
+        </div>
+      </main>
+    </div>
+  );
 }
 
 // ============================================================================

@@ -82,6 +82,38 @@
       "destination": "/api/auth?action=setup-2fa"
     },
     {
+      "source": "/api/user/register",
+      "destination": "/api/auth?action=user-register"
+    },
+    {
+      "source": "/api/user/login",
+      "destination": "/api/auth?action=user-login"
+    },
+    {
+      "source": "/api/user/me",
+      "destination": "/api/auth?action=user-me"
+    },
+    {
+      "source": "/api/user/dashboard",
+      "destination": "/api/auth?action=user-dashboard"
+    },
+    {
+      "source": "/api/typing/score",
+      "destination": "/api/auth?action=save-typing-score"
+    },
+    {
+      "source": "/api/typing/leaderboard",
+      "destination": "/api/auth?action=typing-leaderboard"
+    },
+    {
+      "source": "/api/math/solve",
+      "destination": "/api/auth?action=ai-math-solve"
+    },
+    {
+      "source": "/api/fraction/solve",
+      "destination": "/api/auth?action=ai-fraction-solve"
+    },
+    {
       "source": "/api/google-calendar/connect",
       "destination": "/api/auth?action=google-calendar-connect"
     },

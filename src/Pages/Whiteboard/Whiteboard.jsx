@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "react-router-dom";
 import AppShell from "../../Component/Layout/AppShell";
 import { useAppContext } from "../../context/AppContext";
 import PageSEO from "../../Component/SEO/PageSEO";
@@ -147,7 +148,13 @@ const SvgPreview = ({ elements, appState, files }) => {
 
 const WhiteboardDashboard = () => {
   const { whiteboards, addWhiteboard, deleteWhiteboard, updateWhiteboard } = useAppContext();
-  const [activeWhiteboardId, setActiveWhiteboardId] = useState(null);
+  const [searchParams] = useSearchParams();
+  const [activeWhiteboardId, setActiveWhiteboardId] = useState(() => searchParams.get("id") || null);
+
+  useEffect(() => {
+    const idFromUrl = searchParams.get("id");
+    if (idFromUrl) setActiveWhiteboardId(idFromUrl);
+  }, [searchParams]);
 
   const handleCreateNew = () => {
     // Find the next available "Whiteboard X" number

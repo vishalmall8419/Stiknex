@@ -7,7 +7,15 @@ export const AppProvider = ({ children }) => {
   // Theme State
   const [darkMode, setDarkMode] = useState(() => {
     try {
-      return JSON.parse(localStorage.getItem("darkMode")) || false;
+      const stored = localStorage.getItem("darkMode");
+      if (stored !== null) {
+        return JSON.parse(stored);
+      }
+      const stiknexTheme = localStorage.getItem("stiknex_theme");
+      if (stiknexTheme) {
+        return stiknexTheme === "dark";
+      }
+      return false;
     } catch {
       return false;
     }
@@ -40,9 +48,151 @@ export const AppProvider = ({ children }) => {
     }
   });
 
+  // User Authentication State
+  const [user, setUser] = useState(() => {
+    try {
+      const stored = localStorage.getItem("stiknex_user");
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  const [token, setToken] = useState(() => {
+    try {
+      return localStorage.getItem("stiknex_token") || null;
+    } catch {
+      return null;
+    }
+  });
+
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [authModalTab, setAuthModalTab] = useState("login");
+  const [authSuccessCallback, setAuthSuccessCallback] = useState(null);
+
+  const openAuthModal = (tab = "login", onAuthSuccess = null) => {
+    setAuthModalTab(tab);
+    setAuthSuccessCallback(() => onAuthSuccess);
+    setAuthModalOpen(true);
+  };
+
+  const closeAuthModal = () => {
+    setAuthModalOpen(false);
+    setAuthSuccessCallback(null);
+  };
+
+  // Sync Auth to localStorage
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem("stiknex_user", JSON.stringify(user));
+    } else {
+      localStorage.removeItem("stiknex_user");
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (token) {
+      localStorage.setItem("stiknex_token", token);
+    } else {
+      localStorage.removeItem("stiknex_token");
+    }
+  }, [token]);
+
+  // Refresh User Profile on Mount
+  useEffect(() => {
+    if (token) {
+      fetch("/api/auth?action=user-me", {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (data?.success && data.user) {
+            setUser(data.user);
+          } else if (data?.success === false) {
+            // Token expired
+            setToken(null);
+            setUser(null);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [token]);
+
+  const loginUser = async (identifier, password) => {
+    try {
+      const res = await fetch("/api/auth?action=user-login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ identifier, password })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setToken(data.token);
+        setUser(data.user);
+        return { success: true, user: data.user };
+      }
+      return { success: false, error: data.error || "Login failed" };
+    } catch (err) {
+      return { success: false, error: err.message || "Network error" };
+    }
+  };
+
+  const registerUser = async (formData) => {
+    try {
+      const res = await fetch("/api/auth?action=user-register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData)
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setToken(data.token);
+        setUser(data.user);
+        return { success: true, user: data.user };
+      }
+      return { success: false, error: data.error || "Registration failed" };
+    } catch (err) {
+      return { success: false, error: err.message || "Network error" };
+    }
+  };
+
+  const logoutUser = () => {
+    setToken(null);
+    setUser(null);
+    localStorage.removeItem("stiknex_token");
+    localStorage.removeItem("stiknex_user");
+  };
+
+  const saveTypingScore = async (scoreData) => {
+    if (!token) {
+      return { success: false, notLoggedIn: true };
+    }
+    try {
+      const res = await fetch("/api/auth?action=save-typing-score", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(scoreData)
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        if (data.userStats) {
+          setUser((prev) => (prev ? { ...prev, ...data.userStats } : prev));
+        }
+        return { success: true, data };
+      }
+      return { success: false, error: data.error };
+    } catch (err) {
+      return { success: false, error: err.message };
+    }
+  };
+
   // Sync Theme
   useEffect(() => {
     localStorage.setItem("darkMode", JSON.stringify(darkMode));
+    localStorage.setItem("stiknex_theme", darkMode ? "dark" : "light");
     if (darkMode) {
       document.documentElement.classList.add("dark");
     } else {
@@ -51,6 +201,11 @@ export const AppProvider = ({ children }) => {
   }, [darkMode]);
 
   const toggleDarkMode = () => setDarkMode((prev) => !prev);
+  const openFeedback = () => {
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new Event("stiknex_open_feedback"));
+    }
+  };
 
   // Sync Notes & Whiteboards
   useEffect(() => {
@@ -170,6 +325,9 @@ export const AppProvider = ({ children }) => {
       value={{
         darkMode,
         toggleDarkMode,
+        theme: darkMode ? "dark" : "light",
+        toggleTheme: toggleDarkMode,
+        openFeedback,
         notes,
         addNote,
         deleteNote,
@@ -184,6 +342,19 @@ export const AppProvider = ({ children }) => {
         addWhiteboard,
         updateWhiteboard,
         deleteWhiteboard,
+        user,
+        token,
+        isAuthenticated: !!token && !!user,
+        authModalOpen,
+        authModalTab,
+        setAuthModalTab,
+        openAuthModal,
+        closeAuthModal,
+        login: loginUser,
+        register: registerUser,
+        logout: logoutUser,
+        saveTypingScore,
+        authSuccessCallback,
       }}
     >
       {children}

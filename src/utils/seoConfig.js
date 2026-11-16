@@ -67,7 +67,7 @@ export const seoConfig = {
   "canonical": "https://stiknex.site/tools",
   "title": "Free Online Tools Directory (200+ Utilities) – Stiknex",
   "h1": "200+ Free Online Browser Utilities",
-  "description": "Explore 200+ free online utility tools across 9 streamlined categories. Calculators, converters, developer tools, formatters, and typing lab.",
+  "description": "Explore 200+ free online utility tools across 9 streamlined categories. Calculators, converters, developer tools, formatters, and typing master.",
   "primaryIntent": "free online tools / web utilities directory",
   "secondaryIntents": [
     "browser utilities online",
@@ -1450,24 +1450,24 @@ export const seoConfig = {
     relatedTools: ["/about", "/tools"]
   },
 
-  "/typing-lab": {
+  "/stiknex-typing": {
     path: "/typing-lab",
-    canonical: `${BASE_URL}/typing-lab`,
-    title: "Stiknex Typing Lab – Free Typing Speed Test, Lessons & Arcade Games",
-    h1: "Stiknex Typing Lab",
-    description: "Improve your typing speed and accuracy with 15s/30s/60s/120s WPM tests, interactive touch typing lessons, developer code challenges, and arcade typing games.",
+    canonical: `${BASE_URL}/stiknex-typing`,
+    title: "Stiknex Typing Master – 50 Progressive Touch Typing Lessons & WPM Speed Lab",
+    h1: "Stiknex Typing Master",
+    description: "All-in-one typing master: 50 progressive touch typing lessons with unlock progression, precision WPM speed arena, arcade games, developer code drills, and hardware diagnostics.",
     primaryIntent: "typing speed test / learn touch typing",
     secondaryIntents: ["wpm test", "typing games", "code typing practice"],
     keywords: "typing speed test, typing test online, wpm test, learn touch typing, typing practice, typing games, code typing challenge",
     schemaType: "WebApplication",
     breadcrumbs: [
       { name: "Home", item: `${BASE_URL}/` },
-      { name: "Typing Lab", item: `${BASE_URL}/typing-lab` }
+      { name: "Typing Master", item: `${BASE_URL}/stiknex-typing` }
     ],
     relatedTools: ["/tools", "/word-counter", "/sticky-notes"],
     faqs: [
       { q: "How is typing speed (WPM) calculated?", a: "Words Per Minute (WPM) is calculated as (Characters Typed / 5) divided by the time elapsed in minutes, penalized for uncorrected errors." },
-      { q: "Is the Typing Lab free?", a: "Yes, the Stiknex Typing Lab is completely free with zero ads, signups, or usage limits." }
+      { q: "Is the Typing Master free?", a: "Yes, Stiknex Typing Master is completely free with zero ads, signups, or usage limits." }
     ]
   }
 };
@@ -1507,6 +1507,8 @@ export const seoAliases = {
   "/tools/dataconverter": "/data-converter",
   "/tools/data-converter": "/data-converter",
   "/notes": "/sticky-notes",
+  "/typing-lab": "/stiknex-typing",
+  "/typing-master": "/stiknex-typing",
   "/tools/notes": "/sticky-notes",
   "/notebook": "/online-notebook",
   "/tools/notebook": "/online-notebook",

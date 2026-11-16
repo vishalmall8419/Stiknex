@@ -1,26 +1,192 @@
-import { useState, useMemo } from "react";
-import { Table, Copy, Check, Download, Upload, Filter, Shuffle, ArrowRightLeft, FileSpreadsheet } from "lucide-react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Table,
+  Copy,
+  Check,
+  Download,
+  Upload,
+  Filter,
+  Shuffle,
+  ArrowRightLeft,
+  FileSpreadsheet,
+  Code,
+  Layers,
+  Sparkles,
+  Menu,
+  Sun,
+  Moon,
+  CheckCircle2,
+  Share2,
+  Trash2
+} from "lucide-react";
+import ToolSidebarDrawer from "../components/ToolSidebarDrawer";
+import { useAppContext } from "../../../context/AppContext";
 
-export default function DataEngine({ slug, toolId }) {
+/* =========================================================================================
+   DATA PROCESSING & CSV TOOLS METADATA
+   ========================================================================================= */
+const DATA_TOOLS = [
+  { slug: "csv-viewer", title: "CSV Viewer", highlight: "TABLE EXPLORER", tag: "Search & Sort", desc: "Interactive in-browser spreadsheet table viewer with live search filtering", icon: <FileSpreadsheet size={16} /> },
+  { slug: "csv-merger", title: "CSV Merger", highlight: "DATA COMBINER", tag: "Union & Concatenate", desc: "Merge and combine two CSV datasets together without server uploads", icon: <Layers size={16} /> },
+  { slug: "csv-deduplicator", title: "Deduplicator", highlight: "DATA CLEANING", tag: "Remove Duplicates", desc: "Detect and remove duplicate rows from CSV lists and spreadsheets", icon: <Filter size={16} /> },
+  { slug: "csv-column-extractor", title: "Column Extractor", highlight: "TRANSFORM", tag: "Pick Columns", desc: "Extract specific targeted columns from large CSV files instantly", icon: <Table size={16} /> },
+  { slug: "json-to-xml", title: "JSON to XML", highlight: "CONVERTER", tag: "Tree Structure", desc: "Transform JSON data and arrays into well-formed XML documents", icon: <Code size={16} /> },
+  { slug: "xml-to-json", title: "XML to JSON", highlight: "CONVERTER", tag: "DOM Parser", desc: "Parse XML documents and hierarchical tags into structured JSON objects", icon: <Code size={16} /> },
+  { slug: "tsv-to-csv", title: "TSV to CSV", highlight: "FORMATTER", tag: "Excel & Sheets", desc: "Convert tab-separated TSV exports from Excel/Google Sheets to CSV", icon: <ArrowRightLeft size={16} /> },
+  { slug: "delimited-text-converter", title: "Delimited Text", highlight: "DELIMITER", tag: "Pipes, Tabs, Commas", desc: "Convert between pipe, tab, comma, and semicolon delimited formats", icon: <Shuffle size={16} /> },
+  { slug: "table-to-markdown", title: "Table to Markdown", highlight: "GITHUB MD", tag: "GFM Tables", desc: "Convert CSV or tabular data into formatted GitHub Markdown tables", icon: <FileSpreadsheet size={16} /> },
+  { slug: "data-sampling-tool", title: "Data Sampler", highlight: "SAMPLING", tag: "Random Subsets", desc: "Extract random representative samples and subsets from datasets", icon: <Shuffle size={16} /> }
+];
+
+export default function DataEngine({ slug = "csv-viewer", toolId = "csv-viewer" }) {
+  const { theme, toggleTheme, openFeedback } = useAppContext();
+  const navigate = useNavigate();
+
+  const [activeSlug, setActiveSlug] = useState(slug || "csv-viewer");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [copied, setCopied] = useState(false);
-  const copyText = (txt) => {
+
+  useEffect(() => {
+    if (slug && slug !== activeSlug) {
+      setActiveSlug(slug);
+    }
+  }, [slug]);
+
+  const handleSelectTool = (targetSlug) => {
+    setActiveSlug(targetSlug);
+    window.history.replaceState(null, "", `/${targetSlug}`);
+  };
+
+  const copyText = useCallback((txt) => {
+    if (!txt) return;
     navigator.clipboard.writeText(String(txt));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  };
+  }, []);
 
-  if (slug === "csv-merger") return <CsvMerger copyText={copyText} copied={copied} />;
-  if (slug === "csv-deduplicator") return <CsvDeduplicator copyText={copyText} copied={copied} />;
-  if (slug === "csv-column-extractor") return <CsvColumnExtractor copyText={copyText} copied={copied} />;
-  if (slug === "json-to-xml") return <JsonToXml copyText={copyText} copied={copied} />;
-  if (slug === "xml-to-json") return <XmlToJson copyText={copyText} copied={copied} />;
-  if (slug === "tsv-to-csv") return <TsvToCsv copyText={copyText} copied={copied} />;
-  if (slug === "delimited-text-converter") return <DelimitedConverter copyText={copyText} copied={copied} />;
-  if (slug === "table-to-markdown") return <TableToMarkdown copyText={copyText} copied={copied} />;
-  if (slug === "data-sampling-tool") return <DataSampler copyText={copyText} copied={copied} />;
+  const currentTool = useMemo(() => {
+    return DATA_TOOLS.find((t) => t.slug === activeSlug) || DATA_TOOLS[0];
+  }, [activeSlug]);
 
-  // Default: CSV Viewer
-  return <CsvViewer copyText={copyText} copied={copied} />;
+  const relatedToolsForDrawer = useMemo(() => {
+    return DATA_TOOLS.map((t) => ({
+      slug: t.slug,
+      name: t.title,
+      desc: t.desc,
+      icon: t.icon
+    }));
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0b0f17] text-slate-900 dark:text-slate-100 transition-colors flex flex-col font-sans">
+      <ToolSidebarDrawer
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        relatedTools={relatedToolsForDrawer}
+        categoryTitle="Data & Spreadsheet Tools"
+        onFeedback={openFeedback}
+      />
+
+      {/* Top Header */}
+      <header className="sticky top-0 z-40 bg-white/80 dark:bg-[#0f172a]/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+            aria-label="Open Tools Menu"
+          >
+            <Menu size={20} />
+          </button>
+          <Link to="/tools" className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold text-sm hover:underline">
+            <span>Tools</span>
+            <span className="text-slate-400">/</span>
+            <span className="text-slate-900 dark:text-white capitalize">Data</span>
+          </Link>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+            aria-label="Toggle theme"
+          >
+            {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
+          <Link
+            to="/tools"
+            className="px-3.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+          >
+            All 200 Tools
+          </Link>
+        </div>
+      </header>
+
+      {/* Horizontal Tool Selector Tab Bar */}
+      <div className="bg-white dark:bg-[#0f172a] border-b border-slate-200/80 dark:border-slate-800/80 px-4 sm:px-6 py-2.5 overflow-x-auto no-scrollbar">
+        <div className="flex items-center gap-2 min-w-max max-w-7xl mx-auto">
+          {DATA_TOOLS.map((tool) => {
+            const isActive = tool.slug === activeSlug;
+            return (
+              <button
+                key={tool.slug}
+                onClick={() => handleSelectTool(tool.slug)}
+                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl font-bold text-xs transition-all ${
+                  isActive
+                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/25 scale-[1.02]"
+                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
+                }`}
+              >
+                <span>{tool.icon}</span>
+                <span>{tool.title}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Main Workstation Body */}
+      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 md:p-8 space-y-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200/60 dark:border-slate-800/60">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="px-2.5 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 text-[11px] font-black uppercase tracking-wider border border-indigo-200/60 dark:border-indigo-800/50">
+                {currentTool.highlight}
+              </span>
+              <span className="text-xs text-slate-500 font-semibold">{currentTool.tag}</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+              {currentTool.title}
+            </h1>
+            <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+              {currentTool.desc}
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 self-start sm:self-center">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/60 dark:border-emerald-800/40">
+              <CheckCircle2 size={13} /> 100% In-Browser Privacy
+            </span>
+          </div>
+        </div>
+
+        {/* Dynamic Tool Rendering */}
+        <div className="bg-white dark:bg-[#131b2e] rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xl shadow-slate-200/30 dark:shadow-black/40 p-5 sm:p-8">
+          {activeSlug === "csv-viewer" && <CsvViewer copyText={copyText} copied={copied} />}
+          {activeSlug === "csv-merger" && <CsvMerger copyText={copyText} copied={copied} />}
+          {activeSlug === "csv-deduplicator" && <CsvDeduplicator copyText={copyText} copied={copied} />}
+          {activeSlug === "csv-column-extractor" && <CsvColumnExtractor copyText={copyText} copied={copied} />}
+          {activeSlug === "json-to-xml" && <JsonToXml copyText={copyText} copied={copied} />}
+          {activeSlug === "xml-to-json" && <XmlToJson copyText={copyText} copied={copied} />}
+          {activeSlug === "tsv-to-csv" && <TsvToCsv copyText={copyText} copied={copied} />}
+          {activeSlug === "delimited-text-converter" && <DelimitedConverter copyText={copyText} copied={copied} />}
+          {activeSlug === "table-to-markdown" && <TableToMarkdown copyText={copyText} copied={copied} />}
+          {activeSlug === "data-sampling-tool" && <DataSampler copyText={copyText} copied={copied} />}
+        </div>
+      </main>
+    </div>
+  );
 }
 
 // Helper CSV parser

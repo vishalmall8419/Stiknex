@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { useAppContext } from "../../context/AppContext";
 import { ALL_TOOLS, TOOL_CATEGORIES } from "../../data/toolsRegistry";
+import AdBanner from "../../Component/Ad/AdBanner";
 
 const HomeBlogSection = lazy(() => import("./HomeBlogSection"));
 const Testimonials = lazy(() => import("../../Component/Testimonials"));
@@ -132,7 +133,7 @@ const LandingPage = () => {
               <span>Tools</span>
               <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300">200+</span>
             </Link>
-            <Link to="/typing-lab" className="px-3 py-1.5 rounded-full hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">Typing Lab</Link>
+            <Link to="/stiknex-typing" className="px-3 py-1.5 rounded-full hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">Typing Master</Link>
             <Link to="/blog" className="px-3 py-1.5 rounded-full hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">Blog</Link>
           </div>
 
@@ -229,12 +230,12 @@ const LandingPage = () => {
                   <span>200+ Tools</span>
                 </Link>
                 <Link
-                  to="/typing-lab"
+                  to="/stiknex-typing"
                   onClick={() => setMobileMenuOpen(false)}
                   className="flex items-center gap-2 p-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 text-slate-800 dark:text-slate-200 hover:text-indigo-600 transition"
                 >
                   <Gamepad2 size={16} className="text-pink-500" />
-                  <span>Typing Lab</span>
+                  <span>Typing Master</span>
                 </Link>
                 <Link
                   to="/blog"
@@ -543,17 +544,17 @@ const LandingPage = () => {
                 <Zap size={14} className="text-amber-400" /> Flagship Release
               </div>
               <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
-                Master Touch Typing & Speed in the <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-pink-400">Typing Lab</span>
+                Master Touch Typing & Speed in <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-400">Typing Master</span>
               </h2>
               <p className="text-slate-300 text-base sm:text-lg leading-relaxed">
                 Boost your typing speed with instant 15s, 30s, 60s, and 120s WPM benchmark tests, structured touch typing syllabus lessons, developer code syntax challenges, and 6 original arcade typing games.
               </p>
               <div className="flex flex-wrap gap-4 pt-2">
                 <Link
-                  to="/typing-lab"
-                  className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-bold text-sm shadow-xl shadow-indigo-600/30 transition-all flex items-center gap-2"
+                  to="/stiknex-typing"
+                  className="px-6 py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-2xl font-black text-sm shadow-xl shadow-amber-500/25 transition-all flex items-center gap-2"
                 >
-                  Launch Typing Lab <ArrowRight size={16} />
+                  Launch Typing Master <ArrowRight size={16} />
                 </Link>
                 <Link
                   to="/typing-speed-test"
@@ -736,6 +737,9 @@ const LandingPage = () => {
       <Suspense fallback={<div className="min-h-[400px]" />}>
         <HomeBlogSection />
       </Suspense>
+
+      {/* Slim & Compact AdSense Banner */}
+      <AdBanner className="my-10" />
 
       {/* Comprehensive Categorized Footer Matching AppShell for Full Link Equity */}
       <footer className="py-16 px-6 border-t border-slate-200/60 dark:border-slate-800/60 bg-white/60 dark:bg-slate-950/60 backdrop-blur-md relative z-10 text-sm">

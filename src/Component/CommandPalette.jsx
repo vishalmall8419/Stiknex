@@ -50,12 +50,12 @@ const CORE_ITEMS = [
     featured: true,
   },
   {
-    id: "page:/typing-lab",
-    title: "Stiknex Typing Lab",
-    path: "/typing-lab",
-    category: "Typing",
+    id: "page:/stiknex-typing",
+    title: "Stiknex Typing Master",
+    path: "/stiknex-typing",
+    category: "Typing & Keyboard",
     icon: "fa-solid fa-keyboard",
-    description: "Typing speed tests, lessons, accuracy practice, and games.",
+    description: "50 progressive touch typing lessons, speed tests, code drills, and arcade games.",
     featured: true,
   },
   {
@@ -454,9 +454,45 @@ export default function CommandPalette() {
     }
   }, [isOpen]);
 
+  // Determine if current route is a tool or workspace route (where Quick Search is housed in the drawer)
+  const isToolRoute = useMemo(() => {
+    const current = (location.pathname || "").toLowerCase();
+    if (
+      current === "/tools" ||
+      current.startsWith("/tools/") ||
+      current === "/" ||
+      current === "/sticky-notes" ||
+      current === "/notes" ||
+      current === "/online-notebook" ||
+      current === "/notebook" ||
+      current === "/whiteboard" ||
+      current === "/basic-calculator" ||
+      current === "/simple-calculator" ||
+      current === "/scientific-calculator" ||
+      current === "/percentage-calculator" ||
+      current === "/age-calculator" ||
+      current === "/date-calculator" ||
+      current === "/date-difference-calculator" ||
+      current === "/time-calculator" ||
+      current === "/length-converter" ||
+      current === "/weight-converter" ||
+      current === "/temperature-converter" ||
+      current === "/unit-converter" ||
+      current === "/area-converter" ||
+      current === "/volume-converter" ||
+      current === "/speed-converter" ||
+      current === "/pressure-converter" ||
+      current === "/data-converter" ||
+      current === "/dataconverter"
+    ) {
+      return true;
+    }
+    return ALL_TOOLS.some((t) => current === `/${t.slug.toLowerCase()}` || current === `/tools/${t.slug.toLowerCase()}`);
+  }, [location.pathname]);
+
   return (
     <>
-      {!["/", "/sticky-notes", "/notes", "/basic-calculator", "/simple-calculator", "/scientific-calculator"].includes(location.pathname) && <button
+      {!isToolRoute && <button
         ref={btnRef}
         onClick={() => {
           setQuery("");

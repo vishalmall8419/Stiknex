@@ -2,6 +2,7 @@ import connectToDatabase from "./_utils/db.js";
 import Blog from "./_models/Blog.js";
 import { verifyAdminToken } from "./_utils/auth.js";
 import { countArticleWords, extractTableOfContents, extractSources, validateBlogArticle } from "./_utils/blogValidator.js";
+import { generateAstrologicalNames } from "./_utils/vedicAstrology.js";
 
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -10,6 +11,242 @@ export default async function handler(req, res) {
 
   if (req.method === "OPTIONS") {
     return res.status(200).end();
+  }
+
+  if (req.query?.action === "generate-vedic-names") {
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Method not allowed" });
+    }
+
+    const {
+      gender,
+      tradition,
+      dob,
+      time,
+      ampm,
+      place,
+      birthVenue,
+      fatherName,
+      motherName,
+      grandfatherName,
+      gotra,
+      startingLetter,
+      rashi,
+      traditionTheme
+    } = req.body || {};
+
+    const geminiApiKey = globalThis.process?.env?.GEMINI_API_KEY;
+    if (!geminiApiKey) {
+      const directCalculated = generateAstrologicalNames({
+        tradition,
+        gender: String(gender).toLowerCase() === "girl" ? "girl" : "boy",
+        dob,
+        time,
+        ampm,
+        place,
+        startingLetter,
+        selectedRashi: rashi,
+        gotra,
+        fatherName,
+        motherName,
+        grandfatherName,
+        traditionTheme
+      });
+      return res.status(200).json(directCalculated);
+    }
+
+    const prompt = `You are an expert scholar and genealogist in all world naming traditions:
+1. Sanatan Dharma Vedic Jyotish (Namkaran Sanskar, Parashara Hora, Nakshatra Charan, Janma Rashi, Namakshar).
+2. Islamic Traditions (Sunnah, Hadith, Arabic/Quranic roots, Asma-ul-Husna, Sahaba/Sahabiyat, Tasmiyah, Aqiqah).
+3. Sikh Traditions (Sri Guru Granth Sahib Ji, Gurbani Hukamnama, Mukhwak, Singh for boys and Kaur for girls suffix rule, Gurmat virtues).
+4. Christian Traditions (Holy Baptism, Christening, Biblical Old & New Testament, Patron Saints, Hebrew/Greek/Latin etymology, Godparent blessings).
+5. Secular / Universal / Modern / Non-religious (Nature elements, cosmic, philosophical values like truth/freedom/peace, modern phonetic elegance, zero caste/religious orthodoxy).
+
+Analyze the following birth and ancestral details to generate a highly authentic, culturally accurate Kundali/Heritage reading and 8-10 auspicious, meaningful names:
+
+- Tradition / Dharm / Belief: ${tradition || "Sanatan (Vedic)"}
+- Tradition Theme / Focus: ${traditionTheme || "All Authentic Categories"}
+- Child Gender: ${gender || "Boy"}
+- Date of Birth: ${dob || "Not specified"}
+- Time of Birth: ${time ? `${time} ${ampm || "AM"}` : "Not specified"}
+- Birth Place: ${place || "India"}
+- Birth Venue (Ghar/Hospital): ${birthVenue || "Hospital"}
+- Father's Name / Walid / Pita ji / Parent 1: ${fatherName || "N/A"}
+- Mother's Name / Walida / Mata ji / Parent 2: ${motherName || "N/A"}
+- Grandfather's Name / Dada / Ancestry: ${grandfatherName || "N/A"}
+- Kul / Gotra / Khandan / Got / Lineage: ${gotra || "N/A"}
+- Preferred Starting Letter (if provided): ${startingLetter || "Auto from tradition"}
+- Rashi: ${rashi || "Auto"}
+
+Strict Rules per Tradition:
+1. Sanatan Dharma (Hindu):
+   - Determine accurate Nakshatra Charan (Pada 1, 2, 3, or 4), Janma Rashi, and auspicious starting sounds (नामाक्षर e.g. चू, चे, चो, ला, etc.).
+   - Categories: Nakshatra Nama, Devata/Ishta Nama, Vyavaharika Nama, and Family legacy-aligned names.
+2. Islamic (Muslim):
+   - Provide noble names with verified Arabic/Quranic roots (Anbiya, Sahaba/Sahabiyat, Asma-ul-Husna attributes like Abdur-Rahman, Fatima, Zayan, Rayyan).
+   - Abjad numerological calculation for lucky number, 7th day Aqiqah and Tasmiyah sunnah guidance.
+3. Sikh:
+   - Provide genuine Gurmukhi Gurbani names based on Hukamnama/Mukhwak.
+   - MANDATORY: Male names MUST end with "Singh" (ਸਿੰਘ) and Female names MUST end with "Kaur" (ਕੌਰ).
+   - Deep spiritual Gurbani meaning, Gurmat courage and devotion.
+4. Christian:
+   - Provide holy Biblical names (Old/New Testament) or revered Patron Saints.
+   - Hebrew/Greek etymology, Baptismal virtue, Feast Day commemoration, Holy Baptism rite summary.
+5. Secular / Universal / Modern:
+   - Provide beautiful, profound names inspired by Nature (rivers, mountains, dawn), Cosmic (stars, light), or Humanist Virtues (freedom, truth, harmony, wisdom).
+   - Zero religious orthodoxy or caste labels; globally fluent and phonetically elegant.
+
+For each name provide:
+- Name in English & Hindi (Devanagari)
+- Deep meaning
+- Spiritual / philosophical context & heritage connection
+- Rashi / Theme / Astrological or Cultural alignment
+- Lucky Number
+
+For Kundali / Cultural Heritage Summary:
+- Rashi & Rashi Hindi
+- Nakshatra & Nakshatra Hindi (or Cultural Equivalent)
+- Charan / Suffix Convention
+- Shubh Akshar (Array of 2-4 starting letters in Hindi/Gurmukhi/English)
+- Lagna / Spiritual Guardian
+- Gana / Moral Virtue
+- Nadi / Element
+- Lucky Number, Color, Gemstone
+- Ishta Dev / Patron Angel / Guiding Virtue
+- Ceremony Vidhi summary (Comprehensive step-by-step ritual or welcoming guide)
+
+Respond strictly in valid JSON matching this schema:
+{
+  "kundali": {
+    "rashi": "string",
+    "rashiHindi": "string",
+    "nakshatra": "string",
+    "nakshatraHindi": "string",
+    "charan": "string",
+    "shubhAkshar": ["string"],
+    "lagna": "string",
+    "gana": "string",
+    "nadi": "string",
+    "luckyNumber": 7,
+    "luckyColor": "string",
+    "luckyGemstone": "string",
+    "ishtaDev": "string",
+    "ceremonyVidhi": "string"
+  },
+  "names": [
+    {
+      "nameEnglish": "string",
+      "nameHindi": "string",
+      "gender": "Boy" | "Girl",
+      "meaning": "string",
+      "spiritualContext": "string",
+      "rashi": "string",
+      "nakshatra": "string",
+      "luckyNumber": 1,
+      "category": "string"
+    }
+  ]
+}`;
+
+    try {
+      const modelsToTry = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"];
+      let response = null;
+      let lastStatus = 502;
+
+      for (const model of modelsToTry) {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 12000);
+        try {
+          response = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(geminiApiKey)}`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              signal: controller.signal,
+              body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }],
+                generationConfig: {
+                  temperature: 0.25,
+                  maxOutputTokens: 2400,
+                  responseMimeType: "application/json",
+                },
+              }),
+            },
+          );
+          if (response.ok) {
+            break;
+          }
+          lastStatus = response.status;
+          console.warn(`Model ${model} returned status ${response.status}, attempting fallback...`);
+        } catch (fetchErr) {
+          console.warn(`Fetch error on model ${model}:`, fetchErr.message);
+        } finally {
+          clearTimeout(timeout);
+        }
+      }
+
+      if (!response || !response.ok) {
+        console.warn("AI generation timed out or returned non-200, activating deterministic astronomical engine...");
+        const calculated = generateAstrologicalNames({
+          tradition,
+          gender: String(gender).toLowerCase() === "girl" ? "girl" : "boy",
+          dob,
+          time,
+          ampm,
+          place,
+          startingLetter,
+          selectedRashi: rashi,
+          gotra,
+          fatherName,
+          motherName,
+          grandfatherName,
+          traditionTheme
+        });
+        return res.status(200).json(calculated);
+      }
+
+      const payload = await response.json();
+      const text = payload?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (typeof text !== "string") {
+        const calculated = generateAstrologicalNames({
+          tradition,
+          gender: String(gender).toLowerCase() === "girl" ? "girl" : "boy",
+          dob,
+          time,
+          ampm,
+          place,
+          startingLetter,
+          selectedRashi: rashi,
+          gotra,
+          fatherName,
+          motherName,
+          grandfatherName,
+          traditionTheme
+        });
+        return res.status(200).json(calculated);
+      }
+
+      const parsed = JSON.parse(text);
+      return res.status(200).json(parsed);
+    } catch (err) {
+      console.warn("Name calculation caught exception, serving authentic ephemeris data:", err);
+      const calculated = generateAstrologicalNames({
+        tradition,
+        gender: String(gender).toLowerCase() === "girl" ? "girl" : "boy",
+        dob,
+        time,
+        ampm,
+        place,
+        startingLetter,
+        selectedRashi: rashi,
+        gotra,
+        fatherName,
+        motherName,
+        grandfatherName,
+        traditionTheme
+      });
+      return res.status(200).json(calculated);
+    }
   }
 
   if (req.query?.action === "quick-search") {
@@ -56,7 +293,7 @@ export default async function handler(req, res) {
       let response;
       try {
         response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(geminiApiKey)}`,
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${encodeURIComponent(geminiApiKey)}`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },

@@ -157,13 +157,13 @@ export const ALL_TOOLS = [
   },
   {
     id: "date-calculator",
-    slug: "date-difference-calculator",
-    aliases: ["date-calculator"],
+    slug: "date-calculator",
+    aliases: ["date-difference-calculator"],
     category: "calculators",
-    title: "Date Difference Calculator",
-    h1: "Free Online Date Difference Calculator",
+    title: "Date Calculator",
+    h1: "Free Online Date Calculator",
     tagline: "Compute the exact duration, days, and business weeks between two calendar dates.",
-    keywords: "date difference calculator, days between dates, calendar calculator, date duration",
+    keywords: "date calculator, date difference calculator, days between dates, calendar calculator, date duration",
     icon: "fa-solid fa-calendar-days",
     engine: "calculator-date-diff"
   },
@@ -318,11 +318,11 @@ export const ALL_TOOLS = [
   {
     id: "fraction-calculator",
     slug: "fraction-calculator",
-    category: "measurement",
+    category: "math",
     title: "Fraction Calculator",
-    h1: "Free Online Fraction Calculator",
-    tagline: "Add, subtract, multiply, divide, and simplify proper, improper, and mixed fractions.",
-    keywords: "fraction calculator, simplify fractions, add fractions, mixed numbers calculator",
+    h1: "Free Online Fraction Calculator & AI Math Solver",
+    tagline: "Next-gen fraction calculator with step-by-step arithmetic, mixed numbers, simplification, and Gemini AI tutor.",
+    keywords: "fraction calculator, simplify fractions, add fractions, mixed numbers calculator, step by step fraction solver, gemini ai math",
     icon: "fa-solid fa-divide",
     engine: "calculator-fraction"
   },
@@ -1257,12 +1257,12 @@ export const ALL_TOOLS = [
   { id: "time-zone-converter", slug: "time-zone-converter", category: "time", title: "Time Zone Converter", h1: "Free Online Time Zone Converter", tagline: "Convert meeting times across PST, EST, UTC, GMT, IST, and JST.", keywords: "time zone converter, pst to est, utc to ist, meeting time converter", icon: "fa-solid fa-earth-americas", engine: "time-zone-converter" },
   { id: "meeting-time-planner", slug: "meeting-time-planner", category: "time", title: "Meeting Time Planner", h1: "Free Online Remote Meeting Time Planner", tagline: "Find overlapping working hours across multiple global team locations.", keywords: "meeting time planner, remote team hours, global meeting scheduler", icon: "fa-solid fa-people-arrows", engine: "time-meeting-planner" },
   { id: "countdown-timer", slug: "countdown-timer", category: "time", title: "Countdown Timer", h1: "Free Online Countdown Timer", tagline: "Set custom alarms and countdown timers for presentations, events, and tasks.", keywords: "countdown timer, online timer, set timer online, event countdown", icon: "fa-solid fa-hourglass-start", engine: "time-countdown" },
-  { id: "stopwatch", slug: "stopwatch", category: "time", title: "Online Stopwatch", h1: "Free Online Stopwatch with Milliseconds", tagline: "Accurate stopwatch with lap timing, split counters, and fullscreen display.", keywords: "online stopwatch, lap timer, chronometer online, sports stopwatch", icon: "fa-solid fa-stopwatch", engine: "time-stopwatch" },
   { id: "pomodoro-timer", slug: "pomodoro-timer", category: "time", title: "Pomodoro Timer", h1: "Free Online Pomodoro Focus Timer", tagline: "Boost productivity with 25-minute focus intervals and 5-minute break cycles.", keywords: "pomodoro timer, focus timer, productivity timer, 25 minute timer", icon: "fa-solid fa-brain", engine: "time-pomodoro" },
   { id: "calendar-generator", slug: "calendar-generator", category: "time", title: "Calendar Generator", h1: "Free Online Printable Calendar Generator", tagline: "Generate monthly and yearly printable calendars with custom week starts.", keywords: "calendar generator, printable monthly calendar, custom year calendar", icon: "fa-solid fa-calendar", engine: "time-calendar-gen" },
   { id: "week-number-calculator", slug: "week-number-calculator", category: "time", title: "Week Number Calculator", h1: "Free Online ISO Week Number Calculator", tagline: "Find the current week number and ISO-8601 calendar weeks for any date.", keywords: "week number calculator, what week is it, iso week number, current week", icon: "fa-solid fa-calendar-week", engine: "time-week-number" },
   { id: "business-days-calculator", slug: "business-days-calculator", category: "time", title: "Business Days Calculator", h1: "Free Online Business Days Calculator", tagline: "Calculate working days between dates excluding weekends and holidays.", keywords: "business days calculator, working days between dates, exclude weekends", icon: "fa-solid fa-briefcase", engine: "time-business-days" },
   { id: "birthday-countdown", slug: "birthday-countdown", category: "time", title: "Birthday Countdown", h1: "Free Online Birthday Countdown Timer", tagline: "Count down days, hours, and minutes to your next upcoming birthday celebration.", keywords: "birthday countdown, days until birthday, age countdown timer", icon: "fa-solid fa-gift", engine: "time-birthday-countdown" },
+  { id: "live-clock", slug: "live-clock", category: "time", title: "Live Precision Clock", h1: "Free Online Fullscreen Live Clock", tagline: "Real-time precision digital & analog clock with live seconds, milliseconds, date, and timezone.", keywords: "live clock, online clock, fullscreen clock, digital clock online, current time live", icon: "fa-solid fa-clock-rotate-left", engine: "time-live-clock" },
 
   // CATEGORY 12: EDUCATION & MATHEMATICS
   { id: "algebra-calculator", slug: "algebra-calculator", category: "math", title: "Algebra Calculator", h1: "Free Online Algebra Solver", tagline: "Solve linear equations, simplify expressions, and balance algebraic formulas.", keywords: "algebra calculator, solve linear equations, math solver online", icon: "fa-solid fa-equals", engine: "math-algebra" },
@@ -1288,18 +1288,34 @@ export const ALL_TOOLS = [
   { id: "budget-planner", slug: "budget-planner", category: "finance", title: "Budget Planner Calculator", h1: "Free Online 50/30/20 Budget Planner", tagline: "Organize monthly take-home income into Needs (50%), Wants (30%), and Savings (20%).", keywords: "budget planner, 50 30 20 budget calculator, personal budget tool", icon: "fa-solid fa-wallet", engine: "fin-budget" },
   { id: "savings-goal-calculator", slug: "savings-goal-calculator", category: "finance", title: "Savings Goal Calculator", h1: "Free Online Savings Goal Calculator", tagline: "Determine how much you need to save each month to achieve your target milestone.", keywords: "savings goal calculator, monthly savings target, reach savings goal", icon: "fa-solid fa-vault", engine: "fin-savings-goal" },
 
-  // CATEGORY 14: TYPING & KEYBOARD (Stiknex Flagship Suite)
-  { id: "typing-speed-test", slug: "typing-speed-test", category: "typing", title: "Stiknex Typing", h1: "Stiknex Typing Speed Test (WPM & Accuracy)", tagline: "Test your words-per-minute speed and character accuracy with real-time feedback.", keywords: "stiknex typing, typing speed test, wpm test, typing test online, test typing speed", icon: "fa-solid fa-keyboard", engine: "typing-speed-test" },
+  // CATEGORY 14: TYPING & KEYBOARD (Stiknex Typing Master Flagship)
+  {
+    id: "typing-master",
+    slug: "stiknex-typing",
+    aliases: [
+      "typing-speed-test",
+      "typing-master",
+      "typing-practice-lessons",
+      "typing-accuracy-test",
+      "falling-words-game",
+      "word-rush-game",
+      "code-typing-challenge",
+      "keyboard-shortcut-finder",
+      "keyboard-key-tester",
+      "typing-error-analyzer",
+      "daily-typing-challenge",
+      "typing-lab",
+      "typing"
+    ],
+    category: "typing",
+    title: "Stiknex Typing Master",
+    h1: "Stiknex Typing Master – 50 Progressive Touch Typing Lessons & Precision Speed Arena",
+    tagline: "All-in-one typing master: 50 progressive touch typing lessons with unlock progression, precision WPM speed arena, arcade games, developer code drills, and hardware diagnostics.",
+    keywords: "typing master, stiknex typing, touch typing lessons, 50 typing lessons, typing speed test, wpm test, learn touch typing, typing arcade games, code typing challenge",
+    icon: "fa-solid fa-keyboard",
+    engine: "typing-master"
+  },
   { id: "url-shortener", slug: "url-shortener", category: "encoding", title: "URL Shortener", h1: "Free URL Shortener & Live Click Tracking Analytics", tagline: "Shorten links, create QR codes, and track clicks, visitors, countries, and campaign analytics.", keywords: "url shortener, link shortener, shorten links, click tracking, qr code, campaign analytics", icon: "fa-solid fa-link", engine: "url-shortener" },
-  { id: "typing-practice-lessons", slug: "typing-practice-lessons", category: "typing", title: "Typing Practice Lessons", h1: "Free Online Touch Typing Practice & Lessons", tagline: "Master touch typing from beginner home row to advanced punctuation drills.", keywords: "typing lessons, touch typing practice, learn to type, home row training", icon: "fa-solid fa-graduation-cap", engine: "typing-lessons" },
-  { id: "typing-accuracy-test", slug: "typing-accuracy-test", category: "typing", title: "Typing Accuracy Test", h1: "Free Online Typing Accuracy Challenge", tagline: "A strict typing test that rewards flawless accuracy and low error rates over raw speed.", keywords: "typing accuracy test, test typing accuracy, error free typing, precision typing", icon: "fa-solid fa-bullseye", engine: "typing-accuracy" },
-  { id: "falling-words-game", slug: "falling-words-game", category: "typing", title: "Falling Words Game", h1: "Falling Words Interactive Typing Game", tagline: "Type the falling words before they hit the ground in this fast-paced arcade game.", keywords: "falling words game, typing game, arcade typing game, type falling words", icon: "fa-solid fa-cloud-arrow-down", engine: "typing-falling-words" },
-  { id: "word-rush-game", slug: "word-rush-game", category: "typing", title: "Word Rush Typing Game", h1: "Word Rush High-Speed Typing Game", tagline: "Beat the clock by clearing as many vocabulary words as possible before time runs out.", keywords: "word rush game, fast typing game, speed typing game, word rush", icon: "fa-solid fa-bolt", engine: "typing-word-rush" },
-  { id: "code-typing-challenge", slug: "code-typing-challenge", category: "typing", title: "Code Typing Challenge", h1: "Free Online Code Typing Challenge", tagline: "Practice typing real HTML, CSS, JavaScript, and Python code syntax and brackets.", keywords: "code typing challenge, programmers typing test, syntax typing practice", icon: "fa-solid fa-code", engine: "typing-code-challenge" },
-  { id: "keyboard-shortcut-finder", slug: "keyboard-shortcut-finder", category: "typing", title: "Keyboard Shortcut Finder", h1: "Searchable Keyboard Shortcut Directory", tagline: "Instant shortcuts for VS Code, Chrome, Mac, Windows, and Google Docs.", keywords: "keyboard shortcuts, vs code shortcuts, chrome shortcuts, hotkeys directory", icon: "fa-solid fa-command", engine: "typing-shortcuts" },
-  { id: "keyboard-key-tester", slug: "keyboard-key-tester", category: "typing", title: "Keyboard Key Tester", h1: "Free Online Keyboard Key Tester", tagline: "Test sticky, broken, or ghosting keys on your physical mechanical or laptop keyboard.", keywords: "keyboard tester, test keyboard keys, check keyboard online, key ghosting test", icon: "fa-solid fa-computer", engine: "typing-key-tester" },
-  { id: "typing-error-analyzer", slug: "typing-error-analyzer", category: "typing", title: "Typing Error Analyzer", h1: "Diagnostic Typing Error Analyzer", tagline: "Identify your slowest fingers, most frequent typos, and difficult character pairs.", keywords: "typing error analyzer, weak key diagnostic, typing mistakes finder", icon: "fa-solid fa-stethoscope", engine: "typing-error-analyzer" },
-  { id: "daily-typing-challenge", slug: "daily-typing-challenge", category: "typing", title: "Daily Typing Challenge", h1: "Daily Typing Challenge & Streak Tracker", tagline: "A unique daily quote or passage challenge to build your consistency and streaks.", keywords: "daily typing challenge, typing streak, daily typing quote, wordle of typing", icon: "fa-solid fa-calendar-check", engine: "typing-daily-challenge" },
 
   // CATEGORY 15: NOTES & PRODUCTIVITY
   { id: "sticky-notes", slug: "sticky-notes", category: "productivity", title: "Sticky Notes Board", h1: "Free Online Sticky Notes Board", tagline: "Infinite canvas for organizing, color-coding, and linking thoughts.", keywords: "sticky notes, online sticky notes, virtual corkboard, brainstorm canvas", icon: "fa-solid fa-note-sticky", engine: "core-sticky-notes" },
@@ -1368,7 +1384,7 @@ export const ALL_TOOLS = [
   { id: "typographic-scale-generator", slug: "typographic-scale-generator", category: "helpers", title: "Typographic Scale Generator", h1: "Free Online Typographic Scale Generator", tagline: "Compute proportional font size hierarchies based on golden ratio and musical scales.", keywords: "typographic scale generator, modular scale typography, font size scale calculator", icon: "fa-solid fa-font-awesome", engine: "help-type-scale" },
   { id: "invoice-generator", slug: "invoice-generator", category: "helpers", title: "Invoice Generator", h1: "Free Online Invoice Generator (Printable PDF)", tagline: "Generate clean professional invoices with line items, tax, and instant print/PDF.", keywords: "invoice generator, create invoice online, free printable invoice, freelancer invoice", icon: "fa-solid fa-file-invoice-dollar", engine: "help-invoice-gen" },
   { id: "receipt-generator", slug: "receipt-generator", category: "helpers", title: "Receipt Generator", h1: "Free Online Receipt Generator", tagline: "Create customizable itemized sales receipts with company details and print view.", keywords: "receipt generator, make receipt online, sales receipt maker, customer receipt", icon: "fa-solid fa-receipt", engine: "help-receipt-gen" },
-  { id: "name-generator", slug: "name-generator", category: "helpers", title: "Random Name Generator", h1: "Free Online Random Name Generator", tagline: "Generate realistic first and last names across diverse cultures and languages.", keywords: "name generator, random names, character name generator, baby name generator", icon: "fa-solid fa-signature", engine: "help-name-gen" },
+  { id: "name-generator", slug: "name-generator", category: "helpers", title: "Baby Name Generator (Vedic, Islamic, Sikh, Christian & Modern)", h1: "Authentic Multi-Faith Baby Name Generator & Ceremony Sanskar", tagline: "Generate auspicious baby names across Hindu Vedic Kundali, Islamic Sunnah, Sikh Gurbani, Christian Baptism & Modern Secular traditions.", keywords: "baby name generator, indian baby names, namkaran sanskar, vedic baby names, islamic baby names, muslim names with meaning, sunnah tasmiyah, sikh baby names, gurbani hukamnama, singh kaur names, christian baby names, holy baptism names, modern secular baby names, nakshatra rashi names, janma patrika name generator", icon: "fa-solid fa-om", engine: "help-name-gen" },
   { id: "flashcard-maker", slug: "flashcard-maker", category: "helpers", title: "Flashcard Maker", h1: "Free Online Flashcard Maker & Study Deck", tagline: "Create flip study cards with questions and answers for fast exam revision.", keywords: "flashcard maker, online flashcards, study cards, digital flashcards tool", icon: "fa-solid fa-layer-group", engine: "help-flashcard" },
   { id: "random-quiz-generator", slug: "random-quiz-generator", category: "helpers", title: "Random Quiz Generator", h1: "Free Online Trivia & Quiz Generator", tagline: "Generate interactive multi-category trivia challenges to test your knowledge.", keywords: "random quiz generator, trivia generator, online quiz, test your knowledge", icon: "fa-solid fa-lightbulb", engine: "help-quiz-gen" },
   { id: "decision-helper", slug: "decision-helper", category: "helpers", title: "Decision Helper & Coin Flipper", h1: "Free Online Decision Helper & Coin Flipper", tagline: "Flip a 3D coin or roll a die to make quick, impartial decisions without hesitation.", keywords: "decision helper, coin flipper, flip a coin online, roll a die, yes or no decision", icon: "fa-solid fa-circle-question", engine: "help-decision-helper" }

@@ -1,26 +1,197 @@
-import { useState, useEffect, useMemo } from "react";
-import { CheckSquare, Square, Plus, Trash2, Copy, Check, Download, Calendar, Sparkles, BookOpen, Clock, ListChecks, Award } from "lucide-react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  CheckSquare,
+  Square,
+  Plus,
+  Trash2,
+  Copy,
+  Check,
+  Download,
+  Calendar,
+  Sparkles,
+  BookOpen,
+  Clock,
+  ListChecks,
+  Award,
+  Menu,
+  Sun,
+  Moon,
+  CheckCircle2,
+  Share2,
+  StickyNote,
+  FileText,
+  Target,
+  Zap,
+  Layers
+} from "lucide-react";
+import ToolSidebarDrawer from "../components/ToolSidebarDrawer";
+import { useAppContext } from "../../../context/AppContext";
 
-export default function ProductivityEngine({ slug, toolId }) {
+/* =========================================================================================
+   PRODUCTIVITY & WORKSPACE TOOLS METADATA
+   ========================================================================================= */
+const PRODUCTIVITY_TOOLS = [
+  { slug: "sticky-notes", title: "Sticky Notes", highlight: "QUICK MEMOS", tag: "Color Cards & Autosave", desc: "Interactive colored sticky notes board saved directly in your browser memory", icon: <StickyNote size={16} /> },
+  { slug: "online-notebook", title: "Online Notebook", highlight: "DISTRACTION-FREE", tag: "Markdown & Text", desc: "Minimalist note-taking workspace with word count and one-click text export", icon: <FileText size={16} /> },
+  { slug: "checklist-maker", title: "Checklist Maker", highlight: "PROGRESS TRACKER", tag: "Strike-through & Pct", desc: "Interactive checklist with completion percentages and progress bars", icon: <CheckSquare size={16} /> },
+  { slug: "to-do-list", title: "To-Do List", highlight: "TASK MANAGEMENT", tag: "Priority & Due Dates", desc: "Organize daily priorities, high/medium/low flags, and status filters", icon: <ListChecks size={16} /> },
+  { slug: "habit-tracker", title: "Habit Tracker", highlight: "STREAK BUILDER", tag: "7-Day Consistency", desc: "Build healthy habits with visual 7-day checkboxes and consistency scores", icon: <Award size={16} /> },
+  { slug: "daily-journal", title: "Daily Journal", highlight: "REFLECTION", tag: "Mood & Timestamps", desc: "Private daily journaling workspace with mood tracking and date archives", icon: <BookOpen size={16} /> },
+  { slug: "meeting-notes-template", title: "Meeting Notes", highlight: "COLLABORATION", tag: "Agenda & Action Items", desc: "Structured business meeting notes template with instant markdown copy", icon: <Calendar size={16} /> },
+  { slug: "decision-matrix", title: "Decision Matrix", highlight: "WEIGHTED SCORING", tag: "Prioritization", desc: "Score options against weighted criteria to make data-driven decisions", icon: <Target size={16} /> },
+  { slug: "focus-session-planner", title: "Focus Planner", highlight: "TIMEBOXING", tag: "Deep Work Sessions", desc: "Structure focused sprints, planned breaks, and session goals", icon: <Zap size={16} /> },
+  { slug: "personal-task-planner", title: "Eisenhower Matrix", highlight: "URGENT vs IMPORTANT", tag: "4-Quadrant Prioritization", desc: "Classify tasks into Do First, Schedule, Delegate, and Don't Do quadrants", icon: <Layers size={16} /> }
+];
+
+export default function ProductivityEngine({ slug = "sticky-notes", toolId = "sticky-notes" }) {
+  const { theme, toggleTheme, openFeedback } = useAppContext();
+  const navigate = useNavigate();
+
+  const [activeSlug, setActiveSlug] = useState(slug || "sticky-notes");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [copied, setCopied] = useState(false);
-  const copyText = (txt) => {
+
+  useEffect(() => {
+    if (slug && slug !== activeSlug) {
+      setActiveSlug(slug);
+    }
+  }, [slug]);
+
+  const handleSelectTool = (targetSlug) => {
+    setActiveSlug(targetSlug);
+    window.history.replaceState(null, "", `/${targetSlug}`);
+  };
+
+  const copyText = useCallback((txt) => {
+    if (!txt) return;
     navigator.clipboard.writeText(String(txt));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  };
+  }, []);
 
-  if (slug === "online-notebook") return <OnlineNotebook copyText={copyText} copied={copied} />;
-  if (slug === "checklist-maker") return <ChecklistMaker copyText={copyText} copied={copied} />;
-  if (slug === "to-do-list") return <TodoList copyText={copyText} copied={copied} />;
-  if (slug === "habit-tracker") return <HabitTracker copyText={copyText} copied={copied} />;
-  if (slug === "daily-journal") return <DailyJournal copyText={copyText} copied={copied} />;
-  if (slug === "meeting-notes-template") return <MeetingNotes copyText={copyText} copied={copied} />;
-  if (slug === "decision-matrix") return <DecisionMatrix copyText={copyText} copied={copied} />;
-  if (slug === "focus-session-planner") return <FocusPlanner copyText={copyText} copied={copied} />;
-  if (slug === "personal-task-planner") return <EisenhowerMatrix copyText={copyText} copied={copied} />;
+  const currentTool = useMemo(() => {
+    return PRODUCTIVITY_TOOLS.find((t) => t.slug === activeSlug) || PRODUCTIVITY_TOOLS[0];
+  }, [activeSlug]);
 
-  // Default: Sticky Notes preview / widget
-  return <StickyNotesWidget copyText={copyText} copied={copied} />;
+  const relatedToolsForDrawer = useMemo(() => {
+    return PRODUCTIVITY_TOOLS.map((t) => ({
+      slug: t.slug,
+      name: t.title,
+      desc: t.desc,
+      icon: t.icon
+    }));
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0b0f17] text-slate-900 dark:text-slate-100 transition-colors flex flex-col font-sans">
+      <ToolSidebarDrawer
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        relatedTools={relatedToolsForDrawer}
+        categoryTitle="Productivity & Task Tools"
+        onFeedback={openFeedback}
+      />
+
+      {/* Top Header */}
+      <header className="sticky top-0 z-40 bg-white/80 dark:bg-[#0f172a]/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+            aria-label="Open Tools Menu"
+          >
+            <Menu size={20} />
+          </button>
+          <Link to="/tools" className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold text-sm hover:underline">
+            <span>Tools</span>
+            <span className="text-slate-400">/</span>
+            <span className="text-slate-900 dark:text-white capitalize">Productivity</span>
+          </Link>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+            aria-label="Toggle theme"
+          >
+            {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
+          <Link
+            to="/tools"
+            className="px-3.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+          >
+            All 200 Tools
+          </Link>
+        </div>
+      </header>
+
+      {/* Horizontal Tool Selector Tab Bar */}
+      <div className="bg-white dark:bg-[#0f172a] border-b border-slate-200/80 dark:border-slate-800/80 px-4 sm:px-6 py-2.5 overflow-x-auto no-scrollbar">
+        <div className="flex items-center gap-2 min-w-max max-w-7xl mx-auto">
+          {PRODUCTIVITY_TOOLS.map((tool) => {
+            const isActive = tool.slug === activeSlug;
+            return (
+              <button
+                key={tool.slug}
+                onClick={() => handleSelectTool(tool.slug)}
+                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl font-bold text-xs transition-all ${
+                  isActive
+                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/25 scale-[1.02]"
+                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
+                }`}
+              >
+                <span>{tool.icon}</span>
+                <span>{tool.title}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Main Workstation Body */}
+      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 md:p-8 space-y-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200/60 dark:border-slate-800/60">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="px-2.5 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 text-[11px] font-black uppercase tracking-wider border border-indigo-200/60 dark:border-indigo-800/50">
+                {currentTool.highlight}
+              </span>
+              <span className="text-xs text-slate-500 font-semibold">{currentTool.tag}</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+              {currentTool.title}
+            </h1>
+            <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+              {currentTool.desc}
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 self-start sm:self-center">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/60 dark:border-emerald-800/40">
+              <CheckCircle2 size={13} /> 100% In-Browser Privacy
+            </span>
+          </div>
+        </div>
+
+        {/* Dynamic Tool Rendering */}
+        <div className="bg-white dark:bg-[#131b2e] rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xl shadow-slate-200/30 dark:shadow-black/40 p-5 sm:p-8">
+          {(activeSlug === "sticky-notes" || activeSlug === "notes") && <StickyNotesWidget copyText={copyText} copied={copied} />}
+          {activeSlug === "online-notebook" && <OnlineNotebook copyText={copyText} copied={copied} />}
+          {activeSlug === "checklist-maker" && <ChecklistMaker copyText={copyText} copied={copied} />}
+          {activeSlug === "to-do-list" && <TodoList copyText={copyText} copied={copied} />}
+          {activeSlug === "habit-tracker" && <HabitTracker copyText={copyText} copied={copied} />}
+          {activeSlug === "daily-journal" && <DailyJournal copyText={copyText} copied={copied} />}
+          {activeSlug === "meeting-notes-template" && <MeetingNotes copyText={copyText} copied={copied} />}
+          {activeSlug === "decision-matrix" && <DecisionMatrix copyText={copyText} copied={copied} />}
+          {activeSlug === "focus-session-planner" && <FocusPlanner copyText={copyText} copied={copied} />}
+          {activeSlug === "personal-task-planner" && <EisenhowerMatrix copyText={copyText} copied={copied} />}
+        </div>
+      </main>
+    </div>
+  );
 }
 
 // 1. STICKY NOTES WIDGET
@@ -290,7 +461,9 @@ function DailyJournal({ copyText, copied }) {
   const [reflection, setReflection] = useState("");
 
   const exportJournal = () => {
-    const text = `DAILY JOURNAL - ${new Date().toLocaleDateString()}\n\n1. Gratitude:\n${gratitude}\n\n2. Top Priorities / Highlights:\n${top3}\n\n3. Evening Reflection & Notes:\n${reflection}`;
+    const now = new Date();
+    const dmy = `${String(now.getDate()).padStart(2, "0")}/${String(now.getMonth() + 1).padStart(2, "0")}/${now.getFullYear()}`;
+    const text = `DAILY JOURNAL - ${dmy}\n\n1. Gratitude:\n${gratitude}\n\n2. Top Priorities / Highlights:\n${top3}\n\n3. Evening Reflection & Notes:\n${reflection}`;
     copyText(text);
   };
 
@@ -330,7 +503,9 @@ function MeetingNotes({ copyText, copied }) {
   const [decisions, setDecisions] = useState("- Approved v2 release roadmap\n- Assigned backend refactor to Alice");
   const [actions, setActions] = useState("- Bob: Deploy staging by Thursday\n- Carol: Prepare client QA report");
 
-  const fullNotes = `# Meeting: ${title}\nDate: ${new Date().toLocaleDateString()}\nAttendees: ${attendees}\n\n## Key Decisions:\n${decisions}\n\n## Action Items:\n${actions}`;
+  const now = new Date();
+  const dmy = `${String(now.getDate()).padStart(2, "0")}/${String(now.getMonth() + 1).padStart(2, "0")}/${now.getFullYear()}`;
+  const fullNotes = `# Meeting: ${title}\nDate: ${dmy}\nAttendees: ${attendees}\n\n## Key Decisions:\n${decisions}\n\n## Action Items:\n${actions}`;
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">

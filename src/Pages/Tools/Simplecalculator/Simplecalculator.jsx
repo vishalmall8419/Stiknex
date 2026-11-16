@@ -29,9 +29,13 @@ import {
   Trash2,
   Clock,
   CornerDownLeft,
-  Delete
+  Delete,
+  Volume2,
+  VolumeX,
+  ClipboardPaste
 } from "lucide-react";
 import { useAppContext } from "../../../context/AppContext";
+import ToolSidebarDrawer from "../components/ToolSidebarDrawer";
 
 /**
  * Mobile-First Neumorphic Phone Calculator with History & Desktop Companion
@@ -163,7 +167,10 @@ function formatHistoryTime(iso) {
     if (diffMins < 60) return `${diffMins}m ago`;
     const diffHours = Math.floor(diffMins / 60);
     if (diffHours < 24) return `${diffHours}h ago`;
-    return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
   } catch {
     return "";
   }
@@ -194,6 +201,34 @@ export default function SimpleCalculator({ tool, seoData }) {
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [activeHelpTab, setActiveHelpTab] = useState("howTo");
   const [isDesktop, setIsDesktop] = useState(false);
+  const [companionTab, setCompanionTab] = useState("history");
+  const [soundEnabled, setSoundEnabled] = useState(true);
+
+  // Web Audio click synthesizer
+  const audioCtxRef = useRef(null);
+  const playClickSound = useCallback(() => {
+    if (!soundEnabled) return;
+    try {
+      if (!audioCtxRef.current) {
+        audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      const ctx = audioCtxRef.current;
+      if (ctx.state === "suspended") {
+        ctx.resume();
+      }
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(540, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(280, ctx.currentTime + 0.03);
+      gain.gain.setValueAtTime(0.06, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.03);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.03);
+    } catch {}
+  }, [soundEnabled]);
 
   const constraintsRef = useRef(null);
   const isDraggingRef = useRef(false);
@@ -536,12 +571,367 @@ export default function SimpleCalculator({ tool, seoData }) {
         </nav>
       </header>
 
-      {/* ─── Central Main Container (Mobile Full-Height, Desktop Centered Card) ─── */}
-      <main className="w-full flex-1 h-full flex flex-col lg:flex-row items-center justify-center p-0 lg:p-6 overflow-hidden min-h-0">
-        <div className="w-full h-full lg:h-[720px] lg:max-h-[90vh] flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-8 max-w-5xl">
+      {/* ─── DESKTOP FULL-SCREEN WORKSTATION (>= lg) ─── */}
+      {isDesktop ? (
+        <div className="w-full flex-1 flex flex-col justify-between min-h-0">
+          {/* Top Full-Width Sticky Navigation Header */}
+          <div className="w-full px-4 lg:px-8 py-3 sm:py-3.5 border-b border-black/5 dark:border-white/5 bg-white/80 dark:bg-[#0B111E]/85 backdrop-blur-xl sticky top-0 z-30 flex items-center justify-between gap-4 shadow-xs dark:shadow-none transition-colors">
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setIsDrawerOpen(true)}
+                className="w-10 h-10 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 shadow-xs transition-all flex items-center justify-center cursor-pointer group"
+                title="Open Stiknex Menu & Tools"
+                aria-label="Open Stiknex Menu"
+              >
+                <Menu size={20} className="group-hover:scale-105 transition-transform" />
+              </button>
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-sky-500 text-white flex items-center justify-center shadow-md shadow-blue-500/25 ring-1 ring-white/20 shrink-0">
+                  <Calculator className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-base sm:text-lg font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-1.5 uppercase leading-none">
+                      <span>Basic</span>
+                      <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-cyan-400">Calculator</span>
+                    </h2>
+                    <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-200/60 dark:border-blue-800/60 tracking-wider uppercase">
+                      Arithmetic Engine
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 hidden sm:block font-medium mt-0.5">
+                    Instant In-Browser Arithmetic with Persistent Calculation Tape
+                  </p>
+                </div>
+              </div>
+            </div>
 
-          {/* ─── Handheld / Fullscreen Phone Chassis Container ─── */}
-          <div className="w-full max-w-md h-full flex flex-col justify-between px-3.5 sm:px-5 pt-2 pb-8 sm:pb-10 relative lg:border lg:border-white/70 dark:lg:border-white/5 lg:rounded-[42px] lg:shadow-[0_25px_65px_-15px_rgba(28,45,68,0.22)] dark:lg:shadow-[0_25px_65px_-15px_rgba(0,0,0,0.85)] lg:bg-gradient-to-b lg:from-[#EBF2F9] lg:via-[#E2EDF7] lg:to-[#D6E5F2] dark:lg:from-[#111722] dark:lg:via-[#0E141D] dark:lg:to-[#0A0E15] transition-all">
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={toggleDarkMode}
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:border-blue-400 transition-all flex items-center justify-center cursor-pointer shadow-xs"
+                title="Toggle Light / Dark Theme"
+              >
+                {darkMode ? <Sun size={15} className="text-amber-400" /> : <Moon size={15} className="text-indigo-600" />}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setSoundEnabled((prev) => !prev)}
+                className={`w-9 h-9 sm:w-10 sm:h-10 rounded-2xl border transition-all flex items-center justify-center cursor-pointer shadow-xs ${
+                  soundEnabled
+                    ? "bg-blue-50 dark:bg-blue-950/40 border-blue-200 dark:border-blue-900/50 text-blue-600 dark:text-blue-400"
+                    : "bg-white dark:bg-slate-900 border-slate-200/90 dark:border-slate-800 text-slate-400 dark:text-slate-500"
+                }`}
+                title={soundEnabled ? "Mute audio" : "Enable sound"}
+              >
+                {soundEnabled ? <Volume2 size={15} /> : <VolumeX size={15} />}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handlePress({ label: "AC", type: "function", action: "clear" })}
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 text-slate-500 hover:text-rose-500 hover:border-rose-300 dark:hover:border-rose-900 transition-all flex items-center justify-center cursor-pointer shadow-xs"
+                title="Reset (AC)"
+              >
+                <RotateCcw size={15} />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setIsHelpOpen(true)}
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 transition-all flex items-center justify-center cursor-pointer shadow-xs"
+                title="Help & Keyboard Shortcuts (?)"
+              >
+                <HelpCircle size={15} />
+              </button>
+            </div>
+          </div>
+
+          {/* Main Full-Width Desktop Workstation */}
+          <main className="w-full flex-1 px-4 lg:px-8 py-4 lg:py-6 flex flex-col justify-between min-h-0">
+            <div className="grid grid-cols-12 gap-5 lg:gap-6 w-full flex-1">
+              {/* LEFT COLUMN: DESKTOP KEYPAD TERMINAL (7 or 8 COLS) */}
+              <div className="col-span-12 lg:col-span-7 xl:col-span-8 flex flex-col justify-between space-y-4 rounded-3xl p-5 lg:p-6 shadow-xl shadow-slate-200/50 dark:shadow-none border border-white/70 dark:border-white/5 bg-[#EBF2F9]/90 dark:bg-[#0D141F] flex-1">
+                {/* Screen Display Area */}
+                <div className="w-full rounded-2xl p-5 bg-white/95 dark:bg-[#070C13] border border-white/90 dark:border-white/5 shadow-inner shadow-black/5 dark:shadow-black/50 text-right flex flex-col justify-between min-h-[160px]">
+                  {/* Top Sub-Row: Copy Button & Status Badges */}
+                  <div className="shrink-0 flex items-center justify-between pb-1.5 text-xs">
+                    <button
+                      type="button"
+                      onClick={copyResult}
+                      className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer bg-white/80 hover:bg-white text-slate-600 hover:text-blue-600 shadow-xs dark:bg-white/10 dark:hover:bg-white/15 dark:text-slate-300 dark:hover:text-blue-400"
+                      title="Copy calculated result"
+                    >
+                      {copied ? <Check size={13} className="text-emerald-500" /> : <Copy size={13} />}
+                      <span>{copied ? "Copied" : "Copy Result"}</span>
+                    </button>
+
+                    <div className="flex items-center gap-2">
+                      {activeOperator && (
+                        <span className="px-2.5 py-0.5 rounded-full text-xs font-black bg-blue-500 text-white shadow-xs">
+                          {activeOperator}
+                        </span>
+                      )}
+                      {currentSegmentDigits >= 14 && (
+                        <span className="text-[10px] font-mono font-bold text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded-md bg-amber-500/10">
+                          {currentSegmentDigits}/16 digits
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Expression Tape */}
+                  <div className="flex-1 flex flex-col justify-end text-right overflow-y-auto no-scrollbar py-2 my-auto">
+                    <div className="text-xl sm:text-2xl font-mono font-medium text-slate-500 dark:text-slate-400 tracking-wider break-all leading-relaxed text-right select-text">
+                      {expr || (lastCalculated !== null ? String(lastCalculated) : " ")}
+                    </div>
+                  </div>
+
+                  {/* Large Bold Result Display */}
+                  <div className="shrink-0 text-right py-1 overflow-x-auto no-scrollbar">
+                    <div className="text-4xl sm:text-6xl font-black text-slate-900 dark:text-white tracking-tight break-all select-all font-mono inline-flex items-baseline justify-end flex-wrap">
+                      <span className="text-slate-400 dark:text-slate-500 font-light mr-2 text-3xl sm:text-4xl">=</span>
+                      <span>{formattedResult}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Keypad Grid (5 Rows x 4 Columns) with Spacious Touch Targets */}
+                <div className="shrink-0 w-full pt-1 pb-1">
+                  <div className="grid grid-cols-4 gap-3 sm:gap-4">
+                    {KEYPAD_ROWS.map((row, rowIdx) =>
+                      row.map((item, colIdx) => {
+                        const isEqual = item.type === "equal";
+                        const isOperator = item.type === "operator";
+                        const isFunction = item.type === "function";
+                        const isCurrentActiveOp = isOperator && activeOperator === item.label;
+
+                        let buttonClasses = "";
+
+                        if (isEqual) {
+                          buttonClasses =
+                            "bg-[#1D8BF1] hover:bg-[#1678D3] active:bg-[#1265B3] text-white shadow-[0_6px_22px_rgba(29,139,241,0.45)] font-black text-2xl sm:text-3xl";
+                        } else if (isOperator) {
+                          buttonClasses = isCurrentActiveOp
+                            ? "bg-[#1D8BF1] text-white shadow-[0_6px_18px_rgba(29,139,241,0.4)] font-black text-2xl"
+                            : "bg-[#D9E7F5]/90 hover:bg-[#CCE0F3] active:bg-[#BEDAFA] text-blue-600 shadow-sm dark:bg-[#151D28] dark:hover:bg-[#1B2635] dark:active:bg-[#101722] dark:text-blue-400 dark:border dark:border-white/5 font-bold text-xl sm:text-2xl";
+                        } else if (isFunction) {
+                          buttonClasses =
+                            "bg-[#DBE7F3]/90 hover:bg-[#D3E1EE] active:bg-[#C9D9E8] text-slate-700 shadow-sm dark:bg-[#131A24] dark:hover:bg-[#1A2330] dark:active:bg-[#0F151E] dark:text-slate-300 dark:border dark:border-white/5 font-bold text-base sm:text-lg";
+                        } else {
+                          buttonClasses =
+                            "bg-white/95 hover:bg-white active:bg-slate-100 text-slate-800 shadow-sm dark:bg-[#18202C] dark:hover:bg-[#1F2937] dark:active:bg-[#141A24] dark:text-slate-100 dark:border dark:border-white/5 font-bold text-xl sm:text-2xl";
+                        }
+
+                        return (
+                          <button
+                            key={`desktop-${rowIdx}-${colIdx}`}
+                            type="button"
+                            onClick={() => handlePress(item)}
+                            className={`h-14 sm:h-16 lg:h-18 rounded-2xl sm:rounded-[22px] flex items-center justify-center transition-all duration-150 active:scale-95 cursor-pointer ${buttonClasses}`}
+                            aria-label={`Key ${item.label}`}
+                          >
+                            {item.isBackspace ? <Delete size={22} /> : item.label}
+                          </button>
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
+
+                {/* Keyboard Shortcuts Strip */}
+                <div className="pt-2 border-t border-black/5 dark:border-white/5 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 font-medium">
+                  <span>Shortcuts: Numbers 0-9 • + - * / • Enter (=) • Esc (AC) • Backspace (DEL)</span>
+                  <span className="text-blue-600 dark:text-blue-400 font-bold">16-Digit Real-Time Precision</span>
+                </div>
+              </div>
+
+              {/* RIGHT COLUMN (5 or 4 COLS): DEDICATED PERMANENT COMPANION PANEL */}
+              <div className="hidden lg:flex col-span-12 lg:col-span-5 xl:col-span-4 flex-col justify-between rounded-3xl p-5 bg-[#EBF2F9]/90 dark:bg-[#0D141F] border border-white/70 dark:border-white/5 shadow-xl shadow-slate-200/40 dark:shadow-none overflow-hidden">
+                <div className="flex-1 flex flex-col justify-between rounded-2xl p-4 bg-[#090E16] border border-white/5 shadow-inner shadow-black/50">
+                  {/* Header: Tabs */}
+                  <div className="flex items-center justify-between pb-3 border-b border-white/5">
+                    <div className="flex items-center gap-1 bg-white/5 p-1 rounded-xl">
+                      <button
+                        type="button"
+                        onClick={() => setCompanionTab("history")}
+                        className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${
+                          companionTab === "history"
+                            ? "bg-blue-600 text-white shadow-xs"
+                            : "text-slate-400 hover:text-white"
+                        }`}
+                      >
+                        <Clock size={13} />
+                        <span>History ({history.length})</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setCompanionTab("tools")}
+                        className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${
+                          companionTab === "tools"
+                            ? "bg-blue-600 text-white shadow-xs"
+                            : "text-slate-400 hover:text-white"
+                        }`}
+                      >
+                        <Calculator size={13} />
+                        <span>Calculators</span>
+                      </button>
+                    </div>
+
+                    {history.length > 0 && companionTab === "history" && (
+                      <button
+                        type="button"
+                        onClick={clearHistory}
+                        className="p-1.5 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-rose-950/30 transition cursor-pointer"
+                        title="Clear History"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Body: History Tape or Calculators */}
+                  <div className="flex-1 overflow-y-auto no-scrollbar py-3 space-y-2 h-[340px]">
+                    {companionTab === "history" ? (
+                      history.length === 0 ? (
+                        <div className="h-full flex flex-col items-center justify-center text-center p-4 text-slate-500">
+                          <Clock size={36} className="opacity-30 mb-2 stroke-1" />
+                          <p className="text-xs font-bold">No History Recorded</p>
+                          <p className="text-[11px] opacity-75 mt-1 max-w-[200px]">
+                            Completed calculations will automatically be stored here.
+                          </p>
+                        </div>
+                      ) : (
+                        history.map((item, idx) => (
+                          <div
+                            key={item.id || idx}
+                            className="group p-2.5 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition"
+                          >
+                            <div className="flex items-center justify-between text-[10px] text-slate-400 font-mono mb-0.5">
+                              <span className="truncate max-w-[180px]">{item.expression}</span>
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-[9px] opacity-70">{formatHistoryTime(item.timestamp)}</span>
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigator.clipboard.writeText(String(item.result));
+                                    setCopiedItemIdx(idx);
+                                    setTimeout(() => setCopiedItemIdx(null), 1800);
+                                  }}
+                                  className="p-0.5 hover:text-blue-400 transition cursor-pointer"
+                                  title="Copy Result"
+                                >
+                                  {copiedItemIdx === idx ? <Check size={11} className="text-emerald-500" /> : <Copy size={11} />}
+                                </button>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center justify-between">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setExpr(item.expression);
+                                  setLastCalculated(null);
+                                }}
+                                className="text-[11px] font-semibold text-slate-400 hover:text-blue-400 transition cursor-pointer"
+                                title="Insert into expression"
+                              >
+                                Insert
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setExpr(item.result);
+                                  setLastCalculated(item.result);
+                                }}
+                                className="text-right font-mono font-black text-sm text-blue-400 hover:underline transition cursor-pointer"
+                                title="Use result"
+                              >
+                                = {formatNumberWithCommas(item.result)}
+                              </button>
+                            </div>
+                          </div>
+                        ))
+                      )
+                    ) : (
+                      RELATED_CALCULATORS.map((calc) => (
+                        <Link
+                          key={calc.slug}
+                          to={`/${calc.slug}`}
+                          className="p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 transition block group"
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-bold text-slate-200 group-hover:text-blue-400">
+                              {calc.title}
+                            </span>
+                            <ArrowRight size={13} className="text-slate-500 group-hover:text-blue-400 group-hover:translate-x-0.5 transition-transform" />
+                          </div>
+                          <p className="text-[11px] text-slate-400 mt-0.5 truncate">
+                            {calc.desc}
+                          </p>
+                        </Link>
+                      ))
+                    )}
+                  </div>
+
+                  {/* Quick Actions Footer */}
+                  <div className="pt-2 border-t border-white/5">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5">
+                      Quick Actions
+                    </span>
+                    <div className="grid grid-cols-3 gap-1 text-[10px] font-bold">
+                      <button
+                        type="button"
+                        onClick={copyResult}
+                        className="py-1.5 px-1 rounded-lg bg-white/5 text-slate-300 hover:bg-blue-950/40 hover:text-blue-400 transition flex flex-col items-center gap-1 cursor-pointer"
+                      >
+                        <Copy size={12} />
+                        <span className="truncate">Copy Result</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (expr) {
+                            navigator.clipboard.writeText(expr);
+                            setCopied(true);
+                            setTimeout(() => setCopied(false), 1800);
+                          }
+                        }}
+                        className="py-1.5 px-1 rounded-lg bg-white/5 text-slate-300 hover:bg-blue-950/40 hover:text-blue-400 transition flex flex-col items-center gap-1 cursor-pointer"
+                      >
+                        <Calculator size={12} />
+                        <span className="truncate">Expression</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={clearHistory}
+                        className="py-1.5 px-1 rounded-lg bg-white/5 text-slate-300 hover:bg-rose-950/40 hover:text-rose-400 transition flex flex-col items-center gap-1 cursor-pointer"
+                      >
+                        <Trash2 size={12} />
+                        <span className="truncate">Clear Tape</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </main>
+
+          {/* Bottom Safe-Area Footer */}
+          <footer className="w-full text-center pb-[max(1.5rem,calc(env(safe-area-inset-bottom)+0.5rem))] sm:pb-6 pt-2">
+            <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500">
+              Stiknex Basic Engine • 100% In-Browser Arithmetic &amp; Calculation Tape
+            </p>
+          </footer>
+        </div>
+      ) : (
+        /* ─── MOBILE VIEW (< lg): HANDHELD CHASSIS ─── */
+        <main className="w-full flex-1 h-full flex flex-col justify-between p-0 overflow-hidden min-h-0">
+          <div className="w-full max-w-md h-full flex flex-col justify-between px-3.5 sm:px-5 pt-2 pb-[max(2.25rem,calc(env(safe-area-inset-bottom)+1.5rem))] sm:pb-10 mx-auto relative transition-all">
 
             {/* ─── Top Bar: Menu Button, Title Badge, History & Theme Toggle ─── */}
             <div className="shrink-0 flex items-center justify-between pt-1 pb-2 sm:pb-3 px-1 border-b border-black/5 dark:border-white/5">
@@ -550,8 +940,8 @@ export default function SimpleCalculator({ tool, seoData }) {
                 type="button"
                 onClick={() => setIsDrawerOpen(true)}
                 className="w-10 h-10 rounded-2xl flex items-center justify-center transition-all cursor-pointer
-                  bg-white/70 hover:bg-white text-slate-700 shadow-sm hover:shadow
-                  dark:bg-white/10 dark:hover:bg-white/15 dark:text-slate-200"
+                  bg-white/80 hover:bg-white text-slate-700 shadow-xs border border-slate-200/80
+                  dark:bg-white/10 dark:hover:bg-white/15 dark:border-white/5 dark:text-slate-200"
                 title="Open Stiknex Menu & Tools"
                 aria-label="Open Stiknex Menu"
               >
@@ -559,9 +949,11 @@ export default function SimpleCalculator({ tool, seoData }) {
               </button>
 
               {/* Calculator Title & Mode Pill */}
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/60 dark:bg-white/5 shadow-xs">
-                <Calculator size={14} className="text-blue-600 dark:text-blue-400" />
-                <span className="text-xs font-bold tracking-wide uppercase text-slate-700 dark:text-slate-300">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-white/80 dark:bg-white/5 border border-slate-200/80 dark:border-white/5 shadow-xs">
+                <div className="w-5 h-5 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-xs">
+                  <Calculator size={11} className="text-white" />
+                </div>
+                <span className="text-xs font-black tracking-wide uppercase text-slate-800 dark:text-slate-200">
                   Basic Calculator
                 </span>
               </div>
@@ -690,121 +1082,8 @@ export default function SimpleCalculator({ tool, seoData }) {
             </div>
 
           </div>
-
-          {/* ─── Desktop Companion History Side-Panel (Desktop >= lg) ─── */}
-          {isDesktop && isHistoryOpen && (
-            <motion.div
-              initial={{ opacity: 0, x: 20, scale: 0.98 }}
-              animate={{ opacity: 1, x: 0, scale: 1 }}
-              exit={{ opacity: 0, x: 20, scale: 0.98 }}
-              transition={{ duration: 0.2 }}
-              className="hidden lg:flex flex-col w-[340px] h-[640px] rounded-[38px] p-5 shadow-[0_25px_65px_-15px_rgba(28,45,68,0.2)] dark:shadow-[0_25px_65px_-15px_rgba(0,0,0,0.8)] border border-white/70 dark:border-white/5 bg-gradient-to-b from-[#EBF2F9] via-[#E2EDF7] to-[#D6E5F2] dark:from-[#111722] dark:via-[#0E141D] dark:to-[#0A0E15] justify-between relative"
-            >
-              {/* Header */}
-              <div className="flex items-center justify-between pb-3 border-b border-black/5 dark:border-white/5">
-                <div className="flex items-center gap-2">
-                  <Clock size={16} className="text-blue-600 dark:text-blue-400" />
-                  <span className="text-sm font-bold text-slate-800 dark:text-slate-200">
-                    History
-                  </span>
-                  <span className="text-[11px] font-mono font-semibold px-2 py-0.5 rounded-full bg-white/60 dark:bg-white/10 text-slate-600 dark:text-slate-400">
-                    {history.length}
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-1">
-                  {history.length > 0 && (
-                    <button
-                      type="button"
-                      onClick={clearHistory}
-                      className="p-1.5 rounded-xl text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition cursor-pointer"
-                      title="Clear History"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => setIsHistoryOpen(false)}
-                    className="p-1.5 rounded-xl text-slate-400 hover:text-slate-800 dark:hover:text-white transition cursor-pointer"
-                    title="Close History Panel"
-                  >
-                    <X size={16} />
-                  </button>
-                </div>
-              </div>
-
-              {/* History List */}
-              <div className="flex-1 overflow-y-auto no-scrollbar py-3 space-y-2.5">
-                {history.length === 0 ? (
-                  <div className="h-full flex flex-col items-center justify-center text-center p-4 text-slate-400 dark:text-slate-500">
-                    <Clock size={36} className="opacity-40 mb-2 stroke-1" />
-                    <p className="text-xs font-semibold">No calculation history yet</p>
-                    <p className="text-[11px] opacity-75 mt-1 max-w-[200px]">
-                      Completed equations will automatically be saved to local storage here.
-                    </p>
-                  </div>
-                ) : (
-                  history.map((item, idx) => (
-                    <div
-                      key={item.id || idx}
-                      className="group p-3 rounded-2xl bg-white/70 hover:bg-white dark:bg-white/5 dark:hover:bg-white/10 border border-white/60 dark:border-white/5 shadow-xs transition-all duration-150"
-                    >
-                      <div className="flex items-center justify-between text-[11px] text-slate-400 dark:text-slate-500 font-mono mb-1">
-                        <span>{formatHistoryTime(item.timestamp)}</span>
-                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button
-                            type="button"
-                            onClick={(e) => copyHistoryResult(item.result, idx, e)}
-                            className="p-1 hover:text-blue-600 dark:hover:text-blue-400"
-                            title="Copy Result"
-                          >
-                            {copiedItemIdx === idx ? <Check size={12} className="text-emerald-500" /> : <Copy size={12} />}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={(e) => deleteHistoryItem(item.id, e)}
-                            className="p-1 hover:text-rose-500"
-                            title="Delete Item"
-                          >
-                            <Trash2 size={12} />
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Expression */}
-                      <button
-                        type="button"
-                        onClick={() => restoreHistoryItem(item, "expression")}
-                        className="w-full text-right font-mono text-xs text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition truncate cursor-pointer block"
-                        title="Click to reuse this expression"
-                      >
-                        {item.expression}
-                      </button>
-
-                      {/* Result */}
-                      <button
-                        type="button"
-                        onClick={() => restoreHistoryItem(item, "result")}
-                        className="w-full text-right font-mono font-black text-lg text-slate-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition truncate cursor-pointer block mt-0.5"
-                        title="Click to use this result in calculation"
-                      >
-                        = {formatNumberWithCommas(item.result)}
-                      </button>
-                    </div>
-                  ))
-                )}
-              </div>
-
-              {/* Footer Tip */}
-              <div className="pt-2 border-t border-black/5 dark:border-white/5 text-[10px] text-slate-400 dark:text-slate-500 text-center font-medium">
-                Tap result to reuse • Stored locally in browser
-              </div>
-            </motion.div>
-          )}
-
-        </div>
-      </main>
+        </main>
+      )}
 
       {/* ─── Mobile / Tablet History Drawer Modal (< lg) ─── */}
       <AnimatePresence>
@@ -986,195 +1265,13 @@ export default function SimpleCalculator({ tool, seoData }) {
         </motion.button>
       </div>
 
-      {/* ─── Sliding Sidebar Drawer ─── */}
-      <AnimatePresence>
-        {isDrawerOpen && (
-          <div className="fixed inset-0 z-50 flex">
-            {/* Backdrop overlay */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              onClick={() => setIsDrawerOpen(false)}
-              className="fixed inset-0 bg-black/60 backdrop-blur-xs cursor-pointer"
-            />
-
-            {/* Sliding Drawer Panel from Left */}
-            <motion.aside
-              initial={{ x: "-100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "-100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 260 }}
-              className="relative w-[85vw] max-w-sm h-full bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 shadow-2xl z-10 flex flex-col justify-between overflow-hidden"
-            >
-              {/* Top: Brand Header & Search / Feedback Shortcuts */}
-              <div className="p-5 pb-3 border-b border-slate-100 dark:border-slate-800">
-                <div className="flex items-center justify-between">
-                  <Link
-                    to="/"
-                    onClick={() => setIsDrawerOpen(false)}
-                    className="flex items-center gap-2.5 group"
-                  >
-                    <img
-                      src="/logo.png"
-                      alt="Stiknex Logo"
-                      className="w-8 h-8 object-contain drop-shadow-sm group-hover:scale-105 transition-transform"
-                    />
-                    <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
-                      Stiknex
-                    </span>
-                  </Link>
-
-                  <button
-                    type="button"
-                    onClick={() => setIsDrawerOpen(false)}
-                    className="w-9 h-9 rounded-xl flex items-center justify-center text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
-                    aria-label="Close menu"
-                  >
-                    <X size={20} />
-                  </button>
-                </div>
-
-                {/* Quick Universal Search Trigger */}
-                <button
-                  type="button"
-                  onClick={triggerQuickSearch}
-                  className="w-full mt-4 flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 hover:text-indigo-600 dark:hover:text-indigo-400 font-semibold text-sm transition group cursor-pointer"
-                >
-                  <span className="flex items-center gap-2.5">
-                    <Search size={16} className="text-indigo-600 dark:text-indigo-400" />
-                    <span>Quick Search</span>
-                  </span>
-                  <kbd className="px-1.5 py-0.5 text-[10px] bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded text-slate-500 dark:text-slate-400 font-mono">
-                    Ctrl K
-                  </kbd>
-                </button>
-
-                {/* Send Feedback / Direct Message Trigger */}
-                <button
-                  type="button"
-                  onClick={triggerFeedback}
-                  className="w-full mt-2 flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 hover:text-indigo-600 dark:hover:text-indigo-400 font-semibold text-sm transition cursor-pointer"
-                >
-                  <MessageSquare size={16} className="text-indigo-600 dark:text-indigo-400" />
-                  <span>Send Feedback / Message</span>
-                </button>
-              </div>
-
-              {/* Middle: Main Navigation & Related Tools */}
-              <div className="p-5 space-y-6 flex-1 overflow-y-auto">
-                {/* Core Stiknex Workspace Links */}
-                <div>
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2 px-1">
-                    Workspace & Hub
-                  </h3>
-                  <div className="space-y-1">
-                    <Link
-                      to="/"
-                      onClick={() => setIsDrawerOpen(false)}
-                      className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400 transition"
-                    >
-                      <Home size={16} className="text-indigo-500" />
-                      <span>Home</span>
-                    </Link>
-
-                    <Link
-                      to="/sticky-notes"
-                      onClick={() => setIsDrawerOpen(false)}
-                      className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400 transition"
-                    >
-                      <StickyNote size={16} className="text-amber-500" />
-                      <span>Sticky Notes</span>
-                    </Link>
-
-                    <Link
-                      to="/online-notebook"
-                      onClick={() => setIsDrawerOpen(false)}
-                      className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400 transition"
-                    >
-                      <BookOpen size={16} className="text-blue-500" />
-                      <span>Online Notebook</span>
-                    </Link>
-
-                    <Link
-                      to="/whiteboard"
-                      onClick={() => setIsDrawerOpen(false)}
-                      className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400 transition"
-                    >
-                      <PenTool size={16} className="text-purple-500" />
-                      <span>Whiteboards</span>
-                    </Link>
-
-                    <Link
-                      to="/tools"
-                      onClick={() => setIsDrawerOpen(false)}
-                      className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400 transition"
-                    >
-                      <Wrench size={16} className="text-emerald-500" />
-                      <span>All 200+ Tools</span>
-                    </Link>
-
-                    <Link
-                      to="/blog"
-                      onClick={() => setIsDrawerOpen(false)}
-                      className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400 transition"
-                    >
-                      <Newspaper size={16} className="text-rose-500" />
-                      <span>Tech & Math Blog</span>
-                    </Link>
-                  </div>
-                </div>
-
-                {/* Related Calculators & Math Utilities */}
-                <div>
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2 px-1">
-                    Related Calculators
-                  </h3>
-                  <div className="space-y-1.5">
-                    {RELATED_CALCULATORS.map((item) => (
-                      <Link
-                        key={item.slug}
-                        to={`/${item.slug}`}
-                        onClick={() => setIsDrawerOpen(false)}
-                        className="flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition group"
-                      >
-                        <div className="flex items-center gap-2.5">
-                          <div className="w-7 h-7 rounded-lg bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs">
-                            <i className={item.icon}></i>
-                          </div>
-                          <div>
-                            <p className="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition leading-tight">
-                              {item.title}
-                            </p>
-                            <p className="text-[10px] text-slate-400 dark:text-slate-500 line-clamp-1">
-                              {item.desc}
-                            </p>
-                          </div>
-                        </div>
-                        <ArrowRight size={14} className="text-slate-300 group-hover:text-blue-600 group-hover:translate-x-0.5 transition" />
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Bottom Drawer Footer */}
-              <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
-                <a
-                  href="https://buymeacoffee.com/stiknex"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 py-2 px-4 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs shadow-sm hover:shadow transition"
-                >
-                  <Coffee size={14} />
-                  <span>Support Stiknex</span>
-                </a>
-              </div>
-            </motion.aside>
-          </div>
-        )}
-      </AnimatePresence>
+      {/* ─── Universal Stiknex Tool Sidebar Drawer ─── */}
+      <ToolSidebarDrawer
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+        relatedTools={RELATED_CALCULATORS}
+        categoryTitle="Related Calculators"
+      />
 
       {/* ─── Help, Guide, Formulas & FAQ Modal (Opened via Floating ? Button) ─── */}
       <AnimatePresence>

@@ -1,44 +1,201 @@
-import { useState, useMemo } from "react";
-import { Copy, Check, RotateCcw, Calculator, Sparkles, Sigma, HelpCircle, Layers } from "lucide-react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Calculator,
+  Sparkles,
+  Sigma,
+  HelpCircle,
+  Layers,
+  Copy,
+  Check,
+  RotateCcw,
+  Sun,
+  Moon,
+  Menu,
+  CheckCircle2,
+  Share2,
+  Trash2,
+  Maximize2,
+  Box,
+  Compass,
+  Percent,
+  TrendingUp,
+  Hash,
+  Divide
+} from "lucide-react";
+import ToolSidebarDrawer from "../components/ToolSidebarDrawer";
+import NextGenFractionCalculator from "../components/NextGenFractionCalculator";
+import NextGenAlgebraSolver from "../components/NextGenAlgebraSolver";
+import { useAppContext } from "../../../context/AppContext";
 
-export default function MathEngine({ slug, toolId }) {
+/* =========================================================================================
+   MATH & ALGEBRA TOOLS METADATA
+   ========================================================================================= */
+const MATH_TOOLS = [
+  { slug: "fraction-calculator", title: "Fraction Calculator", highlight: "AI STEP-BY-STEP", tag: "Fractions & Mixed", desc: "Solve any fractions, mixed numbers, simplification, and LCD with step-by-step proofs and Gemini AI", icon: <Divide size={16} /> },
+  { slug: "algebra-calculator", title: "Algebra & Trig Solver", highlight: "AI EQUATION SOLVER", tag: "Algebra & Trigonometry", desc: "Solve any linear, quadratic, polynomial, or trigonometric equations step-by-step with Gemini AI", icon: <Calculator size={16} /> },
+  { slug: "quadratic-equation-solver", title: "Quadratic Solver", highlight: "PARABOLA & ROOTS", tag: "ax² + bx + c = 0", desc: "Calculate real and complex roots, discriminant, and vertex coordinates", icon: <Sigma size={16} /> },
+  { slug: "prime-number-checker", title: "Prime Checker", highlight: "NUMBER THEORY", tag: "Primality & Factors", desc: "Determine primality, prime factor decomposition, and neighboring primes", icon: <Hash size={16} /> },
+  { slug: "gcd-lcm-calculator", title: "GCD & LCM", highlight: "COMMON FACTORS", tag: "Euclidean Method", desc: "Find Greatest Common Divisor and Least Common Multiple for numbers", icon: <Layers size={16} /> },
+  { slug: "statistics-calculator", title: "Statistics", highlight: "DESCRIPTIVE STATS", tag: "Variance & StdDev", desc: "Compute population/sample variance, standard deviation, and sum of squares", icon: <TrendingUp size={16} /> },
+  { slug: "mean-median-mode-calculator", title: "Mean / Median / Mode", highlight: "CENTRAL TENDENCY", tag: "Averages & Range", desc: "Calculate arithmetic mean, median, mode frequencies, and min/max range", icon: <Percent size={16} /> },
+  { slug: "probability-calculator", title: "Probability", highlight: "COMBINATORICS", tag: "nPr & nCr", desc: "Calculate combinations, permutations, factorials, and event likelihoods", icon: <Compass size={16} /> },
+  { slug: "scientific-notation-converter", title: "Scientific Notation", highlight: "EXPONENTS", tag: "Standard & E-Notation", desc: "Convert large and tiny numbers between scientific, engineering, and decimal forms", icon: <Maximize2 size={16} /> },
+  { slug: "matrix-calculator", title: "Matrix Calculator", highlight: "LINEAR ALGEBRA", tag: "2x2 & 3x3 Matrices", desc: "Add, subtract, multiply, transpose, and calculate matrix determinants", icon: <Box size={16} /> },
+  { slug: "geometry-calculator", title: "Geometry 2D/3D", highlight: "MENSURATION", tag: "Area, Volume, Perimeter", desc: "Compute surface areas, volumes, and perimeters for common geometric shapes", icon: <Layers size={16} /> }
+];
+
+export default function MathEngine({ slug = "algebra-calculator", toolId = "algebra-calculator" }) {
+  const { theme, toggleTheme, openFeedback } = useAppContext();
+  const navigate = useNavigate();
+
+  const [activeSlug, setActiveSlug] = useState(slug || "algebra-calculator");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [copied, setCopied] = useState(false);
-  const copyText = (txt) => {
+
+  useEffect(() => {
+    if (slug && slug !== activeSlug) {
+      setActiveSlug(slug);
+    }
+  }, [slug]);
+
+  const handleSelectTool = (targetSlug) => {
+    setActiveSlug(targetSlug);
+    window.history.replaceState(null, "", `/${targetSlug}`);
+  };
+
+  const copyText = useCallback((txt) => {
+    if (!txt) return;
     navigator.clipboard.writeText(String(txt));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  };
+  }, []);
 
-  if (slug === "quadratic-equation-solver") {
-    return <QuadraticSolver copyText={copyText} copied={copied} />;
-  }
-  if (slug === "prime-number-checker") {
-    return <PrimeChecker copyText={copyText} copied={copied} />;
-  }
-  if (slug === "gcd-lcm-calculator") {
-    return <GcdLcmCalculator copyText={copyText} copied={copied} />;
-  }
-  if (slug === "statistics-calculator") {
-    return <StatisticsCalculator copyText={copyText} copied={copied} />;
-  }
-  if (slug === "mean-median-mode-calculator") {
-    return <MeanMedianModeCalculator copyText={copyText} copied={copied} />;
-  }
-  if (slug === "probability-calculator") {
-    return <ProbabilityCalculator copyText={copyText} copied={copied} />;
-  }
-  if (slug === "scientific-notation-converter") {
-    return <ScientificNotationConverter copyText={copyText} copied={copied} />;
-  }
-  if (slug === "matrix-calculator") {
-    return <MatrixCalculator copyText={copyText} copied={copied} />;
-  }
-  if (slug === "geometry-calculator") {
-    return <GeometryCalculator copyText={copyText} copied={copied} />;
-  }
+  const currentTool = useMemo(() => {
+    return MATH_TOOLS.find((t) => t.slug === activeSlug) || MATH_TOOLS[0];
+  }, [activeSlug]);
 
-  // Default: Algebra Calculator
-  return <AlgebraCalculator copyText={copyText} copied={copied} />;
+  const relatedToolsForDrawer = useMemo(() => {
+    return MATH_TOOLS.map((t) => ({
+      slug: t.slug,
+      name: t.title,
+      desc: t.desc,
+      icon: t.icon
+    }));
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0b0f17] text-slate-900 dark:text-slate-100 transition-colors flex flex-col font-sans">
+      <ToolSidebarDrawer
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        relatedTools={relatedToolsForDrawer}
+        categoryTitle="Math & Science Calculators"
+        onFeedback={openFeedback}
+      />
+
+      {/* Top Header */}
+      <header className="sticky top-0 z-40 bg-white/80 dark:bg-[#0f172a]/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+            aria-label="Open Tools Menu"
+          >
+            <Menu size={20} />
+          </button>
+          <Link to="/tools" className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold text-sm hover:underline">
+            <span>Tools</span>
+            <span className="text-slate-400">/</span>
+            <span className="text-slate-900 dark:text-white capitalize">Math</span>
+          </Link>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+            aria-label="Toggle theme"
+          >
+            {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
+          <Link
+            to="/tools"
+            className="px-3.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+          >
+            All 200 Tools
+          </Link>
+        </div>
+      </header>
+
+      {/* Horizontal Tool Selector Tab Bar */}
+      <div className="bg-white dark:bg-[#0f172a] border-b border-slate-200/80 dark:border-slate-800/80 px-4 sm:px-6 py-2.5 overflow-x-auto no-scrollbar">
+        <div className="flex items-center gap-2 min-w-max max-w-7xl mx-auto">
+          {MATH_TOOLS.map((tool) => {
+            const isActive = tool.slug === activeSlug;
+            return (
+              <button
+                key={tool.slug}
+                onClick={() => handleSelectTool(tool.slug)}
+                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl font-bold text-xs transition-all ${
+                  isActive
+                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/25 scale-[1.02]"
+                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
+                }`}
+              >
+                <span>{tool.icon}</span>
+                <span>{tool.title}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Main Workstation Body */}
+      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 md:p-8 space-y-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200/60 dark:border-slate-800/60">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="px-2.5 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 text-[11px] font-black uppercase tracking-wider border border-indigo-200/60 dark:border-indigo-800/50">
+                {currentTool.highlight}
+              </span>
+              <span className="text-xs text-slate-500 font-semibold">{currentTool.tag}</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+              {currentTool.title}
+            </h1>
+            <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+              {currentTool.desc}
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 self-start sm:self-center">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/60 dark:border-emerald-800/40">
+              <CheckCircle2 size={13} /> 100% In-Browser Math Engine
+            </span>
+          </div>
+        </div>
+
+        {/* Dynamic Tool Rendering */}
+        <div className="bg-white dark:bg-[#131b2e] rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xl shadow-slate-200/30 dark:shadow-black/40 p-5 sm:p-8">
+          {(activeSlug === "fraction-calculator" || toolId === "fraction-calculator") && (
+            <NextGenFractionCalculator copyText={copyText} copied={copied} />
+          )}
+          {activeSlug === "algebra-calculator" && <NextGenAlgebraSolver copyText={copyText} copied={copied} />}
+          {activeSlug === "quadratic-equation-solver" && <QuadraticSolver copyText={copyText} copied={copied} />}
+          {activeSlug === "prime-number-checker" && <PrimeChecker copyText={copyText} copied={copied} />}
+          {activeSlug === "gcd-lcm-calculator" && <GcdLcmCalculator copyText={copyText} copied={copied} />}
+          {activeSlug === "statistics-calculator" && <StatisticsCalculator copyText={copyText} copied={copied} />}
+          {activeSlug === "mean-median-mode-calculator" && <MeanMedianModeCalculator copyText={copyText} copied={copied} />}
+          {activeSlug === "probability-calculator" && <ProbabilityCalculator copyText={copyText} copied={copied} />}
+          {activeSlug === "scientific-notation-converter" && <ScientificNotationConverter copyText={copyText} copied={copied} />}
+          {activeSlug === "matrix-calculator" && <MatrixCalculator copyText={copyText} copied={copied} />}
+          {activeSlug === "geometry-calculator" && <GeometryCalculator copyText={copyText} copied={copied} />}
+        </div>
+      </main>
+    </div>
+  );
 }
 
 // 1. ALGEBRA CALCULATOR

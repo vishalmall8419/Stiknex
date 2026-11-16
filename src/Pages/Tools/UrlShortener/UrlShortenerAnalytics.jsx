@@ -387,7 +387,7 @@ const UrlShortenerAnalytics = () => {
                   {overview.lastClickedAt ? new Date(overview.lastClickedAt).toLocaleString() : 'No clicks yet'}
                 </div>
                 <div style={{ fontSize: '0.75rem', color: '#71717a', marginTop: '0.25rem' }}>
-                  Created: {link.createdAt ? new Date(link.createdAt).toLocaleDateString() : 'Recent'}
+                  Created: {link.createdAt ? new Date(link.createdAt).toLocaleDateString("en-GB") : 'Recent'}
                 </div>
               </div>
             </div>

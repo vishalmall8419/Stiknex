@@ -1,26 +1,194 @@
-import { useState, useMemo } from "react";
-import { Copy, Check, Search, Globe, Share2, Code, Link2, BookOpen, Download, AlertCircle, Sparkles } from "lucide-react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Copy,
+  Check,
+  Search,
+  Globe,
+  Share2,
+  Code,
+  Link2,
+  BookOpen,
+  Download,
+  AlertCircle,
+  Sparkles,
+  Menu,
+  Sun,
+  Moon,
+  CheckCircle2,
+  Trash2,
+  Hash,
+  Eye,
+  Layers,
+  FileText
+} from "lucide-react";
+import ToolSidebarDrawer from "../components/ToolSidebarDrawer";
+import { useAppContext } from "../../../context/AppContext";
 
-export default function SeoEngine({ slug, toolId }) {
+/* =========================================================================================
+   SEO & DIGITAL MARKETING TOOLS METADATA
+   ========================================================================================= */
+const SEO_TOOLS = [
+  { slug: "serp-snippet-preview", title: "SERP Preview", highlight: "GOOGLE SIMULATOR", tag: "Desktop & Mobile", desc: "Simulate and test how your meta title and description appear on Google search results", icon: <Search size={16} /> },
+  { slug: "meta-description-counter", title: "Meta Counter", highlight: "CHARACTER LIMIT", tag: "155-160 Chars", desc: "Count characters, word lengths, and pixel widths for SEO meta descriptions", icon: <FileText size={16} /> },
+  { slug: "keyword-density-checker", title: "Keyword Density", highlight: "TF-IDF ANALYSIS", tag: "N-Gram Frequencies", desc: "Analyze keyword frequency distribution, single words, and two-word keyphrases", icon: <Hash size={16} /> },
+  { slug: "robots-txt-generator", title: "Robots.txt Gen", highlight: "CRAWLER RULES", tag: "User-Agent & Directives", desc: "Generate compliant robots.txt directives for search engines and AI crawlers", icon: <Code size={16} /> },
+  { slug: "sitemap-xml-generator", title: "Sitemap XML", highlight: "INDEX PROTOCOL", tag: "URLset & Priority", desc: "Generate standardized XML sitemaps for fast search engine indexing", icon: <Globe size={16} /> },
+  { slug: "open-graph-preview", title: "Open Graph", highlight: "SOCIAL CARDS", tag: "OG & Twitter Cards", desc: "Preview and debug social media share cards for Facebook, Twitter, and LinkedIn", icon: <Share2 size={16} /> },
+  { slug: "schema-markup-generator", title: "Schema JSON-LD", highlight: "STRUCTURED DATA", tag: "Schema.org Rich Snippets", desc: "Generate Google-compliant JSON-LD structured data for articles and FAQs", icon: <Code size={16} /> },
+  { slug: "utm-link-builder", title: "UTM Builder", highlight: "CAMPAIGN TRACKING", tag: "Google Analytics 4", desc: "Construct error-free UTM tracking links for marketing campaigns and ads", icon: <Link2 size={16} /> },
+  { slug: "url-slug-checker", title: "URL Slug Checker", highlight: "PERMALINK", tag: "Clean SEO URLs", desc: "Convert titles into clean, hyphenated, keyword-optimized URL slugs", icon: <Link2 size={16} /> },
+  { slug: "readability-checker", title: "Readability Score", highlight: "FLESCH-KINCAID", tag: "Reading Ease Grade", desc: "Measure content readability, syllables, sentence lengths, and reading grade", icon: <BookOpen size={16} /> }
+];
+
+export default function SeoEngine({ slug = "serp-snippet-preview", toolId = "serp-snippet-preview" }) {
+  const { theme, toggleTheme, openFeedback } = useAppContext();
+  const navigate = useNavigate();
+
+  const [activeSlug, setActiveSlug] = useState(slug || "serp-snippet-preview");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [copied, setCopied] = useState(false);
-  const copyText = (txt) => {
+
+  useEffect(() => {
+    if (slug && slug !== activeSlug) {
+      setActiveSlug(slug);
+    }
+  }, [slug]);
+
+  const handleSelectTool = (targetSlug) => {
+    setActiveSlug(targetSlug);
+    window.history.replaceState(null, "", `/${targetSlug}`);
+  };
+
+  const copyText = useCallback((txt) => {
+    if (!txt) return;
     navigator.clipboard.writeText(String(txt));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  };
+  }, []);
 
-  if (slug === "meta-description-counter") return <MetaDescriptionCounter copyText={copyText} copied={copied} />;
-  if (slug === "keyword-density-checker") return <KeywordDensityChecker copyText={copyText} copied={copied} />;
-  if (slug === "robots-txt-generator") return <RobotsTxtGenerator copyText={copyText} copied={copied} />;
-  if (slug === "sitemap-xml-generator") return <SitemapGenerator copyText={copyText} copied={copied} />;
-  if (slug === "open-graph-preview") return <OpenGraphPreview copyText={copyText} copied={copied} />;
-  if (slug === "schema-markup-generator") return <SchemaGenerator copyText={copyText} copied={copied} />;
-  if (slug === "utm-link-builder") return <UtmLinkBuilder copyText={copyText} copied={copied} />;
-  if (slug === "url-slug-checker") return <UrlSlugChecker copyText={copyText} copied={copied} />;
-  if (slug === "readability-checker") return <ReadabilityChecker copyText={copyText} copied={copied} />;
+  const currentTool = useMemo(() => {
+    return SEO_TOOLS.find((t) => t.slug === activeSlug) || SEO_TOOLS[0];
+  }, [activeSlug]);
 
-  // Default: SERP Snippet Preview
-  return <SerpSnippetPreview copyText={copyText} copied={copied} />;
+  const relatedToolsForDrawer = useMemo(() => {
+    return SEO_TOOLS.map((t) => ({
+      slug: t.slug,
+      name: t.title,
+      desc: t.desc,
+      icon: t.icon
+    }));
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0b0f17] text-slate-900 dark:text-slate-100 transition-colors flex flex-col font-sans">
+      <ToolSidebarDrawer
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        relatedTools={relatedToolsForDrawer}
+        categoryTitle="SEO & Digital Marketing Tools"
+        onFeedback={openFeedback}
+      />
+
+      {/* Top Header */}
+      <header className="sticky top-0 z-40 bg-white/80 dark:bg-[#0f172a]/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+            aria-label="Open Tools Menu"
+          >
+            <Menu size={20} />
+          </button>
+          <Link to="/tools" className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold text-sm hover:underline">
+            <span>Tools</span>
+            <span className="text-slate-400">/</span>
+            <span className="text-slate-900 dark:text-white capitalize">SEO</span>
+          </Link>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+            aria-label="Toggle theme"
+          >
+            {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
+          <Link
+            to="/tools"
+            className="px-3.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+          >
+            All 200 Tools
+          </Link>
+        </div>
+      </header>
+
+      {/* Horizontal Tool Selector Tab Bar */}
+      <div className="bg-white dark:bg-[#0f172a] border-b border-slate-200/80 dark:border-slate-800/80 px-4 sm:px-6 py-2.5 overflow-x-auto no-scrollbar">
+        <div className="flex items-center gap-2 min-w-max max-w-7xl mx-auto">
+          {SEO_TOOLS.map((tool) => {
+            const isActive = tool.slug === activeSlug;
+            return (
+              <button
+                key={tool.slug}
+                onClick={() => handleSelectTool(tool.slug)}
+                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl font-bold text-xs transition-all ${
+                  isActive
+                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/25 scale-[1.02]"
+                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
+                }`}
+              >
+                <span>{tool.icon}</span>
+                <span>{tool.title}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Main Workstation Body */}
+      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 md:p-8 space-y-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200/60 dark:border-slate-800/60">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="px-2.5 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 text-[11px] font-black uppercase tracking-wider border border-indigo-200/60 dark:border-indigo-800/50">
+                {currentTool.highlight}
+              </span>
+              <span className="text-xs text-slate-500 font-semibold">{currentTool.tag}</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+              {currentTool.title}
+            </h1>
+            <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+              {currentTool.desc}
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 self-start sm:self-center">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/60 dark:border-emerald-800/40">
+              <CheckCircle2 size={13} /> 100% Client-Side SEO Engine
+            </span>
+          </div>
+        </div>
+
+        {/* Dynamic Tool Rendering */}
+        <div className="bg-white dark:bg-[#131b2e] rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xl shadow-slate-200/30 dark:shadow-black/40 p-5 sm:p-8">
+          {activeSlug === "serp-snippet-preview" && <SerpSnippetPreview copyText={copyText} copied={copied} />}
+          {activeSlug === "meta-description-counter" && <MetaDescriptionCounter copyText={copyText} copied={copied} />}
+          {activeSlug === "keyword-density-checker" && <KeywordDensityChecker copyText={copyText} copied={copied} />}
+          {activeSlug === "robots-txt-generator" && <RobotsTxtGenerator copyText={copyText} copied={copied} />}
+          {activeSlug === "sitemap-xml-generator" && <SitemapGenerator copyText={copyText} copied={copied} />}
+          {activeSlug === "open-graph-preview" && <OpenGraphPreview copyText={copyText} copied={copied} />}
+          {activeSlug === "schema-markup-generator" && <SchemaGenerator copyText={copyText} copied={copied} />}
+          {activeSlug === "utm-link-builder" && <UtmLinkBuilder copyText={copyText} copied={copied} />}
+          {activeSlug === "url-slug-checker" && <UrlSlugChecker copyText={copyText} copied={copied} />}
+          {activeSlug === "readability-checker" && <ReadabilityChecker copyText={copyText} copied={copied} />}
+        </div>
+      </main>
+    </div>
+  );
 }
 
 // 1. SERP SNIPPET PREVIEW

@@ -18,7 +18,26 @@ export const TIER_1_BESPOKE = {
       "Adaptive error highlighting with instant backspace correction feedback",
       "Clean distraction-free interface with keyboard accessibility"
     ],
-    related: ["/typing-practice-lessons", "/word-counter", "/online-notebook"]
+    related: ["/stiknex-typing", "/word-counter", "/online-notebook"]
+  },
+  "stiknex-typing": {
+    guide: "Stiknex Typing Master is a flagship biomechanical touch typing academy and precision WPM speed arena. It features a progressive 50-lesson touch typing curriculum across 10 stages (home row to advanced code syntax), with strict unlock requirements (≥90% accuracy). The precision speed studio supports countdown time modes, word sprint modes, historical & philosophical quotes, and freeflow open typing canvas.",
+    howTo: [
+      "Select your training suite: Speed Arena, 50 Lessons Academy, Arcade Games, Code Studio, or Accuracy Benchmark.",
+      "In Speed Arena, toggle @ punctuation and # numbers, or switch between Time, Words, Quotes, and Freeflow modes.",
+      "Anchor your index fingers on the physical F and J tactile bumps and type with consistent rhythm.",
+      "In 50 Lessons Academy, achieve ≥90% accuracy to unlock the next progressive lesson.",
+      "In Freeflow mode, type thoughts freely on the open canvas and press Shift + Enter to finish."
+    ],
+    features: [
+      "50 Progressive Touch Typing Lessons with strict ≥90% accuracy progression",
+      "Dual calculation engines: duration countdown for Time mode vs millisecond stopwatch for Words mode",
+      "Freeflow open canvas typing field with Shift + Enter completion",
+      "Curated literature and philosophy quotes across Short, Medium, Long, and Thicc lengths",
+      "Synthesized Web Audio API mechanical key switch acoustics (Linear Thock & Tactile Click)",
+      "100% client-side privacy with zero server keystroke logging"
+    ],
+    related: ["/word-counter", "/online-notebook", "/sticky-notes"]
   },
   "data-converter": {
     guide: "The Stiknex Data Storage Converter performs instant, accurate conversions between digital storage units from Bytes up to Petabytes. It supports both the decimal SI standard (1 KB = 1,000 Bytes) used by drive manufacturers and the binary IEC standard (1 KiB = 1,024 Bytes) used by operating systems like Windows and Linux.",
@@ -227,6 +246,25 @@ export const TIER_1_BESPOKE = {
       "One-click high-resolution PNG download and vector SVG clipboard copy"
     ],
     related: ["/url-shortener", "/password-generator", "/color-picker"]
+  },
+  "name-generator": {
+    guide: "The Stiknex Multi-Faith Baby Name Generator is an authentic cultural naming engine honoring the exact rituals of Sanatan Dharma (Vedic Namkaran Sanskar with 27 Nakshatras, 108 Padas, and Janma Rashi), Islamic Sunnah (7th-day Aqiqah, Tasmiyah, Arabic/Urdu roots from Quran and Hadith), Sikh Tradition (Sri Guru Granth Sahib Ji Hukamnama Mukhwak letter with Singh and Kaur suffixes), Christian Faith (Holy Baptism Christening rites with Biblical covenants and Patron Saints), and Modern Secular naming (inspired by nature, cosmos, and universal humanist virtues). Every generated name includes deep spiritual meaning, cultural context, and numerological resonance.",
+    howTo: [
+      "Select your religious tradition or belief system (Hindu Vedic, Islamic Sunnah, Sikh Gurbani, Christian Baptism, or Secular Modern).",
+      "Choose the child's gender (Boy / Girl) and input Date of Birth, Birth Time (with AM/PM), and Birth City.",
+      "Enter family and ancestral details (Father, Mother, Grandfather, and Lineage/Gotra/Khandan/Pind) to honor family legacy.",
+      "Optionally provide a preferred starting syllable/letter or let the authentic ephemeris compute auspicious letters automatically.",
+      "Click 'संस्कार एवं पंचांग अनुसार नाम उत्पन्न करें' to instantly view auspicious names with deep meanings and ceremony guidelines."
+    ],
+    features: [
+      "Multi-Faith Inclusivity: Dedicated authentic engines for Sanatan (Hindu), Islamic (Muslim), Sikh, Christian, and Secular families",
+      "100% Traditional Accuracy: Astronomical Julian Day ephemeris for Nakshatra Charan, Janma Rashi, and Namakshar",
+      "Quranic & Sunnah Integrity: Verified Arabic & Urdu etymology, Anbiya, Sahaba, and Asma-ul-Husna attributes for Islamic naming",
+      "Gurbani Hukamnama & Gurmat Rules: Authentic Gurmukhi roots with mandatory Singh (Male) and Kaur (Female) suffix sanctity",
+      "Biblical & Saintly Lineage: Old & New Testament significance, Hebrew/Greek origins, and Holy Baptism Christening guides",
+      "Zero Fake Prefilled Data: Clean, empty inputs with contextual placeholders for private, genuine naming"
+    ],
+    related: ["/age-calculator", "/date-calculator", "/receipt-generator"]
   }
 };
 

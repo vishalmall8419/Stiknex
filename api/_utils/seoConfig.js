@@ -64,7 +64,7 @@ export const seoConfig = {
   "canonical": "https://stiknex.site/tools",
   "title": "Free Online Tools Directory (200+ Utilities) – Stiknex",
   "h1": "200+ Free Online Browser Utilities",
-  "description": "Explore 200+ free online utility tools across 9 streamlined categories. Calculators, converters, developer tools, formatters, and typing lab.",
+  "description": "Explore 200+ free online utility tools across 9 streamlined categories. Calculators, converters, developer tools, formatters, and typing master.",
   "primaryIntent": "free online tools / web utilities directory",
   "secondaryIntents": [
     "browser utilities online",
@@ -205,11 +205,11 @@ export const seoConfig = {
   ],
   "keywords": "pomodoro timer, study timer, 25 minute timer, pomodoro technique, focus timer, productivity timer, work break timer",
   "schemaType": "WebApplication",
-  "cluster": "Notes & Planning",
+  "cluster": "Date & Time",
   "relatedTools": [
-    "/to-do-list",
-    "/online-notebook",
-    "/stopwatch"
+    "/countdown-timer",
+    "/live-clock",
+    "/stopwatch-with-laps"
   ],
   "faqs": [
     {
@@ -219,6 +219,105 @@ export const seoConfig = {
     {
       "q": "Does the timer run if I switch tabs?",
       "a": "Yes, browser background timers keep running, and an audio bell alerts you when a session ends."
+    }
+  ]
+},
+
+  "/countdown-timer": {
+  "path": "/countdown-timer",
+  "canonical": "https://stiknex.site/countdown-timer",
+  "title": "Countdown Timer – Fullscreen Precision Online Timer with Alarm | Stiknex",
+  "h1": "Free Online Fullscreen Countdown Timer",
+  "description": "Clean, beautiful fullscreen countdown timer with preset shortcuts, customizable hours, minutes, seconds, sound chimes, and zero distractions.",
+  "primaryIntent": "countdown timer online",
+  "secondaryIntents": [
+    "set timer online",
+    "fullscreen countdown timer",
+    "online timer with sound",
+    "alarm timer online"
+  ],
+  "keywords": "countdown timer, online timer, set timer online, fullscreen timer, timer with alarm, precision countdown",
+  "schemaType": "WebApplication",
+  "cluster": "Date & Time",
+  "relatedTools": [
+    "/pomodoro-timer",
+    "/live-clock",
+    "/stopwatch-with-laps"
+  ],
+  "faqs": [
+    {
+      "q": "Can I set a custom countdown duration?",
+      "a": "Yes, choose from fast presets like 1m, 5m, 15m, 25m, or enter any custom combination of hours, minutes, and seconds."
+    },
+    {
+      "q": "Does the countdown play a sound when done?",
+      "a": "Yes, a pleasant melodic bell chime rings when the countdown reaches zero."
+    }
+  ]
+},
+
+  "/birthday-countdown": {
+  "path": "/birthday-countdown",
+  "canonical": "https://stiknex.site/birthday-countdown",
+  "title": "Birthday Countdown – Track Days, Hours & Minutes Until Next Birthday | Stiknex",
+  "h1": "Free Online Birthday Countdown Timer",
+  "description": "Count down exact days, hours, minutes, and seconds until your next milestone birthday. Includes turning age calculation, year progress, and celebration confetti.",
+  "primaryIntent": "birthday countdown timer",
+  "secondaryIntents": [
+    "days until birthday",
+    "how many days until my birthday",
+    "age countdown timer",
+    "birthday tracker online"
+  ],
+  "keywords": "birthday countdown, days until birthday, age countdown timer, next birthday calculator, milestone birthday countdown",
+  "schemaType": "WebApplication",
+  "cluster": "Date & Time",
+  "relatedTools": [
+    "/age-calculator",
+    "/countdown-timer",
+    "/live-clock"
+  ],
+  "faqs": [
+    {
+      "q": "How does the birthday countdown work?",
+      "a": "Enter your birth date and the countdown automatically computes the exact time remaining until your upcoming birthday celebration."
+    },
+    {
+      "q": "Is my birthday saved?",
+      "a": "Yes, your birthday is saved privately in your browser's local storage so it is ready whenever you return."
+    }
+  ]
+},
+
+  "/live-clock": {
+  "path": "/live-clock",
+  "canonical": "https://stiknex.site/live-clock",
+  "title": "Live Clock – Fullscreen Precision Digital & Analog Clock | Stiknex",
+  "h1": "Free Online Fullscreen Live Clock",
+  "description": "Real-time precision digital and analog clock with live seconds, milliseconds, full calendar date, timezone, and 12h/24h toggle in fullscreen view.",
+  "primaryIntent": "live clock / online clock",
+  "secondaryIntents": [
+    "fullscreen clock online",
+    "digital clock online",
+    "analog clock online",
+    "current time live seconds"
+  ],
+  "keywords": "live clock, online clock, fullscreen clock, digital clock, analog clock, current time, precision clock",
+  "schemaType": "WebApplication",
+  "cluster": "Date & Time",
+  "relatedTools": [
+    "/stopwatch-with-laps",
+    "/countdown-timer",
+    "/pomodoro-timer"
+  ],
+  "faqs": [
+    {
+      "q": "Is this clock synchronized to real time?",
+      "a": "Yes, it synchronizes with your device's high-precision system clock and detects your local timezone automatically."
+    },
+    {
+      "q": "Can I switch between 12-hour and 24-hour formats?",
+      "a": "Yes, toggle between 12-hour AM/PM format and 24-hour military time with one click."
     }
   ]
 },
@@ -721,6 +820,57 @@ export const seoConfig = {
   ]
 },
 
+  "/name-generator": {
+    "path": "/name-generator",
+    "canonical": "https://stiknex.site/name-generator",
+    "title": "Baby Name Generator – Vedic, Islamic, Sikh, Christian & Modern Naming | Stiknex",
+    "h1": "Authentic Multi-Faith Baby Name Generator & Ceremony Sanskar",
+    "description": "Generate auspicious, meaningful baby names across Hindu (Vedic Kundali, Nakshatra Pada, Janma Rashi), Islamic Sunnah (7th-day Aqiqah, Tasmiyah, Arabic Quranic roots), Sikh (Gurbani Hukamnama, Singh & Kaur), Christian (Holy Baptism, Biblical covenants, Saints), and Secular Modern traditions. 100% culturally accurate and free.",
+    "primaryIntent": "baby name generator / namkaran sanskar / islamic baby names",
+    "secondaryIntents": [
+      "vedic baby names by date of birth and time",
+      "islamic baby boy and girl names with urdu meaning",
+      "sikh baby names from guru granth sahib ji hukamnama",
+      "christian baby names holy baptism christening",
+      "modern indian baby names unisex",
+      "namkaran sanskar vidhi step by step guide"
+    ],
+    "keywords": "baby name generator, indian baby names, namkaran sanskar, vedic baby names, hindu baby names by nakshatra, islamic baby names, muslim names with meaning, sunnah tasmiyah, aqiqah baby names, sikh baby names, gurbani hukamnama names, singh kaur names, christian baby names, holy baptism names, christening baby names, modern secular baby names, nakshatra rashi names, janma patrika name generator",
+    "schemaType": "WebApplication",
+    "cluster": "Helpers & Utilities",
+    "relatedTools": [
+      "/age-calculator",
+      "/date-calculator",
+      "/receipt-generator"
+    ],
+    "faqs": [
+      {
+        "q": "How does the Stiknex Multi-Faith Baby Name Generator work?",
+        "a": "It uses authentic astronomical ephemeris and religious scriptural guidelines to compute auspicious syllables and curated names tailored specifically to Hindu (Sanatan Dharma), Muslim (Islamic Sunnah), Sikh (Gurbani Hukamnama), Christian (Holy Baptism), and Modern Secular traditions."
+      },
+      {
+        "q": "How is the starting letter determined in Sanatan Dharma Namkaran Sanskar?",
+        "a": "In Vedic astrology, the starting syllable (Namaakshar) is determined by the exact Nakshatra Pada (quarter) of the Moon at the moment of birth across the 27 Nakshatras and 108 Pada syllables."
+      },
+      {
+        "q": "What is the Islamic Sunnah practice for naming a newborn baby?",
+        "a": "According to authentic Hadith, naming (Tasmiyah) and the Aqiqah sacrifice ideally take place on the 7th day after birth. The most beloved names to Allah are Abdullah and Abdur-Rahman, followed by the names of Prophets (Anbiya) and righteous companions (Sahaba and Sahabiyat)."
+      },
+      {
+        "q": "Why do Sikh baby names mandate 'Singh' and 'Kaur' suffixes?",
+        "a": "Established by Sri Guru Gobind Singh Ji, 'Singh' (Lion) for males and 'Kaur' (Princess) for females eliminate caste hierarchies and bestow sovereign spiritual dignity and equality upon every Sikh child."
+      },
+      {
+        "q": "How does the tool handle Christian and Secular baby naming?",
+        "a": "For Christian families, it suggests biblical names from the Old and New Testaments and venerated Patron Saints associated with Holy Baptism. For secular and modern families, it curates poetic, nature-inspired, and cosmic names grounded in universal humanist virtues."
+      },
+      {
+        "q": "Is my family and birth information stored or shared?",
+        "a": "No. The calculation runs with complete privacy. Your family names, birth dates, and locations are processed strictly for real-time name calculation and are never stored on any permanent server."
+      }
+    ]
+  },
+
   "/online-notebook": {
   "path": "/online-notebook",
   "canonical": "https://stiknex.site/online-notebook",
@@ -1089,12 +1239,12 @@ export const seoConfig = {
     description: "Support the ongoing maintenance and development of Stiknex free productivity tools. Your support keeps Stiknex ad-light, free, and accessible for everyone.",
     keywords: "support stiknex, buy me a coffee, support developer, vishal mall, donate"
   },
-  "/typing-lab": {
+  "/stiknex-typing": {
     path: "/typing-lab",
-    canonical: `${BASE_URL}/typing-lab`,
-    title: "Stiknex Typing Lab – Free Typing Speed Test, Lessons & Arcade Games",
-    h1: "Stiknex Flagship Typing Lab",
-    description: "Improve your typing speed and accuracy with 15s/30s/60s/120s WPM tests, interactive touch typing lessons, developer code challenges, and arcade typing games.",
+    canonical: `${BASE_URL}/stiknex-typing`,
+    title: "Stiknex Typing Master – 50 Progressive Touch Typing Lessons & WPM Speed Lab",
+    h1: "Stiknex Typing Master",
+    description: "All-in-one typing master: 50 progressive touch typing lessons with unlock progression, precision WPM speed arena, arcade games, developer code drills, and hardware diagnostics.",
     keywords: "typing speed test, typing test online, wpm test, learn touch typing, typing practice, typing games, code typing challenge"
   }
 };
@@ -1119,6 +1269,8 @@ export const seoAliases = {
   "/tools/dataconverter": "/data-converter",
   "/tools/data-converter": "/data-converter",
   "/notes": "/sticky-notes",
+  "/typing-lab": "/stiknex-typing",
+  "/typing-master": "/stiknex-typing",
   "/tools/notes": "/sticky-notes",
   "/notebook": "/online-notebook",
   "/tools/notebook": "/online-notebook",

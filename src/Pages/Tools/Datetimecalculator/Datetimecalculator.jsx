@@ -370,12 +370,13 @@ function AddDaysSection() {
   })();
 
   const formattedDate = targetDate
-    ? targetDate.toLocaleDateString(undefined, {
-        weekday: "long",
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      })
+    ? (() => {
+        const day = String(targetDate.getDate()).padStart(2, "0");
+        const month = String(targetDate.getMonth() + 1).padStart(2, "0");
+        const year = targetDate.getFullYear();
+        const weekday = targetDate.toLocaleDateString(undefined, { weekday: "long" });
+        return `${day}/${month}/${year} (${weekday})`;
+      })()
     : "";
 
   const copyResult = () => {

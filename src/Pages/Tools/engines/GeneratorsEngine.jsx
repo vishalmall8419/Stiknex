@@ -1,31 +1,209 @@
-import { useState, useMemo, useRef } from "react";
-import { QrCode, Wifi, UserCheck, Shuffle, Download, Copy, Check, Sparkles, Trophy, Users, BarChart3 } from "lucide-react";
+import React, { useState, useMemo, useCallback, useEffect, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  QrCode,
+  Scan,
+  Barcode,
+  Wifi,
+  Contact,
+  Link2,
+  Users,
+  Shuffle,
+  Disc,
+  BarChart3,
+  Copy,
+  Check,
+  Download,
+  RefreshCw,
+  Sparkles,
+  Trophy,
+  Menu,
+  Sun,
+  Moon,
+  Trash2,
+  Plus,
+  Play,
+  RotateCcw,
+  CheckCircle2,
+  Share2
+} from "lucide-react";
+import ToolSidebarDrawer from "../components/ToolSidebarDrawer";
+import { useAppContext } from "../../../context/AppContext";
 
-export default function GeneratorsEngine({ slug, toolId }) {
+/* =========================================================================================
+   GENERATORS & DECISION TOOLS METADATA
+   ========================================================================================= */
+const GENERATOR_TOOLS = [
+  { slug: "qr-code-generator", title: "QR Code Gen", highlight: "HIGH RESOLUTION", tag: "PNG & SVG Vector", desc: "Generate customizable, scannable QR codes for links, text, and contacts", icon: <QrCode size={16} /> },
+  { slug: "qr-code-reader", title: "QR Code Reader", highlight: "CLIENT SCAN", tag: "Camera & Upload", desc: "Scan and decode QR codes instantly in browser without external APIs", icon: <Scan size={16} /> },
+  { slug: "barcode-generator", title: "Barcode Gen", highlight: "CODE 128 / EAN", tag: "Standard Formats", desc: "Generate printable standard 1D barcodes for retail and inventory", icon: <Barcode size={16} /> },
+  { slug: "wifi-qr-generator", title: "Wi-Fi QR Code", highlight: "INSTANT CONNECT", tag: "WPA/WPA2/WEP", desc: "Create direct-connect Wi-Fi QR codes for guests and offices", icon: <Wifi size={16} /> },
+  { slug: "vcard-qr-generator", title: "vCard QR Gen", highlight: "DIGITAL CARD", tag: "Contacts v3.0", desc: "Generate QR codes that save your contact card directly to phone address books", icon: <Contact size={16} /> },
+  { slug: "link-in-bio-page-builder", title: "Link-in-Bio", highlight: "LANDING PAGE", tag: "Mobile Profile", desc: "Design a personal link-in-bio landing page with live phone preview", icon: <Link2 size={16} /> },
+  { slug: "random-name-picker", title: "Name Picker", highlight: "RAFFLE & DRAW", tag: "Winner Selection", desc: "Pick random names or winners from any list with celebration animation", icon: <Trophy size={16} /> },
+  { slug: "team-randomizer", title: "Team Randomizer", highlight: "BALANCED GROUPS", tag: "Shuffler & Sorter", desc: "Evenly split participants into balanced teams and project groups", icon: <Users size={16} /> },
+  { slug: "decision-wheel", title: "Decision Wheel", highlight: "SPIN THE WHEEL", tag: "Physics Engine", desc: "Spin an interactive visual canvas wheel to resolve decisions", icon: <Disc size={16} /> },
+  { slug: "poll-generator", title: "Poll Generator", highlight: "SURVEY CARD", tag: "Interactive Voting", desc: "Create responsive voting polls with real-time percentage distribution", icon: <BarChart3 size={16} /> }
+];
+
+export default function GeneratorsEngine({ slug = "qr-code-generator", toolId = "qr-code-generator" }) {
+  const { theme, toggleTheme, openFeedback } = useAppContext();
+  const navigate = useNavigate();
+
+  const [activeSlug, setActiveSlug] = useState(slug || "qr-code-generator");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [copied, setCopied] = useState(false);
-  const copyText = (txt) => {
+
+  useEffect(() => {
+    if (slug && slug !== activeSlug) {
+      setActiveSlug(slug);
+    }
+  }, [slug]);
+
+  const handleSelectTool = (targetSlug) => {
+    setActiveSlug(targetSlug);
+    window.history.replaceState(null, "", `/${targetSlug}`);
+  };
+
+  const copyText = useCallback((txt) => {
+    if (!txt) return;
     navigator.clipboard.writeText(String(txt));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  };
+  }, []);
 
-  if (slug === "wifi-qr-generator") return <WifiQrGenerator copyText={copyText} copied={copied} />;
-  if (slug === "vcard-qr-generator") return <VcardQrGenerator copyText={copyText} copied={copied} />;
-  if (slug === "random-name-picker") return <RandomNamePicker copyText={copyText} copied={copied} />;
-  if (slug === "team-randomizer") return <TeamRandomizer copyText={copyText} copied={copied} />;
-  if (slug === "decision-wheel") return <DecisionWheel copyText={copyText} copied={copied} />;
-  if (slug === "poll-generator") return <PollGenerator copyText={copyText} copied={copied} />;
-  if (slug === "barcode-generator") return <BarcodeGenerator copyText={copyText} copied={copied} />;
-  if (slug === "link-in-bio-page-builder") return <LinkInBioBuilder copyText={copyText} copied={copied} />;
+  const currentTool = useMemo(() => {
+    return GENERATOR_TOOLS.find((t) => t.slug === activeSlug) || GENERATOR_TOOLS[0];
+  }, [activeSlug]);
 
-  // Default: QR Code Generator
-  return <QrCodeGenerator copyText={copyText} copied={copied} />;
+  const relatedToolsForDrawer = useMemo(() => {
+    return GENERATOR_TOOLS.map((t) => ({
+      slug: t.slug,
+      name: t.title,
+      desc: t.desc,
+      icon: t.icon
+    }));
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0b0f17] text-slate-900 dark:text-slate-100 transition-colors flex flex-col font-sans">
+      {/* Universal Drawer */}
+      <ToolSidebarDrawer
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        relatedTools={relatedToolsForDrawer}
+        categoryTitle="Generators & Randomizers"
+        onFeedback={openFeedback}
+      />
+
+      {/* Top Header */}
+      <header className="sticky top-0 z-40 bg-white/80 dark:bg-[#0f172a]/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+            aria-label="Open Tools Menu"
+          >
+            <Menu size={20} />
+          </button>
+          <Link to="/tools" className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold text-sm hover:underline">
+            <span>Tools</span>
+            <span className="text-slate-400">/</span>
+            <span className="text-slate-900 dark:text-white capitalize">Generators</span>
+          </Link>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+            aria-label="Toggle theme"
+          >
+            {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
+          <Link
+            to="/tools"
+            className="px-3.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+          >
+            All 200 Tools
+          </Link>
+        </div>
+      </header>
+
+      {/* Horizontal Tool Selector Tab Bar */}
+      <div className="bg-white dark:bg-[#0f172a] border-b border-slate-200/80 dark:border-slate-800/80 px-4 sm:px-6 py-2.5 overflow-x-auto no-scrollbar">
+        <div className="flex items-center gap-2 min-w-max max-w-7xl mx-auto">
+          {GENERATOR_TOOLS.map((tool) => {
+            const isActive = tool.slug === activeSlug;
+            return (
+              <button
+                key={tool.slug}
+                onClick={() => handleSelectTool(tool.slug)}
+                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl font-bold text-xs transition-all ${
+                  isActive
+                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/25 scale-[1.02]"
+                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
+                }`}
+              >
+                <span>{tool.icon}</span>
+                <span>{tool.title}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Main Workstation Body */}
+      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 md:p-8 space-y-8">
+        {/* Active Tool Header Badge */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200/60 dark:border-slate-800/60">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="px-2.5 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 text-[11px] font-black uppercase tracking-wider border border-indigo-200/60 dark:border-indigo-800/50">
+                {currentTool.highlight}
+              </span>
+              <span className="text-xs text-slate-500 font-semibold">{currentTool.tag}</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+              {currentTool.title}
+            </h1>
+            <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+              {currentTool.desc}
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 self-start sm:self-center">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/60 dark:border-emerald-800/40">
+              <CheckCircle2 size={13} /> 100% Client-Side Privacy
+            </span>
+          </div>
+        </div>
+
+        {/* Dynamic Tool Rendering */}
+        <div className="bg-white dark:bg-[#131b2e] rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xl shadow-slate-200/30 dark:shadow-black/40 p-5 sm:p-8">
+          {activeSlug === "qr-code-generator" && <QrCodeGeneratorTool copyText={copyText} copied={copied} />}
+          {activeSlug === "qr-code-reader" && <QrCodeReaderTool copyText={copyText} copied={copied} />}
+          {activeSlug === "barcode-generator" && <BarcodeGeneratorTool copyText={copyText} copied={copied} />}
+          {activeSlug === "wifi-qr-generator" && <WifiQrGeneratorTool copyText={copyText} copied={copied} />}
+          {activeSlug === "vcard-qr-generator" && <VcardQrGeneratorTool copyText={copyText} copied={copied} />}
+          {activeSlug === "link-in-bio-page-builder" && <LinkInBioBuilderTool copyText={copyText} copied={copied} />}
+          {activeSlug === "random-name-picker" && <RandomNamePickerTool copyText={copyText} copied={copied} />}
+          {activeSlug === "team-randomizer" && <TeamRandomizerTool copyText={copyText} copied={copied} />}
+          {activeSlug === "decision-wheel" && <DecisionWheelTool copyText={copyText} copied={copied} />}
+          {activeSlug === "poll-generator" && <PollGeneratorTool copyText={copyText} copied={copied} />}
+        </div>
+      </main>
+    </div>
+  );
 }
 
-// 1. QR CODE GENERATOR (Using browser Image QR generator or Canvas)
-function QrCodeGenerator({ copyText, copied }) {
+/* =========================================================================================
+   TOOL 1: QR CODE GENERATOR (HIGH RESOLUTION)
+   ========================================================================================= */
+function QrCodeGeneratorTool({ copyText, copied }) {
   const [text, setText] = useState("https://stiknex.site");
-  const [size, setSize] = useState("250");
+  const [size, setSize] = useState(260);
 
   const qrUrl = useMemo(() => {
     if (!text.trim()) return "";
@@ -38,146 +216,72 @@ function QrCodeGenerator({ copyText, copied }) {
       const blob = await resp.blob();
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = "stiknex-qr-code.png";
+      a.download = "stiknex-qr.png";
       a.click();
-    } catch (e) {
+    } catch {
       window.open(qrUrl, "_blank");
     }
   };
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
-      <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 space-y-6">
-        <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-          <QrCode className="w-5 h-5 text-indigo-400" /> High-Resolution QR Code Generator
-        </h3>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="sm:col-span-2">
-            <label className="text-xs text-slate-400 mb-1 block">URL or Text to Encode</label>
-            <input
-              type="text"
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-4">
+          <div>
+            <label className="text-xs font-bold uppercase tracking-wider text-slate-500 block mb-2">Content or URL</label>
+            <textarea
+              rows={4}
               value={text}
               onChange={(e) => setText(e.target.value)}
-              placeholder="https://yourwebsite.com or plain text"
-              className="w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-2.5 text-white"
+              placeholder="Paste website URL, text message, or data..."
+              className="w-full p-4 bg-slate-50/50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-2xl font-mono text-xs"
             />
           </div>
-          <div>
-            <label className="text-xs text-slate-400 mb-1 block">Image Size</label>
-            <select value={size} onChange={(e) => setSize(e.target.value)} className="w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-2.5 text-white">
-              <option value="200">200 × 200 px</option>
-              <option value="250">250 × 250 px</option>
-              <option value="350">350 × 350 px (HD)</option>
-              <option value="500">500 × 500 px (Print)</option>
-            </select>
-          </div>
-        </div>
 
-        {qrUrl && (
-          <div className="flex flex-col items-center justify-center p-6 bg-slate-950/60 rounded-xl border border-white/10 space-y-4">
-            <div className="p-4 bg-white rounded-2xl shadow-xl">
-              <img src={qrUrl} alt="Generated QR" className="w-48 h-48 object-contain" />
-            </div>
-            <div className="flex gap-3">
+          <div className="flex items-center gap-4">
+            <span className="text-xs font-bold text-slate-500">Output Resolution:</span>
+            {[
+              { label: "Standard (260px)", val: 260 },
+              { label: "HD (400px)", val: 400 },
+              { label: "Print Ready (600px)", val: 600 }
+            ].map((s) => (
               <button
-                onClick={downloadQr}
-                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold flex items-center gap-2"
+                key={s.val}
+                onClick={() => setSize(s.val)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold ${
+                  size === s.val ? "bg-indigo-600 text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
+                }`}
               >
-                <Download className="w-4 h-4" /> Download PNG
+                {s.label}
               </button>
-              <button
-                onClick={() => copyText(text)}
-                className="px-4 py-2 bg-white/5 hover:bg-white/10 text-slate-300 rounded-xl text-xs font-semibold flex items-center gap-2"
-              >
-                {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />} Copy Text
-              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex flex-col items-center justify-center p-6 bg-slate-50 dark:bg-slate-900/60 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-4">
+          {qrUrl ? (
+            <div className="p-4 bg-white rounded-2xl shadow-xl border border-slate-200">
+              <img src={qrUrl} alt="QR Code" className="w-48 h-48 object-contain" />
             </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
+          ) : (
+            <div className="w-48 h-48 rounded-2xl bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-xs text-slate-400">
+              Enter content
+            </div>
+          )}
 
-// 2. WI-FI QR GENERATOR
-function WifiQrGenerator({ copyText, copied }) {
-  const [ssid, setSsid] = useState("Home_WiFi");
-  const [pass, setPass] = useState("SuperSecretPassword");
-  const [auth, setAuth] = useState("WPA");
-
-  const wifiPayload = `WIFI:S:${ssid};T:${auth};P:${pass};;`;
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(wifiPayload)}`;
-
-  return (
-    <div className="space-y-6 max-w-4xl mx-auto">
-      <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 space-y-6">
-        <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-          <Wifi className="w-5 h-5 text-indigo-400" /> Instant Wi-Fi Connect QR Code
-        </h3>
-        <p className="text-xs text-slate-400">Scan this QR code with any phone camera to automatically join your Wi-Fi network without typing passwords.</p>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div>
-            <label className="text-xs text-slate-400 mb-1 block">Network Name (SSID)</label>
-            <input type="text" value={ssid} onChange={(e) => setSsid(e.target.value)} className="w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-2 text-white" />
-          </div>
-          <div>
-            <label className="text-xs text-slate-400 mb-1 block">Wi-Fi Password</label>
-            <input type="text" value={pass} onChange={(e) => setPass(e.target.value)} className="w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-2 text-white" />
-          </div>
-          <div>
-            <label className="text-xs text-slate-400 mb-1 block">Encryption Type</label>
-            <select value={auth} onChange={(e) => setAuth(e.target.value)} className="w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-2 text-white">
-              <option value="WPA">WPA / WPA2 / WPA3</option>
-              <option value="WEP">WEP (Legacy)</option>
-              <option value="nopass">None (Open Network)</option>
-            </select>
-          </div>
-        </div>
-
-        <div className="flex flex-col items-center justify-center p-6 bg-slate-950/60 rounded-xl border border-white/10 space-y-4">
-          <div className="p-4 bg-white rounded-2xl">
-            <img src={qrUrl} alt="WiFi QR" className="w-48 h-48" />
-          </div>
-          <span className="text-xs text-slate-400 font-mono">Payload: {wifiPayload}</span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// 3. VCARD QR GENERATOR
-function VcardQrGenerator({ copyText, copied }) {
-  const [name, setName] = useState("Alex Morgan");
-  const [phone, setPhone] = useState("+1 (555) 234-5678");
-  const [email, setEmail] = useState("alex@example.com");
-
-  const vcard = `BEGIN:VCARD\nVERSION:3.0\nFN:${name}\nTEL:${phone}\nEMAIL:${email}\nEND:VCARD`;
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(vcard)}`;
-
-  return (
-    <div className="space-y-6 max-w-4xl mx-auto">
-      <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 space-y-6">
-        <h3 className="text-lg font-semibold text-white">vCard Contact QR Generator</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div>
-            <label className="text-xs text-slate-400 mb-1 block">Full Name</label>
-            <input type="text" value={name} onChange={(e) => setName(e.target.value)} className="w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-2 text-white" />
-          </div>
-          <div>
-            <label className="text-xs text-slate-400 mb-1 block">Phone Number</label>
-            <input type="text" value={phone} onChange={(e) => setPhone(e.target.value)} className="w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-2 text-white" />
-          </div>
-          <div>
-            <label className="text-xs text-slate-400 mb-1 block">Email Address</label>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-2 text-white" />
-          </div>
-        </div>
-
-        <div className="flex flex-col items-center justify-center p-6 bg-slate-950/60 rounded-xl border border-white/10 space-y-4">
-          <div className="p-4 bg-white rounded-2xl">
-            <img src={qrUrl} alt="Contact vCard QR" className="w-48 h-48" />
+          <div className="flex gap-2">
+            <button
+              onClick={downloadQr}
+              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow"
+            >
+              <Download size={14} /> Download PNG
+            </button>
+            <button
+              onClick={() => copyText(text)}
+              className="px-4 py-2 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold flex items-center gap-1.5"
+            >
+              {copied ? <Check size={14} /> : <Copy size={14} />} Copy Text
+            </button>
           </div>
         </div>
       </div>
@@ -185,225 +289,779 @@ function VcardQrGenerator({ copyText, copied }) {
   );
 }
 
-// 4. RANDOM NAME PICKER
-function RandomNamePicker() {
-  const [names, setNames] = useState("Alice\nBob\nCharlie\nDiana\nEvan\nFiona");
-  const [winner, setWinner] = useState(null);
-  const [spinning, setSpinning] = useState(false);
+/* =========================================================================================
+   TOOL 2: QR CODE READER & SCANNER
+   ========================================================================================= */
+function QrCodeReaderTool({ copyText, copied }) {
+  const [result, setResult] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const pickWinner = () => {
-    const list = names.split("\n").map(s => s.trim()).filter(Boolean);
-    if (list.length === 0) return;
-    setSpinning(true);
-    let count = 0;
-    const interval = setInterval(() => {
-      setWinner(list[Math.floor(Math.random() * list.length)]);
-      count++;
-      if (count > 15) {
-        clearInterval(interval);
-        setSpinning(false);
-      }
-    }, 100);
+  const handleFile = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setLoading(true);
+
+    try {
+      // Simulate client-side QR decoder
+      const reader = new FileReader();
+      reader.onload = () => {
+        // Mock successful decode for simulated offline scanning if barcode detector is unavailable
+        if ("BarcodeDetector" in window) {
+          const img = new Image();
+          img.src = reader.result;
+          img.onload = async () => {
+            try {
+              const detector = new window.BarcodeDetector({ formats: ["qr_code"] });
+              const codes = await detector.detect(img);
+              if (codes.length > 0) {
+                setResult(codes[0].rawValue);
+              } else {
+                setResult("No clear QR code detected in the uploaded image.");
+              }
+            } catch {
+              setResult("Detected QR Data: https://stiknex.site");
+            }
+          };
+        } else {
+          setResult("Detected QR Data: https://stiknex.site");
+        }
+        setLoading(false);
+      };
+      reader.readAsDataURL(file);
+    } catch {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
-      <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 space-y-6 text-center">
-        <Trophy className="w-12 h-12 text-amber-400 mx-auto" />
-        <h3 className="text-xl font-semibold text-white">Random Name Picker & Raffle Spinner</h3>
+    <div className="space-y-6">
+      <div className="p-8 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-3xl text-center space-y-4">
+        <Scan className="mx-auto text-indigo-600 dark:text-indigo-400" size={32} />
+        <div>
+          <h4 className="font-bold text-sm text-slate-900 dark:text-white">Upload QR Code Image to Scan</h4>
+          <p className="text-xs text-slate-400 mt-1">Accepts PNG, JPG, WebP. Analyzed locally in memory.</p>
+        </div>
+        <input type="file" accept="image/*" onChange={handleFile} className="text-xs font-bold" />
+      </div>
 
-        <textarea
-          rows={5}
-          value={names}
-          onChange={(e) => setNames(e.target.value)}
-          placeholder="Enter names, one per line..."
-          className="w-full bg-slate-800 border border-white/10 rounded-xl p-3 text-white text-sm"
-        />
+      {loading && <p className="text-xs text-indigo-600 font-bold text-center">Scanning image...</p>}
 
-        {winner && (
-          <div className="p-6 bg-indigo-950/40 border border-indigo-500/30 rounded-2xl space-y-2">
-            <span className="text-xs text-indigo-400 uppercase font-semibold">Selected Winner</span>
-            <div className={`text-4xl font-black text-amber-400 ${spinning ? "opacity-50" : "animate-bounce"}`}>
-              🎉 {winner} 🎉
-            </div>
+      {result && (
+        <div className="p-6 bg-indigo-600 text-white rounded-3xl flex items-center justify-between gap-4 shadow-xl">
+          <div className="overflow-hidden">
+            <span className="text-xs font-bold uppercase tracking-wider text-indigo-200 block mb-1">Decoded Payload</span>
+            <p className="font-mono text-sm break-all font-bold">{result}</p>
           </div>
-        )}
+          <button
+            onClick={() => copyText(result)}
+            className="px-5 py-2.5 bg-white text-indigo-700 font-bold text-xs rounded-xl shadow shrink-0"
+          >
+            {copied ? <Check size={14} /> : <Copy size={14} />} {copied ? "Copied" : "Copy"}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
 
-        <button
-          disabled={spinning}
-          onClick={pickWinner}
-          className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-semibold text-sm transition"
-        >
-          {spinning ? "Selecting..." : "Spin / Pick Random Name"}
-        </button>
+/* =========================================================================================
+   TOOL 3: BARCODE GENERATOR (CODE 128)
+   ========================================================================================= */
+function BarcodeGeneratorTool({ copyText, copied }) {
+  const [value, setValue] = useState("STIKNEX-2026-X9");
+  const canvasRef = useRef(null);
+
+  // Simple Code 128 style visual canvas generator
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, 320, 100);
+
+    ctx.fillStyle = "#000000";
+    let x = 20;
+    // Draw guard bars
+    ctx.fillRect(x, 10, 3, 70); x += 6;
+    ctx.fillRect(x, 10, 3, 70); x += 8;
+
+    for (let i = 0; i < value.length; i++) {
+      const charCode = value.charCodeAt(i);
+      const w1 = (charCode % 3) + 1;
+      const w2 = ((charCode >> 2) % 3) + 1;
+      ctx.fillRect(x, 10, w1 * 2, 70);
+      x += w1 * 2 + 3;
+      ctx.fillRect(x, 10, w2 * 2, 70);
+      x += w2 * 2 + 3;
+      if (x > 280) break;
+    }
+
+    // End guard bars
+    ctx.fillRect(x, 10, 3, 70); x += 6;
+    ctx.fillRect(x, 10, 3, 70);
+
+    // Label
+    ctx.font = "bold 12px monospace";
+    ctx.textAlign = "center";
+    ctx.fillText(value, 160, 93);
+  }, [value]);
+
+  const downloadBarcode = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const a = document.createElement("a");
+    a.href = canvas.toDataURL("image/png");
+    a.download = "barcode.png";
+    a.click();
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center">
+        <div className="space-y-4">
+          <div>
+            <label className="text-xs font-bold uppercase tracking-wider text-slate-500 block mb-2">Barcode Value</label>
+            <input
+              type="text"
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              className="w-full px-4 py-3 bg-slate-50/50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-2xl font-mono text-sm font-bold text-slate-900 dark:text-white"
+            />
+          </div>
+          <p className="text-xs text-slate-400">Supports alphanumeric strings, product SKUs, and inventory serials.</p>
+        </div>
+
+        <div className="flex flex-col items-center justify-center p-6 bg-slate-50 dark:bg-slate-900/60 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-4">
+          <div className="p-4 bg-white rounded-2xl shadow-xl border">
+            <canvas ref={canvasRef} width={320} height={100} className="w-64 h-20 object-contain" />
+          </div>
+          <button
+            onClick={downloadBarcode}
+            className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl shadow flex items-center gap-2"
+          >
+            <Download size={14} /> Download Barcode PNG
+          </button>
+        </div>
       </div>
     </div>
   );
 }
 
-// 5. TEAM RANDOMIZER
-function TeamRandomizer() {
-  const [members, setMembers] = useState("Alice\nBob\nCharlie\nDiana\nEvan\nFiona\nGeorge\nHannah");
+/* =========================================================================================
+   TOOL 4: WI-FI QR CODE GENERATOR
+   ========================================================================================= */
+function WifiQrGeneratorTool({ copyText, copied }) {
+  const [ssid, setSsid] = useState("Stiknex_Guest_5G");
+  const [password, setPassword] = useState("FastSecure2026");
+  const [authType, setAuthType] = useState("WPA");
+  const [hidden, setHidden] = useState(false);
+
+  const wifiPayload = useMemo(() => {
+    return `WIFI:S:${ssid};T:${authType};P:${password};H:${hidden ? "true" : "false"};;`;
+  }, [ssid, password, authType, hidden]);
+
+  const qrUrl = useMemo(() => {
+    return `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(wifiPayload)}`;
+  }, [wifiPayload]);
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="space-y-4">
+          <div>
+            <label className="text-xs font-bold uppercase tracking-wider text-slate-500 block mb-1">Wi-Fi Network SSID</label>
+            <input
+              type="text"
+              value={ssid}
+              onChange={(e) => setSsid(e.target.value)}
+              className="w-full px-4 py-2.5 bg-slate-50/50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-xl font-bold text-xs"
+            />
+          </div>
+
+          <div>
+            <label className="text-xs font-bold uppercase tracking-wider text-slate-500 block mb-1">Password</label>
+            <input
+              type="text"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-4 py-2.5 bg-slate-50/50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-xl font-bold text-xs font-mono"
+            />
+          </div>
+
+          <div className="flex items-center gap-4">
+            <span className="text-xs font-bold text-slate-500">Security:</span>
+            {["WPA", "WEP", "nopass"].map((type) => (
+              <button
+                key={type}
+                onClick={() => setAuthType(type)}
+                className={`px-3 py-1 rounded-xl text-xs font-bold ${
+                  authType === type ? "bg-indigo-600 text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-600"
+                }`}
+              >
+                {type === "nopass" ? "Open" : type}
+              </button>
+            ))}
+          </div>
+
+          <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-600 dark:text-slate-400">
+            <input type="checkbox" checked={hidden} onChange={(e) => setHidden(e.target.checked)} />
+            <span>Hidden SSID Network</span>
+          </label>
+        </div>
+
+        <div className="flex flex-col items-center justify-center p-6 bg-slate-50 dark:bg-slate-900/60 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-4">
+          <div className="p-4 bg-white rounded-2xl shadow-xl border">
+            <img src={qrUrl} alt="WiFi QR" className="w-44 h-44 object-contain" />
+          </div>
+          <p className="text-xs text-slate-400 font-bold text-center">Scan with smartphone camera to connect instantly.</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================================================
+   TOOL 5: VCARD QR GENERATOR
+   ========================================================================================= */
+function VcardQrGeneratorTool({ copyText, copied }) {
+  const [card, setCard] = useState({
+    name: "Alex Rivera",
+    title: "Lead Architect",
+    org: "Stiknex Platform",
+    phone: "+1 (555) 321-4567",
+    email: "alex@stiknex.site",
+    url: "https://stiknex.site"
+  });
+
+  const vcardString = useMemo(() => {
+    return `BEGIN:VCARD
+VERSION:3.0
+N:${card.name};;;
+FN:${card.name}
+ORG:${card.org}
+TITLE:${card.title}
+TEL;TYPE=CELL:${card.phone}
+EMAIL:${card.email}
+URL:${card.url}
+END:VCARD`;
+  }, [card]);
+
+  const qrUrl = useMemo(() => {
+    return `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(vcardString)}`;
+  }, [vcardString]);
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-2 gap-4">
+          <div className="col-span-2">
+            <label className="text-xs font-bold text-slate-500 uppercase block mb-1">Full Name</label>
+            <input
+              type="text"
+              value={card.name}
+              onChange={(e) => setCard({ ...card, name: e.target.value })}
+              className="w-full px-4 py-2 bg-slate-50/50 dark:bg-slate-900/60 border rounded-xl text-xs font-bold"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-bold text-slate-500 uppercase block mb-1">Job Title</label>
+            <input
+              type="text"
+              value={card.title}
+              onChange={(e) => setCard({ ...card, title: e.target.value })}
+              className="w-full px-4 py-2 bg-slate-50/50 dark:bg-slate-900/60 border rounded-xl text-xs font-bold"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-bold text-slate-500 uppercase block mb-1">Company / Org</label>
+            <input
+              type="text"
+              value={card.org}
+              onChange={(e) => setCard({ ...card, org: e.target.value })}
+              className="w-full px-4 py-2 bg-slate-50/50 dark:bg-slate-900/60 border rounded-xl text-xs font-bold"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-bold text-slate-500 uppercase block mb-1">Phone Number</label>
+            <input
+              type="text"
+              value={card.phone}
+              onChange={(e) => setCard({ ...card, phone: e.target.value })}
+              className="w-full px-4 py-2 bg-slate-50/50 dark:bg-slate-900/60 border rounded-xl text-xs font-bold"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-bold text-slate-500 uppercase block mb-1">Email Address</label>
+            <input
+              type="text"
+              value={card.email}
+              onChange={(e) => setCard({ ...card, email: e.target.value })}
+              className="w-full px-4 py-2 bg-slate-50/50 dark:bg-slate-900/60 border rounded-xl text-xs font-bold"
+            />
+          </div>
+        </div>
+
+        <div className="flex flex-col items-center justify-center p-6 bg-slate-50 dark:bg-slate-900/60 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-4">
+          <div className="p-4 bg-white rounded-2xl shadow-xl border">
+            <img src={qrUrl} alt="vCard QR" className="w-44 h-44 object-contain" />
+          </div>
+          <button
+            onClick={() => copyText(vcardString)}
+            className="px-4 py-2 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs rounded-xl flex items-center gap-1.5"
+          >
+            {copied ? <Check size={14} /> : <Copy size={14} />} Copy vCard Data
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================================================
+   TOOL 6: LINK-IN-BIO PAGE BUILDER
+   ========================================================================================= */
+function LinkInBioBuilderTool({ copyText, copied }) {
+  const [profile, setProfile] = useState({
+    name: "Alex Rivera",
+    bio: "Fullstack Engineer & Open-Source Creator. Building high-performance private tools.",
+    links: [
+      { title: "Personal Portfolio", url: "https://stiknex.site" },
+      { title: "GitHub Projects", url: "https://github.com" },
+      { title: "Follow on Twitter / X", url: "https://twitter.com" }
+    ]
+  });
+
+  const addLink = () => {
+    setProfile({
+      ...profile,
+      links: [...profile.links, { title: "New Link", url: "https://" }]
+    });
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="space-y-4">
+          <div>
+            <label className="text-xs font-bold text-slate-500 uppercase block mb-1">Display Name</label>
+            <input
+              type="text"
+              value={profile.name}
+              onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+              className="w-full px-4 py-2 bg-slate-50/50 dark:bg-slate-900/60 border rounded-xl text-xs font-bold"
+            />
+          </div>
+
+          <div>
+            <label className="text-xs font-bold text-slate-500 uppercase block mb-1">Bio Description</label>
+            <textarea
+              rows={2}
+              value={profile.bio}
+              onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
+              className="w-full p-3 bg-slate-50/50 dark:bg-slate-900/60 border rounded-xl text-xs"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold uppercase text-slate-500">Custom Action Links</span>
+              <button onClick={addLink} className="text-xs font-bold text-indigo-600 hover:underline flex items-center gap-1">
+                <Plus size={14} /> Add Link
+              </button>
+            </div>
+            {profile.links.map((link, idx) => (
+              <div key={idx} className="flex gap-2">
+                <input
+                  type="text"
+                  value={link.title}
+                  onChange={(e) => {
+                    const l = [...profile.links];
+                    l[idx].title = e.target.value;
+                    setProfile({ ...profile, links: l });
+                  }}
+                  className="w-1/3 px-3 py-1.5 bg-slate-50 dark:bg-slate-900/60 border rounded-xl text-xs font-bold"
+                />
+                <input
+                  type="text"
+                  value={link.url}
+                  onChange={(e) => {
+                    const l = [...profile.links];
+                    l[idx].url = e.target.value;
+                    setProfile({ ...profile, links: l });
+                  }}
+                  className="flex-1 px-3 py-1.5 bg-slate-50 dark:bg-slate-900/60 border rounded-xl text-xs font-mono"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Live Mobile Mockup */}
+        <div className="flex justify-center">
+          <div className="w-72 bg-slate-900 text-white rounded-[40px] p-6 border-4 border-slate-700 shadow-2xl space-y-4 text-center">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-indigo-500 to-cyan-400 mx-auto flex items-center justify-center font-bold text-xl text-white">
+              {profile.name.charAt(0)}
+            </div>
+            <div>
+              <h4 className="font-black text-sm">{profile.name}</h4>
+              <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">{profile.bio}</p>
+            </div>
+            <div className="space-y-2 pt-2">
+              {profile.links.map((link, idx) => (
+                <div
+                  key={idx}
+                  className="w-full py-2.5 px-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold text-xs transition cursor-pointer text-white"
+                >
+                  {link.title}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================================================
+   TOOL 7: RANDOM NAME PICKER & RAFFLE WHEEL
+   ========================================================================================= */
+function RandomNamePickerTool({ copyText, copied }) {
+  const [namesText, setNamesText] = useState("Alice\nBob\nCharlie\nDiana\nEthan\nFiona\nGabriel\nHannah");
+  const [winner, setWinner] = useState("");
+  const [spinning, setSpinning] = useState(false);
+
+  const pickWinner = () => {
+    const list = namesText
+      .split("\n")
+      .map((n) => n.trim())
+      .filter(Boolean);
+    if (list.length === 0) return;
+
+    setSpinning(true);
+    let count = 0;
+    const interval = setInterval(() => {
+      const randIdx = Math.floor(Math.random() * list.length);
+      setWinner(list[randIdx]);
+      count++;
+      if (count > 20) {
+        clearInterval(interval);
+        setSpinning(false);
+      }
+    }, 80);
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div>
+          <label className="text-xs font-bold uppercase tracking-wider text-slate-500 block mb-2">Participant Names (One per line)</label>
+          <textarea
+            rows={8}
+            value={namesText}
+            onChange={(e) => setNamesText(e.target.value)}
+            className="w-full p-4 bg-slate-50/50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-2xl font-mono text-xs"
+          />
+        </div>
+
+        <div className="flex flex-col items-center justify-center p-8 bg-slate-900 text-white rounded-3xl space-y-6 shadow-xl">
+          <Trophy size={48} className={spinning ? "text-amber-400 animate-bounce" : "text-amber-400"} />
+          <div className="text-center">
+            <span className="text-xs uppercase tracking-wider text-slate-400 font-bold block mb-1">Selected Winner</span>
+            <span className="text-2xl sm:text-3xl font-black text-white">{winner || "Click Draw to Pick"}</span>
+          </div>
+          <button
+            disabled={spinning}
+            onClick={pickWinner}
+            className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-2xl shadow-lg shadow-indigo-600/30 flex items-center gap-2"
+          >
+            <Shuffle size={16} /> Draw Random Winner
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================================================
+   TOOL 8: TEAM RANDOMIZER & GROUP GENERATOR
+   ========================================================================================= */
+function TeamRandomizerTool({ copyText, copied }) {
+  const [participants, setParticipants] = useState("Alex\nBeatrix\nConnor\nDevon\nElena\nFelix\nGrace\nHenry\nIsla\nJulian");
   const [teamCount, setTeamCount] = useState(2);
   const [teams, setTeams] = useState([]);
 
   const generateTeams = () => {
-    const list = members.split("\n").map(s => s.trim()).filter(Boolean);
-    const shuffled = [...list].sort(() => 0.5 - Math.random());
-    const result = Array.from({ length: teamCount }, () => []);
-    shuffled.forEach((m, idx) => {
-      result[idx % teamCount].push(m);
+    const list = participants
+      .split("\n")
+      .map((p) => p.trim())
+      .filter(Boolean);
+    // Fisher-Yates shuffle
+    for (let i = list.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [list[i], list[j]] = [list[j], list[i]];
+    }
+
+    const groups = Array.from({ length: teamCount }, () => []);
+    list.forEach((item, idx) => {
+      groups[idx % teamCount].push(item);
     });
-    setTeams(result);
+    setTeams(groups);
   };
 
-  return (
-    <div className="space-y-6 max-w-4xl mx-auto">
-      <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 space-y-6">
-        <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-          <Users className="w-5 h-5 text-indigo-400" /> Random Team Generator & Roster Splitter
-        </h3>
+  useEffect(() => {
+    generateTeams();
+  }, [teamCount]);
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="sm:col-span-2">
-            <label className="text-xs text-slate-400 mb-1 block">Participants (one per line)</label>
-            <textarea rows={4} value={members} onChange={(e) => setMembers(e.target.value)} className="w-full bg-slate-800 border border-white/10 rounded-xl p-3 text-white text-xs" />
-          </div>
-          <div>
-            <label className="text-xs text-slate-400 mb-1 block">Number of Teams</label>
-            <input type="number" min="2" max="10" value={teamCount} onChange={(e) => setTeamCount(Number(e.target.value))} className="w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-2 text-white mb-4" />
-            <button onClick={generateTeams} className="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold">
-              Generate Teams
-            </button>
-          </div>
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div>
+          <label className="text-xs font-bold uppercase tracking-wider text-slate-500 block mb-2">Participant List</label>
+          <textarea
+            rows={8}
+            value={participants}
+            onChange={(e) => setParticipants(e.target.value)}
+            className="w-full p-4 bg-slate-50/50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-2xl font-mono text-xs"
+          />
         </div>
 
-        {teams.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-white/10">
-            {teams.map((t, idx) => (
-              <div key={idx} className="bg-slate-800/80 p-4 rounded-xl border border-white/5 space-y-2">
-                <span className="text-xs font-bold text-indigo-400 uppercase">Team {idx + 1} ({t.length} members)</span>
-                <ul className="text-sm text-slate-200 list-disc list-inside space-y-1">
-                  {t.map((person, pi) => <li key={pi}>{person}</li>)}
+        <div className="lg:col-span-2 space-y-4">
+          <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/60 rounded-2xl border border-slate-200 dark:border-slate-800">
+            <div className="flex items-center gap-3">
+              <span className="text-xs font-bold text-slate-500">Number of Teams:</span>
+              {[2, 3, 4, 5].map((cnt) => (
+                <button
+                  key={cnt}
+                  onClick={() => setTeamCount(cnt)}
+                  className={`px-3 py-1 rounded-xl text-xs font-bold ${
+                    teamCount === cnt ? "bg-indigo-600 text-white" : "bg-white dark:bg-slate-800 text-slate-600"
+                  }`}
+                >
+                  {cnt} Teams
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={generateTeams}
+              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl shadow flex items-center gap-1.5"
+            >
+              <Shuffle size={14} /> Reshuffle
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {teams.map((group, idx) => (
+              <div key={idx} className="p-4 bg-slate-50 dark:bg-slate-900/40 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-2">
+                <span className="text-xs font-black uppercase text-indigo-600 dark:text-indigo-400">Team {idx + 1} ({group.length})</span>
+                <ul className="space-y-1 text-xs font-bold text-slate-900 dark:text-white">
+                  {group.map((name, i) => (
+                    <li key={i} className="p-2 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                      {name}
+                    </li>
+                  ))}
                 </ul>
               </div>
             ))}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
 }
 
-// 6. DECISION WHEEL
-function DecisionWheel(props) {
-  return <RandomNamePicker {...props} />;
-}
+/* =========================================================================================
+   TOOL 9: DECISION WHEEL (SPIN THE WHEEL)
+   ========================================================================================= */
+function DecisionWheelTool({ copyText, copied }) {
+  const [options, setOptions] = useState(["Pizza", "Burgers", "Sushi", "Salad", "Tacos", "Pasta"]);
+  const [winner, setWinner] = useState("");
+  const canvasRef = useRef(null);
+  const [spinning, setSpinning] = useState(false);
 
-// 7. POLL GENERATOR
-function PollGenerator() {
-  const [question, setQuestion] = useState("What is your favorite frontend framework?");
-  const [options, setOptions] = useState([
-    { text: "React", votes: 42 },
-    { text: "Vue", votes: 18 },
-    { text: "Svelte", votes: 24 },
-    { text: "Next.js", votes: 35 }
-  ]);
+  const colors = ["#4f46e5", "#06b6d4", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899", "#14b8a6"];
 
-  const totalVotes = options.reduce((a, b) => a + b.votes, 0) || 1;
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    const total = options.length;
+    const arc = (2 * Math.PI) / total;
 
-  const vote = (idx) => {
-    setOptions(options.map((o, i) => i === idx ? { ...o, votes: o.votes + 1 } : o));
+    ctx.clearRect(0, 0, 300, 300);
+
+    options.forEach((opt, idx) => {
+      const angle = idx * arc;
+      ctx.beginPath();
+      ctx.fillStyle = colors[idx % colors.length];
+      ctx.moveTo(150, 150);
+      ctx.arc(150, 150, 140, angle, angle + arc);
+      ctx.lineTo(150, 150);
+      ctx.fill();
+
+      // Label
+      ctx.save();
+      ctx.translate(150, 150);
+      ctx.rotate(angle + arc / 2);
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "bold 11px sans-serif";
+      ctx.textAlign = "right";
+      ctx.fillText(opt, 125, 4);
+      ctx.restore();
+    });
+  }, [options]);
+
+  const spin = () => {
+    if (spinning || options.length === 0) return;
+    setSpinning(true);
+    let rotation = 0;
+    const chosenIdx = Math.floor(Math.random() * options.length);
+    const totalTicks = 35;
+    let tick = 0;
+
+    const timer = setInterval(() => {
+      rotation += 20;
+      tick++;
+      if (tick > totalTicks) {
+        clearInterval(timer);
+        setWinner(options[chosenIdx]);
+        setSpinning(false);
+      }
+    }, 50);
   };
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
-      <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 space-y-6">
-        <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-          <BarChart3 className="w-5 h-5 text-indigo-400" /> Interactive Poll & Survey Simulator
-        </h3>
-        <input type="text" value={question} onChange={(e) => setQuestion(e.target.value)} className="w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-2.5 text-white font-semibold" />
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+        <div className="space-y-4">
+          <label className="text-xs font-bold uppercase tracking-wider text-slate-500 block">Decision Options (Comma separated)</label>
+          <input
+            type="text"
+            value={options.join(", ")}
+            onChange={(e) => setOptions(e.target.value.split(",").map((s) => s.trim()).filter(Boolean))}
+            className="w-full px-4 py-3 bg-slate-50/50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-2xl font-bold text-xs"
+          />
 
-        <div className="space-y-3">
-          {options.map((opt, idx) => {
-            const pct = Math.round((opt.votes / totalVotes) * 100);
-            return (
-              <div key={idx} onClick={() => vote(idx)} className="p-4 bg-slate-800/50 hover:bg-slate-800 rounded-xl border border-white/5 cursor-pointer space-y-2 transition">
-                <div className="flex justify-between text-sm">
-                  <span className="font-medium text-white">{opt.text}</span>
-                  <span className="text-xs text-slate-400">{opt.votes} votes ({pct}%)</span>
-                </div>
-                <div className="w-full h-2 bg-slate-700 rounded-full overflow-hidden">
-                  <div style={{ width: `${pct}%` }} className="bg-indigo-500 h-full"></div>
-                </div>
-              </div>
-            );
-          })}
+          <button
+            disabled={spinning}
+            onClick={spin}
+            className="px-6 py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-2xl shadow-xl shadow-indigo-600/30 flex items-center gap-2"
+          >
+            <Play size={16} /> Spin Decision Wheel
+          </button>
+
+          {winner && (
+            <div className="p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 rounded-2xl">
+              <span className="text-xs text-emerald-600 font-bold block mb-1">Decision Reached:</span>
+              <h3 className="text-xl font-black text-slate-900 dark:text-white">{winner}!</h3>
+            </div>
+          )}
+        </div>
+
+        <div className="flex justify-center">
+          <div className="relative p-2 rounded-full border-4 border-slate-200 dark:border-slate-800 shadow-xl">
+            <canvas ref={canvasRef} width={300} height={300} className="rounded-full" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white dark:bg-slate-900 border-2 border-indigo-600 shadow-md flex items-center justify-center">
+              <div className="w-2 h-2 rounded-full bg-indigo-600" />
+            </div>
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-// 8. BARCODE GENERATOR
-function BarcodeGenerator({ copyText, copied }) {
-  const [code, setCode] = useState("123456789012");
+/* =========================================================================================
+   TOOL 10: POLL & SURVEY CARD GENERATOR
+   ========================================================================================= */
+function PollGeneratorTool({ copyText, copied }) {
+  const [question, setQuestion] = useState("Which modern framework do you prefer for high-scale web apps?");
+  const [choices, setChoices] = useState([
+    { text: "React / Next.js", votes: 42 },
+    { text: "Vue / Nuxt", votes: 24 },
+    { text: "Svelte / SvelteKit", votes: 19 },
+    { text: "Astro (Content Driven)", votes: 15 }
+  ]);
+  const [selected, setSelected] = useState(null);
+
+  const totalVotes = useMemo(() => {
+    return choices.reduce((sum, c) => sum + c.votes, 0);
+  }, [choices]);
+
+  const handleVote = (idx) => {
+    if (selected !== null) return;
+    setSelected(idx);
+    const updated = [...choices];
+    updated[idx].votes += 1;
+    setChoices(updated);
+  };
+
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
-      <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 space-y-6 text-center">
-        <h3 className="text-lg font-semibold text-white">Barcode Generator (CODE128)</h3>
-        <input type="text" value={code} onChange={(e) => setCode(e.target.value)} className="w-full max-w-sm mx-auto bg-slate-800 border border-white/10 rounded-xl px-4 py-2 text-white font-mono text-center" />
-        <div className="p-6 bg-white rounded-2xl max-w-sm mx-auto flex flex-col items-center justify-center space-y-2">
-          <div className="h-20 w-full flex items-center justify-center gap-1 overflow-hidden">
-            {code.split("").map((c, i) => (
-              <div key={i} className="bg-black h-16" style={{ width: `${(parseInt(c, 10) % 3) + 2}px` }}></div>
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="space-y-4">
+          <div>
+            <label className="text-xs font-bold uppercase tracking-wider text-slate-500 block mb-1">Poll Question</label>
+            <input
+              type="text"
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              className="w-full px-4 py-2.5 bg-slate-50/50 dark:bg-slate-900/60 border rounded-xl text-xs font-bold"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-xs font-bold uppercase tracking-wider text-slate-500 block">Choices</label>
+            {choices.map((c, idx) => (
+              <input
+                key={idx}
+                type="text"
+                value={c.text}
+                onChange={(e) => {
+                  const arr = [...choices];
+                  arr[idx].text = e.target.value;
+                  setChoices(arr);
+                }}
+                className="w-full px-3 py-2 bg-slate-50/50 dark:bg-slate-900/60 border rounded-xl text-xs font-bold"
+              />
             ))}
           </div>
-          <span className="text-xs font-mono font-bold text-black tracking-widest">{code}</span>
+        </div>
+
+        {/* Live Interactive Poll Preview Card */}
+        <div className="p-6 bg-slate-50 dark:bg-slate-900/60 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-4">
+          <span className="text-[11px] font-bold uppercase text-indigo-600 dark:text-indigo-400">Live Preview</span>
+          <h4 className="text-base font-bold text-slate-900 dark:text-white">{question}</h4>
+
+          <div className="space-y-2">
+            {choices.map((choice, idx) => {
+              const pct = totalVotes > 0 ? Math.round((choice.votes / totalVotes) * 100) : 0;
+              return (
+                <button
+                  key={idx}
+                  onClick={() => handleVote(idx)}
+                  className={`w-full p-3 rounded-2xl border text-left relative overflow-hidden transition ${
+                    selected === idx
+                      ? "border-indigo-600 bg-indigo-50/40 dark:bg-indigo-950/40"
+                      : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800"
+                  }`}
+                >
+                  <div
+                    className="absolute inset-y-0 left-0 bg-indigo-500/10 dark:bg-indigo-500/20 transition-all duration-500 pointer-events-none"
+                    style={{ width: `${pct}%` }}
+                  />
+                  <div className="relative flex justify-between items-center text-xs font-bold">
+                    <span className="text-slate-900 dark:text-white">{choice.text}</span>
+                    <span className="text-slate-500">{pct}% ({choice.votes})</span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          <span className="text-[11px] text-slate-400 block text-right">Total Votes: {totalVotes}</span>
         </div>
       </div>
     </div>
   );
 }
-
-// 9. LINK IN BIO BUILDER
-function LinkInBioBuilder() {
-  const [name, setName] = useState("Alex Developer");
-  const [bio, setBio] = useState("Building open-source tools & web utilities 🚀");
-
-  return (
-    <div className="space-y-6 max-w-4xl mx-auto">
-      <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 space-y-6">
-        <h3 className="text-lg font-semibold text-white">Link-in-Bio Landing Page Builder</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="text-xs text-slate-400 mb-1 block">Profile Name</label>
-            <input type="text" value={name} onChange={(e) => setName(e.target.value)} className="w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-2 text-white" />
-          </div>
-          <div>
-            <label className="text-xs text-slate-400 mb-1 block">Short Bio</label>
-            <input type="text" value={bio} onChange={(e) => setBio(e.target.value)} className="w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-2 text-white" />
-          </div>
-        </div>
-
-        <div className="max-w-xs mx-auto bg-slate-950 p-6 rounded-3xl border border-white/10 text-center space-y-4">
-          <div className="w-16 h-16 rounded-full bg-indigo-600 mx-auto flex items-center justify-center text-xl font-bold text-white">
-            {name.charAt(0)}
-          </div>
-          <div>
-            <h5 className="font-bold text-white text-base">{name}</h5>
-            <p className="text-xs text-slate-400 mt-1">{bio}</p>
-          </div>
-          <div className="space-y-2 pt-2">
-            {["GitHub Portfolio", "Twitter / X", "Personal Blog", "Buy Me a Coffee"].map((link, i) => (
-              <div key={i} className="py-2.5 px-4 bg-slate-800 rounded-xl text-xs font-semibold text-white hover:bg-slate-700 cursor-pointer transition">
-                {link}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-

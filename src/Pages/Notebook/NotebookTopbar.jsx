@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import swal from "sweetalert";
 import { onBtnEnter, onBtnLeave } from "../../utils/gsapButtonHover";
+import { useAppContext } from "../../context/AppContext";
 import Style from "./NotebookTopbar.module.css";
 
 const SHORTCUTS = [
@@ -191,6 +192,7 @@ const NotebookTopbar = ({
   const [renaming, setRenaming] = useState(false);
   const [draftTitle, setDraftTitle] = useState(title || "");
   const [copied, setCopied] = useState(false);
+  const { user, isAuthenticated, openAuthModal } = useAppContext();
 
   // Sliding Drawer for all notebooks
   const [internalDrawerOpen, setInternalDrawerOpen] = useState(false);
@@ -728,6 +730,30 @@ const NotebookTopbar = ({
           {showTopbarKeytips && <span className={Style.altKeytip}>S</span>}
         </button>
 
+        {/* User Account / Cloud Sync Hub */}
+        {isAuthenticated && user ? (
+          <Link
+            to="/dashboard"
+            className={Style.iconBtn}
+            data-tip={`Account: @${user.username} (${user.tier || 'Member'}) • Open Dashboard`}
+            aria-label="User Account"
+            style={{ position: "relative", color: "#f59e0b" }}
+          >
+            <i className="fa-solid fa-circle-user"></i>
+          </Link>
+        ) : (
+          <button
+            type="button"
+            className={Style.iconBtn}
+            data-tip="Sign In / Register (Cloud Workspace Sync)"
+            aria-label="User Account"
+            onClick={() => openAuthModal && openAuthModal("login")}
+            style={{ position: "relative" }}
+          >
+            <i className="fa-regular fa-circle-user"></i>
+          </button>
+        )}
+
         {/* More Options Menu (...) */}
         <div className={Style.popoverWrap} ref={moreMenuRef}>
           <button
@@ -754,6 +780,33 @@ const NotebookTopbar = ({
                   right: Math.max(8, window.innerWidth - moreMenuRect.right - 8),
                 }}
               >
+                {/* ACCOUNT & DASHBOARD */}
+                {isAuthenticated && user ? (
+                  <Link
+                    to="/dashboard"
+                    className={Style.moreMenuItem}
+                    onClick={() => setMoreMenuOpen(false)}
+                  >
+                    <i className={`fa-solid fa-id-badge ${Style.moreMenuIcon}`} style={{ color: "#f59e0b" }}></i>
+                    <span>@{user.username} ({user.tier || "Member"})</span>
+                    <span className={Style.moreMenuBadge}>Dashboard</span>
+                  </Link>
+                ) : (
+                  <button
+                    type="button"
+                    className={Style.moreMenuItem}
+                    onClick={() => {
+                      setMoreMenuOpen(false);
+                      if (openAuthModal) openAuthModal("login");
+                    }}
+                  >
+                    <i className={`fa-solid fa-right-to-bracket ${Style.moreMenuIcon}`} style={{ color: "#f59e0b" }}></i>
+                    <span>Sign In / Create Account</span>
+                    <span className={Style.moreMenuBadge}>Free Sync</span>
+                  </button>
+                )}
+                <div className={Style.moreMenuDivider} />
+
                 {/* CATEGORY 1: NOTEBOOK & FILES */}
                 <div className={Style.moreMenuSectionTitle}>Notebook & Files</div>
                 <button

@@ -48,14 +48,14 @@ import { TIER_1_BESPOKE } from "../../data/bespokeToolsData";
 
 // Bespoke editorial data & formulas for Tier 1 tools (Research Phase 1 Standards)
 // Map ALL_TOOLS to rich catalog entities
-// Map ALL_TOOLS to rich catalog entities
 export const toolsData = ALL_TOOLS.map(t => {
   const catObj = TOOL_CATEGORIES.find(c => c.id === t.category);
   const categoryName = catObj ? catObj.name : t.category;
 
   return {
-    id: t.slug,
+    id: t.id || t.slug,
     slug: t.slug,
+    aliases: t.aliases || [],
     icon: t.icon || "fa-solid fa-wrench",
     category: t.category,
     categoryName: categoryName,
@@ -82,8 +82,15 @@ export const toolsData = ALL_TOOLS.map(t => {
   };
 });
 
-export const slugMap = Object.fromEntries(toolsData.map(t => [t.slug, t.id]));
-export const idMap = Object.fromEntries(toolsData.map(t => [t.id, t.slug]));
+export const slugMap = Object.fromEntries([
+  ...ALL_TOOLS.map(t => [t.slug, t.slug]),
+  ...ALL_TOOLS.filter(t => t.id).map(t => [t.id, t.slug]),
+  ...ALL_TOOLS.flatMap(t => (t.aliases || []).map(a => [a, t.slug]))
+]);
+export const idMap = Object.fromEntries([
+  ...ALL_TOOLS.map(t => [t.id || t.slug, t.slug]),
+  ...ALL_TOOLS.flatMap(t => (t.aliases || []).map(a => [a, t.slug]))
+]);
 
 const scoreTool = (tool, query) => {
   const normalizedQuery = query.toLowerCase();
@@ -123,13 +130,13 @@ const Tools = ({ directSlug = null }) => {
 
   // Determine current active tool slug
   const activeSlug = useMemo(() => {
-    if (directSlug) return directSlug;
-    if (paramSlug) return paramSlug;
-    if (toolSlug) return toolSlug;
+    if (directSlug) return slugMap[directSlug] || directSlug;
+    if (paramSlug) return slugMap[paramSlug] || paramSlug;
+    if (toolSlug) return slugMap[toolSlug] || toolSlug;
     
     // Check if pathname matches any tool slug directly (e.g. /percentage-calculator)
     const currentPath = location.pathname.replace(/^\//, "");
-    if (slugMap[currentPath]) return currentPath;
+    if (slugMap[currentPath]) return slugMap[currentPath];
     
     return null;
   }, [directSlug, paramSlug, toolSlug, location.pathname]);
@@ -138,7 +145,14 @@ const Tools = ({ directSlug = null }) => {
 
   const activeToolData = useMemo(() => {
     if (!activeSlug) return null;
-    return toolsData.find(t => t.slug === activeSlug || t.id === activeSlug) || null;
+    return (
+      toolsData.find(
+        (t) =>
+          t.slug === activeSlug ||
+          t.id === activeSlug ||
+          (Array.isArray(t.aliases) && t.aliases.includes(activeSlug))
+      ) || null
+    );
   }, [activeSlug]);
 
   const seoData = useMemo(() => {
@@ -225,11 +239,14 @@ const Tools = ({ directSlug = null }) => {
   // Engine dispatcher for the active tool
   const renderToolEngine = (tool) => {
     const { category, slug, id } = tool;
+    if (slug === "fraction-calculator") {
+      return <MathEngine slug={slug} toolId={id} />;
+    }
     switch (category) {
       case "calculators": return <CalculatorsEngine slug={slug} toolId={id} tool={tool} seoData={seoData} />;
-      case "measurement": return <MeasurementEngine slug={slug} toolId={id} />;
-      case "writing": return <WritingEngine slug={slug} toolId={id} />;
-      case "text-analysis": return <TextAnalysisEngine slug={slug} toolId={id} />;
+      case "measurement": return <MeasurementEngine slug={slug} toolId={id} tool={tool} seoData={seoData} />;
+      case "writing": return <WritingEngine slug={slug} toolId={id} tool={tool} seoData={seoData} />;
+      case "text-analysis": return <TextAnalysisEngine slug={slug} toolId={id} tool={tool} seoData={seoData} />;
       case "image": return <ImageEngine slug={slug} toolId={id} />;
       case "pdf": return <PdfEngine slug={slug} toolId={id} />;
       case "developer": return <DeveloperEngine slug={slug} toolId={id} />;
@@ -238,25 +255,25 @@ const Tools = ({ directSlug = null }) => {
       case "design": return <DesignEngine slug={slug} toolId={id} />;
       case "time": return <TimeEngine slug={slug} toolId={id} />;
       case "math": return <MathEngine slug={slug} toolId={id} />;
-      case "finance": return <FinanceEngine slug={slug} toolId={id} />;
+      case "finance": return <FinanceEngine slug={slug} toolId={id} tool={tool} seoData={seoData} />;
       case "typing": return <TypingEngine slug={slug} toolId={id} />;
       case "productivity": return <ProductivityEngine slug={slug} toolId={id} />;
       case "seo": return <SeoEngine slug={slug} toolId={id} />;
       case "data": return <DataEngine slug={slug} toolId={id} />;
       case "media": return <MediaEngine slug={slug} toolId={id} />;
       case "generators": return <GeneratorsEngine slug={slug} toolId={id} />;
-      case "helpers": return <HelpersEngine slug={slug} toolId={id} />;
+      case "helpers": return <HelpersEngine slug={slug} toolId={id} tool={tool} seoData={seoData} />;
       default: return <CalculatorsEngine slug={slug} toolId={id} tool={tool} seoData={seoData} />;
     }
   };
 
-  const isCalculatorFullscreen = Boolean(activeToolData && (activeToolData.slug === "basic-calculator" || activeToolData.slug === "simple-calculator" || activeToolData.slug === "scientific-calculator"));
+  const isCalculatorFullscreen = Boolean(activeToolData);
 
   return (
     <AppShell fullWidth={true} hideNav={isCalculatorFullscreen} hideFooter={isCalculatorFullscreen}>
       <PageSEO
         title={seoData.title || (activeToolData ? `${activeToolData.title} | Free Online Utility – Stiknex` : "Free Online Tools Directory (200+ Utilities) – Stiknex")}
-        description={seoData.description || (activeToolData ? activeToolData.tagline : "Explore 200+ free online utility tools across 20 categories. Calculators, converters, developer tools, formatters, and typing lab.")}
+        description={seoData.description || (activeToolData ? activeToolData.tagline : "Explore 200+ free online utility tools across 20 categories. Calculators, converters, developer tools, formatters, and typing master.")}
         path={seoData.path || (activeToolData ? `/${activeToolData.slug}` : "/tools")}
         type="webapp"
         keywords={seoData.keywords || (activeToolData ? activeToolData.keywords : ["online tools", "free utilities"])}

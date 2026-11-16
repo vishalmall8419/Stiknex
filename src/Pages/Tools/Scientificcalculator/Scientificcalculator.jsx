@@ -37,6 +37,7 @@ import {
   Database
 } from "lucide-react";
 import { useAppContext } from "../../../context/AppContext";
+import ToolSidebarDrawer from "../components/ToolSidebarDrawer";
 
 /**
  * 100% Functional Scientific Calculator Engine (Zero Fake Buttons)
@@ -128,7 +129,14 @@ function formatHistoryTime(iso) {
   if (!iso) return "";
   try {
     const d = new Date(iso);
-    return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    const now = new Date();
+    const isToday = d.toDateString() === now.toDateString();
+    const timeStr = d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    if (isToday) return timeStr;
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const year = d.getFullYear();
+    return `${day}/${month}/${year} ${timeStr}`;
   } catch {
     return "";
   }
@@ -697,84 +705,89 @@ export default function ScientificCalculator({ tool, seoData }) {
           DESKTOP VIEW (>= lg): DUAL STATION (Matching Reference Image)
       ══════════════════════════════════════════════════════════════════════ */}
       {isDesktop ? (
-        <main className="w-full flex-1 flex items-center justify-center p-4 lg:p-6 overflow-hidden">
-          <div className="w-full max-w-5xl rounded-[32px] sm:rounded-[38px] p-5 sm:p-6 shadow-[0_25px_65px_-15px_rgba(28,45,68,0.22)] dark:shadow-[0_25px_70px_-15px_rgba(0,0,0,0.85)] border border-white/70 dark:border-white/5 bg-[#EBF2F9]/90 dark:bg-[#0D141F] transition-all flex flex-col justify-between">
-
-            {/* Top Header Bar */}
-            <div className="flex items-center justify-between pb-4 border-b border-black/5 dark:border-white/5">
+        <div className="w-full flex-1 flex flex-col justify-between min-h-0">
+          {/* Top Full-Width Sticky Navigation Header */}
+          <div className="w-full px-4 lg:px-8 py-3 sm:py-3.5 border-b border-black/5 dark:border-white/5 bg-white/80 dark:bg-[#0B111E]/85 backdrop-blur-xl sticky top-0 z-30 flex items-center justify-between gap-4 shadow-xs dark:shadow-none transition-colors">
               <div className="flex items-center gap-3">
                 <button
                   type="button"
                   onClick={() => setIsDrawerOpen(true)}
-                  className="w-10 h-10 rounded-2xl flex items-center justify-center transition-all cursor-pointer bg-white/70 hover:bg-white text-slate-700 shadow-sm hover:shadow dark:bg-white/10 dark:hover:bg-white/15 dark:text-slate-200"
+                  className="w-10 h-10 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 shadow-xs transition-all flex items-center justify-center cursor-pointer group"
                   title="Open Stiknex Menu & Tools"
+                  aria-label="Open Stiknex Menu"
                 >
-                  <Menu size={20} />
+                  <Menu size={20} className="group-hover:scale-105 transition-transform" />
                 </button>
-                <div>
-                  <h2 className="text-xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-1.5">
-                    <span>Scientific</span>
-                    <span className="text-blue-600 dark:text-cyan-400">Calculator</span>
-                  </h2>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                    Accurate. Powerful. Easy to Use.
-                  </p>
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-500 text-white flex items-center justify-center shadow-md shadow-blue-500/25 ring-1 ring-white/20 shrink-0">
+                    <Calculator className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h2 className="text-base sm:text-lg font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-1.5 uppercase leading-none">
+                        <span>Scientific</span>
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500 dark:from-blue-400 dark:to-cyan-400">Calculator</span>
+                      </h2>
+                      <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-cyan-400 border border-blue-200/60 dark:border-blue-800/60 tracking-wider uppercase">
+                        {isRad ? "RAD MODE" : "DEG MODE"}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 hidden sm:block font-medium mt-0.5">
+                      Accurate. Powerful. 50+ Real Scientific Functions &amp; Constant Tape
+                    </p>
+                  </div>
                 </div>
               </div>
 
               <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/70 dark:bg-white/5 border border-white/60 dark:border-white/5 text-xs font-bold text-slate-700 dark:text-slate-300">
-                  <Calculator size={13} className="text-blue-600 dark:text-cyan-400" />
-                  <span>Science Mode</span>
-                </div>
-
                 <button
                   type="button"
                   onClick={toggleDarkMode}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/70 hover:bg-white dark:bg-white/5 dark:hover:bg-white/10 border border-white/60 dark:border-white/5 text-xs font-bold text-slate-700 dark:text-slate-300 transition cursor-pointer shadow-xs"
+                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:border-blue-400 transition-all flex items-center justify-center cursor-pointer shadow-xs"
+                  title="Toggle Light / Dark Theme"
                 >
-                  {darkMode ? <Sun size={13} className="text-amber-400" /> : <Moon size={13} className="text-indigo-600" />}
-                  <span>Theme Modern</span>
+                  {darkMode ? <Sun size={15} className="text-amber-400" /> : <Moon size={15} className="text-indigo-600" />}
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setSoundEnabled((prev) => !prev)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition cursor-pointer shadow-xs ${
+                  className={`w-9 h-9 sm:w-10 sm:h-10 rounded-2xl border transition-all flex items-center justify-center cursor-pointer shadow-xs ${
                     soundEnabled
                       ? "bg-blue-50 dark:bg-blue-950/40 border-blue-200 dark:border-blue-900/50 text-blue-600 dark:text-blue-400"
-                      : "bg-white/70 dark:bg-white/5 border-white/60 dark:border-white/5 text-slate-500 dark:text-slate-400"
+                      : "bg-white dark:bg-slate-900 border-slate-200/90 dark:border-slate-800 text-slate-400 dark:text-slate-500"
                   }`}
+                  title={soundEnabled ? "Mute audio" : "Enable sound"}
                 >
-                  {soundEnabled ? <Volume2 size={13} /> : <VolumeX size={13} />}
-                  <span>Sound</span>
+                  {soundEnabled ? <Volume2 size={15} /> : <VolumeX size={15} />}
                 </button>
 
                 <button
                   type="button"
                   onClick={() => handlePress("AC")}
-                  className="w-8 h-8 rounded-xl flex items-center justify-center bg-white/70 hover:bg-white dark:bg-white/5 dark:hover:bg-white/10 text-slate-500 hover:text-rose-500 transition cursor-pointer"
+                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 text-slate-500 hover:text-rose-500 hover:border-rose-300 dark:hover:border-rose-900 transition-all flex items-center justify-center cursor-pointer shadow-xs"
                   title="Reset (AC)"
                 >
-                  <RotateCcw size={14} />
+                  <RotateCcw size={15} />
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setIsHelpOpen(true)}
-                  className="w-8 h-8 rounded-xl flex items-center justify-center bg-white/70 hover:bg-white dark:bg-white/5 dark:hover:bg-white/10 text-slate-500 hover:text-indigo-500 transition cursor-pointer"
-                  title="Help & Guide"
+                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 transition-all flex items-center justify-center cursor-pointer shadow-xs"
+                  title="Help & Guide (?)"
                 >
-                  <HelpCircle size={14} />
+                  <HelpCircle size={15} />
                 </button>
               </div>
             </div>
 
-            {/* Dual-Station Body Layout */}
-            <div className="grid grid-cols-12 gap-5 pt-4">
+          {/* Full-Page Desktop Workstation */}
+          <main className="w-full flex-1 px-4 lg:px-8 py-4 lg:py-6 flex flex-col justify-between min-h-0">
+            <div className="grid grid-cols-12 gap-5 lg:gap-6 w-full flex-1">
 
               {/* LEFT COLUMN: SCIENTIFIC TERMINAL & EXACT REFERENCE KEYPAD */}
-              <div className="col-span-7 flex flex-col justify-between space-y-3">
+              <div className="col-span-12 lg:col-span-7 xl:col-span-8 flex flex-col justify-between space-y-3 rounded-3xl p-5 lg:p-6 shadow-xl shadow-slate-200/50 dark:shadow-none border border-white/70 dark:border-white/5 bg-[#EBF2F9]/90 dark:bg-[#0D141F] flex-1">
                 {/* Soft Screen Display Terminal */}
                 <div className="w-full rounded-2xl p-4 bg-white/95 dark:bg-[#070C13] border border-white/90 dark:border-white/5 shadow-inner shadow-black/5 dark:shadow-black/50 text-right">
                   <div className="flex items-center justify-between pb-1.5 text-xs">
@@ -1048,7 +1061,8 @@ export default function ScientificCalculator({ tool, seoData }) {
               </div>
 
               {/* RIGHT COLUMN: COMPANION PANEL (History & Memory with Quick Actions) */}
-              <div className="col-span-5 flex flex-col justify-between rounded-2xl p-4 bg-[#090E16] border border-white/5 shadow-inner shadow-black/50">
+              <div className="hidden lg:flex col-span-12 lg:col-span-5 xl:col-span-4 flex-col justify-between rounded-3xl p-5 bg-[#EBF2F9]/90 dark:bg-[#0D141F] border border-white/70 dark:border-white/5 shadow-xl shadow-slate-200/40 dark:shadow-none overflow-hidden">
+                <div className="flex-1 flex flex-col justify-between rounded-2xl p-4 bg-[#090E16] border border-white/5 shadow-inner shadow-black/50">
                 {/* Panel Header: Tabs & Actions */}
                 <div className="flex items-center justify-between pb-3 border-b border-white/5">
                   <div className="flex items-center gap-1 bg-white/5 p-1 rounded-xl">
@@ -1230,34 +1244,43 @@ export default function ScientificCalculator({ tool, seoData }) {
                     </button>
                   </div>
                 </div>
+                </div>
               </div>
 
             </div>
+          </main>
 
-          </div>
-        </main>
+          {/* Bottom Safe-Area Footer */}
+          <footer className="w-full text-center pb-[max(1.5rem,calc(env(safe-area-inset-bottom)+0.5rem))] sm:pb-6 pt-2">
+            <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500">
+              Stiknex Scientific Engine • High Precision In-Browser Arithmetic &amp; Mathematics
+            </p>
+          </footer>
+        </div>
       ) : (
         /* ═════════════════════════════════════════════════════════════════════
             MOBILE VIEW (< lg): MATCHING REFERENCE IMAGE media_1794498111620_c31d2b83.png
             Keypad anchored at bottom with pb-8 clearance, zero jumping UI!
         ══════════════════════════════════════════════════════════════════════ */
         <main className="w-full flex-1 h-full flex flex-col justify-between p-0 overflow-hidden">
-          <div className="w-full max-w-md h-full flex flex-col justify-between px-3.5 pt-2 pb-8 sm:pb-10 mx-auto relative transition-all">
+          <div className="w-full max-w-md h-full flex flex-col justify-between px-3.5 pt-2 pb-[max(2.25rem,calc(env(safe-area-inset-bottom)+1.5rem))] sm:pb-10 mx-auto relative transition-all">
 
             {/* Top Bar: Menu, Badge, History & Theme */}
             <div className="shrink-0 flex items-center justify-between pt-1 pb-2 px-1 border-b border-black/5 dark:border-white/5">
               <button
                 type="button"
                 onClick={() => setIsDrawerOpen(true)}
-                className="w-10 h-10 rounded-2xl flex items-center justify-center transition-all cursor-pointer bg-white/70 hover:bg-white text-slate-700 shadow-sm hover:shadow dark:bg-white/10 dark:hover:bg-white/15 dark:text-slate-200"
+                className="w-10 h-10 rounded-2xl flex items-center justify-center transition-all cursor-pointer bg-white/80 hover:bg-white text-slate-700 shadow-xs border border-slate-200/80 dark:bg-white/10 dark:hover:bg-white/15 dark:border-white/5 dark:text-slate-200"
                 title="Open Stiknex Menu & Tools"
               >
                 <Menu size={20} />
               </button>
 
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/60 dark:bg-white/5 shadow-xs">
-                <Calculator size={14} className="text-blue-600 dark:text-blue-400" />
-                <span className="text-xs font-bold tracking-wide uppercase text-slate-700 dark:text-slate-300">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-white/80 dark:bg-white/5 border border-slate-200/80 dark:border-white/5 shadow-xs">
+                <div className="w-5 h-5 rounded-lg bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-500 text-white flex items-center justify-center shadow-xs">
+                  <Calculator size={11} className="text-white" />
+                </div>
+                <span className="text-xs font-black tracking-wide uppercase text-slate-800 dark:text-slate-200">
                   Scientific Calculator
                 </span>
               </div>
@@ -1890,135 +1913,13 @@ export default function ScientificCalculator({ tool, seoData }) {
         </motion.button>
       </div>
 
-      {/* ─── Sliding Sidebar Drawer ─── */}
-      <AnimatePresence>
-        {isDrawerOpen && (
-          <div className="fixed inset-0 z-50 flex">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              onClick={() => setIsDrawerOpen(false)}
-              className="fixed inset-0 bg-black/60 backdrop-blur-xs cursor-pointer"
-            />
-
-            <motion.aside
-              initial={{ x: "-100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "-100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 260 }}
-              className="relative w-[85vw] max-w-sm h-full bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 shadow-2xl z-10 flex flex-col justify-between overflow-hidden"
-            >
-              <div className="p-5 pb-3 border-b border-slate-100 dark:border-slate-800">
-                <div className="flex items-center justify-between">
-                  <Link to="/" onClick={() => setIsDrawerOpen(false)} className="flex items-center gap-2.5 group">
-                    <img src="/logo.png" alt="Stiknex Logo" className="w-8 h-8 object-contain drop-shadow-sm group-hover:scale-105 transition-transform" />
-                    <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">Stiknex</span>
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={() => setIsDrawerOpen(false)}
-                    className="w-9 h-9 rounded-xl flex items-center justify-center text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
-                  >
-                    <X size={20} />
-                  </button>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={triggerQuickSearch}
-                  className="w-full mt-4 flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 hover:text-indigo-600 font-semibold text-sm transition group cursor-pointer"
-                >
-                  <span className="flex items-center gap-2.5">
-                    <Search size={16} className="text-indigo-600 dark:text-indigo-400" />
-                    <span>Quick Search</span>
-                  </span>
-                  <kbd className="px-1.5 py-0.5 text-[10px] bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded text-slate-500 font-mono">
-                    Ctrl K
-                  </kbd>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={triggerFeedback}
-                  className="w-full mt-2 flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 hover:text-indigo-600 font-semibold text-sm transition cursor-pointer"
-                >
-                  <MessageSquare size={16} className="text-indigo-600 dark:text-indigo-400" />
-                  <span>Send Feedback / Message</span>
-                </button>
-              </div>
-
-              <div className="p-5 space-y-6 flex-1 overflow-y-auto">
-                <div>
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2 px-1">
-                    Workspace & Hub
-                  </h3>
-                  <div className="space-y-1">
-                    <Link to="/" onClick={() => setIsDrawerOpen(false)} className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
-                      <Home size={16} className="text-indigo-500" />
-                      <span>Home</span>
-                    </Link>
-                    <Link to="/tools" onClick={() => setIsDrawerOpen(false)} className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
-                      <Wrench size={16} className="text-emerald-500" />
-                      <span>All 200+ Tools</span>
-                    </Link>
-                    <Link to="/sticky-notes" onClick={() => setIsDrawerOpen(false)} className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
-                      <StickyNote size={16} className="text-amber-500" />
-                      <span>Sticky Notes</span>
-                    </Link>
-                    <Link to="/online-notebook" onClick={() => setIsDrawerOpen(false)} className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
-                      <BookOpen size={16} className="text-blue-500" />
-                      <span>Online Notebook</span>
-                    </Link>
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2 px-1">
-                    Related Calculators
-                  </h3>
-                  <div className="space-y-1.5">
-                    {RELATED_CALCULATORS.map((item) => (
-                      <Link
-                        key={item.slug}
-                        to={`/${item.slug}`}
-                        onClick={() => setIsDrawerOpen(false)}
-                        className="flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition group"
-                      >
-                        <div className="flex items-center gap-2.5">
-                          <div className="w-7 h-7 rounded-lg bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs">
-                            <i className={item.icon}></i>
-                          </div>
-                          <div>
-                            <p className="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-blue-600 transition leading-tight">
-                              {item.title}
-                            </p>
-                            <p className="text-[10px] text-slate-400 line-clamp-1">{item.desc}</p>
-                          </div>
-                        </div>
-                        <ArrowRight size={14} className="text-slate-300 group-hover:text-blue-600 group-hover:translate-x-0.5 transition" />
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
-                <a
-                  href="https://buymeacoffee.com/stiknex"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 py-2 px-4 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs shadow-sm transition"
-                >
-                  <Coffee size={14} />
-                  <span>Support Stiknex</span>
-                </a>
-              </div>
-            </motion.aside>
-          </div>
-        )}
-      </AnimatePresence>
+      {/* ─── Universal Stiknex Tool Sidebar Drawer ─── */}
+      <ToolSidebarDrawer
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+        relatedTools={RELATED_CALCULATORS}
+        categoryTitle="Related Calculators"
+      />
 
       {/* ─── Help, Formulas & Keyboard Shortcuts Modal ─── */}
       <AnimatePresence>
