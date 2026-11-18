@@ -136,6 +136,12 @@ export async function triggerSync() {
       setSyncStatus('offline');
     } else {
       setSyncStatus('error');
+      // Automatically retry in the background after 15s with zero user interaction
+      setTimeout(() => {
+        if (typeof navigator !== 'undefined' && navigator.onLine) {
+          triggerSync();
+        }
+      }, 15000);
     }
   } finally {
     isSyncing = false;
@@ -158,14 +164,15 @@ export function scheduleDebouncedSync(delay = 2000) {
 export function initSyncEngine() {
   if (typeof window === 'undefined') return;
 
+  // Sync automatically as soon as internet reconnects
   window.addEventListener('online', () => {
-    console.log('[SyncManager] Online detected. Starting sync...');
+    console.log('[SyncManager] Online detected. Auto-syncing in background...');
     setSyncStatus('idle');
     triggerSync();
   });
 
   window.addEventListener('offline', () => {
-    console.log('[SyncManager] Offline mode active.');
+    console.log('[SyncManager] Offline mode active. All edits safely saved in local IndexedDB.');
     setSyncStatus('offline');
   });
 
@@ -175,5 +182,17 @@ export function initSyncEngine() {
       triggerSync();
     }, 1500);
   }
+
+  // Periodic silent background sync every 30 seconds to catch any queued items
+  setInterval(async () => {
+    if (typeof navigator !== 'undefined' && navigator.onLine) {
+      try {
+        const count = await db.syncQueue.count();
+        if (count > 0) {
+          triggerSync();
+        }
+      } catch {}
+    }
+  }, 30000);
 }
 
