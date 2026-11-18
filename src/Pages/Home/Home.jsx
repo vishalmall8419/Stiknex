@@ -5,6 +5,7 @@ import { Link, useLocation } from "react-router-dom";
 import AppShell from "../../Component/Layout/AppShell";
 import { useAppContext } from "../../context/AppContext";
 import PageSEO from "../../Component/SEO/PageSEO";
+import { preloadRoute } from "../../utils/routePreloader";
 import Draggable from "react-draggable";
 import Xarrow, { Xwrapper, useXarrow } from "react-xarrows";
 import { getSyncIdentity, pushToCloud } from "../Notebook/notebookSyncManager";
@@ -1573,7 +1574,15 @@ const Home = () => {
               { label: "Support", to: "/buy-me-a-coffee", icon: "fa-solid fa-mug-hot" },
               { label: "About", to: "/about", icon: "fa-solid fa-circle-info" },
             ].map(({ label, to, icon }) => (
-              <Link key={to} to={to} title={label} onClick={() => setMobileSidebarOpen(false)} className="flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 lg:min-h-0">
+              <Link
+                key={to}
+                to={to}
+                title={label}
+                onMouseEnter={() => preloadRoute(to)}
+                onTouchStart={() => preloadRoute(to)}
+                onClick={() => setMobileSidebarOpen(false)}
+                className="flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 lg:min-h-0 cursor-pointer"
+              >
                 <i className={`${icon} w-5 shrink-0 text-center`}></i><span className={`overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-200 ${sidebarExpanded || mobileSidebarOpen ? "max-w-40 opacity-100" : "max-w-0 opacity-0"}`}>{label}</span>
               </Link>
             ))}

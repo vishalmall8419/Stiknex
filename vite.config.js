@@ -226,7 +226,7 @@ export default defineConfig(({ command }) => {
   build: {
     target: 'es2022',
     cssCodeSplit: true,
-    modulePreload: false,
+    modulePreload: { polyfill: true },
     rollupOptions: {
       output: {
         manualChunks(id) {
@@ -243,6 +243,9 @@ export default defineConfig(({ command }) => {
             }
             if (clean.includes('/node_modules/framer-motion/')) {
               return 'vendor-motion';
+            }
+            if (clean.includes('/node_modules/lucide-react/')) {
+              return 'vendor-icons';
             }
           }
         }

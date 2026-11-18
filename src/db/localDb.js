@@ -148,3 +148,4 @@ export async function migrateLocalStorageToDexie() {
     console.warn('[Dexie Migration] Migration failed:', err);
   }
 }
+

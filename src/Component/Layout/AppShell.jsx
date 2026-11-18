@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useAppContext } from "../../context/AppContext";
 import { motion, AnimatePresence } from "framer-motion";
 import ExtensionModal from "../ExtensionModal";
+import { preloadRoute } from "../../utils/routePreloader";
 
 const AppShell = ({ children, hideNav = false, hideFooter = false, fullWidth = false }) => {
   const { darkMode, toggleDarkMode } = useAppContext();
@@ -53,7 +54,9 @@ const AppShell = ({ children, hideNav = false, hideFooter = false, fullWidth = f
                     <Link
                       key={item.path}
                       to={item.path}
-                      className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 whitespace-nowrap shrink-0 ${
+                      onMouseEnter={() => preloadRoute(item.path)}
+                      onTouchStart={() => preloadRoute(item.path)}
+                      className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 whitespace-nowrap shrink-0 cursor-pointer ${
                         isActive
                           ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400"
                           : "text-slate-600 hover:bg-gray-100 dark:text-slate-400 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-200"
@@ -137,8 +140,10 @@ const AppShell = ({ children, hideNav = false, hideFooter = false, fullWidth = f
                   <Link
                     key={item.path}
                     to={item.path}
+                    onMouseEnter={() => preloadRoute(item.path)}
+                    onTouchStart={() => preloadRoute(item.path)}
                     onClick={() => setMobileMenuOpen(false)}
-                    className={`flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all ${
+                    className={`flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all cursor-pointer ${
                       pathname === item.path
                         ? "bg-indigo-50 text-indigo-700 font-semibold dark:bg-indigo-500/10 dark:text-indigo-400 shadow-sm"
                         : "text-slate-600 hover:bg-gray-50 dark:text-slate-400 dark:hover:bg-slate-800/50 hover:pl-5"

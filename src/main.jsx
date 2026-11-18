@@ -4,7 +4,11 @@ import "./index.css";
 import App from "./App";
 import { AppProvider } from "./context/AppContext";
 import { resolveStartupRestoration } from "./utils/routeRestoration";
+import { initRoutePreloader } from "./utils/routePreloader";
 import { registerSW } from "virtual:pwa-register";
+
+// Initialize instant speculative hover, touch and idle preloader
+initRoutePreloader();
 
 // Auto-register PWA service worker with auto-update
 const updateSW = registerSW({

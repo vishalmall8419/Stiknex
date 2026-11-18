@@ -24,3 +24,4 @@ const NoteSchema = new mongoose.Schema(
 NoteSchema.index({ userId: 1, updatedAt: -1 });
 
 export default mongoose.models.Note || mongoose.model('Note', NoteSchema);
+

@@ -17,3 +17,4 @@ const NotebookSchema = new mongoose.Schema(
 NotebookSchema.index({ userId: 1, updatedAt: -1 });
 
 export default mongoose.models.Notebook || mongoose.model('Notebook', NotebookSchema);
+

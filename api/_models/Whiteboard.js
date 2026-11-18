@@ -18,3 +18,4 @@ const WhiteboardSchema = new mongoose.Schema(
 WhiteboardSchema.index({ userId: 1, updatedAt: -1 });
 
 export default mongoose.models.Whiteboard || mongoose.model('Whiteboard', WhiteboardSchema);
+
