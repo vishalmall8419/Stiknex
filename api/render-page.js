@@ -271,6 +271,59 @@ export default async function handler(req, res) {
             return res.status(200).send(html);
         }
 
+        // Dedicated instant SSR shell for /blog listing page
+        if (cleanPath === '/blog') {
+            const blogTitle = "Stiknex Blog — Insights on Productivity, AI & Engineering";
+            const blogDesc = "Explore deep-dive technical articles, guides, and thoughts on building scalable apps, full-stack productivity tools, and modern software architectures.";
+            html = html.replace(/<title>[\s\S]*?<\/title>/, `<title>${blogTitle}</title>`);
+            html = html.replace(/<meta\s+name="description"\s+content="[^"]*"\s*\/>/, `<meta name="description" content="${blogDesc}" />`);
+            html = html.replace(/<meta\s+property="og:title"\s+content="[^"]*"\s*\/>/, `<meta property="og:title" content="${blogTitle}" />`);
+            html = html.replace(/<meta\s+property="og:description"\s+content="[^"]*"\s*\/>/, `<meta property="og:description" content="${blogDesc}" />`);
+            html = html.replace(/<meta\s+property="og:url"\s+content="[^"]*"\s*\/>/, `<meta property="og:url" content="${primaryDomain}/blog" />`);
+
+            if (html.includes('<link rel="canonical"')) {
+                html = html.replace(/<link\s+rel="canonical"\s+href="[^"]*"\s*\/?>/, `<link rel="canonical" href="${primaryDomain}/blog" />`);
+            } else {
+                html = html.replace('</head>', `<link rel="canonical" href="${primaryDomain}/blog" />\n</head>`);
+            }
+
+            const blogListRoot = `
+    <div id="root">
+      <nav style="position: fixed; top: 16px; left: 50%; transform: translateX(-50%); z-index: 50; padding: 10px 24px; background: rgba(255,255,255,0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(226,232,240,0.8); border-radius: 9999px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 16px; max-width: 96vw; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, sans-serif;">
+        <a href="${primaryDomain}/" style="display: flex; align-items: center; gap: 8px; text-decoration: none; font-weight: 900; font-size: 18px; color: #4f46e5;">
+          <img src="${primaryDomain}/logo.png" alt="Stiknex" width="24" height="24" style="object-fit: contain;" />
+          <span style="background: linear-gradient(to right, #6366f1, #9333ea); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Stiknex</span>
+        </a>
+        <div style="display: flex; align-items: center; gap: 12px; font-size: 13px; font-weight: 500; color: #475569;">
+          <a href="${primaryDomain}/sticky-notes" style="color: #475569; text-decoration: none; padding: 4px 8px;">Sticky Notes</a>
+          <a href="${primaryDomain}/online-notebook" style="color: #475569; text-decoration: none; padding: 4px 8px;">Notepad</a>
+          <a href="${primaryDomain}/whiteboard" style="color: #475569; text-decoration: none; padding: 4px 8px;">Whiteboard</a>
+          <a href="${primaryDomain}/tools" style="color: #475569; text-decoration: none; padding: 4px 8px;">Tools</a>
+          <a href="${primaryDomain}/blog" style="color: #4f46e5; text-decoration: none; font-weight: 700; padding: 4px 8px;">Blog</a>
+        </div>
+      </nav>
+
+      <main style="padding-top: 130px; padding-bottom: 60px; padding-left: 20px; padding-right: 20px; max-width: 1200px; margin: 0 auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, sans-serif;">
+        <div style="text-align: center; margin-bottom: 40px;">
+          <div style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 16px; border-radius: 9999px; background: #eef2ff; color: #4f46e5; font-size: 13px; font-weight: 600; margin-bottom: 16px; border: 1px solid #e0e7ff;">
+            ✨ Stiknex Productivity &amp; Engineering Blog
+          </div>
+          <h1 style="font-size: clamp(2.2rem, 5vw, 3.8rem); font-weight: 900; line-height: 1.15; margin: 0 auto 16px; color: #0f172a; letter-spacing: -0.03em;">
+            Insights on Modern <span style="background: linear-gradient(to right, #6366f1, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Productivity &amp; AI</span>
+          </h1>
+          <p style="font-size: clamp(1rem, 2vw, 1.2rem); color: #64748b; max-width: 650px; margin: 0 auto 24px; line-height: 1.6;">
+            Deep-dive articles, architectural breakthroughs, and high-impact workflows for engineers, creators, and teams.
+          </p>
+        </div>
+      </main>
+    </div>`;
+
+            html = replaceRootHtml(html, blogListRoot);
+            res.setHeader('Content-Type', 'text/html; charset=utf-8');
+            res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=1800');
+            return res.status(200).send(html);
+        }
+
         // Otherwise handle standard route SEO
         let matchPath = cleanPath;
         if (matchPath.length > 1 && matchPath.endsWith('/')) {

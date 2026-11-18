@@ -21,12 +21,8 @@ const NotebookDrawingCanvas = ({
     if (!canvas || !canvas.parentElement) return;
 
     const parent = canvas.parentElement;
-    const bounds = parent.getBoundingClientRect();
-    const width = bounds.width;
-    const editor = parent.querySelector('[contenteditable="true"]');
-    const editorOverflowHeight =
-      editor && editor.scrollHeight > editor.clientHeight ? editor.scrollHeight : 0;
-    const height = Math.max(editorOverflowHeight, bounds.height);
+    const width = Math.max(parent.scrollWidth, parent.clientWidth, window.innerWidth);
+    const height = Math.max(parent.scrollHeight, parent.clientHeight, window.innerHeight, 1200);
     const dpr = window.devicePixelRatio || 1;
 
     if (width <= 0 || height <= 0) return;

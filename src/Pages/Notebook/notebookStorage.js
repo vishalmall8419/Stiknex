@@ -109,6 +109,33 @@ export async function saveImageToDb(id, dataUrl) {
 /**
  * Retrieves an image by its ID from IndexedDB
  */
+/**
+ * Retrieves all images from IndexedDB for cross-device sync
+ */
+export async function getAllImagesFromDb() {
+  try {
+    const db = await getDb();
+    if (!db) return {};
+    return new Promise((resolve) => {
+      const tx = db.transaction(IMAGE_STORE, 'readonly');
+      const store = tx.objectStore(IMAGE_STORE);
+      const req = store.getAll();
+      req.onsuccess = () => {
+        const result = {};
+        for (const item of req.result || []) {
+          if (item?.id && item?.data) {
+            result[item.id] = item.data;
+          }
+        }
+        resolve(result);
+      };
+      req.onerror = () => resolve({});
+    });
+  } catch {
+    return {};
+  }
+}
+
 export async function getImageFromDb(id) {
   try {
     const db = await getDb();

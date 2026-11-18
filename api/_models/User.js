@@ -17,6 +17,7 @@ const UserSchema = new mongoose.Schema(
     testsCompleted: { type: Number, default: 0 },
     totalTimeSeconds: { type: Number, default: 0 },
     syncGroupId: { type: String, default: null },
+    syncKeyHex: { type: String, default: null },
     workspaceData: { type: mongoose.Schema.Types.Mixed, default: null }
   },
   { timestamps: true }

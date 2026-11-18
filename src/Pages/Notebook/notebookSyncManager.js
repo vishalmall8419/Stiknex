@@ -14,6 +14,7 @@ import {
 import {
   saveImageToDb,
   getImageFromDb,
+  getAllImagesFromDb,
   saveDrawingToDb,
   getDrawingFromDb,
   saveExtendedNote,
@@ -169,6 +170,60 @@ export async function connectWithRecoveryKey(recoveryKeyHex, customDeviceName) {
 }
 
 /**
+ * Automatically links and synchronizes a logged-in user's account
+ * with Multi-Device Cloud Sync, registering the device and syncing data
+ */
+export async function linkAccountSync(user) {
+  if (!user || !user.syncGroupId || !user.syncKeyHex) return null;
+
+  const deviceId = getOrCreateDeviceId();
+  const deviceName = getDeviceName();
+
+  const { cryptoKey, rawKeyHex } = await importSyncKey(user.syncKeyHex);
+  const deviceToken = await deriveDeviceToken(rawKeyHex, deviceId);
+
+  // 1. Register device with server so it appears in "Paired Devices"
+  try {
+    await fetch('/api/auth?action=notebook-sync-register-device', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        syncGroupId: user.syncGroupId,
+        deviceId,
+        deviceName,
+        deviceToken,
+      }),
+    });
+  } catch (regErr) {
+    console.warn('Account device registration notice:', regErr);
+  }
+
+  const identity = {
+    syncGroupId: user.syncGroupId,
+    rawKeyHex: user.syncKeyHex,
+    deviceId,
+    deviceName,
+    deviceToken,
+    version: 1,
+    lastSyncTime: Date.now(),
+    accountLinked: true,
+    userEmail: user.email,
+  };
+
+  saveSyncIdentity(identity);
+
+  // 2. Pull remote notebooks from cloud and merge with local notes
+  try {
+    await pullFromCloud(identity, cryptoKey);
+    await pushToCloud(identity, cryptoKey);
+  } catch (syncErr) {
+    console.warn('Account sync initial pull/push notice:', syncErr);
+  }
+
+  return identity;
+}
+
+/**
  * Collects local data to build encrypted sync payload
  */
 export async function collectLocalPayload(version) {
@@ -248,7 +303,15 @@ export async function collectLocalPayload(version) {
     }
   }
 
-  const stickyImages = {};
+  // Gather all images from IndexedDB (both sticky notes and notebooks)
+  let allStoredImages = {};
+  try {
+    allStoredImages = await getAllImagesFromDb();
+  } catch (e) {
+    console.warn('Failed to read stored images for sync:', e);
+  }
+
+  const stickyImages = { ...allStoredImages };
   for (const note of stickyNotes) {
     for (const image of note.images || []) {
       if (!image?.id) continue;

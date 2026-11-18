@@ -162,6 +162,10 @@ async function handleRegister(req, res) {
       testsCompleted: 0
     });
 
+    const syncGroupId = 'sync_usr_' + user._id.toString();
+    const syncKeyHex = crypto.randomBytes(32).toString('hex');
+    user.syncGroupId = syncGroupId;
+    user.syncKeyHex = syncKeyHex;
     await user.save();
 
     // Create JWT
@@ -187,7 +191,9 @@ async function handleRegister(req, res) {
         xp: user.xp,
         bestWpm: user.bestWpm,
         testsCompleted: user.testsCompleted,
-        createdAt: user.createdAt
+        createdAt: user.createdAt,
+        syncGroupId: user.syncGroupId,
+        syncKeyHex: user.syncKeyHex
       }
     });
   } catch (error) {
@@ -237,8 +243,14 @@ async function handleLogin(req, res) {
       return res.status(401).json({ success: false, error: 'Incorrect password. Please verify and try again.' });
     }
 
-    // Refresh tier
+    // Refresh tier and ensure sync identity exists for cross-device E2EE & Socket.io
     user.tier = getTierForWpm(user.bestWpm || 0);
+    if (!user.syncGroupId) {
+      user.syncGroupId = 'sync_usr_' + user._id.toString();
+    }
+    if (!user.syncKeyHex) {
+      user.syncKeyHex = crypto.randomBytes(32).toString('hex');
+    }
     await user.save();
 
     const token = jwt.sign(
@@ -265,7 +277,9 @@ async function handleLogin(req, res) {
         avgWpm: user.avgWpm,
         avgAccuracy: user.avgAccuracy,
         testsCompleted: user.testsCompleted,
-        createdAt: user.createdAt
+        createdAt: user.createdAt,
+        syncGroupId: user.syncGroupId,
+        syncKeyHex: user.syncKeyHex
       }
     });
   } catch (error) {
@@ -284,11 +298,16 @@ async function handleMe(req, res) {
   }
 
   try {
-    const user = await User.findById(decoded.userId).select('-passwordHash').lean();
+    let user = await User.findById(decoded.userId).select('-passwordHash');
     if (!user) {
       return res.status(404).json({ success: false, error: 'User not found.' });
     }
-    return res.status(200).json({ success: true, user });
+    if (!user.syncGroupId || !user.syncKeyHex) {
+      if (!user.syncGroupId) user.syncGroupId = 'sync_usr_' + user._id.toString();
+      if (!user.syncKeyHex) user.syncKeyHex = crypto.randomBytes(32).toString('hex');
+      await user.save();
+    }
+    return res.status(200).json({ success: true, user: user.toObject() });
   } catch (error) {
     console.error('Me error:', error);
     return res.status(500).json({ success: false, error: 'Server error' });

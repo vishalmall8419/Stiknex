@@ -474,6 +474,7 @@ Respond strictly in valid JSON matching this schema:
 
     // Public GET endpoints: ONLY return published articles
     if (req.method === "GET") {
+      res.setHeader("Cache-Control", "public, s-maxage=300, stale-while-revalidate=1800");
       if (slug) {
         const blog = await Blog.findOne({ slug, published: true });
         if (!blog) {

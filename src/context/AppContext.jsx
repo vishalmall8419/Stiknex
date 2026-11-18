@@ -6,7 +6,14 @@ import {
   enqueueSyncOperation,
   migrateLocalStorageToDexie
 } from "../db/localDb";
-import { scheduleDebouncedSync } from "../services/syncManager";
+import { scheduleDebouncedSync, triggerSync } from "../services/syncManager";
+import {
+  initSocketService,
+  joinCurrentMesh,
+  emitRealtimeNoteChange,
+  emitRealtimeWhiteboardChange,
+} from "../services/socketService";
+import { linkAccountSync } from "../Pages/Notebook/notebookSyncManager";
 
 const AppContext = createContext();
 
@@ -239,9 +246,11 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  // Initialize Local-First Dexie Storage & Load from IndexedDB
+  // Initialize Local-First Dexie Storage & Socket.io Realtime Mesh
   useEffect(() => {
     let mounted = true;
+    initSocketService();
+
     (async () => {
       try {
         await migrateLocalStorageToDexie();
@@ -284,12 +293,43 @@ export const AppProvider = ({ children }) => {
       }
     };
 
+    const handleRealtimeNote = async () => {
+      try {
+        const activeNotes = await db.notes.filter((n) => !n.isDeleted).toArray();
+        setNotes(activeNotes.map((n, idx) => ({ ...n, zIndex: n.zIndex !== undefined ? n.zIndex : idx + 1 })));
+      } catch {}
+    };
+
+    const handleRealtimeWb = async () => {
+      try {
+        const activeWb = await db.whiteboards.filter((w) => !w.isDeleted).toArray();
+        setWhiteboards(activeWb);
+      } catch {}
+    };
+
     window.addEventListener("stiknex_sync_completed", handleSyncComplete);
+    window.addEventListener("stiknex_realtime_note", handleRealtimeNote);
+    window.addEventListener("stiknex_realtime_whiteboard", handleRealtimeWb);
+
     return () => {
       mounted = false;
       window.removeEventListener("stiknex_sync_completed", handleSyncComplete);
+      window.removeEventListener("stiknex_realtime_note", handleRealtimeNote);
+      window.removeEventListener("stiknex_realtime_whiteboard", handleRealtimeWb);
     };
   }, []);
+
+  // Automatically link user account to Multi-Device Cloud Sync and Socket.io mesh
+  useEffect(() => {
+    if (user && (user.syncGroupId || user.id || user._id)) {
+      linkAccountSync(user).then(() => {
+        joinCurrentMesh();
+        triggerSync();
+      }).catch((err) => {
+        console.warn("[AccountSync] Link error:", err);
+      });
+    }
+  }, [user]);
 
   // Sync Notes & Whiteboards fallback to localStorage for backwards compatibility
   useEffect(() => {
@@ -343,7 +383,7 @@ export const AppProvider = ({ children }) => {
         isDeleted: false,
       };
 
-      // Dexie 0ms write + auto-sync enqueue
+      // Dexie 0ms write + auto-sync enqueue + socket.io real-time broadcast
       db.notes.put(newNote).catch(console.error);
       enqueueSyncOperation({
         collection: "notes",
@@ -352,6 +392,7 @@ export const AppProvider = ({ children }) => {
         payload: newNote,
       });
       scheduleDebouncedSync();
+      emitRealtimeNoteChange(newNote, "UPSERT");
 
       return [...prev, newNote];
     });
@@ -381,6 +422,7 @@ export const AppProvider = ({ children }) => {
             payload: trashed,
           });
           scheduleDebouncedSync();
+          emitRealtimeNoteChange(trashed, "UPDATE");
           return trashed;
         }
         return note;
@@ -434,6 +476,7 @@ export const AppProvider = ({ children }) => {
             payload: restored,
           });
           scheduleDebouncedSync();
+          emitRealtimeNoteChange(restored, "UPDATE");
           return restored;
         }
         return note;
@@ -455,6 +498,7 @@ export const AppProvider = ({ children }) => {
           payload: { ...target, isDeleted: true, updatedAt: now },
         });
         scheduleDebouncedSync();
+        emitRealtimeNoteChange({ ...target, isDeleted: true, updatedAt: now }, "DELETE");
       }
       return prev.filter((note) => note.id !== id && note.clientId !== id);
     });
@@ -495,6 +539,7 @@ export const AppProvider = ({ children }) => {
             payload: merged,
           });
           scheduleDebouncedSync();
+          emitRealtimeNoteChange(merged, "UPDATE");
           return merged;
         }
         return note;
@@ -522,6 +567,7 @@ export const AppProvider = ({ children }) => {
       payload: newWb,
     });
     scheduleDebouncedSync();
+    emitRealtimeWhiteboardChange(newWb, "CREATE");
     setWhiteboards((prev) => [newWb, ...prev]);
   };
 
@@ -540,6 +586,7 @@ export const AppProvider = ({ children }) => {
             payload: merged,
           });
           scheduleDebouncedSync();
+          emitRealtimeWhiteboardChange(merged, "UPDATE");
           return merged;
         }
         return wb;
@@ -569,6 +616,7 @@ export const AppProvider = ({ children }) => {
               payload: { ...target, isDeleted: true, updatedAt: now },
             });
             scheduleDebouncedSync();
+            emitRealtimeWhiteboardChange({ ...target, isDeleted: true, updatedAt: now }, "DELETE");
           }
           return prev.filter((wb) => wb.id !== id && wb.clientId !== id);
         });

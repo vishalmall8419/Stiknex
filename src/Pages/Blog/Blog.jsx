@@ -1,9 +1,8 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
-import Lenis from "lenis";
 import PageSEO from "../../Component/SEO/PageSEO";
-import { ArrowRight, Sparkles, Zap, BookOpen, Search, Clock, Calendar } from "lucide-react";
+import { ArrowRight, Sparkles, Zap, BookOpen, Search, Clock, Calendar, Loader2 } from "lucide-react";
 import { useAppContext } from "../../context/AppContext";
 import LazyImage from "../../Component/LazyImage";
 import initialBlogs from "./initialBlogs.json";
@@ -78,24 +77,31 @@ const Blog = () => {
       });
   }, []);
   
-  // Smooth scroll init
+  // Dynamic smooth scroll initialization (non-blocking for fast initial render)
   useEffect(() => {
-    if (!isDataLoaded) return;
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smooth: true,
-      wheelMultiplier: 1,
-    });
+    let lenisInstance = null;
+    let rafId = null;
 
-    function raf(time) {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
-    }
-    requestAnimationFrame(raf);
+    import("lenis").then(({ default: Lenis }) => {
+      lenisInstance = new Lenis({
+        duration: 1.2,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        smooth: true,
+        wheelMultiplier: 1,
+      });
 
-    return () => lenis.destroy();
-  }, [isDataLoaded]);
+      function raf(time) {
+        lenisInstance?.raf(time);
+        rafId = requestAnimationFrame(raf);
+      }
+      rafId = requestAnimationFrame(raf);
+    }).catch(() => {});
+
+    return () => {
+      if (rafId) cancelAnimationFrame(rafId);
+      lenisInstance?.destroy();
+    };
+  }, []);
 
   // Categories list
   const categories = useMemo(() => {
@@ -233,7 +239,7 @@ const Blog = () => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* Main Big Feature */}
             <div className="lg:col-span-7 group">
-              <Link to={`/blog/${featuredPost.id}`} className="block relative rounded-3xl overflow-hidden bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xl hover:shadow-2xl transition-all duration-300 h-full flex flex-col">
+              <Link to={`/blog/${featuredPost.id}`} className="relative rounded-3xl overflow-hidden bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xl hover:shadow-2xl transition-all duration-300 h-full flex flex-col">
                 <div className="relative aspect-16/9 sm:aspect-21/9 lg:aspect-16/9 w-full overflow-hidden bg-slate-100 dark:bg-slate-800">
                   <LazyImage
                     src={featuredPost.image}

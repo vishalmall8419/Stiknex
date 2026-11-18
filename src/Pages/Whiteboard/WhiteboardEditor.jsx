@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { useAppContext } from "../../context/AppContext";
 import { Excalidraw, exportToBlob } from "@excalidraw/excalidraw";
 import "@excalidraw/excalidraw/index.css";
@@ -11,12 +11,35 @@ export default function WhiteboardEditor({ whiteboard, onClose, onUpdate }) {
 
   // Throttle saves to avoid performance issues while drawing
   const saveTimeout = useRef(null);
+  const isLocalChange = useRef(false);
+
+  // Synchronize real-time remote updates from other devices via Socket.io / AppContext
+  React.useEffect(() => {
+    if (!excalidrawAPI || !whiteboard?.elements) return;
+    if (isLocalChange.current) return;
+
+    try {
+      const currentElements = excalidrawAPI.getSceneElements();
+      const remoteElements = Array.isArray(whiteboard.elements) ? whiteboard.elements.filter(el => el && el.type) : [];
+      if (currentElements.length !== remoteElements.length || JSON.stringify(currentElements) !== JSON.stringify(remoteElements)) {
+        excalidrawAPI.updateScene({
+          elements: remoteElements,
+        });
+      }
+    } catch (e) {
+      console.warn("Could not sync remote whiteboard scene:", e);
+    }
+  }, [whiteboard?.elements, excalidrawAPI]);
 
   const handleChange = (elements, appState, files) => {
+    isLocalChange.current = true;
     if (saveTimeout.current) clearTimeout(saveTimeout.current);
     saveTimeout.current = setTimeout(() => {
       onUpdate(whiteboard.id, { elements, appState, files });
-    }, 1000);
+      setTimeout(() => {
+        isLocalChange.current = false;
+      }, 400);
+    }, 400);
   };
 
   const handleTitleChange = (e) => {

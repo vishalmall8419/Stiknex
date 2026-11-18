@@ -17,6 +17,7 @@
 }
 
 .paperArea {
+  position: relative;
   overflow-y: auto;
   flex: 1 1 0%;
   min-height: 0;
@@ -303,12 +304,16 @@
 
 @media (max-width: 640px) {
   .paperArea {
-    padding: 0 1rem 0 1rem !important;
+    padding: 0 0.25rem 0 0.25rem !important;
     background-position: 0 0;
   }
 
   .paperColumn {
-    padding-left: 1.4rem;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding-left: 1.2rem;
+    padding-right: 0.35rem;
     min-height: 100%;
   }
 
@@ -947,4 +952,14 @@
   margin-right: 0.4em;
   display: inline-block;
   min-width: 2em;
+}
+
+/* Suppress broken or empty image placeholders */
+.editor img:not([src]),
+.editor img[src=""],
+.editor img[src="#"],
+.editor img[src$='""'],
+.editor img.stiknex-broken-img {
+  display: none !important;
+  visibility: hidden !important;
 }

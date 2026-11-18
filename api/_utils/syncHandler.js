@@ -32,8 +32,8 @@ export async function handleSync(req, res) {
       const token = authHeader.slice(7).trim();
       try {
         const decoded = jwt.verify(token, JWT_SECRET);
-        if (decoded && decoded.id) {
-          userId = decoded.id;
+        if (decoded && (decoded.userId || decoded.id)) {
+          userId = (decoded.userId || decoded.id).toString();
         }
       } catch {
         // Token invalid or expired - proceed as guest

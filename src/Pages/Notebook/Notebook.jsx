@@ -16,6 +16,7 @@ import PenControlsBar from "./PenControlsBar";
 import PageSEO from "../../Component/SEO/PageSEO";
 import Style from "./Notebook.module.css";
 import { useAppContext } from "../../context/AppContext";
+import { emitRealtimeNotebookChange } from "../../services/socketService";
 import NotebookSyncModal from "./NotebookSyncModal";
 import TranslationModal from "./TranslationModal";
 import CommentSidePanel from "./CommentSidePanel";
@@ -426,6 +427,15 @@ const Notebook = () => {
         saveExtendedNote(activeNotebookId, htmlToSave).catch((idbErr) => {
           console.warn("IndexedDB background save error:", idbErr);
         });
+
+        // Broadcast real-time change to all user's connected devices via Socket.io
+        try {
+          emitRealtimeNotebookChange({
+            notebook: { id: activeNotebookId, title, content: htmlToSave, updatedAt: Date.now() },
+            notebooks: updated,
+            comments,
+          });
+        } catch {}
 
         scheduleCloudSync();
       } catch (err) {
@@ -853,20 +863,35 @@ const Notebook = () => {
       if (editorRef.current) {
         editorRef.current.innerHTML = html;
 
-        // Rehydrate images whose src might have been stripped from localStorage
-        const imgs = editorRef.current.querySelectorAll("img[data-img-id]");
-        for (const img of imgs) {
+        // Rehydrate valid images and immediately purge broken / empty image placeholders
+        const imgs = editorRef.current.querySelectorAll("img");
+        for (const img of Array.from(imgs)) {
+          img.onerror = () => {
+            img.style.display = "none";
+            img.remove();
+          };
+
+          const rawSrc = img.getAttribute("src");
+          const imgId = img.getAttribute("data-img-id");
+
           if (
-            !img.src ||
-            img.src === window.location.href ||
-            img.src.endsWith('""')
+            !rawSrc ||
+            rawSrc.trim() === "" ||
+            rawSrc === window.location.href ||
+            rawSrc.endsWith('""') ||
+            rawSrc === "#"
           ) {
-            const imgId = img.getAttribute("data-img-id");
             if (imgId) {
               const data = await getImageFromDb(imgId);
               if (data && !cancelled) {
                 img.src = data;
+              } else {
+                // If data is unavailable, remove element to prevent broken icon box
+                img.remove();
               }
+            } else {
+              // Image tag with missing src and no id
+              img.remove();
             }
           }
         }
@@ -2030,17 +2055,18 @@ const Notebook = () => {
               }}
             />
 
-            {/* Seamless Digital Ink Drawing Layer */}
-            <NotebookDrawingCanvas
-              isActive={isPenMode}
-              tool={penTool}
-              color={penColor}
-              strokeWidth={penWidth}
-              canvasRef={drawingCanvasRef}
-              onStrokeEnd={handleStrokeEnd}
-            />
           </div>
         </div>
+
+        {/* Full-Section Edge-to-Edge Digital Ink Drawing Layer */}
+        <NotebookDrawingCanvas
+          isActive={isPenMode}
+          tool={penTool}
+          color={penColor}
+          strokeWidth={penWidth}
+          canvasRef={drawingCanvasRef}
+          onStrokeEnd={handleStrokeEnd}
+        />
 
         {/* Resizable Image Overlay */}
         {selectedImage && (

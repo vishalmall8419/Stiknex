@@ -40,6 +40,18 @@ const BuyMeACoffee = lazy(
   () => import("./Pages/BuyMeACoffee/BuyMeACoffee")
 );
 
+// Preload Blog chunk during browser idle time to eliminate loading delay
+if (typeof window !== "undefined") {
+  const preloadBlogChunk = () => {
+    import("./Pages/Blog/Blog").catch(() => {});
+  };
+  if ("requestIdleCallback" in window) {
+    window.requestIdleCallback(preloadBlogChunk, { timeout: 2000 });
+  } else {
+    setTimeout(preloadBlogChunk, 1500);
+  }
+}
+
 const Blog = lazy(
   () => import("./Pages/Blog/Blog")
 );
