@@ -72,6 +72,11 @@ export default async function handler(req, res) {
         return handleAiMathSolver(action, req, res);
     }
 
+    if (action === 'sync') {
+        const { handleSync } = await import(`./_utils/syncHandler.js?t=${Date.now()}`);
+        return handleSync(req, res);
+    }
+
     if (action === 'setup-2fa') {
         return handleSetup2FA(req, res);
     }

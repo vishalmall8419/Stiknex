@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
+import { VitePWA } from 'vite-plugin-pwa'
 import path from 'path'
 import fs from 'fs'
 import os from 'os'
@@ -80,6 +81,10 @@ function localApiPlugin() {
           scriptName = 'analytics';
           extraQuery.action = `shortener-${subAction}`;
         }
+        else if (scriptName === 'sync') {
+          scriptName = 'auth';
+          extraQuery.action = 'sync';
+        }
 
         const filePath = path.resolve(process.cwd(), 'api', `${scriptName}.js`);
 
@@ -139,7 +144,78 @@ export default defineConfig(({ command }) => {
   }
 
   return {
-    plugins: [react(), tailwindcss(), localApiPlugin()],
+    plugins: [
+      react(),
+      tailwindcss(),
+      localApiPlugin(),
+      VitePWA({
+        registerType: 'autoUpdate',
+        injectRegister: 'auto',
+        includeAssets: ['Stiknex.png', 'favicon.ico', 'robots.txt'],
+        manifest: {
+          name: 'Stiknex - Free Sticky Notes, Online Notebook & Productivity Tools',
+          short_name: 'Stiknex',
+          description: 'A free, fast, and privacy-friendly digital workspace for sticky notes, distraction-free writing, and everyday productivity tools.',
+          theme_color: '#4F5CFF',
+          background_color: '#ffffff',
+          display: 'standalone',
+          orientation: 'portrait-primary',
+          start_url: '/',
+          id: '/',
+          scope: '/',
+          icons: [
+            {
+              src: '/Stiknex.png',
+              sizes: '192x192',
+              type: 'image/png',
+              purpose: 'any maskable'
+            },
+            {
+              src: '/Stiknex.png',
+              sizes: '512x512',
+              type: 'image/png',
+              purpose: 'any maskable'
+            }
+          ]
+        },
+        workbox: {
+          globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2,ttf,json}'],
+          maximumFileSizeToCacheInBytes: 5000000,
+          navigateFallback: '/index.html',
+          navigateFallbackDenylist: [/^\/api\//, /^\/s\//],
+          runtimeCaching: [
+            {
+              urlPattern: /^https:\/\/fonts\.(?:googleapis|gstatic)\.com\/.*/i,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'google-fonts-cache',
+                expiration: {
+                  maxEntries: 30,
+                  maxAgeSeconds: 60 * 60 * 24 * 365
+                },
+                cacheableResponse: {
+                  statuses: [0, 200]
+                }
+              }
+            },
+            {
+              urlPattern: /^https:\/\/cdnjs\.cloudflare\.com\/.*/i,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'cdn-assets-cache',
+                expiration: {
+                  maxEntries: 20,
+                  maxAgeSeconds: 60 * 60 * 24 * 30
+                },
+                cacheableResponse: {
+                  statuses: [0, 200]
+                }
+              }
+            }
+          ]
+        }
+      })
+    ],
     ...(command === 'serve'
       ? {
           server: {

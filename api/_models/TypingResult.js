@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 
 const TypingResultSchema = new mongoose.Schema(
   {
+    clientId: { type: String, sparse: true, index: true },
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
     username: { type: String, required: true, index: true },
     name: { type: String, required: true },
@@ -22,7 +23,9 @@ const TypingResultSchema = new mongoose.Schema(
       incorrect: { type: Number, default: 0 },
       extra: { type: Number, default: 0 },
       missed: { type: Number, default: 0 }
-    }
+    },
+    isDeleted: { type: Boolean, default: false, index: true },
+    updatedAt: { type: Number, default: Date.now, index: true }
   },
   { timestamps: true }
 );

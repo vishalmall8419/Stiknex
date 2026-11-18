@@ -58,6 +58,10 @@
       "destination": "/api/analytics?action=shortener-$1"
     },
     {
+      "source": "/api/sync",
+      "destination": "/api/auth?action=sync"
+    },
+    {
       "source": "/api/notebook-sync",
       "destination": "/api/auth?action=notebook-sync-push"
     },

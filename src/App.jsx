@@ -1,4 +1,4 @@
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import {
   Routes,
   Route,
@@ -68,6 +68,8 @@ const CommandPalette = lazy(
 );
 const UserDashboard = lazy(() => import("./Pages/Dashboard/UserDashboard"));
 const AuthModal = lazy(() => import("./Component/AuthModal"));
+import SyncStatusBadge from "./Component/SyncStatusBadge";
+import { initSyncEngine } from "./services/syncManager";
 import RouteRestorationTracker from "./Component/RouteRestorationTracker";
 import { ALL_TOOLS } from "./data/toolsRegistry";
 
@@ -95,6 +97,10 @@ const PageLoader = () => {
 
 const App = () => {
   const location = useLocation();
+
+  useEffect(() => {
+    initSyncEngine();
+  }, []);
 
   // Check if current route is an admin or login route
   const isAdminRoute = 
@@ -332,6 +338,7 @@ const App = () => {
           />
         </Routes>
         <AuthModal />
+        <SyncStatusBadge />
       </Suspense>
     </>
   );

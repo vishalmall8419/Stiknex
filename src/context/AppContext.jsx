@@ -1,5 +1,12 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import swal from "sweetalert";
+import {
+  db,
+  generateClientId,
+  enqueueSyncOperation,
+  migrateLocalStorageToDexie
+} from "../db/localDb";
+import { scheduleDebouncedSync } from "../services/syncManager";
 
 const AppContext = createContext();
 
@@ -164,9 +171,34 @@ export const AppProvider = ({ children }) => {
   };
 
   const saveTypingScore = async (scoreData) => {
-    if (!token) {
-      return { success: false, notLoggedIn: true };
+    const clientId = scoreData.clientId || generateClientId();
+    const now = Date.now();
+    const typingRecord = {
+      ...scoreData,
+      clientId,
+      updatedAt: now,
+      createdAt: now,
+      isDeleted: false,
+    };
+
+    // Always persist to local Dexie first (0ms latency, works 100% offline)
+    try {
+      await db.typingResults.put(typingRecord);
+      await enqueueSyncOperation({
+        collection: "typingResults",
+        action: "CREATE",
+        clientId,
+        payload: typingRecord,
+      });
+      scheduleDebouncedSync(1000);
+    } catch (e) {
+      console.warn("[Dexie] Failed to store typing score locally:", e);
     }
+
+    if (!token) {
+      return { success: false, notLoggedIn: true, savedOffline: true };
+    }
+
     try {
       const res = await fetch("/api/auth?action=save-typing-score", {
         method: "POST",
@@ -183,9 +215,9 @@ export const AppProvider = ({ children }) => {
         }
         return { success: true, data };
       }
-      return { success: false, error: data.error };
+      return { success: false, error: data.error, savedOffline: true };
     } catch (err) {
-      return { success: false, error: err.message };
+      return { success: true, savedOffline: true, offline: true };
     }
   };
 
@@ -207,7 +239,59 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  // Sync Notes & Whiteboards
+  // Initialize Local-First Dexie Storage & Load from IndexedDB
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        await migrateLocalStorageToDexie();
+        const activeNotes = await db.notes.filter((n) => !n.isDeleted).toArray();
+        if (mounted && activeNotes.length > 0) {
+          setNotes(
+            activeNotes.map((note, idx) => ({
+              ...note,
+              zIndex: note.zIndex !== undefined ? note.zIndex : idx + 1,
+            }))
+          );
+        }
+        const activeWb = await db.whiteboards.filter((w) => !w.isDeleted).toArray();
+        if (mounted && activeWb.length > 0) {
+          setWhiteboards(activeWb);
+        }
+      } catch (err) {
+        console.warn("[Dexie] Initial load error:", err);
+      }
+    })();
+
+    // Listen for sync completion to refresh remote changes into local UI
+    const handleSyncComplete = async () => {
+      try {
+        const refreshedNotes = await db.notes.filter((n) => !n.isDeleted).toArray();
+        if (refreshedNotes.length > 0) {
+          setNotes(
+            refreshedNotes.map((n, idx) => ({
+              ...n,
+              zIndex: n.zIndex !== undefined ? n.zIndex : idx + 1,
+            }))
+          );
+        }
+        const refreshedWb = await db.whiteboards.filter((w) => !w.isDeleted).toArray();
+        if (refreshedWb.length > 0) {
+          setWhiteboards(refreshedWb);
+        }
+      } catch (e) {
+        console.warn("[Dexie] Post-sync refresh error:", e);
+      }
+    };
+
+    window.addEventListener("stiknex_sync_completed", handleSyncComplete);
+    return () => {
+      mounted = false;
+      window.removeEventListener("stiknex_sync_completed", handleSyncComplete);
+    };
+  }, []);
+
+  // Sync Notes & Whiteboards fallback to localStorage for backwards compatibility
   useEffect(() => {
     localStorage.setItem("notes", JSON.stringify(notes));
   }, [notes]);
@@ -243,16 +327,32 @@ export const AppProvider = ({ children }) => {
     localStorage.setItem("whiteboards", JSON.stringify(whiteboards));
   }, [whiteboards]);
 
-  // Notes API
+  // Local-First Optimistic Notes API
   const addNote = (note) => {
+    const clientId = note.clientId || note.id || generateClientId();
+    const now = Date.now();
     setNotes((prev) => {
       const maxZ = prev.reduce((max, n) => Math.max(max, n.zIndex || 1), 1);
       const newNote = {
         ...note,
+        clientId,
+        id: note.id || clientId,
         zIndex: maxZ + 1,
-        createdAt: note.createdAt || Date.now(),
-        updatedAt: Date.now(),
+        createdAt: note.createdAt || now,
+        updatedAt: now,
+        isDeleted: false,
       };
+
+      // Dexie 0ms write + auto-sync enqueue
+      db.notes.put(newNote).catch(console.error);
+      enqueueSyncOperation({
+        collection: "notes",
+        action: "CREATE",
+        clientId,
+        payload: newNote,
+      });
+      scheduleDebouncedSync();
+
       return [...prev, newNote];
     });
   };
@@ -260,16 +360,34 @@ export const AppProvider = ({ children }) => {
   const bringToFront = (id) => {
     setNotes((prev) => {
       const maxZ = prev.reduce((max, n) => Math.max(max, n.zIndex || 1), 1);
-      const targetNote = prev.find((n) => n.id === id);
+      const targetNote = prev.find((n) => n.id === id || n.clientId === id);
       if (!targetNote || targetNote.zIndex === maxZ) return prev;
-      return prev.map((n) => (n.id === id ? { ...n, zIndex: maxZ + 1 } : n));
+      return prev.map((n) => (n.id === id || n.clientId === id ? { ...n, zIndex: maxZ + 1 } : n));
     });
   };
+
   const deleteNote = (id) => {
-    setNotes((prev) => prev.map((note) =>
-      note.id === id ? { ...note, trashedAt: Date.now(), updatedAt: Date.now() } : note,
-    ));
+    const now = Date.now();
+    setNotes((prev) =>
+      prev.map((note) => {
+        if (note.id === id || note.clientId === id) {
+          const trashed = { ...note, trashedAt: now, updatedAt: now };
+          const clientId = trashed.clientId || trashed.id;
+          db.notes.put(trashed).catch(console.error);
+          enqueueSyncOperation({
+            collection: "notes",
+            action: "UPDATE",
+            clientId,
+            payload: trashed,
+          });
+          scheduleDebouncedSync();
+          return trashed;
+        }
+        return note;
+      })
+    );
   };
+
   const deleteMultipleNotes = (ids) => {
     swal({
       title: "Move notes to Trash?",
@@ -277,31 +395,158 @@ export const AppProvider = ({ children }) => {
       icon: "warning",
       buttons: ["Cancel", "Move to Trash"],
     }).then((shouldTrash) => {
-      if (shouldTrash) setNotes((prev) => prev.map((note) => ids.includes(note.id)
-        ? { ...note, trashedAt: Date.now(), updatedAt: Date.now() }
-        : note));
+      if (shouldTrash) {
+        const now = Date.now();
+        setNotes((prev) =>
+          prev.map((note) => {
+            if (ids.includes(note.id) || ids.includes(note.clientId)) {
+              const trashed = { ...note, trashedAt: now, updatedAt: now };
+              const clientId = trashed.clientId || trashed.id;
+              db.notes.put(trashed).catch(console.error);
+              enqueueSyncOperation({
+                collection: "notes",
+                action: "UPDATE",
+                clientId,
+                payload: trashed,
+              });
+              scheduleDebouncedSync();
+              return trashed;
+            }
+            return note;
+          })
+        );
+      }
     });
   };
+
   const restoreNote = (id) => {
-    setNotes((prev) => prev.map((note) => note.id === id
-      ? { ...note, trashedAt: null, updatedAt: Date.now() }
-      : note));
-  };
-  const permanentlyDeleteNote = (id) => {
-    setNotes((prev) => prev.filter((note) => note.id !== id));
-  };
-  const emptyTrash = () => {
-    setNotes((prev) => prev.filter((note) => !note.trashedAt));
-  };
-  const updateNote = (id, updatedData) => {
-    setNotes((prev) => prev.map((note) => (note.id === id ? { ...note, ...updatedData, updatedAt: Date.now() } : note)));
+    const now = Date.now();
+    setNotes((prev) =>
+      prev.map((note) => {
+        if (note.id === id || note.clientId === id) {
+          const restored = { ...note, trashedAt: null, updatedAt: now };
+          const clientId = restored.clientId || restored.id;
+          db.notes.put(restored).catch(console.error);
+          enqueueSyncOperation({
+            collection: "notes",
+            action: "UPDATE",
+            clientId,
+            payload: restored,
+          });
+          scheduleDebouncedSync();
+          return restored;
+        }
+        return note;
+      })
+    );
   };
 
-  // Whiteboard API
-  const addWhiteboard = (wb) => setWhiteboards((prev) => [{ ...wb, updatedAt: Date.now() }, ...prev]);
-  const updateWhiteboard = (id, updatedData) => {
-    setWhiteboards((prev) => prev.map((wb) => (wb.id === id ? { ...wb, ...updatedData, updatedAt: Date.now() } : wb)));
+  const permanentlyDeleteNote = (id) => {
+    const now = Date.now();
+    setNotes((prev) => {
+      const target = prev.find((n) => n.id === id || n.clientId === id);
+      if (target) {
+        const clientId = target.clientId || target.id;
+        db.notes.put({ ...target, isDeleted: true, updatedAt: now }).catch(console.error);
+        enqueueSyncOperation({
+          collection: "notes",
+          action: "DELETE",
+          clientId,
+          payload: { ...target, isDeleted: true, updatedAt: now },
+        });
+        scheduleDebouncedSync();
+      }
+      return prev.filter((note) => note.id !== id && note.clientId !== id);
+    });
   };
+
+  const emptyTrash = () => {
+    const now = Date.now();
+    setNotes((prev) => {
+      prev.forEach((note) => {
+        if (note.trashedAt) {
+          const clientId = note.clientId || note.id;
+          db.notes.put({ ...note, isDeleted: true, updatedAt: now }).catch(console.error);
+          enqueueSyncOperation({
+            collection: "notes",
+            action: "DELETE",
+            clientId,
+            payload: { ...note, isDeleted: true, updatedAt: now },
+          });
+        }
+      });
+      scheduleDebouncedSync();
+      return prev.filter((note) => !note.trashedAt);
+    });
+  };
+
+  const updateNote = (id, updatedData) => {
+    const now = Date.now();
+    setNotes((prev) =>
+      prev.map((note) => {
+        if (note.id === id || note.clientId === id) {
+          const merged = { ...note, ...updatedData, updatedAt: now };
+          const clientId = merged.clientId || merged.id;
+          db.notes.put(merged).catch(console.error);
+          enqueueSyncOperation({
+            collection: "notes",
+            action: "UPDATE",
+            clientId,
+            payload: merged,
+          });
+          scheduleDebouncedSync();
+          return merged;
+        }
+        return note;
+      })
+    );
+  };
+
+  // Local-First Optimistic Whiteboard API
+  const addWhiteboard = (wb) => {
+    const clientId = wb.clientId || wb.id || generateClientId();
+    const now = Date.now();
+    const newWb = {
+      ...wb,
+      clientId,
+      id: wb.id || clientId,
+      createdAt: wb.createdAt || now,
+      updatedAt: now,
+      isDeleted: false,
+    };
+    db.whiteboards.put(newWb).catch(console.error);
+    enqueueSyncOperation({
+      collection: "whiteboards",
+      action: "CREATE",
+      clientId,
+      payload: newWb,
+    });
+    scheduleDebouncedSync();
+    setWhiteboards((prev) => [newWb, ...prev]);
+  };
+
+  const updateWhiteboard = (id, updatedData) => {
+    const now = Date.now();
+    setWhiteboards((prev) =>
+      prev.map((wb) => {
+        if (wb.id === id || wb.clientId === id) {
+          const merged = { ...wb, ...updatedData, updatedAt: now };
+          const clientId = merged.clientId || merged.id;
+          db.whiteboards.put(merged).catch(console.error);
+          enqueueSyncOperation({
+            collection: "whiteboards",
+            action: "UPDATE",
+            clientId,
+            payload: merged,
+          });
+          scheduleDebouncedSync();
+          return merged;
+        }
+        return wb;
+      })
+    );
+  };
+
   const deleteWhiteboard = (id) => {
     swal({
       title: "Delete Drawing?",
@@ -310,7 +555,24 @@ export const AppProvider = ({ children }) => {
       buttons: ["Cancel", "Delete"],
       dangerMode: true,
     }).then((willDelete) => {
-      if (willDelete) setWhiteboards((prev) => prev.filter((wb) => wb.id !== id));
+      if (willDelete) {
+        const now = Date.now();
+        setWhiteboards((prev) => {
+          const target = prev.find((w) => w.id === id || w.clientId === id);
+          if (target) {
+            const clientId = target.clientId || target.id;
+            db.whiteboards.put({ ...target, isDeleted: true, updatedAt: now }).catch(console.error);
+            enqueueSyncOperation({
+              collection: "whiteboards",
+              action: "DELETE",
+              clientId,
+              payload: { ...target, isDeleted: true, updatedAt: now },
+            });
+            scheduleDebouncedSync();
+          }
+          return prev.filter((wb) => wb.id !== id && wb.clientId !== id);
+        });
+      }
     });
   };
 
