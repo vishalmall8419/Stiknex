@@ -8,15 +8,30 @@ const listeners = new Set();
 
 // Determine socket server target
 function getSocketUrl() {
-  if (typeof window === "undefined") return "";
+  if (typeof window === "undefined") return null;
   if (import.meta.env.VITE_SOCKET_URL) {
     return import.meta.env.VITE_SOCKET_URL;
   }
-  if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
-    // Default to Express server on port 5000 during local dev if on localhost
-    return "http://localhost:5000";
+  try {
+    const custom = localStorage.getItem("stiknex_custom_socket_url");
+    if (custom) return custom;
+  } catch {}
+
+  const host = window.location.hostname;
+  if (
+    host === "localhost" ||
+    host === "127.0.0.1" ||
+    host.startsWith("192.168.") ||
+    host.startsWith("10.") ||
+    host.startsWith("172.")
+  ) {
+    // When developing locally or on local WiFi, connect to Express server on port 5000
+    return `${window.location.protocol}//${host}:5000`;
   }
-  return window.location.origin;
+
+  // On production serverless hosting (Vercel), persistent WebSockets to window.location.origin
+  // are not supported by Vercel serverless functions. Avoid attempting a broken WebSocket connection.
+  return null;
 }
 
 /**
@@ -39,16 +54,28 @@ export function initSocketService() {
   }
 
   const socketUrl = getSocketUrl();
+  if (!socketUrl) {
+    // In production on Vercel without an external socket relay, native BroadcastChannel
+    // and adaptive cloud polling handle sync without throwing WebSocket connection errors.
+    console.log("[Realtime Sync] Active via Local Mesh Channel & Cloud Synchronization.");
+    return null;
+  }
+
   console.log("[Socket.io] Connecting to realtime mesh at:", socketUrl);
 
-  socket = io(socketUrl, {
-    transports: ["websocket", "polling"],
-    reconnection: true,
-    reconnectionAttempts: Infinity,
-    reconnectionDelay: 1000,
-    reconnectionDelayMax: 5000,
-    timeout: 20000,
-  });
+  try {
+    socket = io(socketUrl, {
+      transports: ["polling", "websocket"],
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 2000,
+      reconnectionDelayMax: 10000,
+      timeout: 10000,
+    });
+  } catch (err) {
+    console.warn("[Socket.io] Init warning:", err);
+    return null;
+  }
 
   socket.on("connect", () => {
     console.log("[Socket.io] Connected to realtime mesh with id:", socket.id);

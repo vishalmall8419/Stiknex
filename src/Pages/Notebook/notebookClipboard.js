@@ -672,6 +672,17 @@ export async function handleRichClipboardPaste(e, editor, saveImageFn, onContent
     return false;
   }
 
+  // 1. If user is pasting HTML/CSS/JS source code, insert as raw readable code
+  // so the user can inspect/edit it in the notepad and click 'Run' to execute in a new tab!
+  if (rawText && isCodeSnippet(rawText)) {
+    e.preventDefault();
+    insertCodeAsText(editor, rawText);
+    if (typeof onContentChange === 'function') {
+      onContentChange();
+    }
+    return true;
+  }
+
   // Rich text, table, or TSV paste detected — prevent unstyled browser default
   e.preventDefault();
 
@@ -817,6 +828,73 @@ export function deleteTable(cell) {
   range.setStart(p, 0);
   range.collapse(true);
   const sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
+}
+
+
+/**
+ * Detects if a text snippet represents raw HTML/CSS/JS or programming source code
+ */
+export function isCodeSnippet(text) {
+  if (!text || typeof text !== 'string') return false;
+  const trimmed = text.trim();
+  if (trimmed.length < 4) return false;
+
+  // Explicit HTML document/structure starters
+  if (/^<(?:!DOCTYPE|html|head|body|script|style|\?xml|\?php)/i.test(trimmed)) return true;
+
+  // HTML tags in raw text (e.g. <div>...</div>, <h1>...</h1>, <button>...</button>)
+  const tagMatches = trimmed.match(/<\/?[a-z1-6]+(?:\s+[^>]*)?>/gi);
+  if (tagMatches && tagMatches.length >= 2) return true;
+
+  // Single standalone complete HTML block (e.g. <div class="...">...</div>)
+  if (/^<([a-z1-6]+)[^>]*>[\s\S]*<\/\1>$/i.test(trimmed)) return true;
+
+  // Common programming function / variable declarations
+  if (/\b(?:function\s*\(|const\s+\w+\s*=|let\s+\w+\s*=|import\s+.*from|class\s+\w+|def\s+\w+\()/i.test(trimmed)) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * Inserts code as readable preformatted text rather than rendering active HTML DOM
+ */
+export function insertCodeAsText(editor, codeText) {
+  if (!editor || !codeText) return;
+
+  const sel = window.getSelection();
+  if (!sel || sel.rangeCount === 0) return;
+
+  const range = sel.getRangeAt(0);
+  range.deleteContents();
+
+  // Escape HTML entities so code displays visibly as text
+  const escaped = codeText
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+
+  const lines = escaped.split('\n');
+  const frag = document.createDocumentFragment();
+
+  lines.forEach((line) => {
+    const p = document.createElement('p');
+    p.style.margin = '0';
+    p.style.fontFamily = 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace';
+    p.style.fontSize = '15px';
+    p.style.lineHeight = '1.6';
+    p.style.whiteSpace = 'pre-wrap';
+    p.innerHTML = line ? line.replace(/ /g, '&nbsp;') : '<br>';
+    frag.appendChild(p);
+  });
+
+  range.insertNode(frag);
+
+  // Position cursor right after the inserted code
+  range.collapse(false);
   sel.removeAllRanges();
   sel.addRange(range);
 }

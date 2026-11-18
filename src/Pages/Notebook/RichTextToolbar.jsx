@@ -86,6 +86,8 @@ const RichTextToolbar = ({
   fontFamily = "inter",
   onSelectFontFamily,
   altKeyActive: propAltKeyActive,
+  onRunCode,
+  isCodeExecutable = false,
 }) => {
   const [activeFormats, setActiveFormats] = useState({
     bold: false,
@@ -1413,6 +1415,28 @@ const RichTextToolbar = ({
 
         {/* Book layout & Read mode removed per user request */}
       </div>
+
+      
+      {/* Run HTML/CSS/JS Code in New Tab */}
+      {onRunCode && (
+        <>
+          <div className={Style.divider} />
+          <button
+            type="button"
+            className={`${Style.toolBtn} ${Style.runCodeBtn} ${isCodeExecutable ? Style.runCodeBtnActive : ""}`}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              onRunCode();
+            }}
+            title="Run HTML, CSS & JavaScript Code in New Tab (Ctrl+Enter)"
+            aria-label="Run Code in New Tab"
+          >
+            <i className="fa-solid fa-play" style={{ color: isCodeExecutable ? "#10b981" : "#059669", fontSize: "11px" }}></i>
+            <span className={Style.btnLabel} style={{ fontWeight: 700, color: isCodeExecutable ? "#059669" : "inherit" }}>Run</span>
+            {altKeyActive && <span className={Style.keytipBadge}>R</span>}
+          </button>
+        </>
+      )}
 
       {/* Quick Paper Style Selector */}
       {onSelectPaperType && (

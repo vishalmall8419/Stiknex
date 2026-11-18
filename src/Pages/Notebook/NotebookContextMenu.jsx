@@ -8,6 +8,7 @@ const NotebookContextMenu = ({
   tableCell,
   selectedText,
   onClose,
+  onRunCode,
   onAddComment,
   onTranslate,
   onInsertImageUrl,
@@ -89,6 +90,20 @@ const NotebookContextMenu = ({
       role="menu"
       aria-label="Notebook actions menu"
     >
+            {/* RUN HTML, CSS & JAVASCRIPT CODE */}
+      {onRunCode && (
+        <button
+          type="button"
+          className={Style.item}
+          onClick={() => handleAction(onRunCode)}
+          style={{ fontWeight: 600, color: "#10b981" }}
+        >
+          <i className="fa-solid fa-play" style={{ color: "#10b981" }}></i>
+          <span>{selectedText ? "Run Selected Code in New Tab" : "Run Code in New Tab"}</span>
+          <span className={Style.shortcut}>Ctrl+Enter</span>
+        </button>
+      )}
+
       {/* 1. COMMENTS & TRANSLATION */}
       <button
         type="button"

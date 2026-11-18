@@ -963,3 +963,8 @@
   display: none !important;
   visibility: hidden !important;
 }
+
+/* Prevent unwanted scrolling when notepad is completely empty */
+.paperArea:has(.editor[data-empty="true"]) {
+  overflow-y: hidden !important;
+}

@@ -15,6 +15,7 @@ import NotebookDrawingCanvas from "./NotebookDrawingCanvas";
 import PenControlsBar from "./PenControlsBar";
 import PageSEO from "../../Component/SEO/PageSEO";
 import Style from "./Notebook.module.css";
+import { isExecutableCode, runCodeInNewTab } from "./notebookCodeRunner";
 import { useAppContext } from "../../context/AppContext";
 import { emitRealtimeNotebookChange } from "../../services/socketService";
 import NotebookSyncModal from "./NotebookSyncModal";
@@ -208,6 +209,16 @@ const findMatches = (text, query) => {
 };
 
 const Notebook = () => {
+  // Compile & execute HTML, CSS, or JS in a dedicated preview tab
+  const handleRunCode = useCallback(() => {
+    const selection = window.getSelection()?.toString()?.trim();
+    const sourceCode = selection || editorRef.current?.innerText || text || "";
+    if (!sourceCode.trim()) {
+      return;
+    }
+    runCodeInNewTab(sourceCode, title || "Notebook Code");
+  }, [title, text]);
+
   // Shared audio, timer, snapshots and unicode tools
   const location = useLocation();
 
@@ -1973,6 +1984,8 @@ const Notebook = () => {
           syncStatus={syncStatus}
           onOpenSyncModal={() => setSyncModalOpen(true)}
           onDismissAltKeytips={() => setAltKeyActive(false)}
+          onRunCode={handleRunCode}
+          isCodeExecutable={isExecutableCode(text || editorRef.current?.innerText || "")}
           altKeyActive={altKeyActive}
           altShortcutsEnabled={!moreMenuOpen}
           moreMenuOpen={moreMenuOpen}
@@ -2010,6 +2023,8 @@ const Notebook = () => {
           onOpenImageUrl={() => setImageUrlModalOpen(true)}
           onOpenShortcuts={() => setShortcutsModalOpen(true)}
           onDismissAltKeytips={() => setAltKeyActive(false)}
+          onRunCode={handleRunCode}
+          isCodeExecutable={isExecutableCode(text || editorRef.current?.innerText || "")}
           fontFamily={settings.fontFamily || "inter"}
           onSelectFontFamily={(f) => updateSetting("fontFamily", f)}
           altKeyActive={altKeyActive && !moreMenuOpen}
@@ -2107,6 +2122,7 @@ const Notebook = () => {
           y={contextMenu.y}
           darkMode={darkMode}
           tableCell={contextMenu.tableCell}
+          onRunCode={handleRunCode}
           onClose={() => setContextMenu((prev) => ({ ...prev, open: false }))}
           onInsertTableRowAbove={() => {
             if (contextMenu.tableCell) {

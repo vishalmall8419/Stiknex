@@ -21,14 +21,18 @@ const NotebookDrawingCanvas = ({
     if (!canvas || !canvas.parentElement) return;
 
     const parent = canvas.parentElement;
-    const width = Math.max(parent.scrollWidth, parent.clientWidth, window.innerWidth);
-    const height = Math.max(parent.scrollHeight, parent.clientHeight, window.innerHeight, 1200);
+    const paperCol = parent.querySelector?.('[class*="paperColumn"]') || parent.firstElementChild;
+
+    // Use actual paper/content dimensions without inflating empty containers
+    const contentWidth = Math.max(parent.clientWidth, paperCol ? paperCol.scrollWidth : parent.clientWidth);
+    const hasOverflow = paperCol && paperCol.scrollHeight > parent.clientHeight + 4;
+    const contentHeight = hasOverflow ? paperCol.scrollHeight : parent.clientHeight;
     const dpr = window.devicePixelRatio || 1;
 
-    if (width <= 0 || height <= 0) return;
+    if (contentWidth <= 0 || contentHeight <= 0) return;
 
-    const newPixelWidth = Math.floor(width * dpr);
-    const newPixelHeight = Math.floor(height * dpr);
+    const newPixelWidth = Math.floor(contentWidth * dpr);
+    const newPixelHeight = Math.floor(contentHeight * dpr);
 
     if (canvas.width !== newPixelWidth || canvas.height !== newPixelHeight) {
       // Preserve existing drawing before resizing
@@ -50,12 +54,12 @@ const NotebookDrawingCanvas = ({
         ctx.lineCap = "round";
         ctx.lineJoin = "round";
         if (tempCanvas) {
-          ctx.drawImage(tempCanvas, 0, 0, width, height);
+          ctx.drawImage(tempCanvas, 0, 0, contentWidth, contentHeight);
         }
       }
     }
-    canvas.style.width = `${width}px`;
-    canvas.style.height = `${height}px`;
+    canvas.style.width = "100%";
+    canvas.style.height = hasOverflow ? `${contentHeight}px` : "100%";
   }, [activeCanvasRef]);
 
   useEffect(() => {
