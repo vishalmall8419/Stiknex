@@ -4,6 +4,9 @@ import speakeasy from 'speakeasy';
 import QRCode from 'qrcode';
 import jwt from 'jsonwebtoken';
 import handleNotebookSync from './_utils/notebookSyncHandler.js';
+import { handleSync } from './_utils/syncHandler.js';
+import { handleUserAuthAction } from './_utils/userAuthHandler.js';
+import { handleAiMathSolver } from './_utils/aiMathSolver.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_stiknex_super_secret_key_2026';
 const MAX_LOGIN_ATTEMPTS = 5;
@@ -63,17 +66,14 @@ export default async function handler(req, res) {
         action === 'save-typing-score' ||
         action === 'typing-leaderboard'
     ) {
-        const { handleUserAuthAction } = await import(`./_utils/userAuthHandler.js?t=${Date.now()}`);
         return handleUserAuthAction(action, req, res);
     }
 
     if (action === 'ai-math-solve' || action === 'ai-fraction-solve') {
-        const { handleAiMathSolver } = await import(`./_utils/aiMathSolver.js?t=${Date.now()}`);
         return handleAiMathSolver(action, req, res);
     }
 
     if (action === 'sync') {
-        const { handleSync } = await import(`./_utils/syncHandler.js?t=${Date.now()}`);
         return handleSync(req, res);
     }
 
