@@ -164,16 +164,26 @@ export function scheduleDebouncedSync(delay = 2000) {
 export function initSyncEngine() {
   if (typeof window === 'undefined') return;
 
-  // Sync automatically as soon as internet reconnects
+  // Sync automatically as soon as internet reconnects or tab becomes active
   window.addEventListener('online', () => {
-    console.log('[SyncManager] Online detected. Auto-syncing in background...');
     setSyncStatus('idle');
     triggerSync();
   });
 
   window.addEventListener('offline', () => {
-    console.log('[SyncManager] Offline mode active. All edits safely saved in local IndexedDB.');
     setSyncStatus('offline');
+  });
+
+  window.addEventListener('focus', () => {
+    if (typeof navigator !== 'undefined' && navigator.onLine) {
+      triggerSync();
+    }
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    if (typeof navigator !== 'undefined' && navigator.onLine && !document.hidden) {
+      triggerSync();
+    }
   });
 
   // Trigger initial sync on startup if online
@@ -183,16 +193,13 @@ export function initSyncEngine() {
     }, 1500);
   }
 
-  // Periodic silent background sync every 30 seconds to catch any queued items
+  // Periodic silent background sync every 10 seconds to auto-pull remote changes and flush queue
   setInterval(async () => {
-    if (typeof navigator !== 'undefined' && navigator.onLine) {
+    if (typeof navigator !== 'undefined' && navigator.onLine && !document.hidden) {
       try {
-        const count = await db.syncQueue.count();
-        if (count > 0) {
-          triggerSync();
-        }
+        triggerSync();
       } catch {}
     }
-  }, 30000);
+  }, 10000);
 }
 

@@ -234,6 +234,7 @@ const Notebook = () => {
   const [altKeyActive, setAltKeyActive] = useState(false);
   const [syncStatus, setSyncStatus] = useState(() => (getSyncIdentity() ? "synced" : "idle"));
   const cloudSyncTimeoutRef = useRef(null);
+  const lastUserEditTimestampRef = useRef(0);
 
   // Read mode, Book layout, Comments & Translation modals
   const [readMode, setReadMode] = useState(false);
@@ -302,7 +303,7 @@ const Notebook = () => {
         console.error("Notebook cloud sync failed:", error);
         setSyncStatus("idle");
       }
-    }, 2500);
+    }, 1200);
   }, []);
 
   const handleStatsMouseEnter = useCallback(() => {
@@ -417,7 +418,11 @@ const Notebook = () => {
         // Instant save feedback to user (< 5ms)
         setSaveState("saved");
 
-        // 2. High-capacity content persistence to IndexedDB (asynchronous & non-blocking)
+        // 2. High-capacity content persistence to IndexedDB and fast localStorage cache
+        try {
+          localStorage.setItem(`nb_content_${activeNotebookId}`, htmlToSave);
+        } catch {}
+
         saveExtendedNote(activeNotebookId, htmlToSave).catch((idbErr) => {
           console.warn("IndexedDB background save error:", idbErr);
         });
@@ -542,6 +547,7 @@ const Notebook = () => {
 
   // Trigger content change: updates stats, updates text state, records history, debounces autosave
   const handleContentChange = useCallback((isImmediate = false) => {
+    lastUserEditTimestampRef.current = Date.now();
     if (!editorRef.current) return;
     updateStats();
     const currentHtml = editorRef.current.innerHTML;
@@ -793,7 +799,14 @@ const Notebook = () => {
         console.warn("Could not read notebook content from IndexedDB:", error);
       }
 
-      // 2. Fallback to localStorage notebook record
+      // 2. Fast cache: check direct localStorage item
+      if (!rawContent) {
+        try {
+          rawContent = localStorage.getItem(`nb_content_${activeNotebookId}`);
+        } catch {}
+      }
+
+      // 3. Fallback to localStorage notebook record
       if (!rawContent) {
         const found = notebooks.find((nb) => nb.id === activeNotebookId);
         rawContent = found ? found.content : "";
@@ -807,6 +820,27 @@ const Notebook = () => {
               console.error("Could not migrate notebook metadata to localStorage:", error);
               setSaveState("error");
             }
+          }
+        }
+      }
+
+      // 4. Content-Aware Preservation: If note is empty, check if another note matches by title and has content
+      if (!rawContent && title) {
+        const titleNorm = title.trim().toLowerCase();
+        const titleMatch = notebooks.find(
+          (nb) => nb.title && nb.title.trim().toLowerCase() === titleNorm && nb.id !== activeNotebookId
+        );
+        if (titleMatch) {
+          rawContent = titleMatch.content;
+          if (!rawContent) {
+            try {
+              rawContent = localStorage.getItem(`nb_content_${titleMatch.id}`);
+            } catch {}
+          }
+          if (!rawContent) {
+            try {
+              rawContent = await getExtendedNote(titleMatch.id);
+            } catch {}
           }
         }
       }
@@ -957,21 +991,51 @@ const Notebook = () => {
     handlePairingDeepLink();
   }, []);
 
-  // Handle background remote sync notifications and online event
+  // Handle background remote sync notifications, cross-device polling, and online events
   useEffect(() => {
+    let isSubscribed = true;
+
     const handleRemoteSync = (e) => {
       const payload = e.detail?.remotePayload;
       if (!payload) return;
       if (Array.isArray(payload.notebooks) && payload.notebooks.length > 0) {
         setNotebooks(payload.notebooks);
-        const active = payload.notebooks.find((nb) => nb.id === activeNotebookId) || payload.notebooks[0];
-        if (active) {
-          setTitle(active.title);
-          setText(active.content || "");
-          setComments(payload.comments?.[active.id] || []);
-          if (editorRef.current && editorRef.current.innerHTML !== active.content) {
-            editorRef.current.innerHTML = plainTextToHtml(active.content || "");
+
+        // 1. First look for exact ID match
+        let active = payload.notebooks.find((nb) => nb.id === activeNotebookId);
+
+        // 2. If not found by ID, look for match by title (case-insensitive)
+        if (!active && title) {
+          const currentTitleNorm = title.trim().toLowerCase();
+          active = payload.notebooks.find(
+            (nb) => nb.title && nb.title.trim().toLowerCase() === currentTitleNorm
+          );
+          if (active) {
+            setActiveNotebookId(active.id);
           }
+        }
+
+        // 3. Fallback to first notebook
+        if (!active) {
+          active = payload.notebooks[0];
+          if (active) setActiveNotebookId(active.id);
+        }
+
+        if (active) {
+          setTitle(active.title || DEFAULT_NOTEBOOK_TITLE);
+          const activeHtml = plainTextToHtml(active.content || "");
+          setText(activeHtml);
+          setComments(payload.comments?.[active.id] || []);
+
+          if (editorRef.current && editorRef.current.innerHTML !== activeHtml) {
+            editorRef.current.innerHTML = activeHtml;
+            updateStats();
+          }
+
+          try {
+            localStorage.setItem(`nb_content_${active.id}`, active.content || "");
+          } catch {}
+          saveExtendedNote(active.id, active.content || "").catch(() => {});
         }
       }
       if (payload.settings && typeof payload.settings === "object") {
@@ -980,22 +1044,64 @@ const Notebook = () => {
       setSyncStatus("synced");
     };
 
-    const handleOnline = () => {
-      if (getSyncIdentity()) {
-        pullFromCloud().then((res) => {
-          if (res?.success) setSyncStatus("synced");
-        });
+    // Auto-pull immediately on mount
+    if (getSyncIdentity() && typeof navigator !== "undefined" && navigator.onLine) {
+      pullFromCloud().then((res) => {
+        if (res?.success && isSubscribed) setSyncStatus("synced");
+      }).catch(() => {});
+    }
+
+    // Auto-pull when window gains focus (switching from another app or tab)
+    const handleFocus = () => {
+      if (getSyncIdentity() && typeof navigator !== "undefined" && navigator.onLine) {
+        pullFromCloud().catch(() => {});
       }
     };
 
+    // Auto-pull when document becomes visible
+    const handleVisibilityChange = () => {
+      if (!document.hidden && getSyncIdentity() && typeof navigator !== "undefined" && navigator.onLine) {
+        pullFromCloud().catch(() => {});
+      }
+    };
+
+    // Auto-pull on reconnect
+    const handleOnline = () => {
+      if (getSyncIdentity()) {
+        pullFromCloud().then((res) => {
+          if (res?.success && isSubscribed) setSyncStatus("synced");
+        }).catch(() => {});
+      }
+    };
+
+    // Silent background polling: every 5 seconds check for cloud updates if user is not actively typing
+    const pollInterval = setInterval(() => {
+      if (
+        isSubscribed &&
+        !document.hidden &&
+        getSyncIdentity() &&
+        typeof navigator !== "undefined" &&
+        navigator.onLine &&
+        Date.now() - (lastUserEditTimestampRef.current || 0) > 3000
+      ) {
+        pullFromCloud().catch(() => {});
+      }
+    }, 5000);
+
     window.addEventListener("stiknex_notebook_synced", handleRemoteSync);
     window.addEventListener("online", handleOnline);
+    window.addEventListener("focus", handleFocus);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
+      isSubscribed = false;
+      clearInterval(pollInterval);
       window.removeEventListener("stiknex_notebook_synced", handleRemoteSync);
       window.removeEventListener("online", handleOnline);
+      window.removeEventListener("focus", handleFocus);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [activeNotebookId]);
+  }, [activeNotebookId, title]);
 
   const handleNewNotebook = () => {
     const newNotebook = {

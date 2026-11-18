@@ -3,9 +3,10 @@ import { Link } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Lenis from "lenis";
 import PageSEO from "../../Component/SEO/PageSEO";
-import { ArrowRight, Sparkles, Zap, BookOpen, Loader2, Search, Clock, Calendar } from "lucide-react";
+import { ArrowRight, Sparkles, Zap, BookOpen, Search, Clock, Calendar } from "lucide-react";
 import { useAppContext } from "../../context/AppContext";
 import LazyImage from "../../Component/LazyImage";
+import initialBlogs from "./initialBlogs.json";
 
 // Smooth ambient gradient background
 const AuroraBackground = React.memo(() => (
@@ -37,9 +38,18 @@ const Blog = () => {
   const { scrollYProgress } = useScroll();
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
   
-  const [blogsData, setBlogsData] = useState([]);
+  const [blogsData, setBlogsData] = useState(() => {
+    try {
+      const cached = localStorage.getItem("stiknex_cached_blogs");
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch {}
+    return initialBlogs;
+  });
   const [visibleCount, setVisibleCount] = useState(18);
-  const [isDataLoaded, setIsDataLoaded] = useState(false);
+  const [isDataLoaded, setIsDataLoaded] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   
@@ -58,6 +68,9 @@ const Blog = () => {
         }));
         setBlogsData(formatted);
         setIsDataLoaded(true);
+        try {
+          localStorage.setItem("stiknex_cached_blogs", JSON.stringify(formatted));
+        } catch {}
       })
       .catch(err => {
         console.error("Error loading blogs:", err);
@@ -121,13 +134,7 @@ const Blog = () => {
     return () => observer.disconnect();
   }, [isDataLoaded, visibleCount, filteredBlogs.length]);
 
-  if (!isDataLoaded) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
-        <Loader2 size={48} className="animate-spin text-indigo-500" />
-      </div>
-    );
-  }
+
 
   return (
     <div ref={containerRef} className="relative min-h-screen overflow-x-clip text-slate-900 dark:text-slate-100 selection:bg-indigo-500/30 font-sans">

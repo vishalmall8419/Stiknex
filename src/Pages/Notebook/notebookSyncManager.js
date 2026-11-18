@@ -403,32 +403,71 @@ async function handleConflictResolution(identity, cryptoKey, conflictData) {
     const mergedList = [...localList];
 
     for (const rNote of remoteList) {
-      const localIdx = mergedList.findIndex((n) => n.id === rNote.id);
+      let localIdx = mergedList.findIndex((n) => n.id === rNote.id);
+      if (localIdx === -1 && rNote.title) {
+        // Also match by normalized title so different IDs for the same notebook are merged in-place
+        const rTitleNorm = rNote.title.trim().toLowerCase();
+        localIdx = mergedList.findIndex((n) => n.title && n.title.trim().toLowerCase() === rTitleNorm);
+      }
+
       if (localIdx === -1) {
         // Remote note created on another device -> Add it
         mergedList.push(rNote);
+        if (rNote.id && rNote.content) {
+          try {
+            localStorage.setItem(`nb_content_${rNote.id}`, rNote.content);
+          } catch {}
+          saveExtendedNote(rNote.id, rNote.content).catch(() => {});
+        }
       } else {
         const lNote = mergedList[localIdx];
-        if (lNote.content !== rNote.content) {
-          // Both devices edited the same note!
-          // Preserve local version and preserve remote version as a conflict copy
-          if ((rNote.updatedAt || 0) > (lNote.updatedAt || 0)) {
-            mergedList[localIdx] = rNote;
-            mergedList.push({
-              ...lNote,
-              id: 'conflict_' + Math.random().toString(36).substring(2, 9),
-              title: `${lNote.title} (Local conflict copy)`,
-              updatedAt: Date.now(),
-            });
+        const canonicalId = rNote.id || lNote.id;
+
+        // Zero-Conflict Content-Aware Scheduling Algorithm:
+        // 1. Content Preservation Check: If one note has substantive content and the other is empty / whitespace,
+        //    ALWAYS preserve the note with content! Never overwrite real content with empty data.
+        const lHasContent = lNote.content && lNote.content.replace(/<[^>]+>/g, '').trim().length > 0;
+        const rHasContent = rNote.content && rNote.content.replace(/<[^>]+>/g, '').trim().length > 0;
+
+        let winningContent = lNote.content;
+        let winningNote = lNote;
+
+        if (rHasContent && !lHasContent) {
+          // Remote has real content, local is empty -> Remote wins in-place
+          winningContent = rNote.content;
+          winningNote = rNote;
+        } else if (lHasContent && !rHasContent) {
+          // Local has real content, remote is empty -> Local wins in-place
+          winningContent = lNote.content;
+          winningNote = lNote;
+        } else {
+          // Both have content -> FIFO / Timestamp Scheduling: newest version cleanly updates in-place!
+          // No duplicate conflict pages created!
+          if ((rNote.updatedAt || 0) >= (lNote.updatedAt || 0)) {
+            winningContent = rNote.content;
+            winningNote = rNote;
           } else {
-            mergedList.push({
-              ...rNote,
-              id: 'conflict_' + Math.random().toString(36).substring(2, 9),
-              title: `${rNote.title} (Cloud copy from ${remotePayload.deviceName || 'another device'})`,
-              updatedAt: Date.now(),
-            });
+            winningContent = lNote.content;
+            winningNote = lNote;
           }
         }
+
+        mergedList[localIdx] = {
+          ...lNote,
+          ...winningNote,
+          id: canonicalId,
+          title: rNote.title || lNote.title,
+          content: winningContent,
+          updatedAt: Math.max(lNote.updatedAt || 0, rNote.updatedAt || 0, Date.now()),
+        };
+
+        // Cache winning content under both IDs and title
+        try {
+          localStorage.setItem(`nb_content_${canonicalId}`, winningContent);
+          if (lNote.id && lNote.id !== canonicalId) localStorage.setItem(`nb_content_${lNote.id}`, winningContent);
+          if (rNote.id && rNote.id !== canonicalId) localStorage.setItem(`nb_content_${rNote.id}`, winningContent);
+        } catch {}
+        saveExtendedNote(canonicalId, winningContent).catch(() => {});
       }
     }
 
@@ -570,14 +609,35 @@ async function applyRemotePayload(payload) {
   }
 
   if (Array.isArray(payload.notebooks)) {
-    localStorage.setItem(NOTEBOOKS_KEY, JSON.stringify(notebookMetadata(payload.notebooks)));
+    let localNotes = [];
+    try {
+      const raw = localStorage.getItem(NOTEBOOKS_KEY);
+      if (raw) localNotes = JSON.parse(raw);
+    } catch {}
+
     for (const nb of payload.notebooks) {
       if (nb.id && nb.content) {
-        if (!(await saveExtendedNote(nb.id, nb.content))) {
-          throw new Error(`Could not save notebook ${nb.id} to IndexedDB.`);
+        try {
+          localStorage.setItem(`nb_content_${nb.id}`, nb.content);
+        } catch {}
+        await saveExtendedNote(nb.id, nb.content);
+
+        // Check if existing local note had the same title with another ID
+        if (nb.title) {
+          const titleNorm = nb.title.trim().toLowerCase();
+          const localMatch = localNotes.find(
+            (l) => l.title && l.title.trim().toLowerCase() === titleNorm && l.id !== nb.id
+          );
+          if (localMatch) {
+            try {
+              localStorage.setItem(`nb_content_${localMatch.id}`, nb.content);
+            } catch {}
+            await saveExtendedNote(localMatch.id, nb.content);
+          }
         }
       }
     }
+    localStorage.setItem(NOTEBOOKS_KEY, JSON.stringify(notebookMetadata(payload.notebooks)));
   }
 
   if (payload.comments && typeof payload.comments === 'object') {
