@@ -13,7 +13,19 @@ import {
   Search,
   Filter,
   Zap,
-  LoaderCircle
+  LoaderCircle,
+  Calculator,
+  Scale,
+  Table,
+  Binary,
+  Code2,
+  Terminal,
+  FileText,
+  Type,
+  Shield,
+  KeyRound,
+  Palette,
+  QrCode
 } from "lucide-react";
 import AppShell from "../../Component/Layout/AppShell";
 import PageSEO from "../../Component/SEO/PageSEO";
@@ -115,6 +127,106 @@ const scoreTool = (tool, query) => {
   return score;
 };
 
+const BrushUnderline = ({ className = "text-indigo-500" }) => (
+  <svg className={`absolute -bottom-2 sm:-bottom-3 left-0 w-full h-3 sm:h-4 pointer-events-none ${className}`} viewBox="0 0 300 20" fill="none" preserveAspectRatio="none">
+    <path d="M 5 14 Q 75 4, 150 11 Q 225 18, 295 8" stroke="currentColor" strokeWidth="5" strokeLinecap="round" strokeOpacity="0.85"/>
+  </svg>
+);
+
+// 6 Frosted Pastel Bento Category Hubs (Reference: media_1795075890232_cbc3188f.jpg)
+const BENTO_HUBS = [
+  {
+    id: "hub-calculators",
+    title: "Calculators & Converters",
+    subtitle: "Precision financial math, scientific computation, age calculators, and multi-unit converters.",
+    subcategories: ["calculators", "math", "finance", "time", "measurement"],
+    cardBg: "bg-emerald-50/75 dark:bg-emerald-950/25",
+    borderClass: "border-emerald-200/80 dark:border-emerald-800/40 hover:border-emerald-400",
+    activeClass: "ring-2 ring-emerald-500 bg-emerald-100/85 dark:bg-emerald-950/50",
+    activeDot: "bg-emerald-500",
+    activeBorder: "border-emerald-500",
+    icon1: Calculator,
+    icon1Color: "text-emerald-600 dark:text-emerald-400",
+    icon2: Scale,
+    icon2Color: "text-teal-600 dark:text-teal-400",
+  },
+  {
+    id: "hub-data",
+    title: "Data & Spreadsheets",
+    subtitle: "CSV to JSON, column extractors, text delimiters, table generators, and dataset transformers.",
+    subcategories: ["data"],
+    cardBg: "bg-sky-50/75 dark:bg-sky-950/25",
+    borderClass: "border-sky-200/80 dark:border-sky-800/40 hover:border-sky-400",
+    activeClass: "ring-2 ring-sky-500 bg-sky-100/85 dark:bg-sky-950/50",
+    activeDot: "bg-sky-500",
+    activeBorder: "border-sky-500",
+    icon1: Table,
+    icon1Color: "text-sky-600 dark:text-sky-400",
+    icon2: Binary,
+    icon2Color: "text-blue-600 dark:text-blue-400",
+  },
+  {
+    id: "hub-developer",
+    title: "Developer & Code",
+    subtitle: "JSON formatters, regex analyzers, HTML/CSS encoders, minifiers, and sandbox playgrounds.",
+    subcategories: ["developer", "encoding"],
+    cardBg: "bg-purple-50/75 dark:bg-purple-950/25",
+    borderClass: "border-purple-200/80 dark:border-purple-800/40 hover:border-purple-400",
+    activeClass: "ring-2 ring-purple-500 bg-purple-100/85 dark:bg-purple-950/50",
+    activeDot: "bg-purple-500",
+    activeBorder: "border-purple-500",
+    icon1: Code2,
+    icon1Color: "text-purple-600 dark:text-purple-400",
+    icon2: Terminal,
+    icon2Color: "text-indigo-600 dark:text-indigo-400",
+  },
+  {
+    id: "hub-writing",
+    title: "Text & Writing",
+    subtitle: "Real-time word & character counters, text diff comparators, case transformers, and markdown.",
+    subcategories: ["writing", "text-analysis"],
+    cardBg: "bg-indigo-50/75 dark:bg-indigo-950/25",
+    borderClass: "border-indigo-200/80 dark:border-indigo-800/40 hover:border-indigo-400",
+    activeClass: "ring-2 ring-indigo-500 bg-indigo-100/85 dark:bg-indigo-950/50",
+    activeDot: "bg-indigo-500",
+    activeBorder: "border-indigo-500",
+    icon1: FileText,
+    icon1Color: "text-indigo-600 dark:text-indigo-400",
+    icon2: Type,
+    icon2Color: "text-violet-600 dark:text-violet-400",
+  },
+  {
+    id: "hub-security",
+    title: "Security & Passwords",
+    subtitle: "Cryptographic password generators, hash checkers, token decoders, and privacy test utilities.",
+    subcategories: ["security", "generators"],
+    cardBg: "bg-amber-50/75 dark:bg-amber-950/25",
+    borderClass: "border-amber-200/80 dark:border-amber-800/40 hover:border-amber-400",
+    activeClass: "ring-2 ring-amber-500 bg-amber-100/85 dark:bg-amber-950/50",
+    activeDot: "bg-amber-500",
+    activeBorder: "border-amber-500",
+    icon1: Shield,
+    icon1Color: "text-amber-600 dark:text-amber-400",
+    icon2: KeyRound,
+    icon2Color: "text-orange-600 dark:text-orange-400",
+  },
+  {
+    id: "hub-design",
+    title: "Design & Utilities",
+    subtitle: "Color palette pickers, contrast checkers, QR code generators, SVG tools, and system clocks.",
+    subcategories: ["design", "media", "helpers", "seo", "productivity", "typing"],
+    cardBg: "bg-teal-50/75 dark:bg-teal-950/25",
+    borderClass: "border-teal-200/80 dark:border-teal-800/40 hover:border-teal-400",
+    activeClass: "ring-2 ring-teal-500 bg-teal-100/85 dark:bg-teal-950/50",
+    activeDot: "bg-teal-500",
+    activeBorder: "border-teal-500",
+    icon1: QrCode,
+    icon1Color: "text-teal-600 dark:text-teal-400",
+    icon2: Palette,
+    icon2Color: "text-emerald-600 dark:text-emerald-400",
+  },
+];
+
 const Tools = ({ directSlug = null }) => {
   const { toolId: paramSlug, toolSlug } = useParams();
   const location = useLocation();
@@ -163,12 +275,18 @@ const Tools = ({ directSlug = null }) => {
     return getSeoForPath("/tools");
   }, [activeToolData]);
 
-  const categoryTools = useMemo(
-    () => selectedCategory === "all"
-      ? toolsData
-      : toolsData.filter((tool) => tool.category === selectedCategory),
-    [selectedCategory],
-  );
+  const categoryTools = useMemo(() => {
+    if (selectedCategory === "all") return toolsData;
+    
+    // Check if selectedCategory matches a Bento Hub
+    const bentoHub = BENTO_HUBS.find((h) => h.id === selectedCategory);
+    if (bentoHub) {
+      return toolsData.filter((tool) => bentoHub.subcategories.includes(tool.category));
+    }
+    
+    // Fallback: match specific category ID
+    return toolsData.filter((tool) => tool.category === selectedCategory);
+  }, [selectedCategory]);
 
   useEffect(() => {
     const normalizedQuery = searchQuery.trim();
@@ -272,7 +390,23 @@ const Tools = ({ directSlug = null }) => {
     }
   };
 
-  const isCalculatorFullscreen = Boolean(activeToolData);
+  const STANDALONE_WORKSTATION_SLUGS = new Set([
+    "basic-calculator",
+    "simple-calculator",
+    "scientific-calculator",
+    "age-calculator",
+    "date-calculator",
+    "date-difference-calculator",
+    "percentage-calculator",
+    "time-calculator",
+    "unit-converter",
+    "temperature-converter",
+    "stiknex-typing"
+  ]);
+
+  const isCalculatorFullscreen = Boolean(
+    activeToolData && STANDALONE_WORKSTATION_SLUGS.has(activeToolData.slug)
+  );
 
   return (
     <AppShell fullWidth={true} hideNav={isCalculatorFullscreen} hideFooter={isCalculatorFullscreen}>
@@ -291,10 +425,12 @@ const Tools = ({ directSlug = null }) => {
         </div>
       ) : (
         <div className="relative min-h-screen pb-32 overflow-x-clip font-sans">
-        {/* Background Gradients */}
-        <div className="absolute inset-0 bg-[radial-gradient(#cbd5e1_1.5px,transparent_1.5px)] dark:bg-[radial-gradient(#334155_1.5px,transparent_1.5px)] [background-size:40px_40px] opacity-25 -z-10 pointer-events-none"></div>
-        <div className="absolute top-0 right-0 w-80 h-80 md:w-[600px] md:h-[600px] bg-indigo-500/10 dark:bg-indigo-500/15 rounded-full blur-[120px] -z-10 pointer-events-none"></div>
-        <div className="absolute top-[30%] left-0 w-80 h-80 md:w-[600px] md:h-[600px] bg-cyan-500/10 dark:bg-cyan-500/15 rounded-full blur-[120px] -z-10 pointer-events-none"></div>
+        {/* Soft ambient background with Advapay floating orbs */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10 bg-[#f8fafc] dark:bg-[#080b14] transition-colors duration-300">
+          <div className="absolute inset-0 bg-[radial-gradient(#cbd5e1_1.2px,transparent_1.2px)] dark:bg-[radial-gradient(#1e293b_1.2px,transparent_1.2px)] [background-size:28px_28px] opacity-40"></div>
+          <div className="absolute -top-24 -left-32 w-[500px] h-[500px] rounded-full bg-gradient-to-br from-indigo-600/20 via-blue-600/15 to-transparent blur-[90px] transform-gpu pointer-events-none"></div>
+          <div className="absolute top-1/3 -right-24 w-[420px] h-[420px] rounded-full bg-gradient-to-tl from-purple-500/15 via-indigo-500/10 to-transparent blur-[85px] transform-gpu pointer-events-none"></div>
+        </div>
 
         <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-20 sm:pt-28">
 
@@ -361,88 +497,351 @@ const Tools = ({ directSlug = null }) => {
                 CATALOG VIEW: 200-TOOL DIRECTORY WITH SEARCH & FILTERS
             ========================================================== */
             <div>
-              {/* Hero Section */}
-              <div className="text-center mb-10 flex flex-col items-center">
-                <motion.div
-                  initial={{ scale: 0, rotate: -20 }}
-                  animate={{ scale: 1, rotate: 0 }}
-                  transition={{ type: "spring", damping: 15, stiffness: 100 }}
-                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-gradient-to-br from-indigo-500 to-cyan-500 flex items-center justify-center mb-6 shadow-xl shadow-indigo-500/25"
-                >
-                  <Wrench size={32} className="text-white" />
-                </motion.div>
-
-                <h1 className="text-4xl sm:text-6xl font-black text-slate-900 dark:text-white tracking-tight mb-4">
-                  200+ Free Online Utility Tools
-                </h1>
-                <p className="text-lg sm:text-xl text-slate-600 dark:text-slate-400 max-w-2xl font-medium">
-                  Fast, private, and 100% free productivity tools running locally inside your browser. No sign-ups, no tracking, zero lag.
-                </p>
-
-                {/* Instant Search Bar */}
-                <div className="w-full max-w-xl mt-8 relative">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Find a tool by name or describe what you need..."
-                    aria-label="Search tools by name or description"
-                    className="w-full pl-12 pr-16 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-lg focus:outline-none focus:border-indigo-500 text-slate-900 dark:text-white text-sm"
-                  />
-                  {searchQuery && (
-                    <button
-                      type="button"
-                      onClick={() => setSearchQuery("")}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 hover:text-slate-700 dark:hover:text-white"
-                    >
-                      Clear
-                    </button>
-                  )}
-                  <div className="mt-2 min-h-4 text-left text-xs text-slate-500 dark:text-slate-400" aria-live="polite">
-                    {aiSearch.query === searchQuery.trim() && aiSearch.loading ? (
-                      <span className="inline-flex items-center gap-1.5 text-indigo-600 dark:text-indigo-400">
-                        <LoaderCircle size={13} className="animate-spin" />
-                        Understanding your request and matching tools
+              {/* =========================================================
+                  HERO SECTION: REPLICATED EXACTLY FROM REFERENCE (media_1795078740182_eaa74192.jpg)
+                  "Cabin In The Woods But In A Good Way!" Concept for Tools
+              ========================================================== */}
+              <div className="mb-14 pt-4 sm:pt-8 pb-4">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                  
+                  {/* Left Column: Typography, Playful Doodle & Obsidian Pill CTA */}
+                  <div className="lg:col-span-7 space-y-6 text-left">
+                    {/* Playful Doodles / Squiggle */}
+                    <div className="flex items-center gap-2">
+                      <svg className="w-12 h-8 text-sky-500 dark:text-sky-400" viewBox="0 0 50 32" fill="none">
+                        <path d="M 5 22 Q 15 5, 25 18 T 45 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+                        <path d="M 22 4 L 24 10 L 30 8" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                        <circle cx="44" cy="7" r="1.5" fill="currentColor" />
+                      </svg>
+                      <span className="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/50 px-2.5 py-1 rounded-full border border-indigo-200 dark:border-indigo-800/60">
+                        206 Browser Utilities
                       </span>
-                    ) : aiSearch.query === searchQuery.trim() && aiSearch.error ? (
-                      <span>{aiSearch.error} Showing local tool matches.</span>
-                    ) : aiSearch.query === searchQuery.trim() && aiSearch.ids.length > 0 ? (
-                      <span className="inline-flex items-center gap-1.5 text-indigo-600 dark:text-indigo-400">
-                        <Sparkles size={13} />
-                        AI matched tools only
+                    </div>
+
+                    {/* Bold Organic Display Headline with Coral Brush Underline */}
+                    <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white tracking-tight leading-[1.12]">
+                      200+ Smart Tools <br />
+                      <span className="relative inline-block mt-1">
+                        But In A Good Way!
+                        <svg className="absolute -bottom-2 sm:-bottom-3 left-0 w-full h-3 sm:h-4 text-[#FF7A50] pointer-events-none" viewBox="0 0 300 18" fill="none" preserveAspectRatio="none">
+                          <path d="M 4 12 Q 80 4, 155 10 Q 230 16, 296 6" stroke="currentColor" strokeWidth="6" strokeLinecap="round" />
+                        </svg>
                       </span>
-                    ) : (
-                      <span>Search is limited to tools. For long descriptions, AI helps find the right tool.</span>
-                    )}
+                    </h1>
+
+                    {/* Subtitle Description */}
+                    <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 font-normal leading-relaxed max-w-xl">
+                      Now you can calculate, convert, design, format, and secure your files anywhere and anytime — and of course it's 100% safe & private with zero logins.
+                    </p>
+
+                    {/* Action Area: Obsidian Pill Button */}
+                    <div className="pt-2 flex flex-wrap items-center gap-4">
+                      <a
+                        href="#tools-catalog"
+                        className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-[#18202F] hover:bg-black text-white text-sm sm:text-base font-bold rounded-full shadow-[0_12px_30px_rgba(0,0,0,0.25)] hover:scale-105 active:scale-95 transition-all cursor-pointer"
+                      >
+                        <span>Get Started</span>
+                      </a>
+                      <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span>100% Free & Local-First in Memory</span>
+                      </div>
+                    </div>
                   </div>
+
+                  {/* Right Column: Hand Holding Smartphone Mockup with Stiknex Tools UI */}
+                  <div className="lg:col-span-5 flex justify-center relative">
+                    {/* Whimsical Background Doodles & Clouds */}
+                    <div className="absolute -top-8 -right-4 pointer-events-none opacity-60">
+                      <svg className="w-20 h-14 text-slate-300 dark:text-slate-700" viewBox="0 0 64 44" fill="none">
+                        <path d="M 12 34 Q 4 34, 4 26 Q 4 18, 14 18 Q 18 8, 30 8 Q 42 8, 46 18 Q 56 18, 56 26 Q 56 34, 48 34 Z" stroke="currentColor" strokeWidth="2" strokeDasharray="3 3" />
+                      </svg>
+                    </div>
+                    <div className="absolute top-1/2 -left-6 pointer-events-none opacity-50">
+                      <svg className="w-10 h-10 text-sky-400" viewBox="0 0 40 40" fill="none">
+                        <path d="M 8 30 C 12 18, 24 14, 32 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeDasharray="2 3" />
+                        <path d="M 28 8 L 32 8 L 32 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </div>
+
+                    {/* Hand & Smartphone Composite Frame */}
+                    <div className="relative">
+                      {/* Stylized Minimalist Hand Graphic Silhouette behind phone */}
+                      <svg
+                        className="absolute -bottom-6 -left-12 sm:-left-16 w-[340px] sm:w-[380px] h-[480px] sm:h-[520px] pointer-events-none text-slate-200/90 dark:text-slate-800/80 drop-shadow-xl z-0"
+                        viewBox="0 0 300 400"
+                        fill="currentColor"
+                      >
+                        {/* Palm and wrist support holding phone */}
+                        <path d="M 60 220 C 50 160, 90 90, 110 70 C 125 55, 140 65, 135 95 C 130 120, 120 180, 130 220 C 135 240, 120 280, 110 320 C 95 365, 130 400, 160 400 L 40 400 C 30 350, 45 280, 60 220 Z" opacity="0.9" />
+                        {/* Finger wraps holding left bezel */}
+                        <rect x="105" y="115" width="22" height="18" rx="8" fill="#CBD5E1" className="dark:fill-slate-700" />
+                        <rect x="102" y="150" width="24" height="20" rx="9" fill="#CBD5E1" className="dark:fill-slate-700" />
+                        <rect x="100" y="188" width="24" height="20" rx="9" fill="#CBD5E1" className="dark:fill-slate-700" />
+                        <rect x="98" y="226" width="24" height="20" rx="9" fill="#CBD5E1" className="dark:fill-slate-700" />
+                      </svg>
+
+                      {/* Smartphone Device Frame */}
+                      <div className="relative z-10 w-[275px] sm:w-[295px] h-[525px] sm:h-[555px] bg-[#111622] rounded-[42px] p-2.5 shadow-[0_25px_60px_rgba(0,0,0,0.35)] border-4 border-slate-700/60 dark:border-slate-800 overflow-hidden flex flex-col">
+                        
+                        {/* Screen Container */}
+                        <div className="w-full h-full bg-[#f8fafc] dark:bg-[#0b101b] rounded-[32px] overflow-hidden flex flex-col p-3.5 relative text-slate-800 dark:text-slate-100 select-none">
+                          
+                          {/* Dynamic Island / Speaker */}
+                          <div className="w-20 h-3.5 bg-black rounded-full mx-auto mb-2 shrink-0 flex items-center justify-center">
+                            <span className="w-2 h-2 rounded-full bg-slate-900 border border-slate-800"></span>
+                          </div>
+
+                          {/* App Topbar (Avatar + Brand) */}
+                          <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-200/60 dark:border-slate-800">
+                            <div className="flex items-center gap-1.5">
+                              <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 text-white flex items-center justify-center text-[10px] font-bold">
+                                S
+                              </div>
+                              <span className="text-xs font-black tracking-tight">Stiknex.</span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-[10px] font-semibold text-slate-500">Chellyn</span>
+                              <div className="w-5 h-5 rounded-full bg-amber-200 border border-amber-300 overflow-hidden flex items-center justify-center text-[9px]">
+                                👤
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Title in App Screen */}
+                          <div className="mb-2.5">
+                            <h2 className="text-sm font-black tracking-tight text-slate-900 dark:text-white leading-tight">
+                              Create Your <br />
+                              <span className="text-indigo-600 dark:text-indigo-400">Own Tool Story.</span>
+                            </h2>
+                          </div>
+
+                          {/* "Recommended" Header */}
+                          <div className="flex items-center justify-between text-[11px] font-bold mb-1.5">
+                            <span>Recommended</span>
+                            <span className="text-[9px] text-slate-400 font-normal">See all &gt;</span>
+                          </div>
+
+                          {/* 2 Carousel Cards */}
+                          <div className="grid grid-cols-2 gap-2 mb-3">
+                            {/* Card 1: Mountain / Mint Theme */}
+                            <div className="p-2 rounded-2xl bg-gradient-to-b from-emerald-100 to-emerald-50 dark:from-emerald-950/40 dark:to-emerald-900/20 border border-emerald-200/80 dark:border-emerald-800/40 flex flex-col justify-between h-28 shadow-xs">
+                              <div className="h-12 w-full rounded-xl bg-emerald-200/60 dark:bg-emerald-800/30 flex items-center justify-center text-lg">
+                                ⛰️
+                              </div>
+                              <div>
+                                <span className="block text-[10px] font-bold leading-tight text-slate-900 dark:text-white">Mount Calc</span>
+                                <span className="text-[8px] text-emerald-700 dark:text-emerald-400 font-medium">Instant Math</span>
+                              </div>
+                            </div>
+
+                            {/* Card 2: Lake / Peach Theme */}
+                            <div className="p-2 rounded-2xl bg-gradient-to-b from-amber-100 to-amber-50 dark:from-amber-950/40 dark:to-amber-900/20 border border-amber-200/80 dark:border-amber-800/40 flex flex-col justify-between h-28 shadow-xs">
+                              <div className="h-12 w-full rounded-xl bg-amber-200/60 dark:bg-amber-800/30 flex items-center justify-center text-lg">
+                                🌅
+                              </div>
+                              <div>
+                                <span className="block text-[10px] font-bold leading-tight text-slate-900 dark:text-white">Mount Lake</span>
+                                <span className="text-[8px] text-amber-700 dark:text-amber-400 font-medium">JSON Convert</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* "My Schedule / Tools" Section */}
+                          <div className="flex items-center justify-between text-[11px] font-bold mb-1.5">
+                            <span>Active Utilities</span>
+                            <span className="text-[9px] text-slate-400 font-normal">Fast</span>
+                          </div>
+
+                          {/* Schedule List Item */}
+                          <div className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 flex items-center justify-between mb-auto shadow-xs">
+                            <div className="flex items-center gap-2">
+                              <div className="w-7 h-7 rounded-lg bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xs">
+                                ⚡
+                              </div>
+                              <div>
+                                <span className="block text-[10px] font-bold leading-tight">Age & Time Calc</span>
+                                <span className="text-[8px] text-slate-400">100% Client-Side</span>
+                              </div>
+                            </div>
+                            <span className="px-2 py-0.5 rounded-full bg-blue-500 text-white text-[8px] font-bold">
+                              Open
+                            </span>
+                          </div>
+
+                          {/* Phone Mockup Bottom Dock with Orange Circular Center Button */}
+                          <div className="mt-2 pt-2 px-3 pb-1 rounded-full bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 flex items-center justify-between shadow-xs">
+                            <span className="text-slate-400 text-xs">⌂</span>
+                            {/* Orange Highlighted Center Pill (Campty Style) */}
+                            <span className="w-7 h-7 rounded-full bg-[#FF7A50] text-white flex items-center justify-center shadow-md shadow-orange-500/30 text-xs">
+                              ●
+                            </span>
+                            <span className="text-slate-400 text-xs">⚙</span>
+                          </div>
+
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+              {/* Bento Masthead: 6 Frosted Pastel Category Cards (Reference: media_1795075890232_cbc3188f.jpg) */}
+              <div id="tools-catalog" className="mb-8 space-y-6">
+
+                {/* 6 Frosted Pastel Bento Category Cards (Exact match for media_1795075890232_cbc3188f.jpg) */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {BENTO_HUBS.map((hub) => {
+                    const isSelected = selectedCategory === hub.id;
+                    const count = toolsData.filter((t) => hub.subcategories.includes(t.category)).length;
+
+                    return (
+                      <button
+                        key={hub.id}
+                        type="button"
+                        onClick={() => setSelectedCategory((prev) => (prev === hub.id ? "all" : hub.id))}
+                        className={`relative flex flex-col justify-between p-6 sm:p-7 rounded-[28px] border backdrop-blur-xl transition-all duration-200 text-left cursor-pointer group ${
+                          hub.cardBg
+                        } ${
+                          isSelected
+                            ? `${hub.activeClass} shadow-lg`
+                            : `${hub.borderClass} shadow-xs hover:shadow-md`
+                        }`}
+                      >
+                        {/* Top Row: Dual Icon Badges (left) and Radio Dot (right) */}
+                        <div className="flex items-center justify-between w-full">
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-11 h-11 rounded-2xl bg-white dark:bg-slate-900 shadow-sm border border-black/5 dark:border-white/5 flex items-center justify-center">
+                              <hub.icon1 className={`w-5 h-5 ${hub.icon1Color}`} />
+                            </div>
+                            <div className="w-11 h-11 rounded-2xl bg-white dark:bg-slate-900 shadow-sm border border-black/5 dark:border-white/5 flex items-center justify-center">
+                              <hub.icon2 className={`w-5 h-5 ${hub.icon2Color}`} />
+                            </div>
+                          </div>
+
+                          <div
+                            className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                              isSelected
+                                ? `${hub.activeBorder}`
+                                : "border-slate-300 dark:border-slate-600 group-hover:border-slate-400"
+                            }`}
+                          >
+                            {isSelected && <div className={`w-2.5 h-2.5 rounded-full ${hub.activeDot}`} />}
+                          </div>
+                        </div>
+
+                        {/* Middle: Title & 2-line Description */}
+                        <div className="my-5">
+                          <h2 className="font-bold text-lg sm:text-xl text-slate-900 dark:text-white tracking-tight mb-2">
+                            {hub.title}
+                          </h2>
+                          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 line-clamp-2 leading-relaxed">
+                            {hub.subtitle}
+                          </p>
+                        </div>
+
+                        {/* Bottom Right: Count Badge Pill */}
+                        <div className="mt-auto flex items-center justify-end">
+                          <span className="px-3 py-1 rounded-full bg-slate-900/85 dark:bg-slate-800 text-white text-[11px] font-semibold tracking-wide shadow-xs flex items-center gap-1.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                            <span>{count} tools</span>
+                          </span>
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
 
-                {/* 20 Categories Horizontal Scroll / Wrap */}
-                <div className="flex flex-wrap items-center justify-center gap-2 mt-8 max-w-4xl">
-                  <button
-                    onClick={() => setSelectedCategory("all")}
-                    className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
-                      selectedCategory === "all"
-                        ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
-                        : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"
-                    }`}
-                  >
-                    All Tools ({toolsData.length})
-                  </button>
-                  {TOOL_CATEGORIES.map((cat) => (
+                {/* =========================================================
+                    COMPACT UNIFIED SEARCH & CATEGORY RIBBON
+                    Addresses media_1795077881322_1ebbdb55.png: Compact, Sleek, Zero-Clutter
+                ========================================================== */}
+                <div className="w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800 rounded-2xl p-2.5 sm:p-3 shadow-sm space-y-2.5">
+                  {/* Compact Search Row */}
+                  <div className="flex items-center gap-2.5">
+                    <div className="relative flex-1">
+                      <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Search 200+ utilities (e.g. 'json to csv', 'age calc', 'typing')..."
+                        aria-label="Search tools by name or description"
+                        className="w-full pl-9 pr-14 py-2 bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400"
+                      />
+                      {searchQuery && (
+                        <button
+                          type="button"
+                          onClick={() => setSearchQuery("")}
+                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400 hover:text-slate-700 dark:hover:text-white px-1.5 py-0.5 rounded hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+                        >
+                          Clear
+                        </button>
+                      )}
+                    </div>
+                    <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 text-xs font-semibold shrink-0">
+                      <Zap size={13} className="text-amber-500" />
+                      <span>{filteredTools.length} Tools</span>
+                    </span>
+                  </div>
+
+                  {/* AI Search Status Strip (Compact, only visible when query active) */}
+                  {searchQuery.trim().length >= 10 && (
+                    <div className="text-left text-[11px] text-slate-500 dark:text-slate-400 px-1" aria-live="polite">
+                      {aiSearch.query === searchQuery.trim() && aiSearch.loading ? (
+                        <span className="inline-flex items-center gap-1 text-indigo-600 dark:text-indigo-400 font-medium">
+                          <LoaderCircle size={12} className="animate-spin" />
+                          Matching tools with AI...
+                        </span>
+                      ) : aiSearch.query === searchQuery.trim() && aiSearch.ids.length > 0 ? (
+                        <span className="inline-flex items-center gap-1 text-indigo-600 dark:text-indigo-400 font-semibold">
+                          <Sparkles size={12} />
+                          AI matched tools
+                        </span>
+                      ) : null}
+                    </div>
+                  )}
+
+                  {/* Single-Row Horizontally Scrollable Category Ribbon */}
+                  <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar scroll-smooth py-0.5">
                     <button
-                      key={cat.id}
-                      onClick={() => setSelectedCategory(cat.id)}
-                      className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
-                        selectedCategory === cat.id
-                          ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
-                          : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"
+                      onClick={() => setSelectedCategory("all")}
+                      className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all shrink-0 cursor-pointer ${
+                        selectedCategory === "all"
+                          ? "bg-indigo-600 text-white shadow-xs"
+                          : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
                       }`}
                     >
-                      {cat.name} ({toolsData.filter(t => t.category === cat.id).length})
+                      All ({toolsData.length})
                     </button>
-                  ))}
+                    {TOOL_CATEGORIES.map((cat) => {
+                      const isSelected = selectedCategory === cat.id;
+                      const count = toolsData.filter((t) => t.category === cat.id).length;
+                      return (
+                        <button
+                          key={cat.id}
+                          onClick={() => setSelectedCategory(cat.id)}
+                          className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all shrink-0 whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
+                            isSelected
+                              ? "bg-indigo-600 text-white shadow-xs font-bold"
+                              : "bg-slate-100/80 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white"
+                          }`}
+                        >
+                          <span>{cat.name}</span>
+                          <span
+                            className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                              isSelected
+                                ? "bg-white/20 text-white"
+                                : "bg-black/5 dark:bg-white/10 text-slate-500 dark:text-slate-400"
+                            }`}
+                          >
+                            {count}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
 

@@ -268,12 +268,6 @@ export default function AgeCalculator({ tool, seoData }) {
 
   return (
     <div className="min-h-screen w-full bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col justify-between selection:bg-indigo-500 selection:text-white transition-colors duration-200">
-      {/* 100% Crawlable Semantic SEO Hidden in DOM */}
-      <header className="sr-only">
-        <h1>{seoData?.h1 || "Free Online Age Calculator"}</h1>
-        <p>{seoData?.description || "Exact chronological age in years, months, days, minutes, next birthday countdown, and life milestones."}</p>
-      </header>
-
       {/* ══════════════════════════════════════════════════════════════════
           TOP NAVIGATION BAR (FULL-WIDTH EXPANSIVE)
       ══════════════════════════════════════════════════════════════════ */}
@@ -299,9 +293,9 @@ export default function AgeCalculator({ tool, seoData }) {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-base sm:text-lg font-black tracking-tight text-slate-900 dark:text-white uppercase leading-none">
+                <h1 className="text-base sm:text-lg font-black tracking-tight text-slate-900 dark:text-white uppercase leading-none">
                   Age <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-600 to-pink-600 dark:from-rose-400 dark:to-pink-400">Calculator</span>
-                </h2>
+                </h1>
                 <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 border border-rose-200/60 dark:border-rose-800/60 tracking-wider uppercase">
                   Chronological
                 </span>

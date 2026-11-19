@@ -1,9 +1,49 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import swal from "sweetalert";
+import {
+  Home,
+  BookOpen,
+  PenTool,
+  Wrench,
+  Sparkles,
+  Menu as MenuIcon,
+  Plus,
+  Cloud,
+  Search,
+  Volume2,
+  VolumeX,
+  Play,
+  Pause,
+  RotateCcw,
+  Maximize2,
+  Clock,
+  History,
+  FileDown,
+  Share2,
+  Sliders,
+  Trash2,
+  Sun,
+  Moon,
+  Copy,
+  Check,
+  X,
+  AudioLines
+} from "lucide-react";
 import Style from "./NotebookBottomDock.module.css";
 import { UNICODE_CATEGORIES, formatElapsed } from "./useNotebookTools";
 
+/**
+ * NotebookBottomDock
+ * 
+ * Redesigned for Notepad to strictly match Reference Image (media_1795076702617_a5a584fa.png):
+ * - Unified morphing active capsule dock: Active tab ("Notes") expands into an obsidian/dark rounded pill with icon + label.
+ * - Inactive tabs ("Home", "Board", "Tools", "Menu") show clean outline icons.
+ * - Clicking "Menu" pops up the elevated Action Sheet directly above the dock (media_1795076702616_dfecb02e.png)
+ *   tailored specifically for Notepad (+ New Note, Saved Notes, Zen Mode, Search, Snapshots, Symbols, Focus Audio, Download, Theme).
+ * - Strictly phone-only (hidden on desktop screens >= 768px, visible on mobile <= 768px).
+ */
 const NotebookBottomDock = ({
   darkMode,
   toggleDarkMode,
@@ -85,801 +125,569 @@ const NotebookBottomDock = ({
 
   if (isZenMode || isPenMode || settingsOpen) return null;
 
-  const isNotebookActive =
-    location.pathname === "/online-notebook" || location.pathname === "/notebook";
-
-  const anySheetOpen =
-    isMenuOpen || notebooksSheetOpen || snapshotsSheetOpen || unicodeSheetOpen;
+  const isFullDrawerOpen =
+    notebooksSheetOpen || snapshotsSheetOpen || unicodeSheetOpen;
 
   return (
     <>
-      {/* Dimmed backdrop when any sheet or drawer is open */}
-      {anySheetOpen && (
+      {/* Dimmed backdrop ONLY when a full drawer/sheet (Notebooks, Snapshots, Symbols) is open */}
+      <AnimatePresence>
+        {isFullDrawerOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className={Style.overlayBackdrop}
+            onClick={closeAllSheets}
+            aria-hidden="true"
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Invisible tap-to-dismiss layer when Menu is open */}
+      {isMenuOpen && (
         <div
-          className={Style.overlayBackdrop}
-          onClick={closeAllSheets}
+          className="fixed inset-0 z-40 bg-transparent md:hidden"
+          onClick={() => setIsMenuOpen(false)}
           aria-hidden="true"
         />
       )}
 
+      {/* Floating Bottom Dock Container - Strictly Mobile (< 768px: md:hidden) */}
       <div
-        className={`${Style.dockWrapper} ${darkMode ? Style.darkDock : ""}`}
+        className="fixed left-1/2 -translate-x-1/2 z-50 flex flex-col items-center pointer-events-none md:hidden"
+        style={{ bottom: "max(14px, env(safe-area-inset-bottom, 14px))" }}
         role="navigation"
-        aria-label="Mobile application navigation"
+        aria-label="Notepad mobile navigation"
       >
         {/* ============================================================
-            1. FLOATING NAVIGATION CAPSULE (PILL)
+            SLEEK ELEVATED QUICK ACTIONS CAPSULE (TAILORED FOR NOTEPAD)
+            Matches Reference Image & UniversalMobileBottomNav
             ============================================================ */}
-        <nav className={Style.navPill}>
-          {/* Home */}
-          <Link
-            to="/"
-            className={`${Style.tabItem} ${
-              location.pathname === "/" ? Style.activeTab : ""
-            }`}
-            title="Home"
-            aria-label="Home"
-          >
-            <i className={`fa-solid fa-house ${Style.tabIcon}`}></i>
-            <span className={Style.tabLabel}>Home</span>
-          </Link>
-
-          {/* Notebooks List Switcher */}
-          <button
-            type="button"
-            className={`${Style.tabItem} ${
-              isNotebookActive ? Style.activeTab : ""
-            }`}
-            onClick={() => {
-              const next = !notebooksSheetOpen;
-              closeAllSheets();
-              setNotebooksSheetOpen(next);
-            }}
-            title="Notebooks"
-            aria-label="Notebooks"
-          >
-            <i className={`fa-solid fa-book-bookmark ${Style.tabIcon}`}></i>
-            <span className={Style.tabLabel}>Notes</span>
-          </button>
-
-          {/* Whiteboard */}
-          <Link
-            to="/whiteboard"
-            className={`${Style.tabItem} ${
-              location.pathname === "/whiteboard" ? Style.activeTab : ""
-            }`}
-            title="Whiteboard"
-            aria-label="Whiteboard"
-          >
-            <i className={`fa-solid fa-pen-nib ${Style.tabIcon}`}></i>
-            <span className={Style.tabLabel}>Board</span>
-          </Link>
-
-          {/* Tools */}
-          <Link
-            to="/tools"
-            className={`${Style.tabItem} ${
-              location.pathname === "/tools" ? Style.activeTab : ""
-            }`}
-            title="Tools"
-            aria-label="Tools"
-          >
-            <i className={`fa-solid fa-toolbox ${Style.tabIcon}`}></i>
-            <span className={Style.tabLabel}>Tools</span>
-          </Link>
-        </nav>
-
-        {/* ============================================================
-            2. FLOATING ACTION BUTTON (CIRCULAR FAB '+')
-            ============================================================ */}
-        <button
-          type="button"
-          className={`${Style.fabBtn} ${isMenuOpen ? Style.fabActive : ""}`}
-          onClick={() => {
-            const next = !isMenuOpen;
-            closeAllSheets();
-            setIsMenuOpen(next);
-          }}
-          title={isMenuOpen ? "Close menu" : "Open Actions & Tools"}
-          aria-label={isMenuOpen ? "Close menu" : "Open Actions & Tools"}
-        >
-          <span className={Style.fabIcon}>
-            <i className="fa-solid fa-plus"></i>
-          </span>
-        </button>
-
-        {/* ============================================================
-            3. MAIN SPEED-DIAL ACTION SHEET (ALL NAVBAR TOOLS)
-            ============================================================ */}
-        {isMenuOpen && (
-          <div className={Style.actionSheet}>
-            <div className={Style.sheetHandle} />
-
-            <div className={Style.sheetHeader}>
-              <div className={Style.sheetHeaderTitle}>
-                <i className="fa-solid fa-wand-magic-sparkles"></i>
-                <span>Quick Actions & Tools</span>
-              </div>
+        <AnimatePresence>
+          {isMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: 15, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 15, scale: 0.95 }}
+              transition={{ type: "spring", stiffness: 450, damping: 32 }}
+              className="mb-3 p-2 sm:p-2.5 rounded-3xl bg-[#18202F]/95 dark:bg-slate-900/95 backdrop-blur-2xl border border-white/10 dark:border-slate-800 shadow-[0_20px_50px_rgba(0,0,0,0.35)] flex items-center gap-1.5 sm:gap-2 pointer-events-auto max-w-[94vw] overflow-x-auto no-scrollbar"
+            >
+              {/* 1. New Note */}
               <button
                 type="button"
-                className={Style.sheetCloseBtn}
-                onClick={() => setIsMenuOpen(false)}
-                aria-label="Close"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className={Style.sheetContent}>
-              {/* --- HERO: + NEW NOTEPAD (PROMINENT CALLOUT) --- */}
-              <button
-                type="button"
-                className={Style.heroNewBtn}
                 onClick={() => {
                   setIsMenuOpen(false);
                   if (onNewNotebook) onNewNotebook();
                 }}
+                className="flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-2xl hover:bg-white/10 text-white transition-all cursor-pointer shrink-0 group"
+                title="Create New Note"
               >
-                <div className={Style.heroNewIcon}>
-                  <i className="fa-solid fa-plus"></i>
+                <div className="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Plus size={18} />
                 </div>
-                <div className={Style.heroNewText}>
-                  <strong>+ New Notepad</strong>
-                  <span>Create a brand new empty note</span>
-                </div>
-                <i className={`fa-solid fa-arrow-right ${Style.heroNewArrow}`}></i>
+                <span className="text-[10px] font-semibold text-slate-300">New</span>
               </button>
 
-              {/* Cloud Sync & QR Pairing (Mobile) */}
-              {onOpenSyncModal && (
-                <button
-                  type="button"
-                  className={Style.heroNewBtn}
-                  style={{
-                    background: "linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(139, 92, 246, 0.15) 100%)",
-                    border: "1px solid rgba(99, 102, 241, 0.3)",
-                    marginTop: "8px",
-                  }}
-                  onClick={() => {
-                    setIsMenuOpen(false);
-                    onOpenSyncModal();
-                  }}
-                >
-                  <div
-                    className={Style.heroNewIcon}
-                    style={{
-                      background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
-                      color: "#fff",
-                    }}
-                  >
-                    <i
-                      className={`fa-solid ${
-                        syncStatus === "syncing"
-                          ? "fa-rotate fa-spin"
-                          : syncStatus === "synced"
-                          ? "fa-cloud-arrow-up"
-                          : "fa-cloud"
-                      }`}
-                    ></i>
-                  </div>
-                  <div className={Style.heroNewText}>
-                    <strong>Cloud Sync & QR Connect</strong>
-                    <span>
-                      {syncStatus === "synced"
-                        ? "Notes Synced (AES-256-GCM)"
-                        : syncStatus === "syncing"
-                        ? "Syncing notes with cloud..."
-                        : "Connect phone / second device"}
-                    </span>
-                  </div>
-                  <span
-                    style={{
-                      fontSize: "11px",
-                      fontWeight: 700,
-                      color: syncStatus === "synced" ? "#22c55e" : "#818cf8",
-                      background: "rgba(255, 255, 255, 0.08)",
-                      padding: "3px 8px",
-                      borderRadius: "6px",
-                      marginLeft: "auto",
-                    }}
-                  >
-                    {syncStatus === "synced" ? "Synced" : "Connect"}
-                  </span>
-                </button>
-              )}
-
-              {/* Search in Note */}
-              {onToggleSearch && (
-                <button
-                  type="button"
-                  className={Style.searchBarTrigger}
-                  onClick={() => {
-                    setIsMenuOpen(false);
-                    onToggleSearch();
-                  }}
-                >
-                  <i className="fa-solid fa-magnifying-glass"></i>
-                  <span>Search in Note...</span>
-                  <span className={Style.searchShortcutBadge}>Find</span>
-                </button>
-              )}
-
-              {/* --- SECTION 2: AUDIO & FOCUS SUITE --- */}
-              <div className={Style.sectionTitle}>Audio & Focus Suite</div>
-              <div className={Style.focusRow}>
-                {/* Focus Sound */}
-                <button
-                  type="button"
-                  className={`${Style.toolCard} ${musicOn ? Style.cardActive : ""}`}
-                  onClick={() => {
-                    if (toggleMusic) toggleMusic();
-                  }}
-                >
-                  <div className={Style.toolCardLeft}>
-                    <span
-                      className={`${Style.gridIcon} ${
-                        musicOn ? Style.activeSoundIcon : Style.purpleIcon
-                      }`}
-                    >
-                      <i
-                        className={`fa-solid ${
-                          musicOn ? "fa-music" : "fa-volume-xmark"
-                        }`}
-                      ></i>
-                    </span>
-                    <div className={Style.toolCardText}>
-                      <strong>Focus Sound</strong>
-                      <small>{musicOn ? "Ambient Brown Noise (Active)" : "Soft soothing background"}</small>
-                    </div>
-                  </div>
-                  <span className={`${Style.statusBadge} ${musicOn ? Style.badgeActive : ""}`}>
-                    {musicOn ? "ON" : "OFF"}
-                  </span>
-                </button>
-
-                {/* Read Aloud */}
-                <button
-                  type="button"
-                  className={`${Style.toolCard} ${isReading ? Style.cardActive : ""}`}
-                  onClick={() => {
-                    if (handleReadAloud) handleReadAloud();
-                  }}
-                >
-                  <div className={Style.toolCardLeft}>
-                    <span
-                      className={`${Style.gridIcon} ${
-                        isReading ? Style.activeSoundIcon : Style.roseIcon
-                      }`}
-                    >
-                      <i
-                        className={`fa-solid ${
-                          isReading ? "fa-stop" : "fa-volume-high"
-                        }`}
-                      ></i>
-                    </span>
-                    <div className={Style.toolCardText}>
-                      <strong>Read Aloud</strong>
-                      <small>{isReading ? "Speaking note text..." : "Text-to-speech reader"}</small>
-                    </div>
-                  </div>
-                  <span className={`${Style.statusBadge} ${isReading ? Style.badgeActive : ""}`}>
-                    {isReading ? "Stop" : "Read"}
-                  </span>
-                </button>
-
-                {/* Focus Timer / Stopwatch */}
-                <div className={Style.timerCard}>
-                  <div className={Style.toolCardLeft}>
-                    <span className={`${Style.gridIcon} ${Style.amberIcon}`}>
-                      <i className="fa-solid fa-stopwatch"></i>
-                    </span>
-                    <div className={Style.toolCardText}>
-                      <strong>Focus Timer</strong>
-                      <span className={Style.liveTimerText}>
-                        {formatElapsed(elapsedMs)}
-                      </span>
-                    </div>
-                  </div>
-                  <div className={Style.timerActions}>
-                    <button
-                      type="button"
-                      className={Style.timerActionBtn}
-                      onClick={toggleTimer}
-                      title={timerRunning ? "Pause" : "Start"}
-                    >
-                      <i
-                        className={`fa-solid ${
-                          timerRunning ? "fa-pause" : "fa-play"
-                        }`}
-                      ></i>
-                    </button>
-                    <button
-                      type="button"
-                      className={Style.timerActionBtn}
-                      onClick={resetTimer}
-                      title="Reset timer"
-                    >
-                      <i className="fa-solid fa-rotate-left"></i>
-                    </button>
-                  </div>
+              {/* 2. My Notes */}
+              <button
+                type="button"
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  setNotebooksSheetOpen(true);
+                }}
+                className="flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-2xl hover:bg-white/10 text-white transition-all cursor-pointer shrink-0 group"
+                title="My Saved Notes"
+              >
+                <div className="w-10 h-10 rounded-xl bg-white/10 text-slate-200 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <BookOpen size={18} />
                 </div>
+                <span className="text-[10px] font-semibold text-slate-300">Notes</span>
+              </button>
 
-                {/* Zen Mode */}
-                {onToggleZenMode && (
-                  <button
-                    type="button"
-                    className={Style.toolCard}
-                    onClick={() => {
-                      setIsMenuOpen(false);
-                      onToggleZenMode();
-                    }}
-                  >
-                    <div className={Style.toolCardLeft}>
-                      <span className={`${Style.gridIcon} ${Style.tealIcon}`}>
-                        <i className="fa-solid fa-bullseye"></i>
-                      </span>
-                      <div className={Style.toolCardText}>
-                        <strong>Distraction-Free Mode</strong>
-                        <small>Full-screen clean writing view</small>
-                      </div>
-                    </div>
-                    <i className="fa-solid fa-expand" style={{ color: "#9ca3af" }}></i>
-                  </button>
-                )}
-              </div>
+              {/* 3. Zen Mode */}
+              <button
+                type="button"
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  if (onToggleZenMode) onToggleZenMode();
+                }}
+                className="flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-2xl hover:bg-white/10 text-white transition-all cursor-pointer shrink-0 group"
+                title="Zen Focus Mode"
+              >
+                <div className="w-10 h-10 rounded-xl bg-white/10 text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Maximize2 size={18} />
+                </div>
+                <span className="text-[10px] font-semibold text-slate-300">Zen</span>
+              </button>
 
-              {/* --- SECTION 3: REVISIONS & SYMBOLS --- */}
-              <div className={Style.sectionTitle}>Revisions & Characters</div>
-              <div className={Style.actionList}>
-                {/* Snapshots */}
-                <button
-                  type="button"
-                  className={Style.actionRow}
-                  onClick={() => {
-                    setIsMenuOpen(false);
-                    setSnapshotsSheetOpen(true);
-                  }}
-                >
-                  <div className={Style.actionRowLeft}>
-                    <span className={`${Style.gridIcon} ${Style.cyanIcon}`}>
-                      <i className="fa-solid fa-clock-rotate-left"></i>
-                    </span>
-                    <span>Note Snapshots History</span>
-                  </div>
-                  <span className={Style.actionCountBadge}>
-                    {snapshots ? snapshots.length : 0}
-                  </span>
-                </button>
+              {/* 4. Find in Note */}
+              <button
+                type="button"
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  if (onToggleSearch) onToggleSearch();
+                }}
+                className="flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-2xl hover:bg-white/10 text-white transition-all cursor-pointer shrink-0 group"
+                title="Search in Note"
+              >
+                <div className="w-10 h-10 rounded-xl bg-white/10 text-amber-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Search size={18} />
+                </div>
+                <span className="text-[10px] font-semibold text-slate-300">Find</span>
+              </button>
 
-                {/* Symbols & Emojis */}
-                <button
-                  type="button"
-                  className={Style.actionRow}
-                  onClick={() => {
-                    setIsMenuOpen(false);
-                    setUnicodeSheetOpen(true);
-                  }}
-                >
-                  <div className={Style.actionRowLeft}>
-                    <span className={`${Style.gridIcon} ${Style.purpleIcon}`}>
-                      <span style={{ fontSize: "15px", fontWeight: "bold" }}>Ω</span>
-                    </span>
-                    <span>Symbols & Emojis (Unicode)</span>
-                  </div>
-                  <i className="fa-solid fa-chevron-right" style={{ color: "#9ca3af", fontSize: "12px" }}></i>
-                </button>
-              </div>
+              {/* 5. Focus Audio */}
+              <button
+                type="button"
+                onClick={() => {
+                  if (toggleMusic) toggleMusic();
+                }}
+                className="flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-2xl hover:bg-white/10 text-white transition-all cursor-pointer shrink-0 group"
+                title="Focus Ambient Audio"
+              >
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${musicOn ? "bg-emerald-500/25 text-emerald-300" : "bg-white/10 text-slate-300"} group-hover:scale-110 transition-transform`}>
+                  <AudioLines size={18} />
+                </div>
+                <span className="text-[10px] font-semibold text-slate-300">{musicOn ? "Audio ON" : "Audio"}</span>
+              </button>
 
-              {/* --- SECTION 4: FILE MANAGEMENT & ACTIONS --- */}
-              <div className={Style.sectionTitle}>Manage & Export</div>
-              <div className={Style.actionList}>
-                {/* Copy All Text */}
-                {onCopyNote && (
-                  <button
-                    type="button"
-                    className={Style.actionRow}
-                    onClick={() => {
-                      setIsMenuOpen(false);
-                      onCopyNote();
-                    }}
-                  >
-                    <div className={Style.actionRowLeft}>
-                      <span className={`${Style.gridIcon} ${Style.blueIcon}`}>
-                        <i className={`fa-solid ${copied ? "fa-check" : "fa-copy"}`}></i>
-                      </span>
-                      <span>{copied ? "Copied to Clipboard!" : "Copy All Note Text"}</span>
-                    </div>
-                  </button>
-                )}
-
-                {/* Download Note */}
-                {onDownloadNote && (
-                  <button
-                    type="button"
-                    className={Style.actionRow}
-                    onClick={() => {
-                      setIsMenuOpen(false);
-                      onDownloadNote();
-                    }}
-                  >
-                    <div className={Style.actionRowLeft}>
-                      <span className={`${Style.gridIcon} ${Style.greenIcon}`}>
-                        <i className="fa-solid fa-download"></i>
-                      </span>
-                      <span>Download Note (.txt)</span>
-                    </div>
-                  </button>
-                )}
-
-                {/* Share Note */}
-                {onShareNote && (
-                  <button
-                    type="button"
-                    className={Style.actionRow}
-                    onClick={() => {
-                      setIsMenuOpen(false);
-                      onShareNote();
-                    }}
-                  >
-                    <div className={Style.actionRowLeft}>
-                      <span className={`${Style.gridIcon} ${Style.indigoIcon}`}>
-                        <i className="fa-solid fa-share-nodes"></i>
-                      </span>
-                      <span>Share Note</span>
-                    </div>
-                  </button>
-                )}
-
-                {/* Settings & Fonts */}
-                {onToggleSettings && (
-                  <button
-                    type="button"
-                    className={Style.actionRow}
-                    onClick={() => {
-                      setIsMenuOpen(false);
-                      onToggleSettings();
-                    }}
-                  >
-                    <div className={Style.actionRowLeft}>
-                      <span className={`${Style.gridIcon} ${Style.roseIcon}`}>
-                        <i className="fa-solid fa-sliders"></i>
-                      </span>
-                      <span>Settings & Fonts (Inter, Caveat, etc.)</span>
-                    </div>
-                  </button>
-                )}
-
-                {/* Clear Note */}
-                {onDeleteNote && (
-                  <button
-                    type="button"
-                    className={`${Style.actionRow} ${Style.dangerRow}`}
-                    onClick={() => {
-                      setIsMenuOpen(false);
-                      onDeleteNote();
-                    }}
-                  >
-                    <div className={Style.actionRowLeft}>
-                      <span className={`${Style.gridIcon} ${Style.dangerIcon}`}>
-                        <i className="fa-solid fa-trash-can"></i>
-                      </span>
-                      <span>Clear Note Content</span>
-                    </div>
-                  </button>
-                )}
-              </div>
-
-              {/* Stats Footer */}
-              <div className={Style.sheetStatsFooter}>
-                <span>{charCount} characters</span>
-                <span>•</span>
-                <span>{wordCount} words</span>
-                <span>•</span>
-                <span>{readingTime}m read</span>
-              </div>
-            </div>
-          </div>
-        )}
+              {/* 6. Theme Toggle */}
+              <button
+                type="button"
+                onClick={() => {
+                  if (toggleDarkMode) toggleDarkMode();
+                }}
+                className="flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-2xl hover:bg-white/10 text-white transition-all cursor-pointer shrink-0 group"
+                title="Toggle Theme"
+              >
+                <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-amber-300 group-hover:scale-110 transition-transform">
+                  {darkMode ? <Sun size={18} className="text-amber-400" /> : <Moon size={18} className="text-indigo-400" />}
+                </div>
+                <span className="text-[10px] font-semibold text-slate-300">{darkMode ? "Light" : "Dark"}</span>
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* ============================================================
-            4. SAVED NOTEBOOKS SWITCHER SHEET
+            UNIFIED BOTTOM BAR DOCK (MORPHING CAPSULE PILL)
+            Strictly matches Reference Image (media_1795076702617_a5a584fa.png)
             ============================================================ */}
-        {notebooksSheetOpen && (
-          <div className={Style.drawerSheet}>
-            <div className={Style.sheetHandle} />
-            <div className={Style.drawerHeader}>
-              <div className={Style.sheetHeaderTitle}>
-                <i className="fa-solid fa-book-bookmark"></i>
-                <span className={Style.drawerTitle}>Saved Notebooks</span>
-              </div>
-              <button
-                type="button"
-                className={Style.drawerClose}
-                onClick={() => setNotebooksSheetOpen(false)}
-                aria-label="Close"
-              >
-                ✕
-              </button>
-            </div>
+        <nav
+          className="pointer-events-auto flex items-center gap-1 sm:gap-1.5 p-1.5 sm:p-2 rounded-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border border-slate-200/90 dark:border-slate-800 shadow-[0_12px_45px_rgba(15,23,42,0.15)] dark:shadow-[0_12px_45px_rgba(0,0,0,0.6)]"
+          role="navigation"
+          aria-label="Notepad mobile navigation"
+        >
+          {/* 1. Home */}
+          <Link
+            to="/"
+            className="p-2.5 sm:p-3 rounded-full text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
+            title="Home"
+            aria-label="Home"
+          >
+            <Home size={18} className="shrink-0 stroke-[2.2]" />
+          </Link>
 
-            {/* Top Prominent + New Notebook Button */}
-            <div className={Style.drawerTopAction}>
-              <button
-                type="button"
-                className={Style.drawerNewBtn}
-                onClick={() => {
-                  setNotebooksSheetOpen(false);
-                  if (onNewNotebook) onNewNotebook();
-                }}
+          {/* 2. Notes (ACTIVE TAB ON NOTEPAD PAGE) */}
+          <button
+            type="button"
+            onClick={() => {
+              if (isMenuOpen) {
+                setIsMenuOpen(false);
+              } else {
+                setNotebooksSheetOpen(true);
+              }
+            }}
+            className={`relative flex items-center select-none transition-all cursor-pointer ${
+              !isMenuOpen
+                ? "px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-full text-white dark:text-slate-900 font-bold text-xs sm:text-sm gap-2"
+                : "p-2.5 sm:p-3 rounded-full text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60"
+            }`}
+            title="Notes (Active) - Tap to switch notebooks"
+            aria-label="Notes"
+          >
+            {!isMenuOpen && (
+              <motion.div
+                layoutId="activeNotebookBottomPill"
+                transition={{ type: "spring", stiffness: 450, damping: 32 }}
+                className="absolute inset-0 bg-[#18202F] dark:bg-white rounded-full -z-10 shadow-md"
+              />
+            )}
+            <BookOpen size={18} className="shrink-0 stroke-[2.2]" />
+            {!isMenuOpen && (
+              <motion.span
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                className="whitespace-nowrap tracking-tight"
               >
-                <i className="fa-solid fa-plus"></i> + New Notebook
-              </button>
-            </div>
+                Notes
+              </motion.span>
+            )}
+          </button>
 
-            <div className={Style.drawerList}>
-              {notebooks && notebooks.length > 0 ? (
-                notebooks.map((nb) => {
-                  const isActive = nb.id === activeNotebookId;
-                  return (
-                    <div
-                      key={nb.id}
-                      className={`${Style.drawerItemRow} ${
-                        isActive ? Style.activeDrawerRow : ""
-                      }`}
+          {/* 3. Whiteboard */}
+          <Link
+            to="/whiteboard"
+            className="p-2.5 sm:p-3 rounded-full text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
+            title="Whiteboard"
+            aria-label="Whiteboard"
+          >
+            <PenTool size={18} className="shrink-0 stroke-[2.2]" />
+          </Link>
+
+          {/* 4. Tools */}
+          <Link
+            to="/tools"
+            className="p-2.5 sm:p-3 rounded-full text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
+            title="Tools"
+            aria-label="Tools"
+          >
+            <Wrench size={18} className="shrink-0 stroke-[2.2]" />
+          </Link>
+
+          {/* 5. Menu / Tools trigger */}
+          <button
+            type="button"
+            onClick={() => {
+              setIsMenuOpen((prev) => !prev);
+              setNotebooksSheetOpen(false);
+              setSnapshotsSheetOpen(false);
+              setUnicodeSheetOpen(false);
+            }}
+            className={`relative flex items-center select-none transition-all cursor-pointer ${
+              isMenuOpen
+                ? "px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-full text-white dark:text-slate-900 font-bold text-xs sm:text-sm gap-2"
+                : "p-2.5 sm:p-3 rounded-full text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60"
+            }`}
+            title="Notepad Quick Tools"
+            aria-label="Notepad Quick Tools"
+          >
+            {isMenuOpen && (
+              <motion.div
+                layoutId="activeNotebookBottomPill"
+                transition={{ type: "spring", stiffness: 450, damping: 32 }}
+                className="absolute inset-0 bg-[#18202F] dark:bg-white rounded-full -z-10 shadow-md"
+              />
+            )}
+            {isMenuOpen ? (
+              <X size={18} className="shrink-0 stroke-[2.2]" />
+            ) : (
+              <MenuIcon size={18} className="shrink-0 stroke-[2.2]" />
+            )}
+            {isMenuOpen && (
+              <motion.span
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                className="whitespace-nowrap tracking-tight"
+              >
+                Menu
+              </motion.span>
+            )}
+          </button>
+        </nav>
+      </div>
+
+      {/* ============================================================
+          SAVED NOTEBOOKS SWITCHER SHEET
+          ============================================================ */}
+      {notebooksSheetOpen && (
+        <div className={Style.drawerSheet}>
+          <div className={Style.sheetHandle} />
+          <div className={Style.drawerHeader}>
+            <div className={Style.sheetHeaderTitle}>
+              <i className="fa-solid fa-book-bookmark"></i>
+              <span className={Style.drawerTitle}>Saved Notebooks</span>
+            </div>
+            <button
+              type="button"
+              className={Style.drawerClose}
+              onClick={() => setNotebooksSheetOpen(false)}
+              aria-label="Close"
+            >
+              ✕
+            </button>
+          </div>
+
+          {/* Top Prominent + New Notebook Button */}
+          <div className={Style.drawerTopAction}>
+            <button
+              type="button"
+              className={Style.drawerNewBtn}
+              onClick={() => {
+                setNotebooksSheetOpen(false);
+                if (onNewNotebook) onNewNotebook();
+              }}
+            >
+              <i className="fa-solid fa-plus"></i> + New Notebook
+            </button>
+          </div>
+
+          <div className={Style.drawerList}>
+            {notebooks && notebooks.length > 0 ? (
+              notebooks.map((nb) => {
+                const isActive = nb.id === activeNotebookId;
+                return (
+                  <div
+                    key={nb.id}
+                    className={`${Style.drawerItemRow} ${
+                      isActive ? Style.activeDrawerRow : ""
+                    }`}
+                  >
+                    <button
+                      type="button"
+                      className={Style.drawerItemSelect}
+                      onClick={() => {
+                        if (onSwitchNotebook) onSwitchNotebook(nb.id);
+                        setNotebooksSheetOpen(false);
+                      }}
                     >
+                      <i className="fa-solid fa-book"></i>
+                      <span className={Style.drawerItemTitle}>
+                        {nb.title || "Untitled Notebook"}
+                      </span>
+                      {isActive && (
+                        <span className={Style.activeCheckPill}>Active</span>
+                      )}
+                    </button>
+
+                    {onDeleteNotebook && (
                       <button
                         type="button"
-                        className={Style.drawerItemSelect}
-                        onClick={() => {
-                          if (onSwitchNotebook) onSwitchNotebook(nb.id);
-                          setNotebooksSheetOpen(false);
+                        className={Style.drawerItemDelete}
+                        title={`Delete ${nb.title || "notebook"}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          swal({
+                            title: "Delete notebook?",
+                            text: `Are you sure you want to delete "${nb.title || "Untitled"}"?`,
+                            icon: "warning",
+                            buttons: ["Cancel", "Delete"],
+                            dangerMode: true,
+                          }).then((willDelete) => {
+                            if (willDelete) {
+                              onDeleteNotebook(nb.id);
+                            }
+                          });
                         }}
                       >
-                        <i className="fa-solid fa-book"></i>
-                        <span className={Style.drawerItemTitle}>
-                          {nb.title || "Untitled Notebook"}
-                        </span>
-                        {isActive && (
-                          <span className={Style.activeCheckPill}>Active</span>
-                        )}
+                        <i className="fa-solid fa-trash-can"></i>
                       </button>
-
-                      {onDeleteNotebook && (
-                        <button
-                          type="button"
-                          className={Style.drawerItemDelete}
-                          title={`Delete ${nb.title || "notebook"}`}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            swal({
-                              title: "Delete notebook?",
-                              text: `Are you sure you want to delete "${nb.title || "Untitled"}"?`,
-                              icon: "warning",
-                              buttons: ["Cancel", "Delete"],
-                              dangerMode: true,
-                            }).then((willDelete) => {
-                              if (willDelete) {
-                                onDeleteNotebook(nb.id);
-                              }
-                            });
-                          }}
-                        >
-                          <i className="fa-solid fa-trash-can"></i>
-                        </button>
-                      )}
-                    </div>
-                  );
-                })
-              ) : (
-                <div className={Style.emptyStateText}>
-                  No saved notebooks found.
-                </div>
-              )}
-            </div>
-
-            <div className={Style.drawerFooter}>
-              <span className={Style.drawerCountText}>
-                {notebooks.length} total saved notes
-              </span>
-            </div>
-          </div>
-        )}
-
-        {/* ============================================================
-            5. SNAPSHOTS HISTORY SHEET
-            ============================================================ */}
-        {snapshotsSheetOpen && (
-          <div className={Style.drawerSheet}>
-            <div className={Style.sheetHandle} />
-            <div className={Style.drawerHeader}>
-              <div className={Style.sheetHeaderTitle}>
-                <i className="fa-solid fa-clock-rotate-left"></i>
-                <span className={Style.drawerTitle}>Snapshots History</span>
+                    )}
+                  </div>
+                );
+              })
+            ) : (
+              <div className={Style.emptyStateText}>
+                No saved notebooks found.
               </div>
-              <button
-                type="button"
-                className={Style.drawerClose}
-                onClick={() => setSnapshotsSheetOpen(false)}
-                aria-label="Close"
-              >
-                ✕
-              </button>
-            </div>
+            )}
+          </div>
 
-            <div className={Style.snapshotsToolbar}>
+          <div className={Style.drawerFooter}>
+            <span className={Style.drawerCountText}>
+              {notebooks.length} total saved notes
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================
+          SNAPSHOTS HISTORY SHEET
+          ============================================================ */}
+      {snapshotsSheetOpen && (
+        <div className={Style.drawerSheet}>
+          <div className={Style.sheetHandle} />
+          <div className={Style.drawerHeader}>
+            <div className={Style.sheetHeaderTitle}>
+              <i className="fa-solid fa-clock-rotate-left"></i>
+              <span className={Style.drawerTitle}>Snapshots History</span>
+            </div>
+            <button
+              type="button"
+              className={Style.drawerClose}
+              onClick={() => setSnapshotsSheetOpen(false)}
+              aria-label="Close"
+            >
+              ✕
+            </button>
+          </div>
+
+          <div className={Style.snapshotsToolbar}>
+            <button
+              type="button"
+              className={Style.takeSnapshotBtn}
+              onClick={() => {
+                if (takeSnapshot) takeSnapshot();
+              }}
+            >
+              <i className="fa-solid fa-camera"></i> + Take Snapshot
+            </button>
+            <input
+              type="text"
+              placeholder="Search snapshots..."
+              className={Style.snapshotsSearchInput}
+              value={snapshotsSearch}
+              onChange={(e) => setSnapshotsSearch(e.target.value)}
+            />
+          </div>
+
+          <div className={Style.drawerList}>
+            {snapshots && snapshots.length > 0 ? (
+              snapshots
+                .filter(
+                  (s) =>
+                    s.text?.toLowerCase().includes(snapshotsSearch.toLowerCase()) ||
+                    s.title?.toLowerCase().includes(snapshotsSearch.toLowerCase())
+                )
+                .map((snap) => (
+                  <div key={snap.id} className={Style.snapshotItem}>
+                    <div className={Style.snapshotInfo}>
+                      <strong>{snap.title || "Stiknex Note"}</strong>
+                      <p>
+                        {snap.text.slice(0, 90)}
+                        {snap.text.length > 90 ? "..." : ""}
+                      </p>
+                      <small>{new Date(snap.timestamp).toLocaleString()}</small>
+                    </div>
+                    <div className={Style.snapshotActions}>
+                      <button
+                        type="button"
+                        title="Restore"
+                        className={Style.snapActionBtn}
+                        onClick={() => {
+                          if (restoreSnapshot) restoreSnapshot(snap.text);
+                          setSnapshotsSheetOpen(false);
+                        }}
+                      >
+                        <i className="fa-solid fa-rotate-left"></i>
+                      </button>
+                      <button
+                        type="button"
+                        title="Copy"
+                        className={Style.snapActionBtn}
+                        onClick={() => {
+                          navigator.clipboard.writeText(snap.text);
+                          swal("Copied", "Snapshot text copied to clipboard", "success");
+                        }}
+                      >
+                        <i className="fa-regular fa-copy"></i>
+                      </button>
+                      <button
+                        type="button"
+                        title="Delete"
+                        className={`${Style.snapActionBtn} ${Style.dangerIcon}`}
+                        onClick={() => {
+                          if (deleteSnapshot) deleteSnapshot(snap.id);
+                        }}
+                      >
+                        <i className="fa-solid fa-trash"></i>
+                      </button>
+                    </div>
+                  </div>
+                ))
+            ) : (
+              <div className={Style.emptyStateText}>
+                No snapshots taken yet. Tap "+ Take Snapshot" above to save the current note version.
+              </div>
+            )}
+          </div>
+
+          <div className={Style.drawerFooter}>
+            <span className={Style.drawerCountText}>
+              {snapshots.length} snapshots saved
+            </span>
+            {snapshots.length > 0 && (
               <button
                 type="button"
-                className={Style.takeSnapshotBtn}
+                className={Style.dangerTextBtn}
                 onClick={() => {
-                  if (takeSnapshot) takeSnapshot();
+                  swal({
+                    title: "Delete all snapshots?",
+                    text: "This cannot be undone.",
+                    icon: "warning",
+                    buttons: ["Cancel", "Delete All"],
+                    dangerMode: true,
+                  }).then((willDelete) => {
+                    if (willDelete && deleteAllSnapshots) {
+                      deleteAllSnapshots();
+                    }
+                  });
                 }}
               >
-                <i className="fa-solid fa-camera"></i> + Take Snapshot
+                <i className="fa-solid fa-trash"></i> Delete All
               </button>
-              <input
-                type="text"
-                placeholder="Search snapshots..."
-                className={Style.snapshotsSearchInput}
-                value={snapshotsSearch}
-                onChange={(e) => setSnapshotsSearch(e.target.value)}
-              />
-            </div>
-
-            <div className={Style.drawerList}>
-              {snapshots && snapshots.length > 0 ? (
-                snapshots
-                  .filter(
-                    (s) =>
-                      s.text?.toLowerCase().includes(snapshotsSearch.toLowerCase()) ||
-                      s.title?.toLowerCase().includes(snapshotsSearch.toLowerCase())
-                  )
-                  .map((snap) => (
-                    <div key={snap.id} className={Style.snapshotItem}>
-                      <div className={Style.snapshotInfo}>
-                        <strong>{snap.title || "Stiknex Note"}</strong>
-                        <p>
-                          {snap.text.slice(0, 90)}
-                          {snap.text.length > 90 ? "..." : ""}
-                        </p>
-                        <small>{new Date(snap.timestamp).toLocaleString()}</small>
-                      </div>
-                      <div className={Style.snapshotActions}>
-                        <button
-                          type="button"
-                          title="Restore"
-                          className={Style.snapActionBtn}
-                          onClick={() => {
-                            if (restoreSnapshot) restoreSnapshot(snap.text);
-                            setSnapshotsSheetOpen(false);
-                          }}
-                        >
-                          <i className="fa-solid fa-rotate-left"></i>
-                        </button>
-                        <button
-                          type="button"
-                          title="Copy"
-                          className={Style.snapActionBtn}
-                          onClick={() => {
-                            navigator.clipboard.writeText(snap.text);
-                            swal("Copied", "Snapshot text copied to clipboard", "success");
-                          }}
-                        >
-                          <i className="fa-regular fa-copy"></i>
-                        </button>
-                        <button
-                          type="button"
-                          title="Delete"
-                          className={`${Style.snapActionBtn} ${Style.dangerIcon}`}
-                          onClick={() => {
-                            if (deleteSnapshot) deleteSnapshot(snap.id);
-                          }}
-                        >
-                          <i className="fa-solid fa-trash"></i>
-                        </button>
-                      </div>
-                    </div>
-                  ))
-              ) : (
-                <div className={Style.emptyStateText}>
-                  No snapshots taken yet. Tap "+ Take Snapshot" above to save the current note version.
-                </div>
-              )}
-            </div>
-
-            <div className={Style.drawerFooter}>
-              <span className={Style.drawerCountText}>
-                {snapshots.length} snapshots saved
-              </span>
-              {snapshots.length > 0 && (
-                <button
-                  type="button"
-                  className={Style.dangerTextBtn}
-                  onClick={() => {
-                    swal({
-                      title: "Delete all snapshots?",
-                      text: "This cannot be undone.",
-                      icon: "warning",
-                      buttons: ["Cancel", "Delete All"],
-                      dangerMode: true,
-                    }).then((willDelete) => {
-                      if (willDelete && deleteAllSnapshots) {
-                        deleteAllSnapshots();
-                      }
-                    });
-                  }}
-                >
-                  <i className="fa-solid fa-trash"></i> Delete All
-                </button>
-              )}
-            </div>
+            )}
           </div>
-        )}
+        </div>
+      )}
 
-        {/* ============================================================
-            6. SYMBOLS & EMOJIS (UNICODE) SHEET
-            ============================================================ */}
-        {unicodeSheetOpen && (
-          <div className={Style.drawerSheet}>
-            <div className={Style.sheetHandle} />
-            <div className={Style.drawerHeader}>
-              <div className={Style.sheetHeaderTitle}>
-                <span style={{ fontSize: "16px", fontWeight: "bold" }}>Ω</span>
-                <span className={Style.drawerTitle}>Insert Symbol / Emoji</span>
-              </div>
+      {/* ============================================================
+          SYMBOLS & EMOJIS (UNICODE) SHEET
+          ============================================================ */}
+      {unicodeSheetOpen && (
+        <div className={Style.drawerSheet}>
+          <div className={Style.sheetHandle} />
+          <div className={Style.drawerHeader}>
+            <div className={Style.sheetHeaderTitle}>
+              <span style={{ fontSize: "16px", fontWeight: "bold" }}>Ω</span>
+              <span className={Style.drawerTitle}>Insert Symbol / Emoji</span>
+            </div>
+            <button
+              type="button"
+              className={Style.drawerClose}
+              onClick={() => setUnicodeSheetOpen(false)}
+              aria-label="Close"
+            >
+              ✕
+            </button>
+          </div>
+
+          {/* Category Tabs */}
+          <div className={Style.unicodeTabs}>
+            {UNICODE_CATEGORIES.map((cat) => (
               <button
+                key={cat.id}
                 type="button"
-                className={Style.drawerClose}
-                onClick={() => setUnicodeSheetOpen(false)}
-                aria-label="Close"
+                className={`${Style.unicodeTabBtn} ${
+                  unicodeCategory === cat.id ? Style.unicodeTabBtnActive : ""
+                }`}
+                onClick={() => setUnicodeCategory(cat.id)}
               >
-                ✕
+                {cat.label}
               </button>
-            </div>
-
-            {/* Category Tabs */}
-            <div className={Style.unicodeTabs}>
-              {UNICODE_CATEGORIES.map((cat) => (
-                <button
-                  key={cat.id}
-                  type="button"
-                  className={`${Style.unicodeTabBtn} ${
-                    unicodeCategory === cat.id ? Style.unicodeTabBtnActive : ""
-                  }`}
-                  onClick={() => setUnicodeCategory(cat.id)}
-                >
-                  {cat.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Unicode Grid */}
-            <div className={Style.unicodeGrid}>
-              {(
-                UNICODE_CATEGORIES.find((c) => c.id === unicodeCategory)?.chars ||
-                UNICODE_CATEGORIES[0].chars
-              ).map((char, i) => (
-                <button
-                  key={`${unicodeCategory}_${i}`}
-                  type="button"
-                  className={Style.unicodeCharBtn}
-                  title={`Insert ${char}`}
-                  onClick={() => {
-                    if (handleInsertUnicode) handleInsertUnicode(char);
-                  }}
-                >
-                  {char}
-                </button>
-              ))}
-            </div>
-
-            <div className={Style.drawerFooter}>
-              <span className={Style.drawerCountText}>
-                Tap any symbol to insert into note
-              </span>
-            </div>
+            ))}
           </div>
-        )}
-      </div>
+
+          {/* Unicode Grid */}
+          <div className={Style.unicodeGrid}>
+            {(
+              UNICODE_CATEGORIES.find((c) => c.id === unicodeCategory)?.chars ||
+              UNICODE_CATEGORIES[0].chars
+            ).map((char, i) => (
+              <button
+                key={`${unicodeCategory}_${i}`}
+                type="button"
+                className={Style.unicodeCharBtn}
+                title={`Insert ${char}`}
+                onClick={() => {
+                  if (handleInsertUnicode) handleInsertUnicode(char);
+                }}
+              >
+                {char}
+              </button>
+            ))}
+          </div>
+
+          <div className={Style.drawerFooter}>
+            <span className={Style.drawerCountText}>
+              Tap any symbol to insert into note
+            </span>
+          </div>
+        </div>
+      )}
     </>
   );
 };

@@ -42,7 +42,7 @@ const coreFileMap = {
   '/about': 'src/Pages/About/About.jsx',
   '/blog': 'src/Pages/Blog/Blog.jsx',
   '/buy-me-a-coffee': 'src/Pages/BuyMeACoffee/BuyMeACoffee.jsx',
-  '/typing-lab': 'src/Pages/TypingLab/TypingLab.jsx',
+  '/stiknex-typing': 'src/Pages/Tools/engines/TypingEngine.jsx',
   '/url-shortener': 'src/Pages/Tools/UrlShortener/UrlShortener.jsx',
   '/tools': 'src/Pages/Tools/Tools.jsx',
   '/privacy-policy': 'src/Pages/Legal/PrivacyPolicy.jsx',

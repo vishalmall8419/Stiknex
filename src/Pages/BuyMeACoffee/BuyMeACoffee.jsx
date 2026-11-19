@@ -17,24 +17,11 @@ const PRESET_AMOUNTS = [10, 20, 50, 100, 200, 500];
 // React Bits Inspired Components
 // ==========================================
 
-const AuroraBackground = () => (
-  <div className="absolute inset-0 overflow-hidden pointer-events-none z-0 bg-slate-50 dark:bg-slate-950 transition-colors duration-500">
-    <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-indigo-500/20 dark:bg-indigo-600/20 blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-blob"></div>
-    <div className="absolute top-[10%] -right-[10%] w-[50%] h-[50%] rounded-full bg-cyan-500/20 dark:bg-cyan-600/20 blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-blob animation-delay-2000"></div>
-    <div className="absolute -bottom-[20%] left-[20%] w-[50%] h-[50%] rounded-full bg-purple-500/20 dark:bg-purple-600/20 blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-blob animation-delay-4000"></div>
-    <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1.5px,transparent_1.5px)] dark:bg-[radial-gradient(#334155_1.5px,transparent_1.5px)] [background-size:40px_40px] opacity-40"></div>
-    
-    <style>{`
-      @keyframes blob {
-        0% { transform: translate(0px, 0px) scale(1); }
-        33% { transform: translate(30px, -50px) scale(1.1); }
-        66% { transform: translate(-20px, 20px) scale(0.9); }
-        100% { transform: translate(0px, 0px) scale(1); }
-      }
-      .animate-blob { animation: blob 15s infinite alternate ease-in-out; }
-      .animation-delay-2000 { animation-delay: 2s; }
-      .animation-delay-4000 { animation-delay: 4s; }
-    `}</style>
+const StudioBackground = () => (
+  <div className="absolute inset-0 overflow-hidden pointer-events-none z-0 bg-[#faf8f5] dark:bg-[#080a18] transition-colors duration-300">
+    <div className="absolute inset-0 bg-gradient-to-b from-[#fef3c7]/40 via-[#faf5ff]/50 to-white dark:from-[#1c1306]/50 dark:via-[#090b1a] dark:to-[#060814]"></div>
+    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[520px] bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(251,191,36,0.25),rgba(216,180,254,0.15)_40%,transparent_75%)] dark:bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(245,158,11,0.2),rgba(168,85,247,0.1)_40%,transparent_75%)] pointer-events-none"></div>
+    <div className="absolute inset-0 bg-[radial-gradient(#e2e8f0_1.2px,transparent_1.2px)] dark:bg-[radial-gradient(#334155_1.2px,transparent_1.2px)] [background-size:26px_26px] opacity-40 dark:opacity-30"></div>
   </div>
 );
 
@@ -287,7 +274,7 @@ const BuyMeACoffee = () => {
 />
       
       <div className="relative min-h-screen">
-        <AuroraBackground />
+        <StudioBackground />
 
         <div className="relative z-10 pt-24 pb-32">
           

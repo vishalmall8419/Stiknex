@@ -259,11 +259,7 @@ export default function UnitConverter({ units = [], defaultUnit, tool, seoData, 
 
   return (
     <div className="min-h-screen w-full bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col justify-between selection:bg-indigo-500 selection:text-white transition-colors duration-200">
-      {/* 100% Crawlable Semantic SEO Hidden in DOM */}
-      <header className="sr-only">
-        <h1>{seoData?.h1 || `${displayTitle} - Free Online Measurement Calculator`}</h1>
-        <p>{seoData?.description || "Fast and accurate measurement conversions across metric and imperial standards."}</p>
-      </header>
+      
 
       {/* ══════════════════════════════════════════════════════════════════
           TOP NAVIGATION BAR (FULL-WIDTH EXPANSIVE)
@@ -290,9 +286,9 @@ export default function UnitConverter({ units = [], defaultUnit, tool, seoData, 
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-base sm:text-lg font-black tracking-tight text-slate-900 dark:text-white uppercase leading-none">
+                <h1 className="text-base sm:text-lg font-black tracking-tight text-slate-900 dark:text-white uppercase leading-none">
                   {displayTitle}
-                </h2>
+                </h1>
                 <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/60 tracking-wider uppercase">
                   Precision Engine
                 </span>

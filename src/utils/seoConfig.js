@@ -30,6 +30,10 @@ export const seoConfig = {
     {
       "q": "Why was Stiknex built?",
       "a": "Stiknex was engineered to replace bloated, ad-heavy tool websites with clean, fast, local-first browser applications that respect user privacy."
+    },
+    {
+      "q": "What is Stiknex and is it related to StoneX?",
+      "a": "Stiknex (pronounced Stick-Nex) is an independent digital productivity suite and browser tool workspace built by Vishal Mall. It is completely independent and has no association or connection with financial services firm StoneX Group Inc."
     }
   ]
 },
@@ -1498,6 +1502,25 @@ ALL_TOOLS.forEach((t) => {
         { q: `Does ${t.title} store my data?`, a: "No. All computations run 100% client-side in your device's browser memory. Your data is never transmitted to any external server." }
       ]
     };
+  } else {
+    // Enrich existing tool entry with FAQs, breadcrumbs and relatedTools if missing
+    if (!seoConfig[route].faqs || seoConfig[route].faqs.length === 0) {
+      seoConfig[route].faqs = [
+        { q: `What is the Stiknex ${t.title}?`, a: `The Stiknex ${t.title} is a free, browser-based online utility designed for instant calculation, conversion, and formatting with zero server uploads.` },
+        { q: `Is the ${t.title} free to use?`, a: "Yes, all tools on Stiknex are 100% free with no account creation, subscriptions, or hidden limits." },
+        { q: `Does ${t.title} store my data?`, a: "No. All computations run 100% client-side in your device's browser memory. Your data is never transmitted to any external server." }
+      ];
+    }
+    if (!seoConfig[route].breadcrumbs) {
+      seoConfig[route].breadcrumbs = [
+        { name: "Home", item: `${BASE_URL}/` },
+        { name: "Tools", item: `${BASE_URL}/tools` },
+        { name: t.title, item: `${BASE_URL}${route}` }
+      ];
+    }
+    if (!seoConfig[route].relatedTools) {
+      seoConfig[route].relatedTools = ALL_TOOLS.filter(ot => ot.category === t.category && ot.slug !== t.slug).slice(0, 4).map(ot => `/${ot.slug}`);
+    }
   }
 });
 

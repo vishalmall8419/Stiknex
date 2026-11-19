@@ -26,24 +26,28 @@ const ChromeIcon = ({ className = "w-4 h-4" }) => (
   </svg>
 );
 
-const AuroraBackground = () => (
-  <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10 bg-slate-50 dark:bg-slate-950 transition-colors duration-500">
-    <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-500/20 dark:bg-indigo-600/20 blur-[60px] sm:blur-[100px] mix-blend-multiply dark:mix-blend-screen animate-blob transform-gpu will-change-transform"></div>
-    <div className="absolute top-[10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-purple-500/20 dark:bg-purple-600/20 blur-[60px] sm:blur-[100px] mix-blend-multiply dark:mix-blend-screen animate-blob animation-delay-2000 transform-gpu will-change-transform"></div>
-    <div className="absolute bottom-[-20%] left-[20%] w-[50%] h-[50%] rounded-full bg-blue-500/20 dark:bg-blue-600/20 blur-[60px] sm:blur-[100px] mix-blend-multiply dark:mix-blend-screen animate-blob animation-delay-4000 transform-gpu will-change-transform"></div>
-    <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1.5px,transparent_1.5px)] dark:bg-[radial-gradient(#334155_1.5px,transparent_1.5px)] bg-size-[40px_40px] opacity-40"></div>
+const BrushUnderline = ({ className = "text-indigo-500" }) => (
+  <svg className={`absolute -bottom-2 sm:-bottom-3 left-0 w-full h-3 sm:h-4 pointer-events-none ${className}`} viewBox="0 0 300 20" fill="none" preserveAspectRatio="none">
+    <path d="M 5 14 Q 75 4, 150 11 Q 225 18, 295 8" stroke="currentColor" strokeWidth="5" strokeLinecap="round" strokeOpacity="0.85"/>
+  </svg>
+);
+
+const SparkleDoodle = ({ className = "" }) => (
+  <svg className={`pointer-events-none ${className}`} width="26" height="26" viewBox="0 0 28 28" fill="none">
+    <path d="M14 2L15.5 10.5L24 12L15.5 13.5L14 22L12.5 13.5L4 12L12.5 10.5L14 2Z" fill="#F59E0B" />
+  </svg>
+);
+
+const StudioBackground = () => (
+  <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10 bg-[#f8fafc] dark:bg-[#07090e] transition-colors duration-300">
+    {/* Subtle dot matrix grid */}
+    <div className="absolute inset-0 bg-[radial-gradient(#cbd5e1_1.2px,transparent_1.2px)] dark:bg-[radial-gradient(#1e293b_1.2px,transparent_1.2px)] [background-size:32px_32px] opacity-40"></div>
     
-    <style>{`
-      @keyframes blob {
-        0% { transform: translate(0px, 0px) scale(1); }
-        33% { transform: translate(30px, -50px) scale(1.1); }
-        66% { transform: translate(-20px, 20px) scale(0.9); }
-        100% { transform: translate(0px, 0px) scale(1); }
-      }
-      .animate-blob { animation: blob 15s infinite alternate ease-in-out; }
-      .animation-delay-2000 { animation-delay: 2s; }
-      .animation-delay-4000 { animation-delay: 4s; }
-    `}</style>
+    {/* Advapay Motion Concept: Large Deep Royal Cobalt/Indigo Orb on Left */}
+    <div className="absolute -top-16 -left-36 sm:-left-48 w-[440px] h-[440px] sm:w-[600px] sm:h-[600px] lg:w-[720px] lg:h-[720px] rounded-full bg-gradient-to-br from-[#2f49d1] via-[#3a52e3] to-[#6366f1] opacity-75 sm:opacity-85 blur-[70px] sm:blur-[95px] animate-orb-left pointer-events-none transform-gpu"></div>
+
+    {/* Advapay Motion Concept: Complementary Orb on Bottom Right */}
+    <div className="absolute top-[480px] -right-24 sm:-right-36 w-[320px] h-[320px] sm:w-[460px] sm:h-[460px] rounded-full bg-gradient-to-tl from-[#3243be] via-[#4f46e5] to-transparent opacity-60 sm:opacity-75 blur-[75px] sm:blur-[90px] animate-orb-right pointer-events-none transform-gpu"></div>
   </div>
 );
 
@@ -113,20 +117,17 @@ const LandingPage = () => {
           { q: 'Does Stiknex work on mobile?', a: 'Yes, Stiknex is a Progressive Web App (PWA) that works on all devices including mobile, tablet and desktop.' }
         ]}
       />
-      <AuroraBackground />
+      <StudioBackground />
 
-      <header className="fixed top-3 sm:top-5 left-1/2 -translate-x-1/2 z-50 w-full max-w-6xl px-3 sm:px-6 pointer-events-none">
-        <nav className="w-full px-4 sm:px-6 py-2.5 sm:py-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl border border-slate-200/70 dark:border-slate-800/70 rounded-full shadow-xl shadow-slate-900/5 flex items-center justify-between pointer-events-auto transition-all">
-          {/* Logo & Brand */}
-          <Link to="/" className="flex items-center gap-2 shrink-0 group">
-            <img src="/logo.png" alt="Stiknex Logo" width="30" height="30" loading="eager" fetchPriority="high" decoding="async" className="w-7 h-7 sm:w-8 sm:h-8 object-contain group-hover:scale-105 transition-transform" />
-            <span className="font-black text-base sm:text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
-              Stiknex
-            </span>
+      {/* Desktop Top Navigation Bar: Shown only on screens above phone (hidden md:block) */}
+      <header className="hidden md:block fixed top-4 sm:top-5 left-1/2 -translate-x-1/2 z-50 w-full max-w-6xl px-4 pointer-events-none">
+        <nav className="w-full px-5 py-2.5 bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl border border-slate-200/80 dark:border-slate-800/80 rounded-full shadow-lg flex items-center justify-between pointer-events-auto transition-all">
+          <Link to="/" className="flex items-center gap-2 group">
+            <img src="/logo.png" alt="Stiknex Logo" width="30" height="30" className="w-7 h-7 object-contain group-hover:scale-105 transition-transform" />
+            <span className="font-bold text-base tracking-tight text-slate-900 dark:text-white">Stiknex</span>
           </Link>
 
-          {/* Desktop Navigation Links */}
-          <div className="hidden lg:flex items-center gap-1 xl:gap-2 text-sm font-semibold text-slate-600 dark:text-slate-300">
+          <div className="flex items-center gap-1.5 text-sm font-semibold text-slate-600 dark:text-slate-300">
             <Link to="/sticky-notes" className="px-3 py-1.5 rounded-full hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">Sticky Notes</Link>
             <Link to="/online-notebook" className="px-3 py-1.5 rounded-full hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">Notebook</Link>
             <Link to="/whiteboard" className="px-3 py-1.5 rounded-full hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">Whiteboard</Link>
@@ -134,188 +135,193 @@ const LandingPage = () => {
               <span>Tools</span>
               <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300">200+</span>
             </Link>
-            
             <Link to="/blog" className="px-3 py-1.5 rounded-full hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">Blog</Link>
           </div>
 
-          {/* Right Action Icons & Buttons */}
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            {/* Quick Global Search Trigger Button */}
+          <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={() => window.dispatchEvent(new Event("stiknex_open_quick_search"))}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800/80 hover:bg-indigo-50 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 border border-slate-200/60 dark:border-slate-700/60 text-xs font-medium transition cursor-pointer"
-              title="Search tools, notes and blogs (Ctrl+K)"
-              aria-label="Search tools and notes"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 border border-slate-200/60 dark:border-slate-700/60 text-xs font-medium transition cursor-pointer"
+              title="Search (Ctrl+K)"
             >
               <Search size={14} className="text-indigo-500" />
-              <span className="hidden sm:inline">Search</span>
-              <kbd className="hidden sm:inline-block text-[10px] bg-white dark:bg-slate-900 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700 font-mono text-slate-400">⌘K</kbd>
+              <span>Search</span>
+              <kbd className="text-[10px] bg-white dark:bg-slate-900 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700 font-mono text-slate-400">⌘K</kbd>
             </button>
 
-            {/* Dark Mode Toggle */}
             <button 
               onClick={toggleDarkMode} 
               className="p-2 rounded-full text-slate-600 dark:text-slate-400 hover:text-indigo-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer" 
               title="Toggle Theme"
-              aria-label="Toggle Theme"
             >
               {darkMode ? <Sparkles size={16} /> : <Zap size={16} />}
             </button>
 
-            {/* Extension CTA (Tablet & Desktop) */}
             <button 
               type="button"
               onClick={() => setShowExtensionModal(true)} 
-              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-bold border border-indigo-200/80 dark:border-indigo-800/80 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 transition-colors text-xs cursor-pointer shadow-xs"
-              title="Add Stiknex Chrome Extension"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-bold border border-indigo-200/80 dark:border-indigo-800/80 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 transition-colors text-xs cursor-pointer shadow-xs"
             >
               <ChromeIcon className="w-3.5 h-3.5" />
               <span>Extension</span>
             </button>
-
-            {/* Mobile Menu Hamburger (Visible on < lg) */}
-            <button
-              type="button"
-              onClick={() => setMobileMenuOpen(prev => !prev)}
-              className="lg:hidden p-2 rounded-full text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-              aria-label="Toggle Navigation Menu"
-              aria-expanded={mobileMenuOpen}
-            >
-              {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-            </button>
           </div>
         </nav>
-
-        {/* Mobile Dropdown Menu (Zero horizontal scroll, clean vertical cards) */}
-        <AnimatePresence>
-          {mobileMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: -10, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -10, scale: 0.98 }}
-              transition={{ duration: 0.2 }}
-              className="lg:hidden mt-2 p-4 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl space-y-3 pointer-events-auto"
-            >
-              <div className="grid grid-cols-2 gap-2 text-sm font-semibold">
-                <Link
-                  to="/sticky-notes"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-2 p-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 text-slate-800 dark:text-slate-200 hover:text-indigo-600 transition"
-                >
-                  <StickyNote size={16} className="text-amber-500" />
-                  <span>Sticky Notes</span>
-                </Link>
-                <Link
-                  to="/online-notebook"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-2 p-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 text-slate-800 dark:text-slate-200 hover:text-indigo-600 transition"
-                >
-                  <FileText size={16} className="text-blue-500" />
-                  <span>Notebook</span>
-                </Link>
-                <Link
-                  to="/whiteboard"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-2 p-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 text-slate-800 dark:text-slate-200 hover:text-indigo-600 transition"
-                >
-                  <PenTool size={16} className="text-emerald-500" />
-                  <span>Whiteboard</span>
-                </Link>
-                <Link
-                  to="/tools"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-2 p-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 text-slate-800 dark:text-slate-200 hover:text-indigo-600 transition"
-                >
-                  <Calculator size={16} className="text-purple-500" />
-                  <span>200+ Tools</span>
-                </Link>
-                
-                <Link
-                  to="/blog"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-2 p-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 text-slate-800 dark:text-slate-200 hover:text-indigo-600 transition"
-                >
-                  <Sparkles size={16} className="text-indigo-500" />
-                  <span>Blog</span>
-                </Link>
-              </div>
-
-              {/* Quick Actions in Mobile Drawer */}
-              <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex flex-col gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    window.dispatchEvent(new Event("stiknex_open_quick_search"));
-                  }}
-                  className="w-full flex items-center justify-center gap-2 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-xl text-xs font-bold"
-                >
-                  <Search size={14} className="text-indigo-500" /> Open Quick Search (Ctrl+K)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    setShowExtensionModal(true);
-                  }}
-                  className="w-full flex items-center justify-center gap-2 py-2.5 bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-900/50 rounded-xl text-xs font-bold"
-                >
-                  <ChromeIcon className="w-4 h-4" /> Add Chrome Extension
-                </button>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </header>
 
-      <section className="relative pt-40 pb-20 px-6 min-h-screen flex items-center justify-center">
-        <motion.div style={isDesktop ? { y } : undefined} className="max-w-5xl mx-auto text-center z-10 w-full">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-medium text-xs sm:text-sm mb-6 sm:mb-8 border border-indigo-100 dark:border-indigo-500/20 whitespace-normal sm:whitespace-nowrap mx-auto max-w-full">
-            <Sparkles size={16} className="shrink-0" /> Welcome to the new standard of ideation
+      <section className="relative pt-20 sm:pt-28 md:pt-36 pb-16 px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center text-center">
+        <div className="max-w-5xl mx-auto w-full z-10 flex flex-col items-center">
+          
+          {/* Top Status Pill (Advapay Style) */}
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-xs sm:text-sm shadow-xs mb-6">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>100% Free &amp; Private • Local-First Productivity Studio</span>
           </div>
           
-          <h1 className="text-[2.8rem] min-[400px]:text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tight mb-6 sm:mb-8 leading-[1.1] flex flex-wrap justify-center gap-x-4 gap-y-2 sm:gap-y-4">
-            <span className="inline-block">Think Freely.</span>
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 inline-block">
-              Create Boundlessly.
-            </span>
+          {/* Grand Centered Headline */}
+          <h1 className="text-4xl min-[480px]:text-5xl sm:text-6xl md:text-7xl lg:text-[76px] font-black tracking-tight leading-[1.08] text-slate-900 dark:text-white max-w-4xl mx-auto">
+            The freeform canvas for <br className="hidden sm:inline" />
+            <span className="text-indigo-600 dark:text-indigo-400">thinking, writing &amp; sketching.</span>
           </h1>
 
-          <p className="text-lg sm:text-xl md:text-2xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto mb-10 sm:mb-12 font-light px-4">
-            An infinite canvas for your sticky notes, integrated whiteboards, and structured notebooks. All in one place.
+          {/* Centered Subtitle */}
+          <p className="mt-6 text-base sm:text-lg md:text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto font-normal leading-relaxed">
+            Infinite sticky notes, distraction-free markdown notebook, and integrated Excalidraw whiteboard. Plus 200+ fast, client-side utility tools — private in your browser with zero logins.
           </p>
 
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            <Link to="/sticky-notes" className="group px-8 py-4 bg-indigo-600 text-white rounded-full text-lg font-semibold shadow-xl shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:bg-indigo-700 transition-all flex items-center gap-2">
-              Start Brainstorming <ArrowRight className="group-hover:translate-x-1 transition-transform" />
+          {/* Centered Dark Pill CTA Buttons */}
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+            <Link
+              to="/sticky-notes"
+              className="px-8 sm:px-10 py-4 bg-[#18202F] hover:bg-[#0f141e] dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 rounded-full text-base font-bold shadow-xl shadow-slate-900/15 hover:shadow-2xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2.5 cursor-pointer"
+            >
+              <span>Start with Sticky Notes</span>
+              <ArrowRight size={18} />
             </Link>
-            <Link to="/tools" className="px-8 py-4 bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-full text-lg font-semibold shadow-sm hover:shadow-md transition-all">
-              Browse 200+ Tools
+            <Link
+              to="/tools"
+              className="px-8 py-4 bg-white/80 dark:bg-slate-900/80 hover:bg-white dark:hover:bg-slate-800 border-2 border-slate-200/80 dark:border-slate-800 text-slate-800 dark:text-slate-200 rounded-full text-base font-bold shadow-xs hover:shadow transition-all flex items-center gap-2 cursor-pointer"
+            >
+              <span>Explore 200+ Tools</span>
             </Link>
           </div>
 
-          {/* Hero Value Props: Clean, uncluttered and high-converting */}
-          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 mt-10 text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400">
-            <span className="inline-flex items-center gap-1.5"><Check size={16} className="text-emerald-500 shrink-0" /> 100% Free Forever</span>
-            <span className="inline-flex items-center gap-1.5"><Check size={16} className="text-emerald-500 shrink-0" /> Zero Sign-Up Required</span>
-            <span className="inline-flex items-center gap-1.5"><Check size={16} className="text-emerald-500 shrink-0" /> Private & Client-Side</span>
-            <span className="inline-flex items-center gap-1.5"><Check size={16} className="text-emerald-500 shrink-0" /> Works Offline</span>
+          {/* Micro-Telemetry Trust Badges */}
+          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 mt-8 text-xs font-semibold text-slate-600 dark:text-slate-400">
+            <div className="flex items-center gap-1.5">
+              <Check size={14} className="text-emerald-500 shrink-0" />
+              <span>100% Free Forever</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Check size={14} className="text-emerald-500 shrink-0" />
+              <span>Zero Sign-Up Required</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Check size={14} className="text-emerald-500 shrink-0" />
+              <span>Encrypted Local Cache</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Check size={14} className="text-emerald-500 shrink-0" />
+              <span>Offline PWA Ready</span>
+            </div>
           </div>
-        </motion.div>
 
-        <motion.div 
-          animate={{ y: [-20, 20, -20], rotate: [0, 5, -5, 0] }} 
-          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-          className="hidden lg:block absolute top-1/4 left-[10%] w-32 h-32 bg-yellow-200 dark:bg-yellow-600/80 rounded-sm shadow-2xl -rotate-12 backdrop-blur-md border border-white/40"
-        />
-        <motion.div 
-          animate={{ y: [20, -20, 20], rotate: [0, -10, 5, 0] }} 
-          transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
-          className="hidden lg:flex absolute bottom-1/4 right-[10%] w-40 h-40 bg-pink-200 dark:bg-pink-600/80 rounded-sm shadow-2xl rotate-6 backdrop-blur-md border border-white/40 items-center justify-center"
-        >
-          <Code2 className="text-pink-400 dark:text-pink-200/50 w-16 h-16" />
-        </motion.div>
+          {/* Peeking 3D Workstation Window Card (Advapay Exact Look) */}
+          <div className="mt-14 sm:mt-18 w-full max-w-4xl mx-auto">
+            <div className="relative rounded-3xl border border-slate-200/90 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl shadow-[0_30px_90px_rgba(24,32,47,0.14)] dark:shadow-[0_30px_90px_rgba(0,0,0,0.6)] overflow-hidden animate-peeking-card transform-gpu">
+              {/* Window Topbar */}
+              <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-200/80 dark:border-slate-800 bg-slate-50/90 dark:bg-slate-950/70">
+                <div className="flex items-center gap-2">
+                  <span className="w-3 h-3 rounded-full bg-rose-400"></span>
+                  <span className="w-3 h-3 rounded-full bg-amber-400"></span>
+                  <span className="w-3 h-3 rounded-full bg-emerald-400"></span>
+                </div>
+                <div className="flex items-center gap-1.5 text-xs font-bold text-slate-600 dark:text-slate-300">
+                  <span className="px-3 py-1 rounded-lg bg-indigo-600 text-white shadow-xs">Workspace</span>
+                  <span className="px-3 py-1 rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-white">Whiteboard</span>
+                  <span className="px-3 py-1 rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-white">200+ Tools</span>
+                </div>
+                <div className="text-[11px] font-mono text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> 0ms Local V8
+                </div>
+              </div>
+
+              {/* Live Workspace Deck inside Peeking Card */}
+              <div className="p-6 sm:p-8 bg-gradient-to-b from-slate-50/50 to-indigo-50/20 dark:from-slate-900/50 dark:to-slate-950/80">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-left">
+                  {/* Card 1 */}
+                  <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-900/60 shadow-xs">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 flex items-center gap-1">
+                        <StickyNote size={12} /> Sticky Notes Canvas
+                      </span>
+                      <span className="text-[10px] text-amber-600 dark:text-amber-400 font-mono">0ms Sync</span>
+                    </div>
+                    <h3 className="font-bold text-slate-900 dark:text-white text-sm mb-1">Architecture &amp; Thought Map</h3>
+                    <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                      Arrange infinite thoughts visually. Color-code, group, and connect notes with zero cloud lock-in.
+                    </p>
+                  </div>
+
+                  {/* Card 2 */}
+                  <div className="p-4 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200/80 dark:border-indigo-900/60 shadow-xs">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-700 dark:text-indigo-400 flex items-center gap-1">
+                        <FileText size={12} /> Distraction-Free Notebook
+                      </span>
+                      <span className="text-[10px] text-indigo-600 dark:text-indigo-400 font-mono">Auto-Saved</span>
+                    </div>
+                    <h3 className="font-bold text-slate-900 dark:text-white text-sm mb-1">Markdown with Live Code</h3>
+                    <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                      Rich-text formatting, table support, and code execution in an isolated preview sandbox.
+                    </p>
+                  </div>
+
+                  {/* Card 3 */}
+                  <div className="p-4 rounded-2xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200/80 dark:border-purple-900/60 shadow-xs">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-purple-700 dark:text-purple-400 flex items-center gap-1">
+                        <PenTool size={12} /> Excalidraw Whiteboard
+                      </span>
+                      <span className="text-[10px] text-purple-600 dark:text-purple-400 font-mono">Vector Engine</span>
+                    </div>
+                    <h3 className="font-bold text-slate-900 dark:text-white text-sm mb-1">Sketch, Diagram &amp; Wireframe</h3>
+                    <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                      Hand-drawn style diagrams, system architecture charts, and collaborative drawings.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      {/* Full-Width High-Impact Stats Ribbon (Inspired by Pin 1: Camplify) */}
+      <section className="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-700 text-white py-8 sm:py-10 px-4 sm:px-6 relative z-10 shadow-xl shadow-indigo-600/20">
+        <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 items-center divide-y md:divide-y-0 md:divide-x divide-white/20">
+          <div className="text-center sm:text-left sm:pl-4">
+            <div className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight">206+</div>
+            <div className="text-xs sm:text-sm font-medium text-indigo-100/90 mt-1">Free Offline Tools</div>
+          </div>
+          <div className="text-center sm:text-left sm:pl-6 pt-4 md:pt-0">
+            <div className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight">0ms</div>
+            <div className="text-xs sm:text-sm font-medium text-indigo-100/90 mt-1">Zero Server Latency</div>
+          </div>
+          <div className="text-center sm:text-left sm:pl-6 pt-4 md:pt-0">
+            <div className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight">100%</div>
+            <div className="text-xs sm:text-sm font-medium text-indigo-100/90 mt-1">Private Client-Side V8</div>
+          </div>
+          <div className="text-center sm:text-left sm:pl-6 pt-4 md:pt-0">
+            <div className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight flex items-center justify-center sm:justify-start gap-1">
+              <span>4.9</span>
+              <span className="text-amber-300 text-2xl sm:text-3xl">★</span>
+            </div>
+            <div className="text-xs sm:text-sm font-medium text-indigo-100/90 mt-1">Overall User Rating</div>
+          </div>
+        </div>
       </section>
 
       <section id="features" className="py-32 px-6 relative z-10">
@@ -324,7 +330,7 @@ const LandingPage = () => {
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-medium text-sm border border-indigo-100 dark:border-indigo-500/20 mb-6">
               <Sparkles size={16} /> Powerful Features
             </motion.div>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black mb-6 tracking-tight text-slate-900 dark:text-white">Designed for <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-600">Deep Work</span></h2>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black mb-6 tracking-tight text-slate-900 dark:text-white">Designed for <span className="text-indigo-600 dark:text-indigo-400">Deep Work</span></h2>
             <p className="text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">Everything you need to capture ideas before they slip away. Built for speed, flexibility, and absolute focus.</p>
           </div>
           
@@ -360,7 +366,7 @@ const LandingPage = () => {
             <div className="w-full lg:w-1/2 space-y-8">
               <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white leading-tight">
                 Your brain's new <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-indigo-500">operating system.</span>
+                <span className="text-indigo-600 dark:text-indigo-400">operating system.</span>
               </h2>
               <p className="text-xl text-slate-600 dark:text-slate-300 leading-relaxed">
                 Stiknex isn't just another note-taking app. It's a complete productivity suite designed to adapt to how your mind actually works. Visual, unstructured, and infinitely flexible.
@@ -434,7 +440,7 @@ const LandingPage = () => {
             <Globe size={14} /> Multi-Platform Productivity
           </div>
           <h2 className="text-3xl sm:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
-            Work Seamlessly On <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-600">Every Screen</span>
+            Work Seamlessly On <span className="text-indigo-600 dark:text-indigo-400">Every Screen</span>
           </h2>
           <p className="text-slate-600 dark:text-slate-300 mt-4 text-base sm:text-lg leading-relaxed">
             Whether you are capturing thoughts on your phone, writing inside Google Chrome, or running fully offline on your desktop, Stiknex delivers instantaneous speed and zero friction.

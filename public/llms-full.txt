@@ -1,73 +1,1164 @@
-# Stiknex Full Documentation for AI Agents
+# Stiknex Complete Tool Specifications for LLMs & AI Search
 
 Application: Stiknex
-Primary URL: https://stiknex.site
-Author: Vishal Mall
-License: Free & Open Access
-Architecture: Single Page Application (React, Vite, Tailwind CSS) with Vercel Edge SSR fallback
+Founder: Vishal Mall
+Base URL: https://stiknex.site
+Brand Entity: Stiknex (/ˈstɪk.nɛks/) — Independent Digital Workspace & Web Utilities
+Entity Disambiguation: Stiknex is completely unrelated to financial firm StoneX Group Inc. (NASDAQ: SNEX).
+License: Free Public Access
+Execution: Client-Side (V8 / WebAssembly)
 
-## Overview
+## Full Utilities Directory
 
-Stiknex is a privacy-first web productivity suite designed for knowledge workers, developers, students, and writers. It operates without mandatory account registration, paywalls, or external trackers. User notes, drawings, and tool outputs are stored locally in the browser via `localStorage` and `IndexedDB`.
+### Basic Calculator
+- URL: https://stiknex.site/basic-calculator
+- Category: calculators
+- Description: Instant arithmetic calculator with keyboard support, decimals, and clean display.
+- Privacy Guarantee: Computed client-side with 0 network calls.
 
-## Workspaces
+### Scientific Calculator
+- URL: https://stiknex.site/scientific-calculator
+- Category: calculators
+- Description: Advanced mathematical computation with trigonometry, logarithms, powers, and roots.
+- Privacy Guarantee: Computed client-side with 0 network calls.
 
-### 1. Sticky Notes Canvas (/sticky-notes)
-- Infinite, zoomable, draggable 2D board for capturing unstructured thoughts.
-- Custom sticky note colors: Yellow, Blue, Green, Pink, Purple, Orange, Dark Slate.
-- Visual connectors: Direct arrows linking related notes using vector paths.
-- Pinning, autosave, and batch export (JSON, PNG, text).
-- Fully responsive with touch gesture support and pull-to-refresh suppression on mobile canvases.
+### Percentage Calculator
+- URL: https://stiknex.site/percentage-calculator
+- Category: calculators
+- Description: Calculate percent change, discounts, increases, and proportions in seconds.
+- Privacy Guarantee: Computed client-side with 0 network calls.
 
-### 2. Online Notebook (/online-notebook)
-- Distraction-free rich-text writing interface.
-- Real-time word count, character count, and reading time tracking.
-- Autosave on every keystroke with local document history.
-- Markdown export, plain text download, and HTML formatting options.
-- Edge-to-edge system insets adaptation for mobile and tablet keyboards.
+### Age Calculator
+- URL: https://stiknex.site/age-calculator
+- Category: calculators
+- Description: Find your exact chronological age in years, months, weeks, days, and minutes.
+- Privacy Guarantee: Computed client-side with 0 network calls.
 
-### 3. Digital Whiteboard (/whiteboard)
-- Full-featured Excalidraw integration running client-side.
-- Infinite canvas for flowcharts, system diagrams, mind maps, and quick sketches.
-- Hand-drawn styling, shapes, text, arrows, and custom color palettes.
-- Local document persistence and SVG/PNG image export.
+### Date Calculator
+- URL: https://stiknex.site/date-calculator
+- Category: calculators
+- Description: Compute the exact duration, days, and business weeks between two calendar dates.
+- Privacy Guarantee: Computed client-side with 0 network calls.
 
-## Tools Directory
+### Time Calculator
+- URL: https://stiknex.site/time-calculator
+- Category: calculators
+- Description: Add, subtract, and convert hours, minutes, and seconds for timesheets and logs.
+- Privacy Guarantee: Computed client-side with 0 network calls.
 
-### Writing & Content Analysis
-- Word Counter (/word-counter): Counts words, characters with spaces, characters without spaces, sentences, paragraphs, and reading/speaking duration.
-- Character Counter (/character-counter): Tracks character lengths with visual progress bars for Twitter/X (280 chars), LinkedIn (3,000 chars), and SMS (160 chars).
-- Reading Time Calculator (/reading-time-calculator): Calculates silent reading duration (200 words per minute) and speech presentation duration (130 words per minute).
+### Unit Converter
+- URL: https://stiknex.site/unit-converter
+- Category: calculators
+- Description: All-in-one measurement converter for length, mass, volume, and temperature.
+- Privacy Guarantee: Computed client-side with 0 network calls.
 
-### Math & Calculators
-- Simple Calculator (/simple-calculator): Standard arithmetic (+, -, *, /, %, parenthesis) evaluated with a safe zero-eval parser.
-- Scientific Calculator (/scientific-calculator): Advanced trigonometry (sin, cos, tan, asin, acos, atan), logarithms (log10, ln), exponents, factorials, and DEG/RAD modes.
-- Date Calculator (/date-calculator): Calculates difference in days, weeks, months, and years between two calendar dates, plus exact age from birth date.
+### Length Converter
+- URL: https://stiknex.site/length-converter
+- Category: calculators
+- Description: Convert meters, feet, inches, kilometers, miles, and yards with zero lag.
+- Privacy Guarantee: Computed client-side with 0 network calls.
 
-### Converters
-- Universal Unit Converter (/unit-converter): Multi-category unit conversion.
-- Currency Converter (/currency-converter): Live forex conversion for 150+ currencies with cached fallback for offline use.
-- Length Converter (/length-converter): mm, cm, m, km, in, ft, yd, mi.
-- Area Converter (/area-converter): m², km², ft², yd², acre, hectare.
-- Volume Converter (/volume-converter): ml, L, m³, tsp, tbsp, cup, US gallon.
-- Weight Converter (/weight-converter): mg, g, kg, metric ton, oz, lb.
-- Temperature Converter (/temperature-converter): Celsius, Fahrenheit, Kelvin.
-- Speed Converter (/speed-converter): m/s, km/h, mph, knot, ft/s.
-- Pressure Converter (/pressure-converter): Pa, kPa, Bar, atm, PSI, mmHg.
-- Power Converter (/power-converter): W, kW, MW, hp, BTU/hr.
+### Weight Converter
+- URL: https://stiknex.site/weight-converter
+- Category: calculators
+- Description: Convert kilograms, pounds, ounces, grams, stones, and metric tons instantly.
+- Privacy Guarantee: Computed client-side with 0 network calls.
 
-### Utilities
-- QR Code Generator (/qr-code-generator): Offline QR generation with custom color options and PNG download.
-- Password Generator (/password-generator): Cryptographically secure random password generation with entropy scoring.
-- Color Picker (/color-picker): HEX, RGB, HSL conversion with native EyeDropper API.
+### Temperature Converter
+- URL: https://stiknex.site/temperature-converter
+- Category: calculators
+- Description: Simultaneous 3-way conversion between Celsius (°C), Fahrenheit (°F), and Kelvin (K).
+- Privacy Guarantee: Computed client-side with 0 network calls.
 
-## API & Endpoints
-- Public Blog API: GET https://stiknex.site/api/blogs (Returns published article listing in JSON).
-- Public Reviews API: GET https://stiknex.site/api/reviews?public=true (Returns verified user feedback in JSON).
-- SEO Stats API: GET https://stiknex.site/api/seo-stats (System health and metadata).
+### Area Converter
+- URL: https://stiknex.site/area-converter
+- Category: measurement
+- Description: Convert square feet, square meters, acres, hectares, and square kilometers.
+- Privacy Guarantee: Computed client-side with 0 network calls.
 
-## Technical Specifications
-- CSP: Manifest V3 compliant, zero `eval()` and zero `new Function()` in extension and core client logic.
-- Service Worker & PWA: Fully installable Progressive Web App with offline caching.
-- Android Application: Native Android package distributing WebView wrapper with hardware acceleration and gesture bridges.
+### Volume Converter
+- URL: https://stiknex.site/volume-converter
+- Category: measurement
+- Description: Convert liters, milliliters, gallons, fluid ounces, cubic meters, and kitchen cups.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Speed Converter
+- URL: https://stiknex.site/speed-converter
+- Category: measurement
+- Description: Convert mph, km/h, knots, meters per second, and Mach speed with precision.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Pressure Converter
+- URL: https://stiknex.site/pressure-converter
+- Category: measurement
+- Description: Convert PSI, Bar, Pascals, Kilopascals, and standard Atmospheres.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Data Storage Converter
+- URL: https://stiknex.site/data-converter
+- Category: measurement
+- Description: Convert bytes, KB, MB, GB, TB, and PB across binary (1024) and decimal (1000) standards.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Fuel Economy Converter
+- URL: https://stiknex.site/fuel-economy-converter
+- Category: measurement
+- Description: Convert MPG (US & UK), L/100km, and km/L for automotive mileage comparison.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Number Base Converter
+- URL: https://stiknex.site/number-base-converter
+- Category: measurement
+- Description: Convert numbers across Decimal, Binary, Hexadecimal, and Octal radix representations.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Roman Numeral Converter
+- URL: https://stiknex.site/roman-numeral-converter
+- Category: measurement
+- Description: Two-way translation between standard numbers and classic Roman numerals (I, V, X, L, C, D, M).
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Fraction Calculator
+- URL: https://stiknex.site/fraction-calculator
+- Category: math
+- Description: Next-gen fraction calculator with step-by-step arithmetic, mixed numbers, simplification, and Gemini AI tutor.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Ratio & Proportion Calculator
+- URL: https://stiknex.site/ratio-calculator
+- Category: measurement
+- Description: Solve for missing ratio variables (A:B = C:D), simplify ratios, and scale proportions.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Word Counter
+- URL: https://stiknex.site/word-counter
+- Category: writing
+- Description: Real-time word, sentence, and paragraph counting with reading & speaking time estimation.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Character Counter
+- URL: https://stiknex.site/character-counter
+- Category: writing
+- Description: Count characters with and without spaces for Twitter/X, SMS, and SEO limits.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Case Converter
+- URL: https://stiknex.site/case-converter
+- Category: writing
+- Description: Transform text to UPPERCASE, lowercase, Title Case, camelCase, snake_case, and kebab-case.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Remove Extra Spaces
+- URL: https://stiknex.site/remove-extra-spaces
+- Category: writing
+- Description: Strip leading, trailing, and duplicate consecutive spaces, tabs, and line gaps.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Remove Duplicate Lines
+- URL: https://stiknex.site/remove-duplicate-lines
+- Category: writing
+- Description: Deduplicate lists, emails, keywords, and text lines with optional case sensitivity.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Sort Lines
+- URL: https://stiknex.site/sort-lines
+- Category: writing
+- Description: Sort text lines alphabetically (A-Z, Z-A), by length, numerically, or randomly shuffle.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Find and Replace
+- URL: https://stiknex.site/find-and-replace
+- Category: writing
+- Description: Search and batch-replace words or patterns with regex support and occurrence counts.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Text Reverser
+- URL: https://stiknex.site/text-reverser
+- Category: writing
+- Description: Reverse characters, words, or full line orders for puzzles, ciphers, and encoding.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### URL Slug Generator
+- URL: https://stiknex.site/slug-generator
+- Category: writing
+- Description: Convert article titles and headlines into SEO-friendly, URL-safe kebab-case slugs.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Lorem Ipsum Generator
+- URL: https://stiknex.site/lorem-ipsum-generator
+- Category: writing
+- Description: Generate customized placeholder dummy text by paragraphs, sentences, or words.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Text Diff Checker
+- URL: https://stiknex.site/text-diff-checker
+- Category: text-analysis
+- Description: Compare two text snippets side-by-side or inline to highlight additions and deletions.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Markdown Editor
+- URL: https://stiknex.site/markdown-editor
+- Category: text-analysis
+- Description: Split-screen Markdown editor with live HTML rendering, cheatsheet, and instant export.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Markdown to HTML Converter
+- URL: https://stiknex.site/markdown-to-html
+- Category: text-analysis
+- Description: Compile CommonMark/GFM Markdown into clean, ready-to-paste semantic HTML code.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### HTML to Markdown Converter
+- URL: https://stiknex.site/html-to-markdown
+- Category: text-analysis
+- Description: Convert web page snippets, tables, headings, and links into clean Markdown syntax.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Text to Binary Converter
+- URL: https://stiknex.site/text-to-binary
+- Category: text-analysis
+- Description: Convert plain ASCII/Unicode text into 8-bit binary code strings with spaces or delimiters.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Binary to Text Converter
+- URL: https://stiknex.site/binary-to-text
+- Category: text-analysis
+- Description: Decode 0s and 1s binary strings back into human-readable English text.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Morse Code Translator
+- URL: https://stiknex.site/morse-code-translator
+- Category: text-analysis
+- Description: Two-way translation between English and International Morse Code with audio playback.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### NATO Phonetic Alphabet Converter
+- URL: https://stiknex.site/nato-phonetic-converter
+- Category: text-analysis
+- Description: Spell words using international aviation radio alphabet (Alfa, Bravo, Charlie, Delta).
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Reading Time Calculator
+- URL: https://stiknex.site/reading-time-calculator
+- Category: text-analysis
+- Description: Calculate exact silent reading and spoken presentation times for essays and speeches.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Text Cleaner & Sanitizer
+- URL: https://stiknex.site/text-cleaner
+- Category: text-analysis
+- Description: Strip HTML tags, smart quotes, zero-width characters, emojis, and non-ASCII artifacts.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Image Compressor
+- URL: https://stiknex.site/image-compressor
+- Category: image
+- Description: Compress JPG, PNG, and WebP files locally in your browser with zero quality loss and no uploads.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Image Resizer
+- URL: https://stiknex.site/image-resizer
+- Category: image
+- Description: Resize image dimensions by pixels or percentages with aspect ratio lock.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Image Cropper
+- URL: https://stiknex.site/image-cropper
+- Category: image
+- Description: Crop photos to exact aspect ratios (1:1, 16:9, 4:3) with canvas export.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### JPG to PNG Converter
+- URL: https://stiknex.site/jpg-to-png
+- Category: image
+- Description: Convert JPEG photos into lossless PNG format directly in memory without cloud uploads.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### PNG to JPG Converter
+- URL: https://stiknex.site/png-to-jpg
+- Category: image
+- Description: Convert PNG images into high-compression JPG files with custom background color.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### WebP Converter
+- URL: https://stiknex.site/webp-converter
+- Category: image
+- Description: Convert images to and from modern WebP format for high-speed website loading.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Image to Base64 Converter
+- URL: https://stiknex.site/image-to-base64
+- Category: image
+- Description: Convert any graphic into an inline Data URI / Base64 string for CSS and HTML embeds.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Base64 to Image Decoder
+- URL: https://stiknex.site/base64-to-image
+- Category: image
+- Description: Paste Base64 data strings to preview, render, and download the decoded picture.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Favicon Generator
+- URL: https://stiknex.site/favicon-generator
+- Category: image
+- Description: Generate standard 16x16, 32x32, 48x48, and 180x180 icons with HTML meta tags.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Color Palette Extractor
+- URL: https://stiknex.site/color-palette-extractor
+- Category: image
+- Description: Extract dominant HEX color palettes and accents from any uploaded image file.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Merge PDF
+- URL: https://stiknex.site/merge-pdf
+- Category: pdf
+- Description: Combine multiple PDF documents into a single file directly in your browser.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Split PDF
+- URL: https://stiknex.site/split-pdf
+- Category: pdf
+- Description: Extract individual pages or custom page ranges from any PDF document.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Rotate PDF
+- URL: https://stiknex.site/rotate-pdf
+- Category: pdf
+- Description: Rotate PDF pages 90, 180, or 270 degrees and download the updated document.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Reorder PDF Pages
+- URL: https://stiknex.site/reorder-pdf-pages
+- Category: pdf
+- Description: Drag and drop PDF page thumbnails to reorder, delete, and rearrange pages.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Images to PDF Converter
+- URL: https://stiknex.site/images-to-pdf
+- Category: pdf
+- Description: Convert JPG, PNG, and WebP images into a single clean printable PDF document.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### PDF to Images Converter
+- URL: https://stiknex.site/pdf-to-images
+- Category: pdf
+- Description: Render each page of a PDF document as high-resolution PNG image files.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### PDF Metadata Viewer
+- URL: https://stiknex.site/pdf-metadata-viewer
+- Category: pdf
+- Description: Inspect author, title, creation date, producer, version, and page counts of PDFs.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Extract PDF Text
+- URL: https://stiknex.site/extract-pdf-text
+- Category: pdf
+- Description: Extract clean readable text from PDF documents for copying, analysis, or editing.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Word Counter for Documents
+- URL: https://stiknex.site/word-counter-for-documents
+- Category: pdf
+- Description: Count words, characters, and pages in text, markdown, and document files.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Document Page Counter
+- URL: https://stiknex.site/document-page-counter
+- Category: pdf
+- Description: Check total page count and layout dimensions across multiple documents instantly.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### JSON Formatter & Beautifier
+- URL: https://stiknex.site/json-formatter
+- Category: developer
+- Description: Format, indent, minify, and colorize messy JSON strings with instant syntax validation.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### JSON Validator
+- URL: https://stiknex.site/json-validator
+- Category: developer
+- Description: Locate exact syntax errors, missing commas, and mismatched brackets in JSON payloads.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### JSON to CSV Converter
+- URL: https://stiknex.site/json-to-csv
+- Category: developer
+- Description: Convert JSON arrays and nested object data into clean, downloadable CSV tables.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### CSV to JSON Converter
+- URL: https://stiknex.site/csv-to-json
+- Category: developer
+- Description: Transform spreadsheet CSV files or text rows into structured JSON arrays.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### XML Formatter
+- URL: https://stiknex.site/xml-formatter
+- Category: developer
+- Description: Format, beautify, and indent raw XML documents with clean indentation tags.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### HTML Formatter
+- URL: https://stiknex.site/html-formatter
+- Category: developer
+- Description: Beautify or minify HTML markup with customizable indent levels and tag preservation.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### CSS Formatter
+- URL: https://stiknex.site/css-formatter
+- Category: developer
+- Description: Organize, format, and minify CSS style rules for maximum readability or minimal byte weight.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### JavaScript Formatter
+- URL: https://stiknex.site/javascript-formatter
+- Category: developer
+- Description: Format, beautify, and inspect JavaScript and TypeScript snippets in your browser.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Regex Tester & Matcher
+- URL: https://stiknex.site/regex-tester
+- Category: developer
+- Description: Test regex patterns in real time with group highlights, flags, and match breakdowns.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### UUID / GUID Generator
+- URL: https://stiknex.site/uuid-generator
+- Category: developer
+- Description: Generate RFC-compliant Version 4 UUIDs in bulk with uppercase, hyphens, and brackets options.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### URL Encoder / Decoder
+- URL: https://stiknex.site/url-encoder-decoder
+- Category: encoding
+- Description: Encode query parameters into percentage-encoded characters or decode raw URLs.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### HTML Entity Encoder / Decoder
+- URL: https://stiknex.site/html-entity-encoder-decoder
+- Category: encoding
+- Description: Convert special characters (<, >, &, ") into safe HTML entities (&lt;, &gt;, &amp;) and back.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Base64 Encoder / Decoder
+- URL: https://stiknex.site/base64-encoder-decoder
+- Category: encoding
+- Description: Encode UTF-8 text into standard Base64 representation or decode Base64 back to text.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### JWT Decoder
+- URL: https://stiknex.site/jwt-decoder
+- Category: encoding
+- Description: Inspect header, payload claims, timestamps, and signature structure with zero network requests.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Unix Timestamp Converter
+- URL: https://stiknex.site/unix-timestamp-converter
+- Category: encoding
+- Description: Convert epoch seconds and milliseconds to human-readable UTC and local date formats.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Cron Expression Explainer
+- URL: https://stiknex.site/cron-expression-explainer
+- Category: encoding
+- Description: Translate cron strings into plain English schedules and calculate next execution dates.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Query String Parser
+- URL: https://stiknex.site/query-string-parser
+- Category: encoding
+- Description: Parse URL search params into a clean key-value table and JSON object.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### HTTP Status Code Reference
+- URL: https://stiknex.site/http-status-code-reference
+- Category: encoding
+- Description: Fast searchable directory for 1xx, 2xx, 3xx, 4xx, and 5xx HTTP response codes.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### MIME Type Lookup
+- URL: https://stiknex.site/mime-type-lookup
+- Category: encoding
+- Description: Find the official Content-Type header and media type for any file extension.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Meta Tag Preview Generator
+- URL: https://stiknex.site/meta-tag-preview-generator
+- Category: encoding
+- Description: Generate HTML head meta tags with live Google, Facebook, and Twitter link preview cards.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Password Generator
+- URL: https://stiknex.site/password-generator
+- Category: security
+- Description: Generate strong, entropy-tested passwords using cryptographic browser randomness.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Password Strength Checker
+- URL: https://stiknex.site/password-strength-checker
+- Category: security
+- Description: Test password crack time, bits of entropy, and common vulnerability patterns locally.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Passphrase Generator
+- URL: https://stiknex.site/passphrase-generator
+- Category: security
+- Description: Generate memorable, high-security multi-word passphrases (e.g. correct-horse-battery-staple).
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Random Number Generator
+- URL: https://stiknex.site/random-number-generator
+- Category: security
+- Description: Generate cryptographically secure random integers, floats, and dice rolls in custom ranges.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Random String Generator
+- URL: https://stiknex.site/random-string-generator
+- Category: security
+- Description: Generate API keys, salt strings, alphanumeric tokens, and hex codes.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### SHA Hash Calculator
+- URL: https://stiknex.site/sha-hash-calculator
+- Category: security
+- Description: Compute cryptographic hashes for text snippets using native Web Crypto APIs.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### HMAC Calculator
+- URL: https://stiknex.site/hmac-calculator
+- Category: security
+- Description: Compute Keyed-Hash Message Authentication Codes (HMAC-SHA256, HMAC-SHA512).
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### File Hash & Checksum Checker
+- URL: https://stiknex.site/file-hash-checker
+- Category: security
+- Description: Verify downloaded file integrity by computing SHA-256 and MD5-style checksums locally.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Secret-Free Redaction Tool
+- URL: https://stiknex.site/secret-free-redaction-tool
+- Category: security
+- Description: Automatically mask API tokens, email addresses, credit cards, and phone numbers before sharing.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Entropy Estimator
+- URL: https://stiknex.site/entropy-estimator
+- Category: security
+- Description: Calculate Shannon entropy in bits for text, strings, and cryptographic randomness.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Color Picker & Inspector
+- URL: https://stiknex.site/color-picker
+- Category: design
+- Description: Interactive color palette canvas with browser eyedropper and instant HEX/RGB/HSL conversion.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### HEX to RGB Converter
+- URL: https://stiknex.site/hex-to-rgb
+- Category: design
+- Description: Convert hex color codes into rgb() and rgba() with alpha transparency support.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### RGB to HEX Converter
+- URL: https://stiknex.site/rgb-to-hex
+- Category: design
+- Description: Convert Red, Green, Blue channel numbers into 6-digit or 8-digit HEX color codes.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### HSL Color Converter
+- URL: https://stiknex.site/hsl-converter
+- Category: design
+- Description: Convert Hue, Saturation, and Lightness values into HEX, RGB, and CSS variables.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### WCAG Color Contrast Checker
+- URL: https://stiknex.site/contrast-checker
+- Category: design
+- Description: Test text and background contrast ratios against WCAG 2.1 AA and AAA standards.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### CSS Gradient Generator
+- URL: https://stiknex.site/gradient-generator
+- Category: design
+- Description: Design linear and radial gradients with color stops and copy ready-to-use CSS.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Box Shadow Generator
+- URL: https://stiknex.site/box-shadow-generator
+- Category: design
+- Description: Design modern layered box shadows with blur, spread, offset, and inset preview.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Border Radius Generator
+- URL: https://stiknex.site/border-radius-generator
+- Category: design
+- Description: Interactive 8-point border-radius builder for organic shapes and smooth rounded corners.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### CSS Clamp Generator
+- URL: https://stiknex.site/css-clamp-generator
+- Category: design
+- Description: Generate responsive typography and spacing clamp(min, val, max) formulas for modern CSS.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### CSS Animation Previewer
+- URL: https://stiknex.site/css-animation-previewer
+- Category: design
+- Description: Preview keyframe animations, easing curves, bounce effects, and copy pure CSS.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### World Clock
+- URL: https://stiknex.site/world-clock
+- Category: time
+- Description: Live time across major world financial capitals and custom time zones.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Time Zone Converter
+- URL: https://stiknex.site/time-zone-converter
+- Category: time
+- Description: Convert meeting times across PST, EST, UTC, GMT, IST, and JST.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Meeting Time Planner
+- URL: https://stiknex.site/meeting-time-planner
+- Category: time
+- Description: Find overlapping working hours across multiple global team locations.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Countdown Timer
+- URL: https://stiknex.site/countdown-timer
+- Category: time
+- Description: Set custom alarms and countdown timers for presentations, events, and tasks.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Pomodoro Timer
+- URL: https://stiknex.site/pomodoro-timer
+- Category: time
+- Description: Boost productivity with 25-minute focus intervals and 5-minute break cycles.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Calendar Generator
+- URL: https://stiknex.site/calendar-generator
+- Category: time
+- Description: Generate monthly and yearly printable calendars with custom week starts.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Week Number Calculator
+- URL: https://stiknex.site/week-number-calculator
+- Category: time
+- Description: Find the current week number and ISO-8601 calendar weeks for any date.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Business Days Calculator
+- URL: https://stiknex.site/business-days-calculator
+- Category: time
+- Description: Calculate working days between dates excluding weekends and holidays.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Birthday Countdown
+- URL: https://stiknex.site/birthday-countdown
+- Category: time
+- Description: Count down days, hours, and minutes to your next upcoming birthday celebration.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Live Precision Clock
+- URL: https://stiknex.site/live-clock
+- Category: time
+- Description: Real-time precision digital & analog clock with live seconds, milliseconds, date, and timezone.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Algebra Calculator
+- URL: https://stiknex.site/algebra-calculator
+- Category: math
+- Description: Solve linear equations, simplify expressions, and balance algebraic formulas.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Quadratic Equation Solver
+- URL: https://stiknex.site/quadratic-equation-solver
+- Category: math
+- Description: Calculate real and complex roots (ax² + bx + c = 0) with step-by-step discriminant.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Prime Number Checker
+- URL: https://stiknex.site/prime-number-checker
+- Category: math
+- Description: Check primality and find prime factorization trees for any integer.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### GCD & LCM Calculator
+- URL: https://stiknex.site/gcd-lcm-calculator
+- Category: math
+- Description: Find Greatest Common Divisor and Least Common Multiple for sets of numbers.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Statistics Calculator
+- URL: https://stiknex.site/statistics-calculator
+- Category: math
+- Description: Compute standard deviation, variance, range, and sums for number sets.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Mean, Median & Mode Calculator
+- URL: https://stiknex.site/mean-median-mode-calculator
+- Category: math
+- Description: Calculate average (mean), middle value (median), and frequency (mode) instantly.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Probability Calculator
+- URL: https://stiknex.site/probability-calculator
+- Category: math
+- Description: Calculate single-event, combined (AND/OR), and conditional probabilities.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Scientific Notation Converter
+- URL: https://stiknex.site/scientific-notation-converter
+- Category: math
+- Description: Convert between standard decimals and scientific exponential notation (e.g. 1.5e+8).
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Matrix Calculator
+- URL: https://stiknex.site/matrix-calculator
+- Category: math
+- Description: Add, subtract, multiply, and calculate determinants for 2x2 and 3x3 matrices.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Geometry Calculator
+- URL: https://stiknex.site/geometry-calculator
+- Category: math
+- Description: Calculate perimeter, area, surface area, and volume for 2D and 3D shapes.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### EMI Calculator
+- URL: https://stiknex.site/emi-calculator
+- Category: finance
+- Description: Calculate monthly installment, total interest, and amortization for loans.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Simple Interest Calculator
+- URL: https://stiknex.site/simple-interest-calculator
+- Category: finance
+- Description: Calculate simple interest (P × R × T / 100) and total accumulated balance.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Compound Interest Calculator
+- URL: https://stiknex.site/compound-interest-calculator
+- Category: finance
+- Description: Project investment growth with monthly, quarterly, and annual compounding schedules.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### SIP Calculator
+- URL: https://stiknex.site/sip-calculator
+- Category: finance
+- Description: Calculate returns on Systematic Investment Plans for mutual funds.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Loan Payoff Calculator
+- URL: https://stiknex.site/loan-payoff-calculator
+- Category: finance
+- Description: See how extra monthly payments reduce your loan tenure and interest charges.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Discount Calculator
+- URL: https://stiknex.site/discount-calculator
+- Category: finance
+- Description: Find sale prices, dollar savings, and stacked discount percentages in stores.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### GST & Sales Tax Calculator
+- URL: https://stiknex.site/gst-calculator
+- Category: finance
+- Description: Calculate gross price and net price with inclusive or exclusive tax percentages.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Tip Calculator
+- URL: https://stiknex.site/tip-calculator
+- Category: finance
+- Description: Calculate tip percentages and split bills evenly among dining party members.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Budget Planner Calculator
+- URL: https://stiknex.site/budget-planner
+- Category: finance
+- Description: Organize monthly take-home income into Needs (50%), Wants (30%), and Savings (20%).
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Savings Goal Calculator
+- URL: https://stiknex.site/savings-goal-calculator
+- Category: finance
+- Description: Determine how much you need to save each month to achieve your target milestone.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Stiknex Typing Master
+- URL: https://stiknex.site/stiknex-typing
+- Category: typing
+- Description: All-in-one typing master: 50 progressive touch typing lessons with unlock progression, precision WPM speed arena, arcade games, developer code drills, and hardware diagnostics.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### URL Shortener
+- URL: https://stiknex.site/url-shortener
+- Category: encoding
+- Description: Shorten links, create QR codes, and track clicks, visitors, countries, and campaign analytics.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Sticky Notes Board
+- URL: https://stiknex.site/sticky-notes
+- Category: productivity
+- Description: Infinite canvas for organizing, color-coding, and linking thoughts.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Online Notebook
+- URL: https://stiknex.site/online-notebook
+- Category: productivity
+- Description: Distraction-free rich-text notepad with snapshot history and local saving.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Checklist Maker
+- URL: https://stiknex.site/checklist-maker
+- Category: productivity
+- Description: Create, reorder, check off, and export interactive reusable checklists.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### To-Do List
+- URL: https://stiknex.site/to-do-list
+- Category: productivity
+- Description: Track priorities, filter completed tasks, and clear clutter in your browser.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Habit Tracker
+- URL: https://stiknex.site/habit-tracker
+- Category: productivity
+- Description: Build positive routines and track weekly completion streaks locally.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Daily Journal
+- URL: https://stiknex.site/daily-journal
+- Category: productivity
+- Description: Private, local-first reflection log with mood ratings and export.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Meeting Notes Template
+- URL: https://stiknex.site/meeting-notes-template
+- Category: productivity
+- Description: Pre-structured format for agendas, discussion points, and action items.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Decision Matrix
+- URL: https://stiknex.site/decision-matrix
+- Category: productivity
+- Description: Compare competing options with weighted criteria to choose objectively.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Focus Session Planner
+- URL: https://stiknex.site/focus-session-planner
+- Category: productivity
+- Description: Plan your deep work intervals, define targets, and minimize interruptions.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Personal Task Planner
+- URL: https://stiknex.site/personal-task-planner
+- Category: productivity
+- Description: Time-box your daily tasks into morning, afternoon, and evening blocks.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### SERP Snippet Preview
+- URL: https://stiknex.site/serp-snippet-preview
+- Category: seo
+- Description: Preview title tags and meta descriptions in desktop and mobile Google results.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Meta Description Counter
+- URL: https://stiknex.site/meta-description-counter
+- Category: seo
+- Description: Measure character and pixel lengths for SEO titles and meta descriptions.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Keyword Density Checker
+- URL: https://stiknex.site/keyword-density-checker
+- Category: seo
+- Description: Analyze 1-word, 2-word, and 3-word phrase frequencies and percentage density.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Robots.txt Generator
+- URL: https://stiknex.site/robots-txt-generator
+- Category: seo
+- Description: Build search engine crawl directives for Googlebot, Bingbot, and AI agents.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Sitemap XML Generator
+- URL: https://stiknex.site/sitemap-xml-generator
+- Category: seo
+- Description: Generate structured, clean XML sitemaps for Google Search Console indexing.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Open Graph Preview
+- URL: https://stiknex.site/open-graph-preview
+- Category: seo
+- Description: Test how your links will appear on Facebook, LinkedIn, Twitter, and WhatsApp.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Schema Markup Generator
+- URL: https://stiknex.site/schema-markup-generator
+- Category: seo
+- Description: Generate valid schema markup for Articles, FAQs, Products, and WebApps.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### UTM Link Builder
+- URL: https://stiknex.site/utm-link-builder
+- Category: seo
+- Description: Attach utm_source, utm_medium, and utm_campaign tracking parameters to URLs.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### URL Slug Checker
+- URL: https://stiknex.site/url-slug-checker
+- Category: seo
+- Description: Verify that web slugs are lowercase, hyphenated, readable, and free of invalid characters.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Readability Checker
+- URL: https://stiknex.site/readability-checker
+- Category: seo
+- Description: Score text complexity with Flesch Reading Ease and school grade levels.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### CSV Viewer & Table Explorer
+- URL: https://stiknex.site/csv-viewer
+- Category: data
+- Description: Upload or paste CSV files to explore, sort, and filter records in your browser.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### CSV Merger
+- URL: https://stiknex.site/csv-merger
+- Category: data
+- Description: Combine multiple CSV files sharing column headers into one unified table.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### CSV Deduplicator
+- URL: https://stiknex.site/csv-deduplicator
+- Category: data
+- Description: Remove duplicate rows or deduplicate based on specific key columns.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### CSV Column Extractor
+- URL: https://stiknex.site/csv-column-extractor
+- Category: data
+- Description: Extract selected columns from massive CSV datasets and export clean subsets.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### JSON to XML Converter
+- URL: https://stiknex.site/json-to-xml
+- Category: data
+- Description: Convert nested JSON objects into well-formed XML tag trees.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### XML to JSON Converter
+- URL: https://stiknex.site/xml-to-json
+- Category: data
+- Description: Convert XML attributes and elements into lightweight JSON objects.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### TSV to CSV Converter
+- URL: https://stiknex.site/tsv-to-csv
+- Category: data
+- Description: Convert tab-separated values into comma-separated rows effortlessly.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Delimited Text Converter
+- URL: https://stiknex.site/delimited-text-converter
+- Category: data
+- Description: Swap delimiters between commas, pipes, tabs, semicolons, and spaces.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Table to Markdown Converter
+- URL: https://stiknex.site/table-to-markdown
+- Category: data
+- Description: Paste spreadsheet cells to generate formatted GitHub Markdown tables.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Data Sampling Tool
+- URL: https://stiknex.site/data-sampling-tool
+- Category: data
+- Description: Extract random or nth-row representative samples from lists and datasets.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Audio Trimmer
+- URL: https://stiknex.site/audio-trimmer
+- Category: media
+- Description: Trim MP3 and WAV files with visual waveform preview and instant save.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Audio Format Converter
+- URL: https://stiknex.site/audio-format-converter
+- Category: media
+- Description: Convert audio files between standard Web formats locally in memory.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Audio Volume Normalizer
+- URL: https://stiknex.site/audio-volume-normalizer
+- Category: media
+- Description: Boost quiet audio or normalize peak volume levels without clipping.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Video to GIF Converter
+- URL: https://stiknex.site/video-to-gif
+- Category: media
+- Description: Convert short video clips into lightweight animated GIFs using canvas rendering.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Video Metadata Viewer
+- URL: https://stiknex.site/video-metadata-viewer
+- Category: media
+- Description: Inspect resolution, duration, bitrate, frame rate, and codec format.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Video Aspect Ratio Calculator
+- URL: https://stiknex.site/video-aspect-ratio-calculator
+- Category: media
+- Description: Calculate width and height dimensions for 16:9, 9:16 Reels, 4:3, and 21:9.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Subtitle Time Shift Calculator
+- URL: https://stiknex.site/subtitle-time-calculator
+- Category: media
+- Description: Synchronize SRT/VTT subtitles by shifting timecodes forward or backward.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Audio Waveform Viewer
+- URL: https://stiknex.site/audio-waveform-viewer
+- Category: media
+- Description: Visualize frequencies, amplitude peaks, and stereo balance in real time.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Microphone Test
+- URL: https://stiknex.site/microphone-test
+- Category: media
+- Description: Test your computer or smartphone microphone with real-time decibel meter.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Webcam Test
+- URL: https://stiknex.site/webcam-test
+- Category: media
+- Description: Test your camera feed, inspect maximum supported resolution, and take snaps.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### QR Code Generator
+- URL: https://stiknex.site/qr-code-generator
+- Category: generators
+- Description: Create customized static QR codes for links, text, and contacts with PNG download.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### QR Code Reader & Scanner
+- URL: https://stiknex.site/qr-code-reader
+- Category: generators
+- Description: Scan QR codes using your device camera or upload image files to decode instantly.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Barcode Generator
+- URL: https://stiknex.site/barcode-generator
+- Category: generators
+- Description: Generate standard retail and inventory barcodes with high-resolution download.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Wi-Fi QR Code Generator
+- URL: https://stiknex.site/wifi-qr-generator
+- Category: generators
+- Description: Share Wi-Fi credentials effortlessly: guests scan the QR to connect instantly.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### vCard QR Generator
+- URL: https://stiknex.site/vcard-qr-generator
+- Category: generators
+- Description: Encode your name, phone, email, and company into a digital business card QR.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Link-in-Bio Page Builder
+- URL: https://stiknex.site/link-in-bio-page-builder
+- Category: generators
+- Description: Build a single responsive profile page showcasing all your social links and projects.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Random Name Picker
+- URL: https://stiknex.site/random-name-picker
+- Category: generators
+- Description: Paste a list of names to draw raffle winners or pick student volunteers randomly.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Team Randomizer & Group Generator
+- URL: https://stiknex.site/team-randomizer
+- Category: generators
+- Description: Divide a list of people into balanced teams or breakout groups automatically.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Decision Wheel (Spin the Wheel)
+- URL: https://stiknex.site/decision-wheel
+- Category: generators
+- Description: Spin the colorful wheel to make fun choices, settle debates, or pick prizes.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Poll Generator
+- URL: https://stiknex.site/poll-generator
+- Category: generators
+- Description: Design interactive multiple-choice questions with instant percentage results.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Stopwatch with Laps
+- URL: https://stiknex.site/stopwatch-with-laps
+- Category: helpers
+- Description: Track multiple concurrent lap splits with fastest and slowest lap indicators.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Screen Resolution Checker
+- URL: https://stiknex.site/screen-resolution-checker
+- Category: helpers
+- Description: Detect your display resolution, CSS viewport size, pixel ratio, and color depth.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Aspect Ratio Calculator
+- URL: https://stiknex.site/aspect-ratio-calculator
+- Category: helpers
+- Description: Calculate matching dimensions for photos, displays, and video formats.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Typographic Scale Generator
+- URL: https://stiknex.site/typographic-scale-generator
+- Category: helpers
+- Description: Compute proportional font size hierarchies based on golden ratio and musical scales.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Invoice Generator
+- URL: https://stiknex.site/invoice-generator
+- Category: helpers
+- Description: Generate clean professional invoices with line items, tax, and instant print/PDF.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Receipt Generator
+- URL: https://stiknex.site/receipt-generator
+- Category: helpers
+- Description: Create customizable itemized sales receipts with company details and print view.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Baby Name Generator (Vedic, Islamic, Sikh, Christian & Modern)
+- URL: https://stiknex.site/name-generator
+- Category: helpers
+- Description: Generate auspicious baby names across Hindu Vedic Kundali, Islamic Sunnah, Sikh Gurbani, Christian Baptism & Modern Secular traditions.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Flashcard Maker
+- URL: https://stiknex.site/flashcard-maker
+- Category: helpers
+- Description: Create flip study cards with questions and answers for fast exam revision.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Random Quiz Generator
+- URL: https://stiknex.site/random-quiz-generator
+- Category: helpers
+- Description: Generate interactive multi-category trivia challenges to test your knowledge.
+- Privacy Guarantee: Computed client-side with 0 network calls.
+
+### Decision Helper & Coin Flipper
+- URL: https://stiknex.site/decision-helper
+- Category: helpers
+- Description: Flip a 3D coin or roll a die to make quick, impartial decisions without hesitation.
+- Privacy Guarantee: Computed client-side with 0 network calls.
 

@@ -585,43 +585,25 @@ export default async function handler(req, res) {
 
         <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; margin-bottom: 48px;">
           <a href="${primaryDomain}/sticky-notes" style="padding: 14px 32px; background: #4f46e5; color: #ffffff; border-radius: 9999px; font-size: 16px; font-weight: 600; text-decoration: none; box-shadow: 0 10px 20px -5px rgba(79, 70, 229, 0.4);">Start Brainstorming &rarr;</a>
-          <a href="${primaryDomain}/tools" style="padding: 14px 32px; background: #ffffff; color: #0f172a; border: 1px solid #e2e8f0; border-radius: 9999px; font-size: 16px; font-weight: 600; text-decoration: none;">Explore 15+ Tools</a>
+          <a href="${primaryDomain}/tools" style="padding: 14px 32px; background: #ffffff; color: #0f172a; border: 1px solid #e2e8f0; border-radius: 9999px; font-size: 16px; font-weight: 600; text-decoration: none;">Explore 200+ Tools</a>
         </div>
 
+        <!-- Brand Entity & Disambiguation Section -->
+        <section style="margin: 40px auto 48px; max-width: 850px; text-align: left; padding: 24px; background: #f8fafc; border-radius: 16px; border: 1px solid #e2e8f0;">
+          <h2 style="font-size: 18px; font-weight: 800; color: #0f172a; margin-bottom: 8px;">About Stiknex &amp; Entity Clarification</h2>
+          <p style="font-size: 14px; color: #475569; line-height: 1.6; margin: 0 0 10px;">
+            <strong>Stiknex</strong> (pronounced <em>Stick-Nex</em>, created by <strong>Vishal Mall</strong>) is an independent, privacy-first productivity platform featuring interactive sticky notes, digital notebook, whiteboard, and 200+ browser tools.
+          </p>
+          <p style="font-size: 13px; color: #64748b; line-height: 1.5; margin: 0;">
+            <em>Note on Brand Identity:</em> Stiknex has no connection, affiliation, or association with financial broker StoneX Group Inc. (NASDAQ: SNEX). Stiknex is a purely digital workspace and software utility site.
+          </p>
+        </section>
+
         <section style="margin-top: 48px; text-align: left; border-top: 1px solid #e2e8f0; padding-top: 36px;">
-          <h2 style="font-size: 18px; font-weight: 700; color: #0f172a; margin-bottom: 16px; text-align: center;">Free Online Productivity Tools &amp; Utilities</h2>
-          <nav aria-label="Tools Directory">
-            <ul style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; list-style: none; padding: 0; margin: 0;">
-              <li><a href="${primaryDomain}/sticky-notes" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Sticky Notes Board</a></li>
-              <li><a href="${primaryDomain}/online-notebook" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Online Notebook</a></li>
-              <li><a href="${primaryDomain}/whiteboard" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Online Whiteboard</a></li>
-              <li><a href="${primaryDomain}/word-counter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Word Counter Online</a></li>
-              <li><a href="${primaryDomain}/character-counter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Character Counter</a></li>
-              <li><a href="${primaryDomain}/reading-time-calculator" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Reading Time Calculator</a></li>
-              <li><a href="${primaryDomain}/simple-calculator" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Simple Calculator</a></li>
-              <li><a href="${primaryDomain}/scientific-calculator" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Scientific Calculator</a></li>
-              <li><a href="${primaryDomain}/date-calculator" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Date &amp; Time Calculator</a></li>
-              <li><a href="${primaryDomain}/currency-converter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Live Currency Converter</a></li>
-              <li><a href="${primaryDomain}/unit-converter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Universal Unit Converter</a></li>
-              <li><a href="${primaryDomain}/length-converter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Length Converter</a></li>
-              <li><a href="${primaryDomain}/area-converter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Area Converter</a></li>
-              <li><a href="${primaryDomain}/volume-converter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Volume Converter</a></li>
-              <li><a href="${primaryDomain}/weight-converter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Weight Converter</a></li>
-              <li><a href="${primaryDomain}/temperature-converter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Temperature Converter</a></li>
-              <li><a href="${primaryDomain}/speed-converter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Speed Converter</a></li>
-              <li><a href="${primaryDomain}/pressure-converter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Pressure Converter</a></li>
-              <li><a href="${primaryDomain}/power-converter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Power Converter</a></li>
-              <li><a href="${primaryDomain}/data-converter" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Data Storage Converter</a></li>
-              <li><a href="${primaryDomain}/qr-code-generator" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">QR Code Generator</a></li>
-              <li><a href="${primaryDomain}/password-generator" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Password Generator</a></li>
-              <li><a href="${primaryDomain}/color-picker" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Color Picker</a></li>
-              <li><a href="${primaryDomain}/tools" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">All Tools Directory</a></li>
-              <li><a href="${primaryDomain}/blog" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Productivity Blog</a></li>
-              <li><a href="${primaryDomain}/about" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">About Stiknex</a></li>
-              <li><a href="${primaryDomain}/contact" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Contact Us</a></li>
-              <li><a href="${primaryDomain}/privacy-policy" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Privacy Policy</a></li>
-              <li><a href="${primaryDomain}/terms-of-service" style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 600;">Terms of Service</a></li>
-            </ul>
+          <h2 style="font-size: 22px; font-weight: 800; color: #0f172a; margin-bottom: 8px; text-align: center;">Stiknex 200+ Free Online Tools Directory</h2>
+          <p style="font-size: 14px; color: #64748b; text-align: center; margin-bottom: 24px;">Explore 200+ free browser-based utilities across 20 categories. Instant calculation, zero installation, and 100% private.</p>
+          <nav aria-label="Categorized Tools Directory">
+            ${categorizedToolsHtml}
           </nav>
         </section>
       </main>

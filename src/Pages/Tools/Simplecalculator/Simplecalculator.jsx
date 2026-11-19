@@ -554,23 +554,6 @@ export default function SimpleCalculator({ tool, seoData }) {
   return (
     <div className="fixed inset-0 lg:relative lg:inset-auto w-full h-[100dvh] lg:min-h-screen flex flex-col justify-between overflow-hidden select-none font-sans bg-gradient-to-b from-[#EBF2F9] via-[#E2EDF7] to-[#D6E5F2] dark:from-[#0E141D] dark:via-[#0A0E15] dark:to-[#070A0E] text-slate-800 dark:text-slate-100 transition-colors duration-300">
 
-      {/* ─── Accessible Semantic Header & SEO Elements (Invisible to UI, 100% crawlable) ─── */}
-      <header className="sr-only">
-        <h1>Free Online Basic Calculator - Instant Arithmetic Utility</h1>
-        <p>
-          Instant in-browser arithmetic calculator with keyboard support, decimals, percentage, calculation history, and 100% client-side privacy.
-        </p>
-        <nav aria-label="Related Calculators & Math Tools">
-          <ul>
-            {RELATED_CALCULATORS.map((t) => (
-              <li key={t.slug}>
-                <Link to={`/${t.slug}`}>{t.title}</Link> - {t.desc}
-              </li>
-            ))}
-          </ul>
-        </nav>
-      </header>
-
       {/* ─── DESKTOP FULL-SCREEN WORKSTATION (>= lg) ─── */}
       {isDesktop ? (
         <div className="w-full flex-1 flex flex-col justify-between min-h-0">
@@ -592,10 +575,10 @@ export default function SimpleCalculator({ tool, seoData }) {
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h2 className="text-base sm:text-lg font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-1.5 uppercase leading-none">
+                    <h1 className="text-base sm:text-lg font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-1.5 uppercase leading-none">
                       <span>Basic</span>
                       <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-cyan-400">Calculator</span>
-                    </h2>
+                    </h1>
                     <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-200/60 dark:border-blue-800/60 tracking-wider uppercase">
                       Arithmetic Engine
                     </span>
@@ -953,9 +936,9 @@ export default function SimpleCalculator({ tool, seoData }) {
                 <div className="w-5 h-5 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-xs">
                   <Calculator size={11} className="text-white" />
                 </div>
-                <span className="text-xs font-black tracking-wide uppercase text-slate-800 dark:text-slate-200">
+                <h1 className="text-xs font-black tracking-wide uppercase text-slate-800 dark:text-slate-200 m-0 p-0 inline">
                   Basic Calculator
-                </span>
+                </h1>
               </div>
 
               {/* Right Action Icons: History & Theme */}

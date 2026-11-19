@@ -657,6 +657,30 @@ const Home = () => {
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [workspaceOpen, setWorkspaceOpen] = useState(false);
+
+  // Global listener: toggle/open sidebar from UniversalMobileBottomNav
+  useEffect(() => {
+    const handleToggle = () => {
+      if (window.innerWidth < 1024) {
+        setMobileSidebarOpen((prev) => !prev);
+      } else {
+        setSidebarExpanded((prev) => !prev);
+      }
+    };
+    const handleOpen = () => {
+      if (window.innerWidth < 1024) {
+        setMobileSidebarOpen(true);
+      } else {
+        setSidebarExpanded(true);
+      }
+    };
+    window.addEventListener("stiknex_toggle_sidebar", handleToggle);
+    window.addEventListener("stiknex_open_sidebar", handleOpen);
+    return () => {
+      window.removeEventListener("stiknex_toggle_sidebar", handleToggle);
+      window.removeEventListener("stiknex_open_sidebar", handleOpen);
+    };
+  }, []);
   const [quickCreateMenuOpen, setQuickCreateMenuOpen] = useState(false);
   const quickCreateMenuRef = useRef(null);
   const quickNoteInputRef = useRef(null);
@@ -1523,7 +1547,7 @@ const Home = () => {
         {mobileSidebarOpen && (
           <button
             type="button"
-            className="fixed inset-0 z-40 bg-slate-950/45 backdrop-blur-[2px] lg:hidden"
+            className="fixed inset-0 z-[60] bg-slate-950/45 backdrop-blur-[2px] lg:hidden"
             onClick={() => setMobileSidebarOpen(false)}
             aria-label="Close workspace menu"
           />
@@ -1553,7 +1577,7 @@ const Home = () => {
               }, 180);
             }
           }}
-          className={`fixed inset-y-0 left-0 z-50 flex h-full w-[min(82vw,280px)] shrink-0 flex-col overflow-y-auto border-r border-slate-200 bg-white px-0 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 shadow-2xl transition-[transform,width,box-shadow] duration-300 ease-in-out dark:border-slate-800 dark:bg-slate-900 ${mobileSidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:absolute lg:z-10 lg:translate-x-0 lg:shadow-sm ${sidebarExpanded ? "lg:w-56 lg:shadow-2xl" : "lg:w-16"}`}
+          className={`fixed inset-y-0 left-0 z-[61] flex h-full w-[min(82vw,280px)] shrink-0 flex-col overflow-y-auto border-r border-slate-200 bg-white px-0 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 shadow-2xl transition-[transform,width,box-shadow] duration-300 ease-in-out dark:border-slate-800 dark:bg-slate-900 ${mobileSidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:absolute lg:z-10 lg:translate-x-0 lg:shadow-sm ${sidebarExpanded ? "lg:w-56 lg:shadow-2xl" : "lg:w-16"}`}
         >
           <div className="mb-4 flex shrink-0 items-center gap-2 px-3">
             <img src="/logo.png" alt="Stiknex logo" width="28" height="28" className="h-7 w-7 shrink-0 object-contain" />

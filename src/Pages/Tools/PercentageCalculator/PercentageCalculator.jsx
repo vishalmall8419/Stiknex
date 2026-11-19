@@ -300,11 +300,7 @@ export default function PercentageCalculator({ tool, seoData }) {
 
   return (
     <div className="min-h-screen w-full bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col justify-between selection:bg-indigo-500 selection:text-white transition-colors duration-200">
-      {/* 100% Crawlable Semantic SEO Hidden in DOM */}
-      <header className="sr-only">
-        <h1>{seoData?.h1 || "Free Online Percentage Calculator"}</h1>
-        <p>{seoData?.description || "Fast percentage calculation: X% of Y, percentage increase/decrease, ratio, discounts, and tips."}</p>
-      </header>
+      
 
       {/* ══════════════════════════════════════════════════════════════════
           TOP NAVIGATION BAR (FULL-WIDTH EXPANSIVE)
@@ -331,9 +327,9 @@ export default function PercentageCalculator({ tool, seoData }) {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-base sm:text-lg font-black tracking-tight text-slate-900 dark:text-white uppercase leading-none">
+                <h1 className="text-base sm:text-lg font-black tracking-tight text-slate-900 dark:text-white uppercase leading-none">
                   Percentage <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400">Calculator</span>
-                </h2>
+                </h1>
                 <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200/60 dark:border-indigo-800/60 tracking-wider uppercase">
                   Engine
                 </span>

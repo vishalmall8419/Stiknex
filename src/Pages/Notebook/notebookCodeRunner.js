@@ -143,11 +143,56 @@ export function compileHtmlDocument(sourceCode, title = "Code Preview") {
     </script>
   `;
 
+  const baseDefaultStyles = `
+    <style id="stiknex-runner-base">
+      /* Stiknex Code Runner Base Styles: Ensures standard HTML elements always have visible, crisp styling */
+      input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]):not([type="reset"]),
+      textarea,
+      select {
+        border: 1px solid #94a3b8;
+        border-radius: 6px;
+        padding: 8px 12px;
+        font-family: inherit;
+        font-size: 14px;
+        background-color: #ffffff;
+        color: #0f172a;
+        box-sizing: border-box;
+      }
+      input:focus, textarea:focus, select:focus {
+        border-color: #6366f1;
+        outline: 2px solid rgba(99, 102, 241, 0.25);
+      }
+      button, input[type="submit"], input[type="button"], input[type="reset"] {
+        border: 1px solid #4f46e5;
+        border-radius: 6px;
+        padding: 8px 18px;
+        background-color: #4f46e5;
+        color: #ffffff;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        font-family: inherit;
+      }
+      button:hover, input[type="submit"]:hover {
+        background-color: #4338ca;
+      }
+    </style>
+  `;
+
   if (isFullHtml) {
-    if (cleanCode.includes('</body>')) {
-      return cleanCode.replace('</body>', consoleBridgeScript + '</body>');
+    let result = cleanCode;
+    if (result.includes('<head>')) {
+      result = result.replace('<head>', '<head>' + baseDefaultStyles);
+    } else if (/<head\b[^>]*>/i.test(result)) {
+      result = result.replace(/(<head\b[^>]*>)/i, '$1' + baseDefaultStyles);
+    } else {
+      result = baseDefaultStyles + result;
     }
-    return cleanCode + consoleBridgeScript;
+
+    if (result.includes('</body>')) {
+      return result.replace('</body>', consoleBridgeScript + '</body>');
+    }
+    return result + consoleBridgeScript;
   }
 
   // Check if pure JS (no HTML tags, but has JS keywords)

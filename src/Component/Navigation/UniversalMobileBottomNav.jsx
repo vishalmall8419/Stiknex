@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Home,
   StickyNote,
@@ -7,32 +8,49 @@ import {
   PenTool,
   Wrench,
   BookMarked,
-  Plus,
-  X,
-  Search,
   Sparkles,
-  Share2,
-  Moon,
+  Search,
   Sun,
-  Layers,
-  ArrowUpRight
+  Moon,
+  Coffee,
+  X,
+  Menu as MenuIcon
 } from "lucide-react";
 import { useAppContext } from "../../context/AppContext";
+import ExtensionModal from "../ExtensionModal";
+
+const ChromeIcon = ({ className = "w-4 h-4" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <circle cx="12" cy="12" r="10" stroke="#4285F4" strokeWidth="2"/>
+    <circle cx="12" cy="12" r="4" fill="#4285F4"/>
+    <path d="M12 2a10 10 0 0 1 8.66 5H12" stroke="#EA4335" strokeWidth="2"/>
+    <path d="M20.66 7a10 10 0 0 1-5 13.66L12 12" stroke="#FBBC05" strokeWidth="2"/>
+    <path d="M15.66 20.66A10 10 0 0 1 3.34 12H12" stroke="#34A853" strokeWidth="2"/>
+  </svg>
+);
 
 /**
  * UniversalMobileBottomNav
  * 
- * Dynamic, context-aware mobile floating bottom navigation dock.
- * Active exclusively on mobile screens (< 768px).
- * Replaces clunky sidebars and overcrowded top navbars on mobile.
- * Adapts items and quick actions dynamically based on the current page route.
+ * Fluid Morphing Capsule Bottom Dock (Inspired by Reference media_1795076702617_a5a584fa.png)
+ * - The active tab expands into a dark rounded pill with icon + label.
+ * - Inactive tabs display clean outline icons without clutter.
+ * - Clicking "Menu" pops up an elevated action sheet above the dock (Reference: media_1795076702616_dfecb02e.png)
+ *   providing Quick Search, Theme Toggle, Extension Modal, Blog, and Support.
+ * - Fully responsive across mobile, tablet, and desktop.
  */
 export default function UniversalMobileBottomNav() {
   const { pathname } = useLocation();
   const { darkMode, toggleDarkMode } = useAppContext();
-  const [sheetOpen, setSheetOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [showExtensionModal, setShowExtensionModal] = useState(false);
 
-  // If on notebook route, Notebook.jsx already has its own dedicated NotebookBottomDock
+  // Close menu on route change
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
+
+  // If on notebook route, Notebook.jsx has its own dedicated NotebookBottomDock
   if (pathname === "/notebook" || pathname === "/online-notebook") {
     return null;
   }
@@ -46,13 +64,10 @@ export default function UniversalMobileBottomNav() {
     return null;
   }
 
-  // If user is actively inside Excalidraw whiteboard editor, let Excalidraw have full screen
-  if (pathname === "/whiteboard" && typeof document !== "undefined" && document.querySelector(".excalidraw")) {
-    return null;
-  }
-
   // Determine current page context
+  const isLanding = pathname === "/";
   const isStickyNotes = pathname === "/sticky-notes" || pathname === "/notes";
+  const isNotebook = pathname === "/notebook" || pathname === "/online-notebook";
   const isWhiteboard = pathname === "/whiteboard";
   const isBlog = pathname.startsWith("/blog");
   const isTools =
@@ -61,304 +76,276 @@ export default function UniversalMobileBottomNav() {
     pathname.includes("-calculator") ||
     pathname.includes("-converter") ||
     pathname.includes("-generator");
-  const isLanding = pathname === "/";
 
   // Context-aware navigation tabs
   const getNavTabs = () => {
     if (isBlog) {
       return [
-        { label: "Home", path: "/", icon: Home },
-        { label: "Notes", path: "/sticky-notes", icon: StickyNote },
-        { label: "Notepad", path: "/online-notebook", icon: BookOpen },
-        { label: "Tools", path: "/tools", icon: Wrench },
-        { label: "Blog", path: "/blog", icon: BookMarked, isActive: true },
+        { key: "home", label: "Home", path: "/", icon: Home, isActive: false },
+        { key: "notes", label: "Notes", path: "/sticky-notes", icon: StickyNote, isActive: false },
+        { key: "notepad", label: "Notepad", path: "/online-notebook", icon: BookOpen, isActive: false },
+        { key: "tools", label: "Tools", path: "/tools", icon: Wrench, isActive: false },
+        { key: "blog", label: "Blog", path: "/blog", icon: BookMarked, isActive: true },
       ];
     }
 
     if (isTools) {
       return [
-        { label: "Home", path: "/", icon: Home },
-        { label: "Notes", path: "/sticky-notes", icon: StickyNote },
-        { label: "Notepad", path: "/online-notebook", icon: BookOpen },
-        { label: "Tools", path: "/tools", icon: Wrench, isActive: true },
-        { label: "Blog", path: "/blog", icon: BookMarked },
+        { key: "home", label: "Home", path: "/", icon: Home, isActive: false },
+        { key: "notes", label: "Notes", path: "/sticky-notes", icon: StickyNote, isActive: false },
+        { key: "notepad", label: "Notepad", path: "/online-notebook", icon: BookOpen, isActive: false },
+        { key: "board", label: "Board", path: "/whiteboard", icon: PenTool, isActive: false },
+        { key: "tools", label: "Tools", path: "/tools", icon: Wrench, isActive: true },
       ];
     }
 
     if (isWhiteboard) {
       return [
-        { label: "Home", path: "/", icon: Home },
-        { label: "Notes", path: "/sticky-notes", icon: StickyNote },
-        { label: "Board", path: "/whiteboard", icon: PenTool, isActive: true },
-        { label: "Notepad", path: "/online-notebook", icon: BookOpen },
-        { label: "Tools", path: "/tools", icon: Wrench },
+        { key: "home", label: "Home", path: "/", icon: Home, isActive: false },
+        { key: "notes", label: "Notes", path: "/sticky-notes", icon: StickyNote, isActive: false },
+        { key: "notepad", label: "Notepad", path: "/online-notebook", icon: BookOpen, isActive: false },
+        { key: "board", label: "Board", path: "/whiteboard", icon: PenTool, isActive: true },
+        { key: "tools", label: "Tools", path: "/tools", icon: Wrench, isActive: false },
+      ];
+    }
+
+    if (isNotebook) {
+      return [
+        { key: "home", label: "Home", path: "/", icon: Home, isActive: false },
+        { key: "notes", label: "Notes", path: "/sticky-notes", icon: StickyNote, isActive: false },
+        { key: "notepad", label: "Notepad", path: "/online-notebook", icon: BookOpen, isActive: true },
+        { key: "board", label: "Board", path: "/whiteboard", icon: PenTool, isActive: false },
+        { key: "tools", label: "Tools", path: "/tools", icon: Wrench, isActive: false },
       ];
     }
 
     if (isStickyNotes) {
       return [
-        { label: "Home", path: "/", icon: Home },
-        { label: "Notes", path: "/sticky-notes", icon: StickyNote, isActive: true },
-        { label: "Board", path: "/whiteboard", icon: PenTool },
-        { label: "Notepad", path: "/online-notebook", icon: BookOpen },
-        { label: "Tools", path: "/tools", icon: Wrench },
+        { key: "home", label: "Home", path: "/", icon: Home, isActive: false },
+        { key: "notes", label: "Notes", path: "/sticky-notes", icon: StickyNote, isActive: true },
+        { key: "notepad", label: "Notepad", path: "/online-notebook", icon: BookOpen, isActive: false },
+        { key: "board", label: "Board", path: "/whiteboard", icon: PenTool, isActive: false },
+        { key: "tools", label: "Tools", path: "/tools", icon: Wrench, isActive: false },
       ];
     }
 
     // Default / Landing page
     return [
-      { label: "Home", path: "/", icon: Home, isActive: isLanding },
-      { label: "Notes", path: "/sticky-notes", icon: StickyNote },
-      { label: "Board", path: "/whiteboard", icon: PenTool },
-      { label: "Notepad", path: "/online-notebook", icon: BookOpen },
-      { label: "Tools", path: "/tools", icon: Wrench },
+      { key: "home", label: "Home", path: "/", icon: Home, isActive: isLanding },
+      { key: "notes", label: "Notes", path: "/sticky-notes", icon: StickyNote, isActive: false },
+      { key: "notepad", label: "Notepad", path: "/online-notebook", icon: BookOpen, isActive: false },
+      { key: "board", label: "Board", path: "/whiteboard", icon: PenTool, isActive: false },
+      { key: "tools", label: "Tools", path: "/tools", icon: Wrench, isActive: false },
     ];
   };
 
   const navTabs = getNavTabs();
 
-  // Page-specific FAB action or drawer
-  const handleFabClick = () => {
-    if (isStickyNotes) {
-      // Create sticky note via global custom event or focus note creator
-      window.dispatchEvent(new Event("stiknex_quick_create_note"));
-      setSheetOpen(!sheetOpen);
-    } else {
-      setSheetOpen(!sheetOpen);
-    }
-  };
-
   return (
     <>
-      {/* Backdrop overlay when quick sheet is open */}
-      {sheetOpen && (
-        <div
-          onClick={() => setSheetOpen(false)}
-          className="fixed inset-0 z-40 bg-slate-900/40 dark:bg-black/60 backdrop-blur-xs md:hidden animate-fade-in"
-          aria-hidden="true"
-        />
-      )}
+      {/* Backdrop overlay when Quick Menu is open */}
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setMenuOpen(false)}
+            className="fixed inset-0 z-40 bg-slate-900/35 dark:bg-black/60 backdrop-blur-xs"
+            aria-hidden="true"
+          />
+        )}
+      </AnimatePresence>
 
-      {/* Contextual Quick Actions Bottom Sheet */}
-      {sheetOpen && (
-        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-20px)] max-w-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 shadow-2xl shadow-indigo-500/20 md:hidden animate-slide-up">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800 mb-3">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-indigo-500 animate-ping"></span>
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                {isStickyNotes
-                  ? "Sticky Notes Actions"
-                  : isWhiteboard
-                  ? "Whiteboard Actions"
-                  : isBlog
-                  ? "Blog Tools"
-                  : isTools
-                  ? "Quick Tools"
-                  : "Quick Navigator"}
-              </span>
-            </div>
-            <button
-              onClick={() => setSheetOpen(false)}
-              className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-full"
-              aria-label="Close"
-            >
-              <X size={16} />
-            </button>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2 text-xs font-semibold">
-            {isStickyNotes && (
-              <>
-                <button
-                  onClick={() => {
-                    window.dispatchEvent(new Event("stiknex_quick_create_note"));
-                    setSheetOpen(false);
-                  }}
-                  className="flex items-center gap-2 p-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/50"
-                >
-                  <Plus size={15} /> New Note
-                </button>
-                <Link
-                  to="/online-notebook"
-                  onClick={() => setSheetOpen(false)}
-                  className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
-                >
-                  <BookOpen size={15} className="text-purple-500" /> Open Notepad
-                </Link>
-              </>
-            )}
-
-            {isWhiteboard && (
-              <>
-                <Link
-                  to="/sticky-notes"
-                  onClick={() => setSheetOpen(false)}
-                  className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
-                >
-                  <StickyNote size={15} className="text-amber-500" /> Sticky Notes
-                </Link>
-                <button
-                  onClick={() => {
-                    window.dispatchEvent(new Event("stiknex_open_feedback"));
-                    setSheetOpen(false);
-                  }}
-                  className="flex items-center gap-2 p-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400"
-                >
-                  <Share2 size={15} /> Feedback
-                </button>
-              </>
-            )}
-
-            {isBlog && (
-              <>
-                <Link
-                  to="/blog"
-                  onClick={() => setSheetOpen(false)}
-                  className="flex items-center gap-2 p-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400"
-                >
-                  <BookMarked size={15} /> All Articles
-                </Link>
-                <Link
-                  to="/tools"
-                  onClick={() => setSheetOpen(false)}
-                  className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
-                >
-                  <Wrench size={15} className="text-emerald-500" /> Utilities
-                </Link>
-              </>
-            )}
-
-            {isTools && (
-              <>
-                <Link
-                  to="/basic-calculator"
-                  onClick={() => setSheetOpen(false)}
-                  className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
-                >
-                  <span>🧮</span> Calculator
-                </Link>
-                <Link
-                  to="/qr-code-generator"
-                  onClick={() => setSheetOpen(false)}
-                  className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
-                >
-                  <span>📱</span> QR Generator
-                </Link>
-                <Link
-                  to="/word-counter"
-                  onClick={() => setSheetOpen(false)}
-                  className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
-                >
-                  <span>✍️</span> Word Counter
-                </Link>
-                <Link
-                  to="/password-generator"
-                  onClick={() => setSheetOpen(false)}
-                  className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
-                >
-                  <span>🔐</span> Password
-                </Link>
-              </>
-            )}
-
-            {isLanding && (
-              <>
-                <Link
-                  to="/sticky-notes"
-                  onClick={() => setSheetOpen(false)}
-                  className="flex items-center gap-2 p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/50 dark:border-amber-900/50"
-                >
-                  <StickyNote size={15} /> Sticky Notes
-                </Link>
-                <Link
-                  to="/tools"
-                  onClick={() => setSheetOpen(false)}
-                  className="flex items-center gap-2 p-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200/50 dark:border-indigo-900/50"
-                >
-                  <Wrench size={15} /> 200+ Tools
-                </Link>
-              </>
-            )}
-
-            {/* Universal Theme Toggle */}
-            <button
-              onClick={() => {
-                toggleDarkMode();
-                setSheetOpen(false);
-              }}
-              className="col-span-2 mt-1 flex items-center justify-center gap-2 p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors"
-            >
-              {darkMode ? (
-                <>
-                  <Sun size={15} className="text-amber-400" /> Switch to Light Mode
-                </>
-              ) : (
-                <>
-                  <Moon size={15} className="text-indigo-500" /> Switch to Dark Mode
-                </>
-              )}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Main Bottom Dock Wrapper */}
+      {/* Floating Bottom Dock Container (Phone only: md:hidden) */}
       <div
-        className="fixed left-1/2 -translate-x-1/2 z-40 flex items-center justify-between gap-2.5 w-[calc(100%-20px)] max-w-[440px] pointer-events-none md:hidden"
-        style={{ bottom: "max(10px, env(safe-area-inset-bottom, 10px))" }}
+        className="fixed left-1/2 -translate-x-1/2 z-50 flex flex-col items-center pointer-events-none md:hidden"
+        style={{ bottom: "max(16px, env(safe-area-inset-bottom, 16px))" }}
       >
-        {/* Floating Capsule Bar */}
+        {/* Floating Quick Action Sheet Above Bottom Bar (Reference: media_1795076702616_dfecb02e.png) */}
+        <AnimatePresence>
+          {menuOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: 15, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 15, scale: 0.95 }}
+              transition={{ type: "spring", stiffness: 450, damping: 32 }}
+              className="mb-3 p-2 sm:p-2.5 rounded-3xl bg-[#18202F]/95 dark:bg-slate-900/95 backdrop-blur-2xl border border-white/10 dark:border-slate-800 shadow-[0_20px_50px_rgba(0,0,0,0.35)] flex items-center gap-2 sm:gap-3 pointer-events-auto"
+            >
+              {/* 1. Quick Search */}
+              <button
+                type="button"
+                onClick={() => {
+                  setMenuOpen(false);
+                  window.dispatchEvent(new Event("stiknex_open_quick_search"));
+                }}
+                className="flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-2xl hover:bg-white/10 text-white transition-all cursor-pointer group"
+                title="Quick Search (Ctrl+K)"
+              >
+                <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Search size={18} className="text-indigo-400" />
+                </div>
+                <span className="text-[10px] font-semibold text-slate-300">Search</span>
+              </button>
+
+              {/* 2. Theme Toggle */}
+              <button
+                type="button"
+                onClick={() => {
+                  toggleDarkMode();
+                  setMenuOpen(false);
+                }}
+                className="flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-2xl hover:bg-white/10 text-white transition-all cursor-pointer group"
+                title="Toggle Theme"
+              >
+                <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  {darkMode ? <Sun size={18} className="text-amber-400" /> : <Moon size={18} className="text-indigo-400" />}
+                </div>
+                <span className="text-[10px] font-semibold text-slate-300">{darkMode ? "Light" : "Dark"}</span>
+              </button>
+
+              {/* 3. Chrome Extension */}
+              <button
+                type="button"
+                onClick={() => {
+                  setMenuOpen(false);
+                  setShowExtensionModal(true);
+                }}
+                className="flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-2xl hover:bg-white/10 text-white transition-all cursor-pointer group"
+                title="Add Chrome Extension"
+              >
+                <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <ChromeIcon className="w-4 h-4" />
+                </div>
+                <span className="text-[10px] font-semibold text-slate-300">Extension</span>
+              </button>
+
+              {/* 4. Blog */}
+              <Link
+                to="/blog"
+                onClick={() => setMenuOpen(false)}
+                className="flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-2xl hover:bg-white/10 text-white transition-all cursor-pointer group"
+                title="Blog & Articles"
+              >
+                <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <BookMarked size={18} className="text-purple-400" />
+                </div>
+                <span className="text-[10px] font-semibold text-slate-300">Blog</span>
+              </Link>
+
+              {/* 5. Support */}
+              <Link
+                to="/buy-me-a-coffee"
+                onClick={() => setMenuOpen(false)}
+                className="flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-2xl hover:bg-white/10 text-white transition-all cursor-pointer group"
+                title="Support Development"
+              >
+                <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Coffee size={18} className="text-amber-400" />
+                </div>
+                <span className="text-[10px] font-semibold text-slate-300">Support</span>
+              </Link>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Fluid Morphing Capsule Dock (Reference: media_1795076702617_a5a584fa.png) */}
         <nav
-          className="pointer-events-auto flex-1 h-14 rounded-full bg-white/92 dark:bg-slate-900/92 backdrop-blur-2xl border border-white/80 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.12)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.4)] flex items-center justify-around px-2 py-1 transition-all"
+          className="pointer-events-auto flex items-center gap-1 sm:gap-1.5 p-1.5 sm:p-2 rounded-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border border-slate-200/90 dark:border-slate-800 shadow-[0_12px_45px_rgba(15,23,42,0.15)] dark:shadow-[0_12px_45px_rgba(0,0,0,0.6)]"
           role="navigation"
-          aria-label="Universal Mobile Navigation"
+          aria-label="Universal Site Navigation"
         >
           {navTabs.map((tab) => {
             const Icon = tab.icon;
-            const active = tab.isActive || pathname === tab.path;
+            const active = tab.isActive && !menuOpen;
 
             return (
               <Link
-                key={tab.label}
+                key={tab.key}
                 to={tab.path}
-                className={`relative flex flex-col items-center justify-center py-1 px-2.5 rounded-2xl transition-all select-none active:scale-90 ${
+                className={`relative flex items-center select-none transition-all cursor-pointer ${
                   active
-                    ? "text-indigo-600 dark:text-indigo-400 font-bold"
-                    : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
+                    ? "px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-full text-white dark:text-slate-900 font-bold text-xs sm:text-sm gap-2"
+                    : "p-2.5 sm:p-3 rounded-full text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60"
                 }`}
+                title={tab.label}
+                aria-label={tab.label}
               >
-                {/* Active Pill Glow */}
+                {/* Fluid Morphing Dark Pill Background */}
                 {active && (
-                  <span className="absolute inset-0 bg-indigo-50 dark:bg-indigo-500/15 rounded-2xl -z-10 scale-95" />
+                  <motion.div
+                    layoutId="activeBottomBarPill"
+                    transition={{ type: "spring", stiffness: 450, damping: 32 }}
+                    className="absolute inset-0 bg-[#18202F] dark:bg-white rounded-full -z-10 shadow-md"
+                  />
                 )}
 
-                <Icon size={19} className="stroke-[2.2]" />
-                <span className="text-[10px] tracking-tight mt-0.5 leading-none">
-                  {tab.label}
-                </span>
-
-                {/* Micro Dot for Active Tab */}
+                <Icon size={18} className="shrink-0 stroke-[2.2]" />
+                
+                {/* Active Tab Text Label (Expands on active state) */}
                 {active && (
-                  <span className="w-1 h-1 rounded-full bg-indigo-600 dark:bg-indigo-400 mt-0.5" />
+                  <motion.span
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    className="whitespace-nowrap tracking-tight"
+                  >
+                    {tab.label}
+                  </motion.span>
                 )}
               </Link>
             );
           })}
-        </nav>
 
-        {/* Floating Action Button (FAB '+') */}
-        <button
-          type="button"
-          onClick={handleFabClick}
-          aria-label="Quick Actions Menu"
-          aria-expanded={sheetOpen}
-          className={`pointer-events-auto w-14 h-14 rounded-full bg-gradient-to-tr from-indigo-600 to-indigo-500 text-white flex items-center justify-center shadow-lg shadow-indigo-500/35 active:scale-90 transition-all border border-indigo-400/40 shrink-0 ${
-            sheetOpen ? "rotate-45 bg-indigo-700" : ""
-          }`}
-        >
-          <Plus size={24} className="stroke-[2.5]" />
-        </button>
+          {/* Context Menu / Sidebar Button */}
+          <button
+            type="button"
+            onClick={() => {
+              if (isStickyNotes) {
+                window.dispatchEvent(new Event("stiknex_toggle_sidebar"));
+              } else {
+                setMenuOpen((prev) => !prev);
+              }
+            }}
+            aria-label={isStickyNotes ? "Toggle Sidebar" : "Toggle Quick Menu"}
+            aria-expanded={menuOpen}
+            className={`relative flex items-center select-none transition-all cursor-pointer ${
+              menuOpen && !isStickyNotes
+                ? "px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-full text-white dark:text-slate-900 font-bold text-xs sm:text-sm gap-2"
+                : "p-2.5 sm:p-3 rounded-full text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60"
+            }`}
+            title={isStickyNotes ? "Open Workspace Sidebar" : "Menu & Quick Tools"}
+          >
+            {menuOpen && !isStickyNotes && (
+              <motion.div
+                layoutId="activeBottomBarPill"
+                transition={{ type: "spring", stiffness: 450, damping: 32 }}
+                className="absolute inset-0 bg-[#18202F] dark:bg-white rounded-full -z-10 shadow-md"
+              />
+            )}
+
+            {menuOpen && !isStickyNotes ? (
+              <X size={18} className="shrink-0 stroke-[2.2]" />
+            ) : (
+              <MenuIcon size={18} className="shrink-0 stroke-[2.2]" />
+            )}
+
+            {menuOpen && !isStickyNotes && (
+              <motion.span
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                className="whitespace-nowrap tracking-tight"
+              >
+                Menu
+              </motion.span>
+            )}
+          </button>
+        </nav>
       </div>
+
+      {/* Chrome Extension Modal */}
+      <ExtensionModal isOpen={showExtensionModal} onClose={() => setShowExtensionModal(false)} />
     </>
   );
 }

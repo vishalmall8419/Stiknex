@@ -684,23 +684,6 @@ export default function ScientificCalculator({ tool, seoData }) {
   return (
     <div className="fixed inset-0 lg:relative lg:inset-auto w-full h-[100dvh] lg:min-h-screen flex flex-col justify-between overflow-hidden select-none font-sans bg-gradient-to-b from-[#EBF2F9] via-[#E2EDF7] to-[#D6E5F2] dark:from-[#0B1017] dark:via-[#080D14] dark:to-[#05090F] text-slate-800 dark:text-slate-100 transition-colors duration-300">
 
-      {/* ─── Accessible Semantic Header & SEO Elements ─── */}
-      <header className="sr-only">
-        <h1>Free Online Scientific Calculator - In-Browser Math Engine</h1>
-        <p>
-          Instant engineering and scientific arithmetic calculator with trigonometry, logarithms, exponential powers, factorials, memory, and calculation history.
-        </p>
-        <nav aria-label="Related Calculators & Math Tools">
-          <ul>
-            {RELATED_CALCULATORS.map((t) => (
-              <li key={t.slug}>
-                <Link to={`/${t.slug}`}>{t.title}</Link> - {t.desc}
-              </li>
-            ))}
-          </ul>
-        </nav>
-      </header>
-
       {/* ═════════════════════════════════════════════════════════════════════
           DESKTOP VIEW (>= lg): DUAL STATION (Matching Reference Image)
       ══════════════════════════════════════════════════════════════════════ */}
@@ -724,10 +707,10 @@ export default function ScientificCalculator({ tool, seoData }) {
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <h2 className="text-base sm:text-lg font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-1.5 uppercase leading-none">
+                      <h1 className="text-base sm:text-lg font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-1.5 uppercase leading-none">
                         <span>Scientific</span>
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500 dark:from-blue-400 dark:to-cyan-400">Calculator</span>
-                      </h2>
+                      </h1>
                       <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-cyan-400 border border-blue-200/60 dark:border-blue-800/60 tracking-wider uppercase">
                         {isRad ? "RAD MODE" : "DEG MODE"}
                       </span>
@@ -1280,9 +1263,9 @@ export default function ScientificCalculator({ tool, seoData }) {
                 <div className="w-5 h-5 rounded-lg bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-500 text-white flex items-center justify-center shadow-xs">
                   <Calculator size={11} className="text-white" />
                 </div>
-                <span className="text-xs font-black tracking-wide uppercase text-slate-800 dark:text-slate-200">
+                <h1 className="text-xs font-black tracking-wide uppercase text-slate-800 dark:text-slate-200 m-0 p-0 inline">
                   Scientific Calculator
-                </span>
+                </h1>
               </div>
 
               <div className="flex items-center gap-2">

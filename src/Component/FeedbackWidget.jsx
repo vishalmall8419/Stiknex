@@ -102,7 +102,12 @@ const FeedbackWidget = ({ tool = "stiknex", showButton = true }) => {
   if (!showButton && !isOpen) return null;
 
   return (
-    <div className="fixed bottom-6 right-6 z-[9999] font-sans">
+    <motion.div 
+      drag 
+      dragMomentum={false} 
+      dragElastic={0.15}
+      className="fixed bottom-6 right-6 z-[9999] font-sans cursor-grab active:cursor-grabbing select-none touch-none"
+    >
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -271,15 +276,24 @@ const FeedbackWidget = ({ tool = "stiknex", showButton = true }) => {
       {showButton && (
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center gap-2 px-3.5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-xl hover:scale-105 transition-all text-xs font-bold group"
-          title="Send Message or Leave Feedback"
-          aria-label="Send Message or Leave Feedback"
+          className="relative flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-full shadow-[0_4px_16px_rgba(79,70,229,0.35)] hover:shadow-[0_6px_22px_rgba(79,70,229,0.5)] border border-white/20 hover:scale-105 active:scale-95 transition-all text-xs font-semibold group cursor-grab active:cursor-grabbing backdrop-blur-md"
+          title="Feedback & Support (Drag me anywhere)"
+          aria-label="Send Feedback"
         >
-          {isOpen ? <X size={18} /> : <MessageSquare size={18} className="group-hover:rotate-12 transition-transform" />}
-          <span className="hidden sm:inline">Message & Feedback</span>
+          <span className="relative flex items-center justify-center">
+            {isOpen ? (
+              <X size={14} />
+            ) : (
+              <>
+                <MessageSquare size={14} className="group-hover:rotate-12 transition-transform" />
+                <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-indigo-600 animate-pulse" />
+              </>
+            )}
+          </span>
+          <span className="text-[11px] font-bold tracking-tight">Feedback</span>
         </button>
       )}
-    </div>
+    </motion.div>
   );
 };
 

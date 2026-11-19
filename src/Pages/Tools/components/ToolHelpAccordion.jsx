@@ -21,13 +21,16 @@ import {
  * Expandable on user click for detailed step-by-step instructions, features, formulas, and FAQs.
  */
 export default function ToolHelpAccordion({ tool, seoData, siblingTools = [] }) {
-  const [activeTab, setActiveTab] = useState(null); // null = collapsed by default
-
   const hasHowTo = tool?.howTo && tool.howTo.length > 0;
   const hasFeatures = tool?.features && tool.features.length > 0;
   const hasGuide = Boolean(tool?.guide);
   const hasFaqs = seoData?.faqs && seoData.faqs.length > 0;
   const hasRelated = tool?.related && tool.related.length > 0;
+
+  // Default to 'howto' or 'faqs' so search engines and users get immediate contextual content
+  const [activeTab, setActiveTab] = useState(
+    hasHowTo ? "howto" : hasFaqs ? "faqs" : hasFeatures ? "features" : null
+  );
 
   const toggleTab = (tabName) => {
     setActiveTab((prev) => (prev === tabName ? null : tabName));

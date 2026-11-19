@@ -927,24 +927,17 @@
 
 
 @media (max-width: 768px) {
+  /* Phone view: strictly hide topbar as per design (bottom dock only on mobile) */
+  .topbar {
+    display: none !important;
+  }
+
   .hideOnMobile {
     display: none !important;
   }
 
-  /* .topbar stays visible on mobile */
-
   .mobileHeader {
-    display: flex !important;
-    align-items: center;
-    justify-content: space-between;
-    height: 46px;
-    padding: 0 12px;
-    background: #111114;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    color: #ffffff;
-    user-select: none;
-    flex-shrink: 0;
-    z-index: 50;
+    display: none !important;
   }
 
   .mobileHeaderLeft,

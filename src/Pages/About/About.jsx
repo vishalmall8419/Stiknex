@@ -10,24 +10,17 @@ import { Zap, Shield, Sparkles, Code2, Database, LayoutTemplate, Rocket } from "
 // React Bits Inspired Components
 // ==========================================
 
-const AuroraBackground = () => (
-  <div className="absolute inset-0 overflow-hidden pointer-events-none z-0 bg-slate-50 dark:bg-slate-950 transition-colors duration-500">
-    <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-indigo-500/20 dark:bg-indigo-600/20 blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-blob"></div>
-    <div className="absolute top-[10%] -right-[10%] w-[50%] h-[50%] rounded-full bg-cyan-500/20 dark:bg-cyan-600/20 blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-blob animation-delay-2000"></div>
-    <div className="absolute -bottom-[20%] left-[20%] w-[50%] h-[50%] rounded-full bg-purple-500/20 dark:bg-purple-600/20 blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-blob animation-delay-4000"></div>
-    <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1.5px,transparent_1.5px)] dark:bg-[radial-gradient(#334155_1.5px,transparent_1.5px)] [background-size:40px_40px] opacity-40"></div>
-    
-    <style>{`
-      @keyframes blob {
-        0% { transform: translate(0px, 0px) scale(1); }
-        33% { transform: translate(30px, -50px) scale(1.1); }
-        66% { transform: translate(-20px, 20px) scale(0.9); }
-        100% { transform: translate(0px, 0px) scale(1); }
-      }
-      .animate-blob { animation: blob 15s infinite alternate ease-in-out; }
-      .animation-delay-2000 { animation-delay: 2s; }
-      .animation-delay-4000 { animation-delay: 4s; }
-    `}</style>
+const BrushUnderline = ({ className = "text-indigo-500" }) => (
+  <svg className={`absolute -bottom-2 sm:-bottom-3 left-0 w-full h-3 sm:h-4 pointer-events-none ${className}`} viewBox="0 0 300 20" fill="none" preserveAspectRatio="none">
+    <path d="M 5 14 Q 75 4, 150 11 Q 225 18, 295 8" stroke="currentColor" strokeWidth="5" strokeLinecap="round" strokeOpacity="0.85"/>
+  </svg>
+);
+
+const StudioBackground = () => (
+  <div className="absolute inset-0 overflow-hidden pointer-events-none z-0 bg-[#f8fafc] dark:bg-[#080b14] transition-colors duration-300">
+    <div className="absolute inset-0 bg-[radial-gradient(#cbd5e1_1.2px,transparent_1.2px)] dark:bg-[radial-gradient(#1e293b_1.2px,transparent_1.2px)] [background-size:28px_28px] opacity-40"></div>
+    <div className="absolute -top-24 -left-32 w-[500px] h-[500px] rounded-full bg-gradient-to-br from-indigo-600/20 via-blue-600/15 to-transparent blur-[90px] transform-gpu pointer-events-none"></div>
+    <div className="absolute top-1/3 -right-24 w-[420px] h-[420px] rounded-full bg-gradient-to-tl from-purple-500/15 via-indigo-500/10 to-transparent blur-[85px] transform-gpu pointer-events-none"></div>
   </div>
 );
 
@@ -149,7 +142,7 @@ const About = () => {
 />
 
       <div className="relative min-h-screen">
-        <AuroraBackground />
+        <StudioBackground />
 
         <div className="relative z-10 pt-24 pb-32">
           
@@ -183,7 +176,7 @@ const About = () => {
           <section className="max-w-7xl mx-auto px-6 mb-40">
             <FadeIn>
               <h2 className="text-sm font-bold tracking-widest uppercase text-indigo-500 mb-4 text-center">Core Pillars</h2>
-              <h3 className="text-3xl md:text-5xl font-black text-center mb-16 text-slate-900 dark:text-white">Built on absolute <br/> <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-cyan-400">perfection.</span></h3>
+              <h3 className="text-3xl md:text-5xl font-extrabold text-center mb-16 text-slate-900 dark:text-white">Engineered for <br/> <span className="text-indigo-600 dark:text-indigo-400">clarity and speed.</span></h3>
             </FadeIn>
 
             <div className="grid md:grid-cols-3 gap-8">
@@ -282,6 +275,8 @@ const About = () => {
             <div className="space-y-6">
               {[
                 { q: "Is Stiknex totally free?", a: "Yes! Currently, all tools, whiteboards, and notebook features are 100% free to use." },
+                { q: "What does the name 'Stiknex' mean and how is it pronounced?", a: "Stiknex (pronounced Stick-Nex, /ˈstɪk.nɛks/) blends 'Sticky Notes' with 'Next-generation web canvas'. It was created by software engineer Vishal Mall as a lightweight, privacy-focused digital workspace." },
+                { q: "Is Stiknex affiliated with StoneX?", a: "No. Stiknex (stiknex.site) is an independent digital tool and productivity platform. It has no connection, association, or affiliation with financial services or brokerage firms such as StoneX Group Inc." },
                 { q: "Where is my data saved?", a: "Your data is saved locally in your browser's local storage. If you clear your browser data, your notes might be lost. We recommend exporting important work until our cloud sync is released." },
                 { q: "Do you have a mobile app?", a: "Stiknex is built as a Progressive Web App (PWA). You can install it directly to your home screen from your mobile browser for an app-like experience!" },
                 { q: "How can I support the project?", a: "You can support the development by sharing it with your friends, reporting bugs on Github, or buying me a coffee through the support link!" }

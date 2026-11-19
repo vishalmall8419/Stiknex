@@ -21,19 +21,12 @@ const AppShell = ({ children, hideNav = false, hideFooter = false, fullWidth = f
   const showFeedbackNav = pathname === "/whiteboard";
   const openFeedback = () => window.dispatchEvent(new Event("stiknex_open_feedback"));
 
-  if (hideNav) {
-    return (
-      <div className="min-h-screen bg-gray-50 text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-slate-100">
-        {children}
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-slate-100">
       
-      {/* Top Navigation Bar */}
-      <nav className="sticky top-0 z-50 w-full bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-gray-200 dark:border-slate-800">
+      {/* Top Navigation Bar: Shown only on screens above phone (hidden md:block) */}
+      {!hideNav && (
+        <nav className="hidden md:block sticky top-0 z-50 w-full bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-gray-200 dark:border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             
@@ -109,6 +102,7 @@ const AppShell = ({ children, hideNav = false, hideFooter = false, fullWidth = f
           </div>
         </div>
       </nav>
+      )}
 
       {/* Mobile Drawer Overlay */}
       <AnimatePresence>

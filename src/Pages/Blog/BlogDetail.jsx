@@ -6,11 +6,11 @@ import LazyImage from '../../Component/LazyImage';
 import PageSEO from '../../Component/SEO/PageSEO';
 import { useAppContext } from '../../context/AppContext';
 
-const AuroraBackground = React.memo(() => (
-  <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10 bg-slate-50 dark:bg-slate-950 transition-colors duration-500">
-    <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-500/20 dark:bg-indigo-600/20 blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-blob"></div>
-    <div className="absolute top-[10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-purple-500/20 dark:bg-purple-600/20 blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-blob animation-delay-2000"></div>
-    <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1.5px,transparent_1.5px)] dark:bg-[radial-gradient(#334155_1.5px,transparent_1.5px)] bg-size-[40px_40px] opacity-40"></div>
+const StudioBackground = React.memo(() => (
+  <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10 bg-[#f7f5ff] dark:bg-[#080a18] transition-colors duration-300">
+    <div className="absolute inset-0 bg-gradient-to-b from-[#ede9fe]/70 via-[#f8f7ff]/80 to-white dark:from-[#0f1129] dark:via-[#090b1a] dark:to-[#060814]"></div>
+    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[520px] bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(165,180,252,0.35),rgba(216,180,254,0.2)_40%,transparent_75%)] dark:bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(99,102,241,0.25),rgba(168,85,247,0.15)_40%,transparent_75%)] pointer-events-none"></div>
+    <div className="absolute inset-0 bg-[radial-gradient(#c7d2fe_1.2px,transparent_1.2px)] dark:bg-[radial-gradient(#334155_1.2px,transparent_1.2px)] [background-size:26px_26px] opacity-40 dark:opacity-30"></div>
   </div>
 ));
 
@@ -124,7 +124,7 @@ const BlogDetail = () => {
   return (
     <div className="relative min-h-screen text-slate-900 dark:text-slate-100 selection:bg-indigo-500/30 font-sans pb-16 w-full max-w-full overflow-x-clip">
       <PageSEO title={`${post.title} | Stiknex`} description={post.briefDescription} path={`/blog/${id}`} />
-      <AuroraBackground />
+      <StudioBackground />
 
       {/* Desktop Navigation Pill */}
       <nav className="hidden md:flex fixed top-5 left-1/2 -translate-x-1/2 z-50 px-6 py-2.5 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800/60 rounded-full shadow-lg items-center gap-6">
@@ -147,22 +147,7 @@ const BlogDetail = () => {
         </div>
       </nav>
 
-      {/* Mobile Top Header */}
-      <header className="md:hidden fixed top-0 left-0 right-0 z-40 px-4 py-3 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80 flex items-center justify-between shadow-xs">
-        <Link to="/" className="flex items-center gap-2">
-          <img src="/logo.png" alt="Stiknex Logo" className="w-7 h-7 object-contain" />
-          <span className="font-black text-base tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-600">Stiknex</span>
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800">Article</span>
-        </Link>
-        <div className="flex items-center gap-2">
-          <Link to="/blog" className="px-2.5 py-1 text-xs font-semibold rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
-            All Articles
-          </Link>
-          <button onClick={toggleDarkMode} className="p-2 rounded-full text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" title="Toggle Dark Mode">
-            {darkMode ? <Sparkles size={16} /> : <Zap size={16} />}
-          </button>
-        </div>
-      </header>
+
 
       <main className="pt-24 sm:pt-28 md:pt-36 px-4 sm:px-6 max-w-4xl mx-auto relative z-10 w-full overflow-x-clip">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 mb-8 w-full">

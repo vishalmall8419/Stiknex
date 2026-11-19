@@ -7,25 +7,18 @@ import { useAppContext } from "../../context/AppContext";
 import LazyImage from "../../Component/LazyImage";
 import initialBlogs from "./initialBlogs.json";
 
-// Smooth ambient gradient background
-const AuroraBackground = React.memo(() => (
-  <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10 bg-slate-50 dark:bg-slate-950 transition-colors duration-500">
-    <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-500/20 dark:bg-indigo-600/20 blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-blob"></div>
-    <div className="absolute top-[10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-purple-500/20 dark:bg-purple-600/20 blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-blob animation-delay-2000"></div>
-    <div className="absolute bottom-[-20%] left-[20%] w-[50%] h-[50%] rounded-full bg-blue-500/20 dark:bg-blue-600/20 blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-blob animation-delay-4000"></div>
-    <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1.5px,transparent_1.5px)] dark:bg-[radial-gradient(#334155_1.5px,transparent_1.5px)] bg-[size:40px_40px] opacity-40"></div>
-    
-    <style>{`
-      @keyframes blob {
-        0% { transform: translate(0px, 0px) scale(1); }
-        33% { transform: translate(30px, -50px) scale(1.1); }
-        66% { transform: translate(-20px, 20px) scale(0.9); }
-        100% { transform: translate(0px, 0px) scale(1); }
-      }
-      .animate-blob { animation: blob 15s infinite alternate ease-in-out; }
-      .animation-delay-2000 { animation-delay: 2s; }
-      .animation-delay-4000 { animation-delay: 4s; }
-    `}</style>
+const BrushUnderline = ({ className = "text-indigo-500" }) => (
+  <svg className={`absolute -bottom-2 sm:-bottom-3 left-0 w-full h-3 sm:h-4 pointer-events-none ${className}`} viewBox="0 0 300 20" fill="none" preserveAspectRatio="none">
+    <path d="M 5 14 Q 75 4, 150 11 Q 225 18, 295 8" stroke="currentColor" strokeWidth="5" strokeLinecap="round" strokeOpacity="0.85"/>
+  </svg>
+);
+
+// Smooth ambient gradient background with Advapay floating orbs
+const StudioBackground = React.memo(() => (
+  <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10 bg-[#f8fafc] dark:bg-[#080b14] transition-colors duration-300">
+    <div className="absolute inset-0 bg-[radial-gradient(#cbd5e1_1.2px,transparent_1.2px)] dark:bg-[radial-gradient(#1e293b_1.2px,transparent_1.2px)] [background-size:28px_28px] opacity-40"></div>
+    <div className="absolute -top-24 -left-32 w-[500px] h-[500px] rounded-full bg-gradient-to-br from-indigo-600/20 via-blue-600/15 to-transparent blur-[90px] transform-gpu pointer-events-none"></div>
+    <div className="absolute top-1/3 -right-24 w-[420px] h-[420px] rounded-full bg-gradient-to-tl from-purple-500/15 via-indigo-500/10 to-transparent blur-[85px] transform-gpu pointer-events-none"></div>
   </div>
 ));
 
@@ -151,13 +144,13 @@ const Blog = () => {
         type="website"
         keywords="productivity blog, note taking tips, sticky notes guide, online tools blog, digital workspace tips, stiknex blog"
       />
-      <AuroraBackground />
+      <StudioBackground />
 
-      {/* Desktop Navigation Pill */}
+      {/* Desktop Navigation Pill (Hidden on phone: hidden md:flex) */}
       <nav className="hidden md:flex fixed top-5 left-1/2 -translate-x-1/2 z-50 px-6 py-2.5 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800/60 rounded-full shadow-lg items-center gap-6">
         <Link to="/" className="flex items-center gap-2 shrink-0 group">
           <img src="/logo.png" alt="Stiknex Logo" className="w-7 h-7 object-contain group-hover:scale-105 transition-transform" />
-          <span className="font-black text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-600">Stiknex</span>
+          <span className="font-bold text-lg tracking-tight text-slate-900 dark:text-white">Stiknex</span>
         </Link>
         <div className="flex items-center gap-2 shrink-0 text-sm font-medium text-slate-600 dark:text-slate-300">
           <Link to="/sticky-notes" className="px-3 py-1.5 rounded-lg hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors whitespace-nowrap">Sticky Notes</Link>
@@ -174,34 +167,18 @@ const Blog = () => {
         </div>
       </nav>
 
-      {/* Mobile Top Header */}
-      <header className="md:hidden fixed top-0 left-0 right-0 z-40 px-4 py-3 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80 flex items-center justify-between shadow-xs">
-        <Link to="/" className="flex items-center gap-2">
-          <img src="/logo.png" alt="Stiknex Logo" className="w-7 h-7 object-contain" />
-          <span className="font-black text-base tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-600">Stiknex</span>
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800">Blog</span>
-        </Link>
-        <div className="flex items-center gap-2">
-          <Link to="/tools" className="px-2.5 py-1 text-xs font-semibold rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
-            200+ Tools
-          </Link>
-          <button onClick={toggleDarkMode} className="p-2 rounded-full text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" title="Toggle Dark Mode">
-            {darkMode ? <Sparkles size={16} /> : <Zap size={16} />}
-          </button>
-        </div>
-      </header>
-
       {/* Hero Header */}
-      <header className="relative pt-24 md:pt-36 pb-12 px-6 flex flex-col items-center justify-center text-center">
+      <header className="relative pt-20 md:pt-36 pb-12 px-6 flex flex-col items-center justify-center text-center">
         <motion.div style={{ y }} className="max-w-4xl mx-auto w-full">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-semibold text-xs sm:text-sm mb-6 border border-indigo-100 dark:border-indigo-500/20 shadow-sm">
             <BookOpen size={16} /> Stiknex Articles & Guides
           </div>
           
-          <h1 className="text-4xl sm:text-6xl md:text-7xl font-black tracking-tight mb-6 leading-tight text-slate-900 dark:text-white">
-            Productivity, Thought & <br className="hidden sm:inline" />
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
+          <h1 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight mb-4 leading-tight text-slate-900 dark:text-white">
+            Productivity, Thought &amp; <br className="hidden sm:inline" />
+            <span className="relative inline-block text-indigo-600 dark:text-indigo-400">
               Visual Workspaces.
+              <BrushUnderline className="text-indigo-500/80 dark:text-indigo-400/80" />
             </span>
           </h1>
 
@@ -241,6 +218,15 @@ const Blog = () => {
                 {cat}
               </button>
             ))}
+          </div>
+
+          {/* Editorial Stats Bar (Inspired by Pin 1) */}
+          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 mt-8 pt-6 border-t border-slate-200/60 dark:border-slate-800/60 text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400">
+            <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-emerald-500"></span> {blogsData.length} Published Guides</span>
+            <span>•</span>
+            <span>Zero Paywalls</span>
+            <span>•</span>
+            <span>5-Min Average Read</span>
           </div>
         </motion.div>
       </header>

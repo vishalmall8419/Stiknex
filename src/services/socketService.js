@@ -9,28 +9,30 @@ const listeners = new Set();
 // Determine socket server target
 function getSocketUrl() {
   if (typeof window === "undefined") return null;
-  if (import.meta.env.VITE_SOCKET_URL) {
-    return import.meta.env.VITE_SOCKET_URL;
+
+  const rawEnv = import.meta.env.VITE_SOCKET_URL;
+  if (
+    rawEnv &&
+    typeof rawEnv === "string" &&
+    !rawEnv.includes("5173") &&
+    !rawEnv.includes("vercel.app") &&
+    !rawEnv.includes("stiknex.site") &&
+    (rawEnv.startsWith("http://") || rawEnv.startsWith("https://") || rawEnv.startsWith("ws://") || rawEnv.startsWith("wss://"))
+  ) {
+    return rawEnv;
   }
+
   try {
     const custom = localStorage.getItem("stiknex_custom_socket_url");
-    if (custom) return custom;
+    if (custom && !custom.includes("5173") && !custom.includes("vercel.app") && !custom.includes("stiknex.site")) {
+      return custom;
+    } else if (custom) {
+      localStorage.removeItem("stiknex_custom_socket_url");
+    }
   } catch {}
 
-  const host = window.location.hostname;
-  if (
-    host === "localhost" ||
-    host === "127.0.0.1" ||
-    host.startsWith("192.168.") ||
-    host.startsWith("10.") ||
-    host.startsWith("172.")
-  ) {
-    // When developing locally or on local WiFi, connect to Express server on port 5000
-    return `${window.location.protocol}//${host}:5000`;
-  }
-
-  // On production serverless hosting (Vercel), persistent WebSockets to window.location.origin
-  // are not supported by Vercel serverless functions. Avoid attempting a broken WebSocket connection.
+  // On production serverless hosting (Vercel) or client Vite without a dedicated backend,
+  // return null so it falls back cleanly to native BroadcastChannel and adaptive cloud sync.
   return null;
 }
 

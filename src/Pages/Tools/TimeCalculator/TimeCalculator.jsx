@@ -402,11 +402,7 @@ export default function TimeCalculator({ tool, seoData }) {
 
   return (
     <div className="min-h-screen bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col justify-between selection:bg-indigo-500 selection:text-white transition-colors duration-200">
-      {/* 100% Crawlable Semantic SEO Hidden in DOM */}
-      <header className="sr-only">
-        <h1>{seoData?.h1 || "Free Online Time & Timesheet Calculator"}</h1>
-        <p>{seoData?.description || "Add, subtract, and convert hours, minutes, and seconds. Calculate work shifts and decimal hours."}</p>
-      </header>
+      
 
       {/* ══════════════════════════════════════════════════════════════════
           TOP NAVIGATION HEADER (FULL-WIDTH WORKSTATION BAR)
@@ -432,9 +428,9 @@ export default function TimeCalculator({ tool, seoData }) {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-base sm:text-lg font-black tracking-tight text-slate-900 dark:text-white uppercase leading-none">
+                <h1 className="text-base sm:text-lg font-black tracking-tight text-slate-900 dark:text-white uppercase leading-none">
                   Time <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-600 to-blue-600 dark:from-sky-400 dark:to-blue-400">Calculator</span>
-                </h2>
+                </h1>
                 <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-200/60 dark:border-blue-800/60 tracking-wider uppercase">
                   Intervals &amp; Hours
                 </span>
