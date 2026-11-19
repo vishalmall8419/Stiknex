@@ -37,35 +37,30 @@
       name="google-adsense-account"
       content="ca-pub-8724450228854599"
     />
-    <script
-      async
-      src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8724450228854599"
-      crossorigin="anonymous"
-    ></script>
 
     <!-- =========================================================
-         GOOGLE ANALYTICS
-         
-         IMPORTANT:
-         Keep only ONE Google Analytics tag.
+         GOOGLE ANALYTICS & ADSENSE (Deferred for Maximum Page Speed & 90+ Lighthouse)
     ========================================================== -->
-
-    <script
-      type="text/javascript"
-      defer
-      src="https://www.googletagmanager.com/gtag/js?id=G-NQDW0GE2E3"
-    ></script>
-
-    <script type="text/javascript">
+    <script>
       window.dataLayer = window.dataLayer || [];
-
-      function gtag() {
-        dataLayer.push(arguments);
-      }
-
+      function gtag() { dataLayer.push(arguments); }
       gtag("js", new Date());
-
       gtag("config", "G-NQDW0GE2E3");
+
+      window.addEventListener('load', function() {
+        // Defer GA4 script
+        var gtagScript = document.createElement('script');
+        gtagScript.src = "https://www.googletagmanager.com/gtag/js?id=G-NQDW0GE2E3";
+        gtagScript.async = true;
+        document.head.appendChild(gtagScript);
+
+        // Defer AdSense script
+        var adScript = document.createElement('script');
+        adScript.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8724450228854599";
+        adScript.async = true;
+        adScript.crossOrigin = "anonymous";
+        document.head.appendChild(adScript);
+      });
     </script>
 
     <!-- =========================================================
@@ -121,7 +116,6 @@
       content="Stiknex is a free online sticky notes and notebook app with useful productivity tools, calculators, converters, QR code generator, password generator and more. Fast, simple and easy to use with no sign-up."
     />
 
-    <meta name="google-adsense-account" content="ca-pub-8724450228854599">
 
     <!-- Author -->
 

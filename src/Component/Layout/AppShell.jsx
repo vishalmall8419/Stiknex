@@ -181,7 +181,7 @@ const AppShell = ({ children, hideNav = false, hideFooter = false, fullWidth = f
       </AnimatePresence>
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col w-full relative">
+      <main className="flex-1 flex flex-col w-full relative pb-16 md:pb-0">
         <div className={`flex-1 w-full ${fullWidth ? '' : 'p-4 md:p-8 lg:p-12 max-w-7xl mx-auto'}`}>
           {children}
         </div>

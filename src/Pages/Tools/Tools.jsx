@@ -43,6 +43,7 @@ import MediaEngine from "./engines/MediaEngine";
 import GeneratorsEngine from "./engines/GeneratorsEngine";
 import HelpersEngine from "./engines/HelpersEngine";
 import ToolHelpAccordion from "./components/ToolHelpAccordion";
+import DesktopOnlyToolGuard from "./components/DesktopOnlyToolGuard";
 import { TIER_1_BESPOKE } from "../../data/bespokeToolsData";
 
 
@@ -256,7 +257,11 @@ const Tools = ({ directSlug = null }) => {
       case "time": return <TimeEngine slug={slug} toolId={id} />;
       case "math": return <MathEngine slug={slug} toolId={id} />;
       case "finance": return <FinanceEngine slug={slug} toolId={id} tool={tool} seoData={seoData} />;
-      case "typing": return <TypingEngine slug={slug} toolId={id} />;
+      case "typing": return (
+        <DesktopOnlyToolGuard toolTitle={tool.title || "Typing Master"}>
+          <TypingEngine slug={slug} toolId={id} />
+        </DesktopOnlyToolGuard>
+      );
       case "productivity": return <ProductivityEngine slug={slug} toolId={id} />;
       case "seo": return <SeoEngine slug={slug} toolId={id} />;
       case "data": return <DataEngine slug={slug} toolId={id} />;

@@ -1086,6 +1086,15 @@ const Home = () => {
     setQuickCreateMenuOpen(false);
   };
 
+  useEffect(() => {
+    const handleRemoteCreate = () => {
+      quickNoteInputRef.current?.focus();
+      handleAddNote(activeSection === "mindmap" ? { des: "", kind: "note", isMindMap: true } : undefined);
+    };
+    window.addEventListener("stiknex_quick_create_note", handleRemoteCreate);
+    return () => window.removeEventListener("stiknex_quick_create_note", handleRemoteCreate);
+  }, [activeSection, handleAddNote]);
+
   const handleAddImages = async (noteId, files) => {
     const imageFiles = Array.from(files || []).filter((file) => file.type.startsWith("image/"));
     if (imageFiles.length === 0) return;
@@ -1895,8 +1904,7 @@ const Home = () => {
           {showQuickComposer && (
             <form
               onSubmit={handleQuickNoteSubmit}
-              style={{ bottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
-              className="absolute left-1/2 z-40 flex w-[calc(100%-1rem)] max-w-[700px] -translate-x-1/2 flex-col gap-1.5 rounded-2xl border border-slate-200 bg-white/95 p-2 shadow-lg backdrop-blur-md transition-[border-color,box-shadow] duration-200 focus-within:border-indigo-300 focus-within:shadow-xl dark:border-slate-700 dark:bg-slate-900/95 sm:w-[calc(100%-2rem)] lg:bottom-4 lg:flex-row lg:items-center lg:gap-2 lg:rounded-full lg:px-3 lg:py-2"
+              className="absolute left-1/2 z-40 flex w-[calc(100%-1rem)] max-w-[700px] -translate-x-1/2 flex-col gap-1.5 rounded-2xl border border-slate-200 bg-white/95 p-2 shadow-lg backdrop-blur-md transition-[border-color,box-shadow] duration-200 focus-within:border-indigo-300 focus-within:shadow-xl dark:border-slate-700 dark:bg-slate-900/95 sm:w-[calc(100%-2rem)] bottom-[max(4.75rem,calc(env(safe-area-inset-bottom)+4.25rem))] lg:bottom-4 lg:flex-row lg:items-center lg:gap-2 lg:rounded-full lg:px-3 lg:py-2"
             >
               {activeSection === "mindmap" ? (
                 <textarea

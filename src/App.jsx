@@ -80,6 +80,7 @@ const CommandPalette = lazy(
 );
 const UserDashboard = lazy(() => import("./Pages/Dashboard/UserDashboard"));
 const AuthModal = lazy(() => import("./Component/AuthModal"));
+const UniversalMobileBottomNav = lazy(() => import("./Component/Navigation/UniversalMobileBottomNav"));
 import { initSyncEngine } from "./services/syncManager";
 import RouteRestorationTracker from "./Component/RouteRestorationTracker";
 import { ALL_TOOLS } from "./data/toolsRegistry";
@@ -352,6 +353,7 @@ const App = () => {
           />
         </Routes>
         <AuthModal />
+        {!isAdminRoute && <UniversalMobileBottomNav />}
       </Suspense>
     </>
   );

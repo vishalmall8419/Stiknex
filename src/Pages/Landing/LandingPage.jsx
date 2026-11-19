@@ -134,7 +134,7 @@ const LandingPage = () => {
               <span>Tools</span>
               <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300">200+</span>
             </Link>
-            <Link to="/stiknex-typing" className="px-3 py-1.5 rounded-full hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">Typing Master</Link>
+            
             <Link to="/blog" className="px-3 py-1.5 rounded-full hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">Blog</Link>
           </div>
 
@@ -230,14 +230,7 @@ const LandingPage = () => {
                   <Calculator size={16} className="text-purple-500" />
                   <span>200+ Tools</span>
                 </Link>
-                <Link
-                  to="/stiknex-typing"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-2 p-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 text-slate-800 dark:text-slate-200 hover:text-indigo-600 transition"
-                >
-                  <Gamepad2 size={16} className="text-pink-500" />
-                  <span>Typing Master</span>
-                </Link>
+                
                 <Link
                   to="/blog"
                   onClick={() => setMobileMenuOpen(false)}

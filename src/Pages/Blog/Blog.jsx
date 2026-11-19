@@ -153,29 +153,46 @@ const Blog = () => {
       />
       <AuroraBackground />
 
-      {/* Clean Global Navbar */}
-      <nav className="fixed top-3 sm:top-5 left-1/2 -translate-x-1/2 z-50 px-3 sm:px-6 py-2 sm:py-2.5 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800/60 rounded-full shadow-lg flex items-center gap-2 sm:gap-6 max-w-[96vw] overflow-x-auto no-scrollbar">
-        <Link to="/" className="flex items-center gap-1.5 sm:gap-2 shrink-0 group">
-          <img src="/logo.png" alt="Stiknex Logo" className="w-6 h-6 sm:w-7 sm:h-7 object-contain group-hover:scale-105 transition-transform" />
-          <span className="font-black text-sm sm:text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-600">Stiknex</span>
+      {/* Desktop Navigation Pill */}
+      <nav className="hidden md:flex fixed top-5 left-1/2 -translate-x-1/2 z-50 px-6 py-2.5 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800/60 rounded-full shadow-lg items-center gap-6">
+        <Link to="/" className="flex items-center gap-2 shrink-0 group">
+          <img src="/logo.png" alt="Stiknex Logo" className="w-7 h-7 object-contain group-hover:scale-105 transition-transform" />
+          <span className="font-black text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-600">Stiknex</span>
         </Link>
-        <div className="flex items-center gap-1 sm:gap-4 shrink-0 text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300">
-          <Link to="/sticky-notes" className="px-2 py-1 rounded-lg hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors whitespace-nowrap">Sticky Notes</Link>
-          <Link to="/online-notebook" className="px-2 py-1 rounded-lg hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors whitespace-nowrap">Notepad</Link>
-          <Link to="/whiteboard" className="px-2 py-1 rounded-lg hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors whitespace-nowrap">Whiteboard</Link>
-          <Link to="/tools" className="px-2 py-1 rounded-lg hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors whitespace-nowrap">Tools</Link>
-          <Link to="/blog" className="px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 font-semibold whitespace-nowrap">Blog</Link>
-          <Link to="/about" className="px-2 py-1 rounded-lg hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors whitespace-nowrap">About</Link>
+        <div className="flex items-center gap-2 shrink-0 text-sm font-medium text-slate-600 dark:text-slate-300">
+          <Link to="/sticky-notes" className="px-3 py-1.5 rounded-lg hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors whitespace-nowrap">Sticky Notes</Link>
+          <Link to="/online-notebook" className="px-3 py-1.5 rounded-lg hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors whitespace-nowrap">Notepad</Link>
+          <Link to="/whiteboard" className="px-3 py-1.5 rounded-lg hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors whitespace-nowrap">Whiteboard</Link>
+          <Link to="/tools" className="px-3 py-1.5 rounded-lg hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors whitespace-nowrap">Tools</Link>
+          <Link to="/blog" className="px-3 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 font-semibold whitespace-nowrap">Blog</Link>
+          <Link to="/about" className="px-3 py-1.5 rounded-lg hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors whitespace-nowrap">About</Link>
         </div>
-        <div className="flex items-center gap-2 shrink-0 pl-1 border-l border-slate-200 dark:border-slate-800">
-          <button onClick={toggleDarkMode} className="p-1.5 rounded-full text-slate-600 dark:text-slate-400 hover:text-indigo-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" title="Toggle Dark Mode">
+        <div className="flex items-center gap-2 shrink-0 pl-2 border-l border-slate-200 dark:border-slate-800">
+          <button onClick={toggleDarkMode} className="p-2 rounded-full text-slate-600 dark:text-slate-400 hover:text-indigo-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer" title="Toggle Dark Mode">
             {darkMode ? <Sparkles size={16} /> : <Zap size={16} />}
           </button>
         </div>
       </nav>
 
+      {/* Mobile Top Header */}
+      <header className="md:hidden fixed top-0 left-0 right-0 z-40 px-4 py-3 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80 flex items-center justify-between shadow-xs">
+        <Link to="/" className="flex items-center gap-2">
+          <img src="/logo.png" alt="Stiknex Logo" className="w-7 h-7 object-contain" />
+          <span className="font-black text-base tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-600">Stiknex</span>
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800">Blog</span>
+        </Link>
+        <div className="flex items-center gap-2">
+          <Link to="/tools" className="px-2.5 py-1 text-xs font-semibold rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+            200+ Tools
+          </Link>
+          <button onClick={toggleDarkMode} className="p-2 rounded-full text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" title="Toggle Dark Mode">
+            {darkMode ? <Sparkles size={16} /> : <Zap size={16} />}
+          </button>
+        </div>
+      </header>
+
       {/* Hero Header */}
-      <header className="relative pt-36 pb-12 px-6 flex flex-col items-center justify-center text-center">
+      <header className="relative pt-24 md:pt-36 pb-12 px-6 flex flex-col items-center justify-center text-center">
         <motion.div style={{ y }} className="max-w-4xl mx-auto w-full">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-semibold text-xs sm:text-sm mb-6 border border-indigo-100 dark:border-indigo-500/20 shadow-sm">
             <BookOpen size={16} /> Stiknex Articles & Guides
