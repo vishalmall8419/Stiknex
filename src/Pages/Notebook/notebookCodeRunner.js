@@ -5,7 +5,7 @@
  */
 
 // Heuristics to detect if text contains HTML, CSS or JS code
-const HTML_TAG_REGEX = /<\/?(?:html|head|body|div|p|span|h[1-6]|ul|ol|li|table|tr|td|th|button|input|form|a|img|canvas|svg|style|script|link|meta|section|header|footer|nav|main|aside|article|video|audio|iframe)\b[^>]*>/i;
+const HTML_TAG_REGEX = /<\/?(?:html|head|body|div|span|h[1-6]|ul|ol|li|table|tr|td|th|button|input|form|a|img|canvas|svg|style|script|link|meta|section|header|footer|nav|main|aside|article|video|audio|iframe)\b/i;
 const JS_KEYWORD_REGEX = /\b(?:console\.(?:log|error|warn|info|table)|document\.(?:getElementById|querySelector|createElement|body)|window\.|alert\(|prompt\(|confirm\(|function\s*\w*\s*\(|const\s+\w+\s*=|let\s+\w+\s*=|var\s+\w+\s*=|=>|addEventListener\(|setTimeout\(|setInterval\(|fetch\()\b/;
 const CSS_RULE_REGEX = /(?:[.#\w-][^{}]*)\s*\{\s*[\w-]+:\s*[^}]+;?\s*\}/;
 
@@ -15,14 +15,14 @@ const CSS_RULE_REGEX = /(?:[.#\w-][^{}]*)\s*\{\s*[\w-]+:\s*[^}]+;?\s*\}/;
 export function isExecutableCode(content) {
   if (!content || typeof content !== "string") return false;
   const trimmed = content.trim();
-  if (trimmed.length < 4) return false;
+  if (trimmed.length < 5) return false;
 
   return (
+    trimmed.startsWith("<!DOCTYPE") ||
+    trimmed.startsWith("<html") ||
     HTML_TAG_REGEX.test(trimmed) ||
     JS_KEYWORD_REGEX.test(trimmed) ||
-    CSS_RULE_REGEX.test(trimmed) ||
-    trimmed.startsWith("<!DOCTYPE") ||
-    trimmed.startsWith("<html")
+    CSS_RULE_REGEX.test(trimmed)
   );
 }
 
@@ -30,10 +30,36 @@ export function isExecutableCode(content) {
  * Compiles source code into a standalone HTML5 document
  */
 export function compileHtmlDocument(sourceCode, title = "Code Preview") {
-  const cleanCode = (sourceCode || "").trim();
+  let cleanCode = (sourceCode || "")
+    .replace(/\u00A0/g, " ") // Convert non-breaking spaces (\u00A0) back to standard ASCII spaces!
+    .replace(/\u200B/g, "") // Strip zero-width spaces
+    .replace(/\r\n/g, "\n")
+    .trim();
+
+  // If source code was HTML-entity encoded (e.g. &lt;!DOCTYPE or &lt;html)
+  if (/&lt;(?:!DOCTYPE|html|head|body|div|p|h[1-6]|section|nav)\b/i.test(cleanCode)) {
+    cleanCode = cleanCode
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/&amp;/g, "&");
+  }
+
+  // Strip any accidental stray leading character before the HTML doctype/tag (e.g. accidental single quote)
+  const docTypeMatch = cleanCode.match(/<!DOCTYPE\s+html/i);
+  const htmlTagMatch = cleanCode.match(/<html\b/i);
+  const firstTagIndex = Math.min(
+    docTypeMatch ? docTypeMatch.index : Infinity,
+    htmlTagMatch ? htmlTagMatch.index : Infinity
+  );
+
+  if (firstTagIndex !== Infinity && firstTagIndex > 0 && firstTagIndex < 30) {
+    cleanCode = cleanCode.slice(firstTagIndex).trim();
+  }
 
   // If already a complete HTML document
-  const isFullHtml = /^\s*<!DOCTYPE\s+html/i.test(cleanCode) || /<html\b[^>]*>/i.test(cleanCode);
+  const isFullHtml = /^\s*<!DOCTYPE\s+html/i.test(cleanCode) || /^\s*<html\b[^>]*>/i.test(cleanCode);
 
   const consoleBridgeScript = `
     <script>
@@ -181,14 +207,8 @@ export function compileHtmlDocument(sourceCode, title = "Code Preview") {
 
   if (isFullHtml) {
     let result = cleanCode;
-    if (result.includes('<head>')) {
-      result = result.replace('<head>', '<head>' + baseDefaultStyles);
-    } else if (/<head\b[^>]*>/i.test(result)) {
-      result = result.replace(/(<head\b[^>]*>)/i, '$1' + baseDefaultStyles);
-    } else {
-      result = baseDefaultStyles + result;
-    }
 
+    // Do NOT inject baseDefaultStyles into complete HTML documents so Bootstrap/Tailwind/custom styles stay 100% accurate!
     if (result.includes('</body>')) {
       return result.replace('</body>', consoleBridgeScript + '</body>');
     }

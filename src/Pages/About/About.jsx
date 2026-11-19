@@ -1,319 +1,1336 @@
-import { useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
-import { motion, useScroll, useTransform, useInView } from "framer-motion";
+import React, { useEffect, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { motion } from "framer-motion";
 import Lenis from "lenis";
 import AppShell from "../../Component/Layout/AppShell";
 import PageSEO from "../../Component/SEO/PageSEO";
-import { Zap, Shield, Sparkles, Code2, Database, LayoutTemplate, Rocket } from "lucide-react";
+import {
+  Sparkles,
+  Zap,
+  Shield,
+  Layers,
+  ArrowRight,
+  ExternalLink,
+  Code2,
+  Database,
+  CheckCircle2,
+  Lock,
+  Cpu,
+  Heart,
+  BookOpen,
+  Search,
+  PenTool,
+  Wrench,
+  Globe,
+  SlidersHorizontal,
+  Compass,
+  FileText,
+  Boxes,
+  HelpCircle,
+  Info,
+  Layout,
+  StickyNote,
+  Palette,
+  Music,
+  Timer,
+  Volume2,
+  Maximize2,
+  FileCode,
+  CheckSquare,
+  Share2,
+  Download,
+  RefreshCw,
+  ZoomIn,
+  Eye,
+  AlertTriangle,
+  Play,
+  RotateCcw,
+  Table,
+  Image,
+  AlignLeft,
+  Square,
+  Circle,
+  MousePointer,
+  Type,
+  Eraser,
+  Move,
+  Minimize2,
+  QrCode,
+  History,
+  Check,
+  Wand2,
+  Clock,
+  VolumeX
+} from "lucide-react";
+import { TOOL_HUBS, ALL_TOOLS } from "../../data/toolsRegistry";
 
-// ==========================================
-// React Bits Inspired Components
-// ==========================================
+export default function About() {
+  const location = useLocation();
+  const [activeTab, setActiveTab] = useState("all");
 
-const BrushUnderline = ({ className = "text-indigo-500" }) => (
-  <svg className={`absolute -bottom-2 sm:-bottom-3 left-0 w-full h-3 sm:h-4 pointer-events-none ${className}`} viewBox="0 0 300 20" fill="none" preserveAspectRatio="none">
-    <path d="M 5 14 Q 75 4, 150 11 Q 225 18, 295 8" stroke="currentColor" strokeWidth="5" strokeLinecap="round" strokeOpacity="0.85"/>
-  </svg>
-);
-
-const StudioBackground = () => (
-  <div className="absolute inset-0 overflow-hidden pointer-events-none z-0 bg-[#f8fafc] dark:bg-[#080b14] transition-colors duration-300">
-    <div className="absolute inset-0 bg-[radial-gradient(#cbd5e1_1.2px,transparent_1.2px)] dark:bg-[radial-gradient(#1e293b_1.2px,transparent_1.2px)] [background-size:28px_28px] opacity-40"></div>
-    <div className="absolute -top-24 -left-32 w-[500px] h-[500px] rounded-full bg-gradient-to-br from-indigo-600/20 via-blue-600/15 to-transparent blur-[90px] transform-gpu pointer-events-none"></div>
-    <div className="absolute top-1/3 -right-24 w-[420px] h-[420px] rounded-full bg-gradient-to-tl from-purple-500/15 via-indigo-500/10 to-transparent blur-[85px] transform-gpu pointer-events-none"></div>
-  </div>
-);
-
-const SplitText = ({ text, className }) => {
-  const words = text.split(" ");
-  
-  const container = {
-    hidden: { opacity: 0 },
-    visible: (i = 1) => ({
-      opacity: 1,
-      transition: { staggerChildren: 0.12, delayChildren: 0.04 * i },
-    }),
-  };
-
-  const child = {
-    visible: {
-      opacity: 1,
-      y: 0,
-      rotate: 0,
-      transition: {
-        type: "spring",
-        damping: 12,
-        stiffness: 100,
-      },
-    },
-    hidden: {
-      opacity: 0,
-      y: 50,
-      rotate: 5,
-    },
-  };
-
-  return (
-    <motion.div
-      style={{ overflow: "hidden", display: "flex", flexWrap: "wrap", justifyContent: "center" }}
-      variants={container}
-      initial="hidden"
-      animate="visible"
-      className={className}
-    >
-      {words.map((word, index) => (
-        <motion.span variants={child} style={{ marginRight: "0.25em" }} key={index}>
-          {word}
-        </motion.span>
-      ))}
-    </motion.div>
-  );
-};
-
-const FadeIn = ({ children, delay = 0, className, direction = "up" }) => {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
-  
-  const yOffset = direction === "up" ? 40 : direction === "down" ? -40 : 0;
-  const xOffset = direction === "left" ? 40 : direction === "right" ? -40 : 0;
-
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: yOffset, x: xOffset }}
-      animate={isInView ? { opacity: 1, y: 0, x: 0 } : { opacity: 0, y: yOffset, x: xOffset }}
-      transition={{ duration: 0.8, delay, ease: [0.21, 0.47, 0.32, 0.98] }}
-      className={className}
-    >
-      {children}
-    </motion.div>
-  );
-};
-
-const ShinyText = ({ children, className }) => (
-  <div className={`relative inline-block overflow-hidden ${className}`}>
-    <span className="text-transparent bg-clip-text bg-gradient-to-r from-slate-600 via-slate-900 to-slate-600 dark:from-slate-400 dark:via-white dark:to-slate-400 bg-[length:200%_auto] animate-shine">
-      {children}
-    </span>
-    <style>{`
-      @keyframes shine {
-        to { background-position: 200% center; }
-      }
-      .animate-shine { animation: shine 3s linear infinite; }
-    `}</style>
-  </div>
-);
-
-
-const About = () => {
-  const { scrollYProgress } = useScroll();
-  const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.3], [1, 0]);
-
+  // Initialize smooth scrolling with Lenis & handle hash anchor navigation
   useEffect(() => {
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      direction: 'vertical',
-      gestureDirection: 'vertical',
-      smooth: true,
-      mouseMultiplier: 1,
-      smoothTouch: false,
-      touchMultiplier: 2,
-    });
+    let lenisInstance = null;
+    if (typeof window !== "undefined" && window.matchMedia("(min-width: 1024px)").matches) {
+      lenisInstance = new Lenis({
+        duration: 1.1,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        orientation: "vertical",
+        smoothWheel: true,
+      });
 
-    function raf(time) {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
+      function raf(time) {
+        lenisInstance.raf(time);
+        requestAnimationFrame(raf);
+      }
+      const rafId = requestAnimationFrame(raf);
+
+      return () => {
+        cancelAnimationFrame(rafId);
+        lenisInstance.destroy();
+      };
     }
-    requestAnimationFrame(raf);
-
-    return () => lenis.destroy();
   }, []);
+
+  // Handle URL Hash navigation (e.g., /about#notepad, /about#sticky-notes, /about#whiteboard)
+  useEffect(() => {
+    const hash = location.hash || window.location.hash;
+    if (hash) {
+      const targetId = hash.replace("#", "");
+      setTimeout(() => {
+        const element = document.getElementById(targetId);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }, 250);
+    }
+  }, [location.hash]);
 
   return (
     <AppShell fullWidth={true}>
       <PageSEO
-  title="About Stiknex – Free Online Productivity Platform"
-  description="Learn about Stiknex, a free privacy-first online workspace offering sticky notes, notebooks, interactive whiteboards, and online productivity tools."
-  path="/about"
-  type="website"
-  keywords="about stiknex, productivity platform, free notes app, digital workspace, online tools"
-/>
+        title="About Stiknex — Comprehensive Platform Manifesto & Architecture"
+        description="Discover the complete architecture, features, and privacy principles of Stiknex. Founded by Vishal Mall as a free, local-first productivity workspace."
+        path="/about"
+        type="website"
+      />
 
-      <div className="relative min-h-screen">
-        <StudioBackground />
-
-        <div className="relative z-10 pt-24 pb-32">
-          
-          {/* ================= HERO SECTION ================= */}
-          <motion.section style={{ y: heroY, opacity: heroOpacity }} className="min-h-[70vh] flex flex-col items-center justify-center px-6 text-center mb-32">
-            <motion.div 
-              initial={{ scale: 0, rotate: -180 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{ type: "spring", damping: 15, stiffness: 100, duration: 1.5 }}
-              className="w-24 h-24 rounded-3xl bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl border border-white/40 dark:border-slate-700/50 flex items-center justify-center mb-8 shadow-2xl"
-            >
-              <img src="/logo.png" alt="Stiknex Logo" className="w-12 h-12 object-contain drop-shadow-xl" />
-            </motion.div>
-
-            <SplitText 
-              text="Redefining Productivity" 
-              className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter text-slate-900 dark:text-white mb-6"
-            />
+      <div className="min-h-screen bg-[#FAF7F2] dark:bg-[#0B0F17] text-[#1E293B] dark:text-[#F1F5F9] font-sans antialiased selection:bg-[#F8A88C]/35 selection:text-[#0F3944] transition-colors duration-200">
+        
+        {/* ========================================================
+            1. HERO SECTION (Circle Sandhill Studio Aesthetic)
+            ======================================================== */}
+        <section className="relative pt-24 pb-20 px-6 border-b border-[#EADFD5] dark:border-slate-800 bg-gradient-to-b from-white/70 via-transparent to-transparent dark:from-slate-900/40">
+          <div className="max-w-5xl mx-auto text-center space-y-6">
             
-            <motion.p 
-              initial={{ opacity: 0, filter: "blur(10px)" }}
-              animate={{ opacity: 1, filter: "blur(0px)" }}
-              transition={{ duration: 1, delay: 0.8 }}
-              className="text-xl md:text-2xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto font-medium"
-            >
-              Stiknex is a fast, offline-first workspace combining infinite whiteboards, smart notes, and essential tools in one gorgeous interface.
-            </motion.p>
-          </motion.section>
-
-          {/* ================= THE PILLARS ================= */}
-          <section className="max-w-7xl mx-auto px-6 mb-40">
-            <FadeIn>
-              <h2 className="text-sm font-bold tracking-widest uppercase text-indigo-500 mb-4 text-center">Core Pillars</h2>
-              <h3 className="text-3xl md:text-5xl font-extrabold text-center mb-16 text-slate-900 dark:text-white">Engineered for <br/> <span className="text-indigo-600 dark:text-indigo-400">clarity and speed.</span></h3>
-            </FadeIn>
-
-            <div className="grid md:grid-cols-3 gap-8">
-              {[
-                { icon: Zap, title: "Lightning Fast", desc: "No loading spinners. No sync delays. Everything renders at 60fps immediately.", color: "text-amber-500", bg: "bg-amber-500/10" },
-                { icon: Shield, title: "100% Private", desc: "Your thoughts are your own. Everything is stored locally on your device by default.", color: "text-emerald-500", bg: "bg-emerald-500/10" },
-                { icon: LayoutTemplate, title: "Zero Clutter", desc: "A beautifully minimalist interface that gets out of your way and lets you focus.", color: "text-purple-500", bg: "bg-purple-500/10" }
-              ].map((pillar, i) => (
-                <FadeIn key={i} delay={i * 0.2}>
-                  <motion.div 
-                    whileHover={{ y: -10, scale: 1.02 }}
-                    className="h-full p-8 rounded-3xl bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/50 dark:border-slate-700/50 shadow-xl dark:shadow-2xl flex flex-col"
-                  >
-                    <div className={`w-16 h-16 rounded-2xl ${pillar.bg} ${pillar.color} flex items-center justify-center mb-6`}>
-                      <pillar.icon size={32} />
-                    </div>
-                    <h4 className="text-2xl font-bold mb-4 text-slate-900 dark:text-white">{pillar.title}</h4>
-                    <p className="text-slate-600 dark:text-slate-400 leading-relaxed flex-1">{pillar.desc}</p>
-                  </motion.div>
-                </FadeIn>
-              ))}
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#134E5E]/10 dark:bg-teal-500/20 text-[#134E5E] dark:text-teal-300 text-xs font-black uppercase tracking-widest">
+              <Sparkles size={14} className="text-[#FFA07A]" />
+              Platform Manifesto &amp; Architecture
             </div>
-          </section>
 
+            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-[#0F3944] dark:text-white tracking-tight leading-[1.1]">
+              The Story &amp; Architecture of <span className="text-[#134E5E] dark:text-teal-400">Stiknex</span>
+            </h1>
 
-          {/* ================= PLATFORM MISSION SECTION ================= */}
-          <section className="max-w-7xl mx-auto px-6 mb-32 relative">
-            <FadeIn>
-              <div className="w-full rounded-[3rem] bg-indigo-50/80 dark:bg-slate-950 text-slate-900 dark:text-white p-8 md:p-16 relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-indigo-100 dark:border-slate-800 backdrop-blur-xl">
-                <div className="relative z-10 max-w-4xl mx-auto text-center space-y-6">
-                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-100 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-semibold text-sm">
-                    <Sparkles size={16} /> Privacy-First & Always Free
-                  </div>
-                  <h3 className="text-3xl md:text-5xl font-black">Built for Speed, Focus & Privacy</h3>
-                  <p className="text-slate-700 dark:text-slate-300 text-lg md:text-xl leading-relaxed">
-                    Stiknex was engineered to provide instant productivity utilities without bloated sign-ups, mandatory tracking, or paywalls. Every tool runs directly in your browser with local data persistence so your notes, thoughts, and calculations remain 100% private to you.
-                  </p>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 text-left">
-                    <div className="p-6 rounded-2xl bg-white/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
-                      <h4 className="font-bold text-lg mb-2 text-indigo-600 dark:text-indigo-400">⚡ Zero Friction</h4>
-                      <p className="text-slate-600 dark:text-slate-400 text-sm">No accounts, no email verifications, and no paywalls. Open the browser and begin working instantly.</p>
-                    </div>
-                    <div className="p-6 rounded-2xl bg-white/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
-                      <h4 className="font-bold text-lg mb-2 text-purple-600 dark:text-purple-400">🔒 Local-First Security</h4>
-                      <p className="text-slate-600 dark:text-slate-400 text-sm">Your notes and diagrams stay securely on your device's browser storage without unauthorized third-party telemetry.</p>
-                    </div>
-                    <div className="p-6 rounded-2xl bg-white/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
-                      <h4 className="font-bold text-lg mb-2 text-cyan-600 dark:text-cyan-400">📱 Truly Universal</h4>
-                      <p className="text-slate-600 dark:text-slate-400 text-sm">Full PWA support allows you to install Stiknex on mobile, tablet, and desktop for offline-ready access.</p>
-                    </div>
-                  </div>
-                </div>
+            <p className="text-lg sm:text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto font-medium leading-relaxed">
+              Founded by software engineer <strong>Vishal Mall</strong>, Stiknex is a fast, 100% free, local-first productivity ecosystem. Featuring infinite sticky notes, distraction-free markdown notepad, whiteboard, and 206 client-side browser utilities — private in your browser with zero logins.
+            </p>
+
+            <div className="pt-4 flex flex-wrap items-center justify-center gap-4">
+              <a
+                href="#notepad"
+                className="px-6 py-3 rounded-full text-xs font-black uppercase tracking-wider text-white bg-gradient-to-r from-[#134E5E] to-[#1D6A7D] hover:shadow-xl hover:shadow-[#134E5E]/20 hover:-translate-y-0.5 transition-all flex items-center gap-2"
+              >
+                <BookOpen size={14} />
+                <span>Notepad Guide ↓</span>
+              </a>
+
+              <a
+                href="#sticky-notes"
+                className="px-6 py-3 rounded-full text-xs font-black uppercase tracking-wider text-white bg-amber-600 hover:bg-amber-700 hover:shadow-xl hover:-translate-y-0.5 transition-all flex items-center gap-2"
+              >
+                <StickyNote size={14} />
+                <span>Sticky Notes Guide ↓</span>
+              </a>
+
+              <a
+                href="#whiteboard"
+                className="px-6 py-3 rounded-full text-xs font-black uppercase tracking-wider text-white bg-purple-600 hover:bg-purple-700 hover:shadow-xl hover:-translate-y-0.5 transition-all flex items-center gap-2"
+              >
+                <PenTool size={14} />
+                <span>Whiteboard Guide ↓</span>
+              </a>
+
+              <Link
+                to="/about/tool-details"
+                className="px-6 py-3 rounded-full text-xs font-black uppercase tracking-wider text-[#0F3944] dark:text-teal-300 bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 hover:border-[#134E5E] hover:shadow-md transition-all flex items-center gap-2"
+              >
+                <Boxes size={14} className="text-[#FFA07A]" />
+                <span>Explore 206 Tool Specs →</span>
+              </Link>
+            </div>
+
+            {/* Quick Facts Pills */}
+            <div className="pt-10 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-4xl mx-auto text-left">
+              <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm">
+                <span className="block text-2xl font-black text-[#134E5E] dark:text-teal-400">206+</span>
+                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Browser Utilities</span>
               </div>
-            </FadeIn>
-          </section>
-
-          {/* ================= ROADMAP & VISION ================= */}
-          <section className="max-w-7xl mx-auto px-6 mb-32">
-            <FadeIn>
-              <h2 className="text-3xl md:text-5xl font-black text-center mb-16 text-slate-900 dark:text-white">What's Next for Stiknex?</h2>
-            </FadeIn>
-            
-            <div className="grid md:grid-cols-2 gap-8">
-              <FadeIn delay={0.1}>
-                <div className="p-8 rounded-3xl bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-500/20 h-full">
-                  <div className="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-6">
-                    <i className="fa-solid fa-cloud-arrow-up text-xl"></i>
-                  </div>
-                  <h3 className="text-2xl font-bold mb-3 text-slate-900 dark:text-white">Cloud Sync & Accounts</h3>
-                  <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
-                    Currently, Stiknex is entirely local-first. We are actively building an optional cloud-sync layer so you can access your sticky boards and notebooks seamlessly across your phone, tablet, and desktop.
-                  </p>
-                </div>
-              </FadeIn>
-              
-              <FadeIn delay={0.2}>
-                <div className="p-8 rounded-3xl bg-purple-50 dark:bg-purple-900/10 border border-purple-100 dark:border-purple-500/20 h-full">
-                  <div className="w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400 flex items-center justify-center mb-6">
-                    <i className="fa-solid fa-users text-xl"></i>
-                  </div>
-                  <h3 className="text-2xl font-bold mb-3 text-slate-900 dark:text-white">Real-time Collaboration</h3>
-                  <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
-                    Brainstorming is better together. We're planning to introduce multiplayer mode, allowing you to invite friends or teammates to edit whiteboards and sticky notes in real-time.
-                  </p>
-                </div>
-              </FadeIn>
+              <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm">
+                <span className="block text-2xl font-black text-[#134E5E] dark:text-teal-400">0</span>
+                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Logins Required</span>
+              </div>
+              <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm">
+                <span className="block text-2xl font-black text-[#134E5E] dark:text-teal-400">100%</span>
+                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Local &amp; Offline PWA</span>
+              </div>
+              <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm">
+                <span className="block text-2xl font-black text-[#134E5E] dark:text-teal-400">$0</span>
+                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Non-Commercial</span>
+              </div>
             </div>
-          </section>
 
-          {/* ================= FAQ SECTION ================= */}
-          <section className="max-w-4xl mx-auto px-6 mb-32">
-            <FadeIn>
-              <h2 className="text-3xl md:text-5xl font-black text-center mb-16 text-slate-900 dark:text-white">Frequently Asked Questions</h2>
-            </FadeIn>
+          </div>
+        </section>
+
+        {/* ========================================================
+            2. BRAND ENTITY & DISAMBIGUATION
+            ======================================================== */}
+        <section className="py-16 px-6 max-w-5xl mx-auto">
+          <div className="rounded-[32px] p-8 sm:p-12 bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm space-y-6">
             
-            <div className="space-y-6">
-              {[
-                { q: "Is Stiknex totally free?", a: "Yes! Currently, all tools, whiteboards, and notebook features are 100% free to use." },
-                { q: "What does the name 'Stiknex' mean and how is it pronounced?", a: "Stiknex (pronounced Stick-Nex, /ˈstɪk.nɛks/) blends 'Sticky Notes' with 'Next-generation web canvas'. It was created by software engineer Vishal Mall as a lightweight, privacy-focused digital workspace." },
-                { q: "Is Stiknex affiliated with StoneX?", a: "No. Stiknex (stiknex.site) is an independent digital tool and productivity platform. It has no connection, association, or affiliation with financial services or brokerage firms such as StoneX Group Inc." },
-                { q: "Where is my data saved?", a: "Your data is saved locally in your browser's local storage. If you clear your browser data, your notes might be lost. We recommend exporting important work until our cloud sync is released." },
-                { q: "Do you have a mobile app?", a: "Stiknex is built as a Progressive Web App (PWA). You can install it directly to your home screen from your mobile browser for an app-like experience!" },
-                { q: "How can I support the project?", a: "You can support the development by sharing it with your friends, reporting bugs on Github, or buying me a coffee through the support link!" }
-              ].map((faq, i) => (
-                <FadeIn key={i} delay={i * 0.1}>
-                  <div className="p-6 md:p-8 rounded-2xl bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/50 dark:border-slate-700/50 shadow-sm">
-                    <h4 className="text-xl font-bold mb-3 text-slate-900 dark:text-white flex items-start gap-3">
-                      <span className="text-indigo-500">Q.</span> {faq.q}
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-[#134E5E]/10 dark:bg-teal-500/20 text-[#134E5E] dark:text-teal-300 flex items-center justify-center shrink-0">
+                <Info size={20} />
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-black text-[#0F3944] dark:text-white tracking-tight">
+                What is Stiknex &amp; How is it Pronounced?
+              </h2>
+            </div>
+
+            <div className="space-y-4 text-base text-slate-600 dark:text-slate-300 leading-relaxed">
+              <p>
+                <strong>Stiknex</strong> (pronounced <em>Stick-Nex</em>, phonetic: <code className="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-sm text-[#134E5E] dark:text-teal-300">/ˈstɪk.nɛks/</code>) fuses two core concepts:
+              </p>
+              <ul className="list-disc pl-6 space-y-1 text-sm sm:text-base">
+                <li><strong>"Sticky Notes"</strong>: The intuitive physical metaphor of jotting thoughts, ideas, and reminders on tactile paper.</li>
+                <li><strong>"Next-Generation Canvas"</strong>: Expanding beyond physical paper into infinite zoomable space, interconnected mind-mapping, markdown notebooks, and instant mathematical tools.</li>
+              </ul>
+              
+              <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/40 text-xs sm:text-sm text-amber-900 dark:text-amber-200">
+                <strong>Legal &amp; Brand Disambiguation:</strong> Stiknex is an independent, non-commercial software project engineered by Vishal Mall. It is strictly a productivity software application and browser utility suite. Stiknex has <strong>no affiliation, association, or corporate relationship</strong> with commercial financial services, brokers, or commodities trading firms such as StoneX Group Inc.
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        {/* ========================================================
+            3. IN-DEPTH ARCHITECTURE OF THE CORE CREATIVE ENGINES
+            ======================================================== */}
+        <section className="py-16 px-6 max-w-6xl mx-auto border-t border-[#EADFD5] dark:border-slate-800">
+          
+          <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
+            <span className="text-xs font-black uppercase tracking-widest text-[#134E5E] dark:text-teal-400">
+              Deep Engineering Breakdown
+            </span>
+            <h2 className="text-3xl sm:text-5xl font-black text-[#0F3944] dark:text-white tracking-tight">
+              The 3 Core Flagship Engines
+            </h2>
+            <p className="text-base text-slate-600 dark:text-slate-300 leading-relaxed">
+              Why we engineered Notepad, Sticky Notes, and Whiteboard — what each tool can do, how they work, the common industry frustrations they solve, and an exhaustive guide to every single button, menu, and shortcut.
+            </p>
+          </div>
+
+          <div className="space-y-24">
+            
+            {/* ========================================================
+                TOOL 1: STIKNEX NOTEPAD (SMART NOTEBOOK)
+                ======================================================== */}
+            <div id="notepad" className="scroll-mt-28 space-y-10">
+              
+              {/* Header Box */}
+              <div className="p-8 sm:p-12 rounded-[36px] bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-80 h-80 bg-blue-500/5 rounded-full blur-3xl pointer-events-none" />
+                
+                <div className="space-y-6 relative z-10">
+                  <div className="flex flex-wrap items-center justify-between gap-4">
+                    <span className="text-[11px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/40 flex items-center gap-2">
+                      <BookOpen size={14} />
+                      Engine 01 · Smart Writing &amp; Code Execution
+                    </span>
+                    <Link
+                      to="/online-notebook"
+                      className="px-6 py-2.5 rounded-full text-xs font-bold text-white bg-[#134E5E] hover:bg-[#0F3944] transition-all flex items-center gap-2 shadow-sm"
+                    >
+                      <span>Open Stiknex Notepad</span>
+                      <ArrowRight size={14} />
+                    </Link>
+                  </div>
+
+                  <h3 className="text-3xl sm:text-4xl font-black text-[#0F3944] dark:text-white tracking-tight">
+                    Stiknex Notepad — Distraction-Free Smart Editor
+                  </h3>
+
+                  <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed max-w-4xl">
+                    Stiknex Notepad is a high-performance, hybrid rich-text and code notebook designed for writers, coders, students, and thinkers. It combines the tactile warmth of real paper (dotted, ruled, grid, plain) with modern developer powers: live HTML/CSS/JS execution sandbox, automatic code beautifier (<kbd className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-xs font-mono">Alt+Shift+F</kbd>), digital ink drawing, ambient focus audio, Pomodoro sprint timer, voice read-aloud synthesis, and multi-device peer-to-peer sync.
+                  </p>
+
+                  {/* Why & How It Works (Kaise aur Kyu) */}
+                  <div className="p-6 rounded-2xl bg-[#FAF7F2] dark:bg-slate-800/60 border border-[#EADFD5] dark:border-slate-700/60 space-y-3">
+                    <h4 className="text-xs font-black uppercase tracking-wider text-[#134E5E] dark:text-teal-400 flex items-center gap-2">
+                      <Zap size={14} />
+                      Why &amp; How It Works (Kaise Aur Kyu)
                     </h4>
-                    <p className="text-slate-600 dark:text-slate-400 leading-relaxed pl-8">
-                      {faq.a}
+                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                      <strong>The Problem With Traditional Note Apps:</strong> Modern online editors (Notion, Google Docs, Evernote) take 5–10 seconds to launch, demand mandatory logins, harvest your notes for advertising telemetry, and break completely the moment your internet drops. On the other hand, desktop apps like Windows Notepad lack formatting, tables, image embedding, or cloud pairing.
+                    </p>
+                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                      <strong>The Stiknex Solution:</strong> Stiknex Notepad executes 100% inside your browser's local sandbox using HTML5 ContentEditable and IndexedDB (via <code>dexie</code>). It saves changes in real-time with an intelligent 350ms debounced storage pipeline. Notes load in under <strong>500ms</strong>, function seamlessly offline as a Progressive Web App (PWA), and stay private on your hardware.
                     </p>
                   </div>
-                </FadeIn>
-              ))}
-            </div>
-          </section>
-
-          {/* ================= CTA ================= */}
-          <section className="max-w-4xl mx-auto px-6 text-center">
-            <FadeIn>
-              <h2 className="text-4xl md:text-5xl font-black mb-8 text-slate-900 dark:text-white">Ready to experience it?</h2>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link to="/sticky-notes" className="px-8 py-4 rounded-full bg-indigo-600 text-white font-bold text-lg hover:bg-indigo-700 transition-all hover:scale-105 hover:shadow-xl hover:shadow-indigo-500/25 flex items-center justify-center gap-2">
-                  <Rocket size={20} /> Launch Workspace
-                </Link>
-                <a href="mailto:vishal.mall02@outlook.com" className="px-8 py-4 rounded-full bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-bold text-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all hover:scale-105 flex items-center justify-center gap-2">
-                  Contact Support
-                </a>
+                </div>
               </div>
-            </FadeIn>
-          </section>
 
-        </div>
+              {/* What Can Be Done (Kya Kya Ho Sakta Hai) - 8 Feature Cards */}
+              <div className="space-y-4">
+                <h4 className="text-xl font-bold text-[#0F3944] dark:text-white flex items-center gap-2">
+                  <CheckCircle2 size={20} className="text-[#134E5E] dark:text-teal-400" />
+                  <span>What Can You Do With Stiknex Notepad? (Capabilities &amp; Workflows)</span>
+                </h4>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  
+                  <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm space-y-2">
+                    <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                      <FileCode size={18} />
+                    </div>
+                    <h5 className="text-sm font-bold text-[#0F3944] dark:text-white">Live Code Execution</h5>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                      Write or paste HTML, CSS, and JS code. Press <kbd className="px-1 py-0.5 rounded bg-slate-100 dark:bg-slate-800 font-mono text-[10px]">Ctrl+Enter</kbd> to compile and preview your page in a live isolated tab with interactive console.
+                    </p>
+                  </div>
+
+                  <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm space-y-2">
+                    <div className="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                      <Wand2 size={18} />
+                    </div>
+                    <h5 className="text-sm font-bold text-[#0F3944] dark:text-white">Alt+Shift+F Code Beautifier</h5>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                      Instant clean 2-space indentation for messy HTML, nested <code className="text-[11px]">&lt;style&gt;</code> CSS rules, and JavaScript functions with a single keystroke.
+                    </p>
+                  </div>
+
+                  <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm space-y-2">
+                    <div className="w-9 h-9 rounded-xl bg-teal-50 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 flex items-center justify-center">
+                      <PenTool size={18} />
+                    </div>
+                    <h5 className="text-sm font-bold text-[#0F3944] dark:text-white">Digital Ink Drawing Layer</h5>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                      Switch to Pen Mode to draw freehand sketches, sign documents, annotate notes, or draw diagrams with custom colors and brush thickness.
+                    </p>
+                  </div>
+
+                  <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm space-y-2">
+                    <div className="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+                      <Music size={18} />
+                    </div>
+                    <h5 className="text-sm font-bold text-[#0F3944] dark:text-white">Ambient Focus Audio</h5>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                      Built-in ambient sound player featuring Rain, Lo-Fi, White Noise, and Relaxing Waves to eliminate outside distractions while studying or writing.
+                    </p>
+                  </div>
+
+                  <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm space-y-2">
+                    <div className="w-9 h-9 rounded-xl bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center">
+                      <Clock size={18} />
+                    </div>
+                    <h5 className="text-sm font-bold text-[#0F3944] dark:text-white">Pomodoro Sprint Timer</h5>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                      Track focused writing sessions with an integrated stopwatch and countdown timer with pause, reset, and millisecond precision.
+                    </p>
+                  </div>
+
+                  <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm space-y-2">
+                    <div className="w-9 h-9 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+                      <Volume2 size={18} />
+                    </div>
+                    <h5 className="text-sm font-bold text-[#0F3944] dark:text-white">Read Aloud (TTS Voice)</h5>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                      Proofread essays, articles, and documentation by having the browser's native speech synthesis read your notes out loud with natural voice.
+                    </p>
+                  </div>
+
+                  <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm space-y-2">
+                    <div className="w-9 h-9 rounded-xl bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 flex items-center justify-center">
+                      <QrCode size={18} />
+                    </div>
+                    <h5 className="text-sm font-bold text-[#0F3944] dark:text-white">QR Code Mobile Pairing</h5>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                      Pair your laptop with your phone via encrypted QR code or 6-digit session pin. Edits sync in real-time between devices without cloud accounts.
+                    </p>
+                  </div>
+
+                  <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm space-y-2">
+                    <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                      <History size={18} />
+                    </div>
+                    <h5 className="text-sm font-bold text-[#0F3944] dark:text-white">Point-In-Time Snapshots</h5>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                      Take manual version snapshots (<kbd className="px-1 py-0.5 rounded bg-slate-100 dark:bg-slate-800 font-mono text-[10px]">Ctrl+Shift+H</kbd>) to preserve major draft milestones and restore previous states with zero risk.
+                    </p>
+                  </div>
+
+                </div>
+              </div>
+
+              {/* Common Issues in Other Note Apps vs Stiknex Fixes */}
+              <div className="p-6 sm:p-8 rounded-3xl bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm space-y-4">
+                <h4 className="text-base sm:text-lg font-bold text-[#0F3944] dark:text-white flex items-center gap-2">
+                  <AlertTriangle size={18} className="text-amber-500 shrink-0" />
+                  <span>Common Everyday Issues in Online Editors &amp; How Stiknex Fixes Them</span>
+                </h4>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs sm:text-sm border-collapse">
+                    <thead>
+                      <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-400 uppercase text-[11px] font-black">
+                        <th className="py-3 px-4">Problem in Other Tools (Normally Issue Kya Hota Hai)</th>
+                        <th className="py-3 px-4">The Stiknex Architectural Solution</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-600 dark:text-slate-300">
+                      <tr>
+                        <td className="py-3 px-4 font-semibold text-rose-600 dark:text-rose-400">
+                          Accidental data loss if internet disconnects or tab closes
+                        </td>
+                        <td className="py-3 px-4">
+                          Instant 350ms debounced IndexedDB persistence + dual LocalStorage fallback + multi-step Undo/Redo stack + manual version snapshots.
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="py-3 px-4 font-semibold text-rose-600 dark:text-rose-400">
+                          Ugly broken image placeholders <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded text-[11px]">[x]</code> after pasting web HTML
+                        </td>
+                        <td className="py-3 px-4">
+                          Automatic broken image sanitization: Stiknex captures image load failures, strips invalid URLs (like unsplash homepages), and purges them permanently from storage.
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="py-3 px-4 font-semibold text-rose-600 dark:text-rose-400">
+                          Pasting from Excel or Word brings messy styling and broken borders
+                        </td>
+                        <td className="py-3 px-4">
+                          Dedicated clipboard pipeline (<code>notebookClipboard.js</code>) strips proprietary Microsoft Office markup, converts PT units to PX, and preserves clean tables.
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="py-3 px-4 font-semibold text-rose-600 dark:text-rose-400">
+                          Heavy 10-second boot-up times &amp; mandatory email registrations
+                        </td>
+                        <td className="py-3 px-4">
+                          Zero account walls, zero logins, loads in &lt; 500ms directly in browser memory, and runs completely offline with Service Worker caching.
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="py-3 px-4 font-semibold text-rose-600 dark:text-rose-400">
+                          Inability to test or run code snippets inside notes
+                        </td>
+                        <td className="py-3 px-4">
+                          Integrated client-side HTML/CSS/JS sandbox runner (<kbd className="px-1 py-0.5 rounded bg-slate-100 dark:bg-slate-800 font-mono text-[10px]">Ctrl+Enter</kbd>) and Alt+Shift+F code beautifier.
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Complete Options & Toolbar Breakdown */}
+              <div className="p-6 sm:p-8 rounded-3xl bg-slate-50 dark:bg-slate-800/40 border border-[#EADFD5] dark:border-slate-800 space-y-6">
+                <h4 className="text-base sm:text-lg font-black text-[#0F3944] dark:text-white flex items-center gap-2">
+                  <SlidersHorizontal size={18} className="text-[#134E5E] dark:text-teal-400" />
+                  <span>Complete Stiknex Notepad Options &amp; Buttons Directory</span>
+                </h4>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs sm:text-sm">
+                  
+                  {/* Left Column: Topbar & Ribbon */}
+                  <div className="space-y-4">
+                    <h5 className="font-bold text-[#134E5E] dark:text-teal-300 uppercase tracking-wider text-xs border-b border-slate-200 dark:border-slate-700 pb-2">
+                      1. Top Ribbon &amp; Navigation Controls
+                    </h5>
+                    <ul className="space-y-2.5 text-slate-600 dark:text-slate-300">
+                      <li>• <strong>Notebook Drawer:</strong> Create new notebook, switch between active notebooks, search notes, rename, or delete notes.</li>
+                      <li>• <strong>Sync Status &amp; QR Modal (<kbd className="font-mono text-[11px]">Alt+Y</kbd>):</strong> Real-time status (Synced, Syncing, Offline); opens encrypted QR code for live mobile pairing.</li>
+                      <li>• <strong>Snapshot Manager (<kbd className="font-mono text-[11px]">Ctrl+Shift+H</kbd>):</strong> Capture milestone snapshots, preview previous drafts, and restore with one click.</li>
+                      <li>• <strong>Focus Audio Player (<kbd className="font-mono text-[11px]">Ctrl+Shift+M</kbd>):</strong> Toggle ambient study sounds (Rain, Lofi, White Noise, Ocean).</li>
+                      <li>• <strong>Stopwatch Timer (<kbd className="font-mono text-[11px]">Ctrl+Shift+T</kbd>):</strong> Start/pause/reset productivity sprint timer.</li>
+                      <li>• <strong>Read Aloud TTS (<kbd className="font-mono text-[11px]">Ctrl+Shift+R</kbd>):</strong> Natural speech synthesis voice reads the document out loud.</li>
+                      <li>• <strong>Quick Search (<kbd className="font-mono text-[11px]">Ctrl+F</kbd>):</strong> Instant text highlighting and occurrence counter navigation.</li>
+                      <li>• <strong>Zen Mode (<kbd className="font-mono text-[11px]">Ctrl+.</kbd>):</strong> Strips all menus, toolbars, and borders for distraction-free writing.</li>
+                      <li>• <strong>Settings Panel (<kbd className="font-mono text-[11px]">Ctrl+,</kbd>):</strong> Customize font size, line spacing, word wrap, and paper textures.</li>
+                    </ul>
+                  </div>
+
+                  {/* Right Column: Formatting Toolbar & Menus */}
+                  <div className="space-y-4">
+                    <h5 className="font-bold text-[#134E5E] dark:text-teal-300 uppercase tracking-wider text-xs border-b border-slate-200 dark:border-slate-700 pb-2">
+                      2. Formatting Toolbar, Context Menu &amp; Runner
+                    </h5>
+                    <ul className="space-y-2.5 text-slate-600 dark:text-slate-300">
+                      <li>• <strong>Typography &amp; Fonts:</strong> 8 curated styles: Inter, Playfair, Caveat, Roboto, JetBrains Mono, Oswald, Courier, OpenDyslexic.</li>
+                      <li>• <strong>Heading Formats:</strong> Normal Paragraph, Heading 1 (<kbd className="font-mono text-[11px]">H1</kbd>), Heading 2, Heading 3, Blockquote, Code Block.</li>
+                      <li>• <strong>Text Styles:</strong> Bold (<kbd className="font-mono text-[11px]">Ctrl+B</kbd>), Italic (<kbd className="font-mono text-[11px]">Ctrl+I</kbd>), Underline (<kbd className="font-mono text-[11px]">Ctrl+U</kbd>), Strikethrough, Superscript (<code className="text-[11px]">X²</code>), Subscript (<code className="text-[11px]">X₂</code>), Color Picker, Text Highlight.</li>
+                      <li>• <strong>Lists &amp; Checklists:</strong> Bulleted list (<code className="text-[11px]">- </code> + Space), Numbered list (<code className="text-[11px]">1. </code> + Space), Interactive To-Do Checklists (<code className="text-[11px]">[] </code> + Space).</li>
+                      <li>• <strong>Rich Tables:</strong> Insert table, Add row above/below, Add column left/right, Delete row/col, Delete table.</li>
+                      <li>• <strong>Run Code Button:</strong> Automatically appears when code is present; compiles and runs HTML/CSS/JS in a dedicated preview tab (<kbd className="font-mono text-[11px]">Ctrl+Enter</kbd>).</li>
+                      <li>• <strong>Format Code Button:</strong> Automatically beautifies raw code with clean 2-space indentation (<kbd className="font-mono text-[11px]">Alt+Shift+F</kbd>).</li>
+                      <li>• <strong>Paper Styles:</strong> Dotted, Ruled/Lined, Engineering Grid/Graph, and Plain Blank paper textures.</li>
+                    </ul>
+                  </div>
+
+                </div>
+              </div>
+
+            </div>
+
+            {/* ========================================================
+                TOOL 2: STIKNEX STICKY NOTES (SPATIAL CANVAS)
+                ======================================================== */}
+            <div id="sticky-notes" className="scroll-mt-28 space-y-10 border-t border-[#EADFD5] dark:border-slate-800 pt-16">
+              
+              {/* Header Box */}
+              <div className="p-8 sm:p-12 rounded-[36px] bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-80 h-80 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
+                
+                <div className="space-y-6 relative z-10">
+                  <div className="flex flex-wrap items-center justify-between gap-4">
+                    <span className="text-[11px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800/40 flex items-center gap-2">
+                      <StickyNote size={14} />
+                      Engine 02 · Spatial Thought Workspace &amp; Mind Mapping
+                    </span>
+                    <Link
+                      to="/sticky-notes"
+                      className="px-6 py-2.5 rounded-full text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 transition-all flex items-center gap-2 shadow-sm"
+                    >
+                      <span>Open Sticky Notes Canvas</span>
+                      <ArrowRight size={14} />
+                    </Link>
+                  </div>
+
+                  <h3 className="text-3xl sm:text-4xl font-black text-[#0F3944] dark:text-white tracking-tight">
+                    Stiknex Sticky Notes — 2D Infinite Spatial Canvas
+                  </h3>
+
+                  <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed max-w-4xl">
+                    Stiknex Sticky Notes breaks free from rigid vertical document files and puts your thoughts onto an infinite 2D plane. Position notes anywhere, draw connecting arrows to build visual mental models, switch dynamically between <strong>Canvas</strong>, <strong>Grid</strong>, <strong>Mind Map</strong>, and <strong>Timeline</strong> views, tag and color-code ideas, attach images, and export clean JSON backups with complete offline sovereignty.
+                  </p>
+
+                  {/* Why & How It Works (Kaise aur Kyu) */}
+                  <div className="p-6 rounded-2xl bg-[#FAF7F2] dark:bg-slate-800/60 border border-[#EADFD5] dark:border-slate-700/60 space-y-3">
+                    <h4 className="text-xs font-black uppercase tracking-wider text-amber-700 dark:text-amber-400 flex items-center gap-2">
+                      <Zap size={14} />
+                      Why &amp; How It Works (Kaise Aur Kyu)
+                    </h4>
+                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                      <strong>The Problem With Linear Note-Taking:</strong> Human memory is deeply spatial. When brainstorming a startup idea, designing a system, or planning a project, your thoughts are not sequential bullet points — they are clusters of interconnected concepts. Physical post-it notes on office walls work well, but they run out of space, fall off, cannot be searched, and cannot be shared digitally.
+                    </p>
+                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                      <strong>The Stiknex Solution:</strong> Engineered with high-performance 2D matrix transformation viewport physics, <code>react-draggable</code>, and <code>react-xarrows</code> vector routing. Every note coordinate, connecting line, tag, color, and checklist state is stored in your device's IndexedDB. You can pan infinitely, zoom from bird's-eye macro to micro card details, and re-arrange ideas at 60fps with zero subscription fees.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* What Can Be Done (Kya Kya Ho Sakta Hai) - 6 Feature Cards */}
+              <div className="space-y-4">
+                <h4 className="text-xl font-bold text-[#0F3944] dark:text-white flex items-center gap-2">
+                  <CheckCircle2 size={20} className="text-amber-600" />
+                  <span>What Can You Do With Stiknex Sticky Notes? (Capabilities &amp; Workflows)</span>
+                </h4>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  
+                  <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm space-y-2">
+                    <div className="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+                      <Move size={18} />
+                    </div>
+                    <h5 className="text-sm font-bold text-[#0F3944] dark:text-white">Freeform 2D Canvas Dragging</h5>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                      Position cards freely across infinite 2D space. Group related thoughts into physical clusters, create sprint backlog columns, or scatter brainstormed concepts.
+                    </p>
+                  </div>
+
+                  <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm space-y-2">
+                    <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                      <ArrowRight size={18} />
+                    </div>
+                    <h5 className="text-sm font-bold text-[#0F3944] dark:text-white">Connecting Vector Arrows</h5>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                      Drag connector handles between any two notes to draw dynamic vector arrows. Arrows automatically stretch, bend, and route as you move cards around.
+                    </p>
+                  </div>
+
+                  <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm space-y-2">
+                    <div className="w-9 h-9 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+                      <Layout size={18} />
+                    </div>
+                    <h5 className="text-sm font-bold text-[#0F3944] dark:text-white">4 Dynamic View Transformations</h5>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                      Switch instantly between <strong>Canvas</strong> (freeform 2D), <strong>Grid</strong> (neat auto-aligned columns), <strong>Mind Map</strong> (tree hierarchy), and <strong>Timeline</strong> (chronological dates).
+                    </p>
+                  </div>
+
+                  <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm space-y-2">
+                    <div className="w-9 h-9 rounded-xl bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center">
+                      <Palette size={18} />
+                    </div>
+                    <h5 className="text-sm font-bold text-[#0F3944] dark:text-white">Tactile Pastel Color Coding</h5>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                      Organize cards using 6 eye-pleasing pastel colors (Yellow, Green, Blue, Pink, Purple, Coral). Filter your view to isolate specific categories.
+                    </p>
+                  </div>
+
+                  <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm space-y-2">
+                    <div className="w-9 h-9 rounded-xl bg-teal-50 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 flex items-center justify-center">
+                      <CheckSquare size={18} />
+                    </div>
+                    <h5 className="text-sm font-bold text-[#0F3944] dark:text-white">Interactive Checklist Mode</h5>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                      Convert any note into an interactive to-do checklist with strike-through completions, visual progress indicators, and keyboard Enter shortcuts.
+                    </p>
+                  </div>
+
+                  <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm space-y-2">
+                    <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                      <Download size={18} />
+                    </div>
+                    <h5 className="text-sm font-bold text-[#0F3944] dark:text-white">Offline JSON Backup &amp; Restore</h5>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                      Download your entire board with all notes, coordinates, and arrows as a portable JSON file. Restore boards on any computer with 100% fidelity.
+                    </p>
+                  </div>
+
+                </div>
+              </div>
+
+              {/* Common Issues in Other Sticky Apps vs Stiknex Fixes */}
+              <div className="p-6 sm:p-8 rounded-3xl bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm space-y-4">
+                <h4 className="text-base sm:text-lg font-bold text-[#0F3944] dark:text-white flex items-center gap-2">
+                  <AlertTriangle size={18} className="text-amber-500 shrink-0" />
+                  <span>Common Everyday Issues in Sticky Note Apps &amp; How Stiknex Fixes Them</span>
+                </h4>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs sm:text-sm border-collapse">
+                    <thead>
+                      <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-400 uppercase text-[11px] font-black">
+                        <th className="py-3 px-4">Problem in Other Tools (Normally Issue Kya Hota Hai)</th>
+                        <th className="py-3 px-4">The Stiknex Architectural Solution</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-600 dark:text-slate-300">
+                      <tr>
+                        <td className="py-3 px-4 font-semibold text-rose-600 dark:text-rose-400">
+                          Expensive 3-board paywalls in apps like Miro or Mural
+                        </td>
+                        <td className="py-3 px-4">
+                          100% free with unlimited infinite canvas space, zero account requirements, and zero subscription limits.
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="py-3 px-4 font-semibold text-rose-600 dark:text-rose-400">
+                          Large boards become unsearchable mazes where notes get lost
+                        </td>
+                        <td className="py-3 px-4">
+                          Integrated real-time search with smart camera auto-centering: typing a search query automatically smoothly pans the canvas directly to that note.
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="py-3 px-4 font-semibold text-rose-600 dark:text-rose-400">
+                          Arrows snap off or break when cards are moved
+                        </td>
+                        <td className="py-3 px-4">
+                          Persistent vector anchor IDs ensure connecting arrows stay permanently attached and recalculate Bezier curves during live dragging.
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="py-3 px-4 font-semibold text-rose-600 dark:text-rose-400">
+                          Forced cloud storage that exposes private brainstorms to leaks
+                        </td>
+                        <td className="py-3 px-4">
+                          Your thoughts never touch an external server; all notes live exclusively inside your browser's local IndexedDB on your machine.
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Complete Options & Features Guide */}
+              <div className="p-6 sm:p-8 rounded-3xl bg-slate-50 dark:bg-slate-800/40 border border-[#EADFD5] dark:border-slate-800 space-y-6">
+                <h4 className="text-base sm:text-lg font-black text-[#0F3944] dark:text-white flex items-center gap-2">
+                  <SlidersHorizontal size={18} className="text-amber-600" />
+                  <span>Complete Stiknex Sticky Notes Options &amp; Controls Directory</span>
+                </h4>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs sm:text-sm">
+                  
+                  <div className="space-y-4">
+                    <h5 className="font-bold text-amber-700 dark:text-amber-300 uppercase tracking-wider text-xs border-b border-slate-200 dark:border-slate-700 pb-2">
+                      1. Canvas Viewport &amp; Top Action Bar
+                    </h5>
+                    <ul className="space-y-2.5 text-slate-600 dark:text-slate-300">
+                      <li>• <strong>+ New Note Button:</strong> Instantly creates a new note card centered in your current viewport.</li>
+                      <li>• <strong>View Mode Switcher:</strong> Toggle between Canvas (freeform 2D), Grid (auto-card rows), Mind Map (tree), and Timeline.</li>
+                      <li>• <strong>Tag &amp; Keyword Search:</strong> Real-time filter that highlights matching notes and smoothly animates the camera to them.</li>
+                      <li>• <strong>Color Palette Filter:</strong> Filter the board to isolate only Yellow, Green, Blue, Pink, Purple, or Coral notes.</li>
+                      <li>• <strong>Zoom Controls:</strong> Zoom In (+), Zoom Out (-), Reset Zoom (100%), and Minimap bird's eye view preview.</li>
+                      <li>• <strong>Backup &amp; Restore:</strong> 1-click JSON backup export to disk and backup restoration.</li>
+                    </ul>
+                  </div>
+
+                  <div className="space-y-4">
+                    <h5 className="font-bold text-amber-700 dark:text-amber-300 uppercase tracking-wider text-xs border-b border-slate-200 dark:border-slate-700 pb-2">
+                      2. Sticky Note Card Buttons &amp; Controls
+                    </h5>
+                    <ul className="space-y-2.5 text-slate-600 dark:text-slate-300">
+                      <li>• <strong>Drag Handle:</strong> Click and drag to reposition card anywhere across the 2D plane.</li>
+                      <li>• <strong>Color Palette Swatches:</strong> Change card background to any of 6 tactile pastel shades.</li>
+                      <li>• <strong>Pin / Lock Toggle:</strong> Lock note position in place or pin it on top of overlapping cards.</li>
+                      <li>• <strong>Arrow Connector Anchor:</strong> Click and drag the anchor handle to another note to create an active connector.</li>
+                      <li>• <strong>Checklist Mode Button:</strong> Toggle interactive checkboxes with auto-progress calculation.</li>
+                      <li>• <strong>Image Attachment:</strong> Embed photos or screenshots directly inside the card body.</li>
+                      <li>• <strong>Duplicate &amp; Delete:</strong> Quick clone with full contents, or delete with safety confirmation.</li>
+                    </ul>
+                  </div>
+
+                </div>
+              </div>
+
+            </div>
+
+            {/* ========================================================
+                TOOL 3: STIKNEX WHITEBOARD (EXCALIDRAW STUDIO)
+                ======================================================== */}
+            <div id="whiteboard" className="scroll-mt-28 space-y-10 border-t border-[#EADFD5] dark:border-slate-800 pt-16">
+              
+              {/* Header Box */}
+              <div className="p-8 sm:p-12 rounded-[36px] bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-80 h-80 bg-purple-500/5 rounded-full blur-3xl pointer-events-none" />
+                
+                <div className="space-y-6 relative z-10">
+                  <div className="flex flex-wrap items-center justify-between gap-4">
+                    <span className="text-[11px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/40 flex items-center gap-2">
+                      <PenTool size={14} />
+                      Engine 03 · Visual System Design &amp; Architecture
+                    </span>
+                    <Link
+                      to="/whiteboard"
+                      className="px-6 py-2.5 rounded-full text-xs font-bold text-white bg-purple-600 hover:bg-purple-700 transition-all flex items-center gap-2 shadow-sm"
+                    >
+                      <span>Open Stiknex Whiteboard</span>
+                      <ArrowRight size={14} />
+                    </Link>
+                  </div>
+
+                  <h3 className="text-3xl sm:text-4xl font-black text-[#0F3944] dark:text-white tracking-tight">
+                    Stiknex Whiteboard — Infinite Hand-Drawn Sketch &amp; Diagramming Studio
+                  </h3>
+
+                  <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed max-w-4xl">
+                    Stiknex Whiteboard is a full-featured visual thinking canvas powered by the industry-standard <strong>Excalidraw</strong> vector engine and <strong>Rough.js</strong> graphics. Designed for software engineers, product architects, designers, and educators, it turns complex system flows, database schemas, UI wireframes, and concept diagrams into inviting, hand-drawn graphics with zero watermark restrictions.
+                  </p>
+
+                  {/* Why & How It Works (Kaise aur Kyu) */}
+                  <div className="p-6 rounded-2xl bg-[#FAF7F2] dark:bg-slate-800/60 border border-[#EADFD5] dark:border-slate-700/60 space-y-3">
+                    <h4 className="text-xs font-black uppercase tracking-wider text-purple-700 dark:text-purple-400 flex items-center gap-2">
+                      <Zap size={14} />
+                      Why &amp; How It Works (Kaise Aur Kyu)
+                    </h4>
+                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                      <strong>The Problem With Traditional Diagramming Tools:</strong> Commercial diagramming apps (Lucidchart, Microsoft Visio, Gliffy) produce rigid, sterile, robotic diagrams that take hours to build. When using free tiers, they watermark your exports, limit you to 3 documents, and lock SVG export behind enterprise subscriptions.
+                    </p>
+                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                      <strong>The Stiknex Solution:</strong> Stiknex Whiteboard embeds the open-source Excalidraw vector canvas directly in browser memory. Using Rough.js procedural geometry, lines have an organic, sketch-like warmth that makes technical proposals approachable and easy to understand. You can export crystal-clear transparent PNGs at 3x scale or pure scalable vector SVGs with zero watermarks.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* What Can Be Done (Kya Kya Ho Sakta Hai) - 6 Feature Cards */}
+              <div className="space-y-4">
+                <h4 className="text-xl font-bold text-[#0F3944] dark:text-white flex items-center gap-2">
+                  <CheckCircle2 size={20} className="text-purple-600" />
+                  <span>What Can You Do With Stiknex Whiteboard? (Capabilities &amp; Workflows)</span>
+                </h4>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  
+                  <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm space-y-2">
+                    <div className="w-9 h-9 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+                      <Square size={18} />
+                    </div>
+                    <h5 className="text-sm font-bold text-[#0F3944] dark:text-white">Software Architecture Design</h5>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                      Sketch microservices, API gateways, database schemas, and cloud infrastructure with intuitive rectangles, containers, and server blocks.
+                    </p>
+                  </div>
+
+                  <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm space-y-2">
+                    <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                      <Circle size={18} />
+                    </div>
+                    <h5 className="text-sm font-bold text-[#0F3944] dark:text-white">Flowcharts &amp; Decision Trees</h5>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                      Connect diamond decision nodes, circular states, and smart directional arrows to map out business logic and user journeys.
+                    </p>
+                  </div>
+
+                  <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm space-y-2">
+                    <div className="w-9 h-9 rounded-xl bg-teal-50 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 flex items-center justify-center">
+                      <Layout size={18} />
+                    </div>
+                    <h5 className="text-sm font-bold text-[#0F3944] dark:text-white">UI Wireframing &amp; Rapid Mockups</h5>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                      Quickly prototype web and mobile screens, buttons, input bars, navigation bars, and modal overlays in minutes before writing code.
+                    </p>
+                  </div>
+
+                  <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm space-y-2">
+                    <div className="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+                      <PenTool size={18} />
+                    </div>
+                    <h5 className="text-sm font-bold text-[#0F3944] dark:text-white">Natural Freehand Drawing</h5>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                      Use the pressure-sensitive freehand brush to write handwritten notes, sketch custom icons, highlight architectural boundaries, or circle bugs.
+                    </p>
+                  </div>
+
+                  <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm space-y-2">
+                    <div className="w-9 h-9 rounded-xl bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center">
+                      <Image size={18} />
+                    </div>
+                    <h5 className="text-sm font-bold text-[#0F3944] dark:text-white">Image Annotation &amp; Stencils</h5>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                      Paste or drag screenshots directly onto the whiteboard and annotate over them with arrows, callout text, and highlight rectangles.
+                    </p>
+                  </div>
+
+                  <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm space-y-2">
+                    <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                      <Download size={18} />
+                    </div>
+                    <h5 className="text-sm font-bold text-[#0F3944] dark:text-white">High-DPI Transparent Export</h5>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                      Export diagrams to crisp transparent PNG (1x, 2x, 3x resolution for pitch decks or GitHub READMEs), scalable SVG, or raw <code className="text-[11px]">.excalidraw</code> files.
+                    </p>
+                  </div>
+
+                </div>
+              </div>
+
+              {/* Common Issues in Other Whiteboard Apps vs Stiknex Fixes */}
+              <div className="p-6 sm:p-8 rounded-3xl bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm space-y-4">
+                <h4 className="text-base sm:text-lg font-bold text-[#0F3944] dark:text-white flex items-center gap-2">
+                  <AlertTriangle size={18} className="text-amber-500 shrink-0" />
+                  <span>Common Everyday Issues in Whiteboard Apps &amp; How Stiknex Fixes Them</span>
+                </h4>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs sm:text-sm border-collapse">
+                    <thead>
+                      <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-400 uppercase text-[11px] font-black">
+                        <th className="py-3 px-4">Problem in Other Tools (Normally Issue Kya Hota Hai)</th>
+                        <th className="py-3 px-4">The Stiknex Architectural Solution</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-600 dark:text-slate-300">
+                      <tr>
+                        <td className="py-3 px-4 font-semibold text-rose-600 dark:text-rose-400">
+                          Watermarks stamped across exported diagrams unless paying $15/month
+                        </td>
+                        <td className="py-3 px-4">
+                          100% free unwatermarked exports in high-resolution transparent PNG and SVG.
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="py-3 px-4 font-semibold text-rose-600 dark:text-rose-400">
+                          Sterile, intimidating boxes that look like complex tax forms
+                        </td>
+                        <td className="py-3 px-4">
+                          Organic Rough.js hand-drawn line aesthetics that make technical proposals friendly, clear, and engaging.
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="py-3 px-4 font-semibold text-rose-600 dark:text-rose-400">
+                          Proprietary cloud file formats that trap your intellectual property
+                        </td>
+                        <td className="py-3 px-4">
+                          Native open-standard <code>.excalidraw</code> file support: export and import files on any computer without vendor lock-in.
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="py-3 px-4 font-semibold text-rose-600 dark:text-rose-400">
+                          Laggy canvas panning when sketches get complex
+                        </td>
+                        <td className="py-3 px-4">
+                          High-performance client-side Canvas and WebGL rendering delivering buttery 60fps pan and zoom even with hundreds of elements.
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Complete Options & Tools Breakdown */}
+              <div className="p-6 sm:p-8 rounded-3xl bg-slate-50 dark:bg-slate-800/40 border border-[#EADFD5] dark:border-slate-800 space-y-6">
+                <h4 className="text-base sm:text-lg font-black text-[#0F3944] dark:text-white flex items-center gap-2">
+                  <SlidersHorizontal size={18} className="text-purple-600" />
+                  <span>Complete Stiknex Whiteboard Tools &amp; Options Directory</span>
+                </h4>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs sm:text-sm">
+                  
+                  <div className="space-y-4">
+                    <h5 className="font-bold text-purple-700 dark:text-purple-300 uppercase tracking-wider text-xs border-b border-slate-200 dark:border-slate-700 pb-2">
+                      1. Primary Drawing Tools &amp; Hotkeys
+                    </h5>
+                    <ul className="space-y-2.5 text-slate-600 dark:text-slate-300">
+                      <li>• <strong>Selection / Pointer (<kbd className="font-mono text-[11px]">V</kbd> or <kbd className="font-mono text-[11px]">1</kbd>):</strong> Select, move, scale, rotate, and group shapes.</li>
+                      <li>• <strong>Rectangle Tool (<kbd className="font-mono text-[11px]">R</kbd> or <kbd className="font-mono text-[11px]">2</kbd>):</strong> Draw boxes, service containers, and UI cards.</li>
+                      <li>• <strong>Diamond Tool (<kbd className="font-mono text-[11px]">D</kbd> or <kbd className="font-mono text-[11px]">3</kbd>):</strong> Decision nodes, branching logic, and flowchart conditions.</li>
+                      <li>• <strong>Ellipse / Circle Tool (<kbd className="font-mono text-[11px]">O</kbd> or <kbd className="font-mono text-[11px]">4</kbd>):</strong> Draw states, endpoints, and Venn diagram circles.</li>
+                      <li>• <strong>Arrow Connector (<kbd className="font-mono text-[11px]">A</kbd> or <kbd className="font-mono text-[11px]">5</kbd>):</strong> Smart-snapping directional arrows with customizable heads.</li>
+                      <li>• <strong>Line Tool (<kbd className="font-mono text-[11px]">L</kbd> or <kbd className="font-mono text-[11px]">6</kbd>):</strong> Straight divider lines, axes, and structural borders.</li>
+                      <li>• <strong>Freehand Pen Tool (<kbd className="font-mono text-[11px]">P</kbd> or <kbd className="font-mono text-[11px]">7</kbd>):</strong> Natural handwriting and sketches.</li>
+                      <li>• <strong>Text Tool (<kbd className="font-mono text-[11px]">T</kbd> or <kbd className="font-mono text-[11px]">8</kbd>):</strong> Headers, code blocks, and annotations in multiple fonts.</li>
+                      <li>• <strong>Image Tool (<kbd className="font-mono text-[11px]">9</kbd>):</strong> Insert screenshots and mockups onto the canvas.</li>
+                      <li>• <strong>Eraser Tool (<kbd className="font-mono text-[11px]">E</kbd> or <kbd className="font-mono text-[11px]">0</kbd>):</strong> Click or drag across elements to erase them.</li>
+                    </ul>
+                  </div>
+
+                  <div className="space-y-4">
+                    <h5 className="font-bold text-purple-700 dark:text-purple-300 uppercase tracking-wider text-xs border-b border-slate-200 dark:border-slate-700 pb-2">
+                      2. Shape Properties &amp; Export Controls
+                    </h5>
+                    <ul className="space-y-2.5 text-slate-600 dark:text-slate-300">
+                      <li>• <strong>Stroke &amp; Fill Colors:</strong> Curated designer palettes plus custom hex color picker.</li>
+                      <li>• <strong>Fill Patterns:</strong> Transparent, Hachure (sketchy hatching), Cross-hatch, or Solid fill.</li>
+                      <li>• <strong>Stroke Width &amp; Style:</strong> Thin, Medium, Bold; Solid, Dashed, or Dotted lines.</li>
+                      <li>• <strong>Sloppiness / Roughness:</strong> Architect (straight clean), Artist (hand-drawn), Cartoonist (sketchy).</li>
+                      <li>• <strong>Edge Rounding:</strong> Sharp geometric corners vs smooth rounded edges.</li>
+                      <li>• <strong>Opacity Slider:</strong> 0% to 100% transparency for background cards and overlays.</li>
+                      <li>• <strong>Layer Ordering:</strong> Bring to Front, Bring Forward, Send Backward, Send to Back.</li>
+                      <li>• <strong>Export Settings:</strong> Export image (PNG/SVG, 1x/2x/3x scale, transparent toggle), Save .excalidraw to disk, Open from disk.</li>
+                    </ul>
+                  </div>
+
+                </div>
+              </div>
+
+            </div>
+
+            {/* ========================================================
+                TOOL 4: STIKNEX TYPING MASTER
+                ======================================================== */}
+            <div id="typing" className="scroll-mt-28 p-8 sm:p-12 rounded-[36px] bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+              <div className="lg:col-span-7 space-y-5">
+                <span className="text-[11px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800/40">
+                  Speed &amp; Ergonomics
+                </span>
+                <h3 className="text-2xl sm:text-3xl font-black text-[#0F3944] dark:text-white">
+                  Stiknex Typing Master — High-Precision Benchmark
+                </h3>
+                <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                  Real-time Words Per Minute (WPM) benchmark tests, touch-typing muscle memory lessons, and developer code challenge drills in JavaScript, Python, and CSS. High-resolution millisecond timer for exact accuracy with zero telemetry.
+                </p>
+
+                <div className="pt-2 flex items-center gap-4">
+                  <Link
+                    to="/stiknex-typing"
+                    className="px-6 py-2.5 rounded-full text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 transition-all shadow-sm"
+                  >
+                    Start Typing Test →
+                  </Link>
+                </div>
+              </div>
+
+              <div className="lg:col-span-5 p-6 rounded-2xl bg-[#FAF7F2] dark:bg-slate-800/60 border border-[#EADFD5] dark:border-slate-700/60 space-y-3">
+                <h4 className="text-xs font-black uppercase tracking-wider text-slate-500">Technical Highlights</h4>
+                <ul className="space-y-2 text-xs text-slate-600 dark:text-slate-300">
+                  <li>• High-resolution millisecond timer for exact CPM/WPM accuracy.</li>
+                  <li>• Interactive keyboard virtual layout guide with real-time finger markers.</li>
+                  <li>• Zero telemetry reporting — scores stay local on your device.</li>
+                </ul>
+              </div>
+            </div>
+
+            {/* ========================================================
+                COMPARISON MATRIX TABLE
+                ======================================================== */}
+            <div className="p-8 sm:p-12 rounded-[36px] bg-gradient-to-br from-[#0F3944] to-[#134E5E] text-white space-y-6 shadow-xl">
+              <div className="space-y-2">
+                <span className="text-xs font-black uppercase tracking-widest text-[#FFA07A]">
+                  Architecture Comparison
+                </span>
+                <h3 className="text-2xl sm:text-3xl font-black">
+                  Why Stiknex Over Traditional Productivity Apps?
+                </h3>
+                <p className="text-xs sm:text-sm text-teal-100 max-w-2xl">
+                  A side-by-side comparison between Stiknex's local-first architecture and conventional cloud-locked platforms.
+                </p>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs sm:text-sm border-collapse">
+                  <thead>
+                    <tr className="border-b border-teal-700 text-teal-200 uppercase text-[11px] font-black">
+                      <th className="py-3 px-3">Dimension</th>
+                      <th className="py-3 px-3 font-bold text-[#FFA07A]">Stiknex</th>
+                      <th className="py-3 px-3">Notion / Evernote</th>
+                      <th className="py-3 px-3">Miro / Mural</th>
+                      <th className="py-3 px-3">Google Docs</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-teal-800/60 text-teal-100">
+                    <tr>
+                      <td className="py-3 px-3 font-bold text-white">Pricing &amp; Paywalls</td>
+                      <td className="py-3 px-3 font-bold text-emerald-300">100% Free Forever ($0)</td>
+                      <td className="py-3 px-3 text-slate-300">$10–$18 / month</td>
+                      <td className="py-3 px-3 text-slate-300">3-board free cap</td>
+                      <td className="py-3 px-3 text-slate-300">Storage tied to Gmail</td>
+                    </tr>
+                    <tr>
+                      <td className="py-3 px-3 font-bold text-white">Account &amp; Logins</td>
+                      <td className="py-3 px-3 font-bold text-emerald-300">Zero Logins Required</td>
+                      <td className="py-3 px-3 text-slate-300">Mandatory Login</td>
+                      <td className="py-3 px-3 text-slate-300">Mandatory Login</td>
+                      <td className="py-3 px-3 text-slate-300">Google Account Req.</td>
+                    </tr>
+                    <tr>
+                      <td className="py-3 px-3 font-bold text-white">Offline Capability</td>
+                      <td className="py-3 px-3 font-bold text-emerald-300">100% Offline PWA</td>
+                      <td className="py-3 px-3 text-rose-300">Broken / Limited Offline</td>
+                      <td className="py-3 px-3 text-rose-300">Online Only</td>
+                      <td className="py-3 px-3 text-slate-300">Needs Chrome Extension</td>
+                    </tr>
+                    <tr>
+                      <td className="py-3 px-3 font-bold text-white">Privacy &amp; Data</td>
+                      <td className="py-3 px-3 font-bold text-emerald-300">IndexedDB On-Device</td>
+                      <td className="py-3 px-3 text-slate-300">Scanned on Cloud</td>
+                      <td className="py-3 px-3 text-slate-300">Hosted on Cloud</td>
+                      <td className="py-3 px-3 text-slate-300">Google Cloud Servers</td>
+                    </tr>
+                    <tr>
+                      <td className="py-3 px-3 font-bold text-white">Live Code Execution</td>
+                      <td className="py-3 px-3 font-bold text-emerald-300">Built-in (HTML/CSS/JS)</td>
+                      <td className="py-3 px-3 text-rose-300">Syntax Highlight Only</td>
+                      <td className="py-3 px-3 text-rose-300">No Execution</td>
+                      <td className="py-3 px-3 text-rose-300">No Execution</td>
+                    </tr>
+                    <tr>
+                      <td className="py-3 px-3 font-bold text-white">Watermarks on Export</td>
+                      <td className="py-3 px-3 font-bold text-emerald-300">Zero Watermarks</td>
+                      <td className="py-3 px-3 text-slate-300">Export Restrictions</td>
+                      <td className="py-3 px-3 text-rose-300">Watermarked in Free</td>
+                      <td className="py-3 px-3 text-slate-300">Clean PDF</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+
+        </section>
+
+        {/* ========================================================
+            4. THE 206 TOOLS DIRECTORY & 9 STRATEGIC HUBS
+            ======================================================== */}
+        <section className="py-16 px-6 max-w-6xl mx-auto border-t border-[#EADFD5] dark:border-slate-800">
+          
+          <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
+            <span className="text-xs font-black uppercase tracking-widest text-[#134E5E] dark:text-teal-400">
+              Browser Utility Architecture
+            </span>
+            <h2 className="text-3xl sm:text-5xl font-black text-[#0F3944] dark:text-white tracking-tight">
+              206 Utilities Across 9 Strategic Hubs
+            </h2>
+            <p className="text-sm sm:text-base text-slate-500">
+              Unlike bloated tool websites that send your files and personal inputs to remote servers, every Stiknex utility runs 100% inside your browser's V8 engine with zero network latency.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {TOOL_HUBS.map((hub) => {
+              const toolsInHub = ALL_TOOLS.filter((t) => hub.subcategories.includes(t.category));
+
+              return (
+                <div
+                  key={hub.id}
+                  className="p-7 rounded-[28px] bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm flex flex-col justify-between hover:shadow-lg transition-all"
+                >
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="w-12 h-12 rounded-2xl bg-[#134E5E]/10 dark:bg-teal-500/20 text-[#134E5E] dark:text-teal-300 flex items-center justify-center">
+                        <i className={`${hub.icon} text-lg`}></i>
+                      </div>
+                      <span className="text-xs font-black uppercase tracking-wider px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                        {toolsInHub.length} Tools
+                      </span>
+                    </div>
+
+                    <h3 className="text-xl font-bold text-[#0F3944] dark:text-white">
+                      {hub.name}
+                    </h3>
+
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                      {hub.description}
+                    </p>
+                  </div>
+
+                  <div className="pt-6 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                    <Link
+                      to={`/about/tool-details?tool=${toolsInHub[0]?.slug || ""}`}
+                      className="text-xs font-black uppercase tracking-wider text-[#134E5E] dark:text-teal-400 hover:underline flex items-center gap-1"
+                    >
+                      <span>View Specifications</span>
+                      <ArrowRight size={12} />
+                    </Link>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Callout Banner to Deep-Dive Tool Details Page */}
+          <div className="mt-12 p-8 sm:p-12 rounded-[32px] bg-gradient-to-r from-[#134E5E] to-[#1D6A7D] text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl">
+            <div className="space-y-2 text-center sm:text-left">
+              <span className="text-xs font-black uppercase tracking-widest text-teal-200">
+                Functional Dictionary
+              </span>
+              <h3 className="text-2xl sm:text-3xl font-black">
+                Need deep specs on every single tool?
+              </h3>
+              <p className="text-sm text-teal-100 max-w-xl">
+                Visit our dedicated Tool Details directory for input/output schemas, technical engine IDs, and local privacy guarantees for all 206 utilities.
+              </p>
+            </div>
+
+            <Link
+              to="/about/tool-details"
+              className="px-8 py-3.5 rounded-full text-xs font-black uppercase tracking-wider bg-[#FFA07A] text-[#0F3944] hover:bg-[#F8A88C] shadow-lg hover:shadow-xl transition-all shrink-0"
+            >
+              Open Tool Specifications Directory →
+            </Link>
+          </div>
+
+        </section>
+
+        {/* ========================================================
+            5. ENGINEERING & PRIVACY ARCHITECTURE
+            ======================================================== */}
+        <section className="py-16 px-6 max-w-6xl mx-auto border-t border-[#EADFD5] dark:border-slate-800">
+          
+          <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
+            <span className="text-xs font-black uppercase tracking-widest text-[#134E5E] dark:text-teal-400">
+              Data Sovereignty
+            </span>
+            <h2 className="text-3xl sm:text-5xl font-black text-[#0F3944] dark:text-white tracking-tight">
+              Engineered for Complete Privacy
+            </h2>
+            <p className="text-sm sm:text-base text-slate-500">
+              Why Stiknex's local-first architecture protects your thoughts better than cloud databases.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            
+            <div className="p-8 rounded-[32px] bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm space-y-4">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                <Lock size={22} />
+              </div>
+              <h3 className="text-xl font-bold text-[#0F3944] dark:text-white">
+                Zero Cloud Storage
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                Your notes, files, checklists, and calculations reside exclusively inside your device's browser database (IndexedDB). They never pass through our servers, meaning there is zero possibility of data breaches or leaks.
+              </p>
+            </div>
+
+            <div className="p-8 rounded-[32px] bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm space-y-4">
+              <div className="w-12 h-12 rounded-2xl bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 flex items-center justify-center">
+                <Cpu size={22} />
+              </div>
+              <h3 className="text-xl font-bold text-[#0F3944] dark:text-white">
+                In-Memory Computation
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                Image compression, hash calculations, and text transformations execute in client memory with JavaScript Web Workers and the Web Crypto API. Calculations happen with 0ms roundtrip delay.
+              </p>
+            </div>
+
+            <div className="p-8 rounded-[32px] bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm space-y-4">
+              <div className="w-12 h-12 rounded-2xl bg-violet-50 dark:bg-violet-950/60 text-violet-600 dark:text-violet-400 flex items-center justify-center">
+                <Globe size={22} />
+              </div>
+              <h3 className="text-xl font-bold text-[#0F3944] dark:text-white">
+                True Offline PWA
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                Stiknex is built with Service Worker caching. Once visited, the entire application works offline on mobile, tablet, and desktop without requiring an internet connection.
+              </p>
+            </div>
+
+          </div>
+
+        </section>
+
+        {/* ========================================================
+            6. FOUNDER STORY & ETHOS
+            ======================================================== */}
+        <section className="py-16 px-6 max-w-5xl mx-auto border-t border-[#EADFD5] dark:border-slate-800">
+          <div className="rounded-[32px] p-8 sm:p-12 bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm space-y-6">
+            
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
+              <div className="w-20 h-20 rounded-2xl bg-gradient-to-tr from-[#134E5E] to-[#FFA07A] p-1 flex items-center justify-center shrink-0 shadow-lg">
+                <img
+                  src="/logo.png"
+                  alt="Vishal Mall - Creator of Stiknex"
+                  className="w-full h-full object-contain rounded-xl bg-white p-2"
+                />
+              </div>
+
+              <div className="space-y-3 text-center sm:text-left flex-1">
+                <span className="text-[11px] font-black uppercase tracking-widest text-[#134E5E] dark:text-teal-400">
+                  Founder &amp; Lead Engineer
+                </span>
+                <h2 className="text-2xl sm:text-3xl font-black text-[#0F3944] dark:text-white">
+                  Built by Vishal Mall
+                </h2>
+                <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                  "I created Stiknex because modern web productivity software has become unnecessarily complex, cluttered with ads, locked behind aggressive paywalls, and obsessed with tracking user data. Stiknex is built to be the antidote: a lightning-fast, ad-light digital workspace where thinkers, students, coders, and writers can organize ideas without friction."
+                </p>
+                <div className="pt-2 flex flex-wrap items-center justify-center sm:justify-start gap-4 text-xs font-bold">
+                  <Link
+                    to="/buy-me-a-coffee"
+                    className="inline-flex items-center gap-1.5 text-[#FFA07A] hover:underline"
+                  >
+                    <Heart size={14} className="fill-current text-rose-500" />
+                    <span>Support Independent Development →</span>
+                  </Link>
+                  <span>•</span>
+                  <a
+                    href="mailto:vishal.mall02@outlook.com"
+                    className="text-slate-500 hover:text-[#134E5E] dark:hover:text-white"
+                  >
+                    vishal.mall02@outlook.com
+                  </a>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        {/* ========================================================
+            7. FREQUENTLY ASKED QUESTIONS (FAQ)
+            ======================================================== */}
+        <section className="py-16 px-6 max-w-4xl mx-auto border-t border-[#EADFD5] dark:border-slate-800">
+          
+          <div className="text-center mb-12 space-y-2">
+            <span className="text-xs font-black uppercase tracking-widest text-[#134E5E] dark:text-teal-400">
+              Clear Answers
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-black text-[#0F3944] dark:text-white">
+              Frequently Asked Questions
+            </h2>
+          </div>
+
+          <div className="space-y-4">
+            {[
+              {
+                q: "Is Stiknex genuinely 100% free with no hidden charges?",
+                a: "Yes. Every workspace, sticky notes canvas, markdown notebook, whiteboard, and all 206 client-side tools are completely free to use. There are no credit card prompts, subscriptions, or gated paywalls."
+              },
+              {
+                q: "What does the name 'Stiknex' mean and how is it pronounced?",
+                a: "Stiknex fuses 'Sticky Notes' with 'Next-generation canvas'. It is pronounced 'Stick-Nex' (/ˈstɪk.nɛks/). It was created by Vishal Mall as a private, local-first web suite."
+              },
+              {
+                q: "What are the 3 main flagship tools in Stiknex?",
+                a: "The three core flagship tools are: 1) Stiknex Notepad (distraction-free rich text editor with live code execution sandbox, Alt+Shift+F beautifier, focus audio, and timer), 2) Stiknex Sticky Notes (2D infinite canvas for spatial brainstorming, connecting arrows, and 4 layout views), and 3) Stiknex Whiteboard (infinite vector diagramming canvas for system architecture and flowcharts with hand-drawn Rough.js aesthetics)."
+              },
+              {
+                q: "Where is my data stored if I don't have an account?",
+                a: "All your notes, drawings, and calculations reside exclusively in your browser's IndexedDB and localStorage on your device. To ensure safety across browser cache clears, you can download a full JSON backup with one click from the workspace sidebar."
+              },
+              {
+                q: "Can I use Stiknex on mobile or as an installed app?",
+                a: "Yes! Stiknex is a Progressive Web App (PWA). You can tap 'Add to Home Screen' in Chrome, Safari, or Edge to install it as a standalone app with offline support."
+              },
+              {
+                q: "How do client-side utilities work without a backend?",
+                a: "All 206 tools leverage modern HTML5 APIs, including Web Crypto (for password and hash generation), Canvas 2D (for image compression and color extraction), and V8 JavaScript math engines. Your inputs never touch our servers."
+              },
+              {
+                q: "Where can I view the technical specifications of every tool?",
+                a: "You can visit our dedicated Tool Details directory at /about/tool-details to view the technical engine, inputs, outputs, and privacy guarantees for all 206 tools."
+              }
+            ].map((faq, index) => (
+              <div
+                key={index}
+                className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm space-y-2"
+              >
+                <h3 className="text-base font-bold text-[#0F3944] dark:text-white flex items-start gap-2.5">
+                  <span className="text-[#134E5E] dark:text-teal-400 font-black">Q.</span>
+                  <span>{faq.q}</span>
+                </h3>
+                <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed pl-6">
+                  {faq.a}
+                </p>
+              </div>
+            ))}
+          </div>
+
+        </section>
+
+        {/* ========================================================
+            8. FINAL CTA BANNER
+            ======================================================== */}
+        <section className="py-20 px-6 max-w-5xl mx-auto text-center border-t border-[#EADFD5] dark:border-slate-800">
+          <div className="space-y-6">
+            <h2 className="text-3xl sm:text-5xl font-black text-[#0F3944] dark:text-white">
+              Ready to supercharge your workflow?
+            </h2>
+            <p className="text-slate-600 dark:text-slate-400 max-w-xl mx-auto text-sm sm:text-base">
+              Open the infinite canvas or explore the 206 client-side utilities with zero sign-ups and total privacy.
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-4">
+              <Link
+                to="/sticky-notes"
+                className="px-8 py-3.5 rounded-full text-xs font-black uppercase tracking-wider text-white bg-gradient-to-r from-[#134E5E] to-[#1D6A7D] hover:shadow-xl hover:-translate-y-0.5 transition-all"
+              >
+                Launch Sticky Notes Canvas →
+              </Link>
+              <Link
+                to="/online-notebook"
+                className="px-8 py-3.5 rounded-full text-xs font-black uppercase tracking-wider text-white bg-[#0F3944] hover:bg-[#134E5E] hover:shadow-xl hover:-translate-y-0.5 transition-all"
+              >
+                Launch Notepad →
+              </Link>
+              <Link
+                to="/whiteboard"
+                className="px-8 py-3.5 rounded-full text-xs font-black uppercase tracking-wider text-white bg-purple-600 hover:bg-purple-700 hover:shadow-xl hover:-translate-y-0.5 transition-all"
+              >
+                Launch Whiteboard →
+              </Link>
+            </div>
+          </div>
+        </section>
+
       </div>
     </AppShell>
   );
-};
-
-export default About;
+}

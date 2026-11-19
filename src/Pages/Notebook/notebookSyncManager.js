@@ -270,6 +270,13 @@ export async function collectLocalPayload(version) {
       console.warn('Failed to read notebook content from IndexedDB:', e);
     }
 
+    if (!nb.content) {
+      try {
+        const cached = localStorage.getItem(`nb_content_${nb.id}`);
+        if (cached) nb.content = cached;
+      } catch (_) {}
+    }
+
     try {
       const nbComments = await getNotebookComments(nb.id);
       if (Array.isArray(nbComments)) {

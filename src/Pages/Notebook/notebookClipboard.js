@@ -871,13 +871,9 @@ export function insertCodeAsText(editor, codeText) {
   const range = sel.getRangeAt(0);
   range.deleteContents();
 
-  // Escape HTML entities so code displays visibly as text
-  const escaped = codeText
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
-
-  const lines = escaped.split('\n');
+  // Normalize line endings and non-breaking spaces
+  const cleanCode = codeText.replace(/\r\n/g, '\n').replace(/\u00A0/g, ' ');
+  const lines = cleanCode.split('\n');
   const frag = document.createDocumentFragment();
 
   lines.forEach((line) => {
@@ -887,7 +883,11 @@ export function insertCodeAsText(editor, codeText) {
     p.style.fontSize = '15px';
     p.style.lineHeight = '1.6';
     p.style.whiteSpace = 'pre-wrap';
-    p.innerHTML = line ? line.replace(/ /g, '&nbsp;') : '<br>';
+    if (line) {
+      p.textContent = line;
+    } else {
+      p.innerHTML = '<br>';
+    }
     frag.appendChild(p);
   });
 
@@ -898,3 +898,32 @@ export function insertCodeAsText(editor, codeText) {
   sel.removeAllRanges();
   sel.addRange(range);
 }
+
+/**
+ * Completely replaces the editor's content with formatted code lines
+ */
+export function replaceEditorWithCode(editor, codeText) {
+  if (!editor || !codeText) return;
+  const cleanCode = codeText.replace(/\r\n/g, '\n').replace(/\u00A0/g, ' ');
+  const lines = cleanCode.split('\n');
+  const frag = document.createDocumentFragment();
+
+  lines.forEach((line) => {
+    const p = document.createElement('p');
+    p.style.margin = '0';
+    p.style.fontFamily = 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace';
+    p.style.fontSize = '15px';
+    p.style.lineHeight = '1.6';
+    p.style.whiteSpace = 'pre-wrap';
+    if (line) {
+      p.textContent = line;
+    } else {
+      p.innerHTML = '<br>';
+    }
+    frag.appendChild(p);
+  });
+
+  editor.innerHTML = '';
+  editor.appendChild(frag);
+}
+

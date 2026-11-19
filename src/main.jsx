@@ -57,20 +57,6 @@ window.addEventListener('beforeinstallprompt', (e) => {
 // Synchronous restoration before BrowserRouter mounts — eliminates homepage flash on PWA / app cold start
 resolveStartupRestoration();
 
-// Dismiss initial pre-render SEO splash once React bundle loads
-if (typeof document !== 'undefined') {
-  const splash = document.getElementById('initial-app-splash');
-  if (splash) {
-    splash.style.opacity = '0';
-    splash.style.visibility = 'hidden';
-    setTimeout(() => {
-      splash.remove();
-      const style = document.getElementById('initial-splash-style');
-      if (style) style.remove();
-    }, 260);
-  }
-}
-
 createRoot(document.getElementById("root")).render(
   <AppProvider>
     <BrowserRouter>
@@ -78,3 +64,16 @@ createRoot(document.getElementById("root")).render(
     </BrowserRouter>
   </AppProvider>
 );
+
+// Dismiss initial handwriting signature loader smoothly
+requestAnimationFrame(() => {
+  const loader = document.getElementById("initial-signature-loader");
+  if (loader) {
+    loader.style.transition = "opacity 0.25s ease-out";
+    loader.style.opacity = "0";
+    loader.style.pointerEvents = "none";
+    setTimeout(() => {
+      loader.remove();
+    }, 280);
+  }
+});

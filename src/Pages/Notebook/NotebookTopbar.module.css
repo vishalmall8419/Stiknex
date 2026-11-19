@@ -927,11 +927,6 @@
 
 
 @media (max-width: 768px) {
-  /* Phone view: strictly hide topbar as per design (bottom dock only on mobile) */
-  .topbar {
-    display: none !important;
-  }
-
   .hideOnMobile {
     display: none !important;
   }

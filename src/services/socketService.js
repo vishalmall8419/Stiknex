@@ -193,7 +193,7 @@ async function handleIncomingWhiteboardChange(data) {
 function handleIncomingNotebookChange(data) {
   if (!data) return;
   const currentDeviceId = getOrCreateDeviceId();
-  if (data.originDeviceId === currentDeviceId) return;
+  if (data.originDeviceId === currentDeviceId || data.deviceId === currentDeviceId) return;
 
   const { notebook, notebooks, comments } = data;
   if (notebook?.id && notebook?.content) {
@@ -308,6 +308,7 @@ export function emitRealtimeNotebookChange(notebookData) {
     syncGroupId: syncIdentity?.syncGroupId || user?.syncGroupId || null,
     ...notebookData,
     deviceId: currentDeviceId,
+    originDeviceId: currentDeviceId,
   };
 
   if (broadcastChannel) {

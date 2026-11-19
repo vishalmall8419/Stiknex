@@ -45,6 +45,8 @@ const SHORTCUT_GROUPS = [
       { key: 'Shift + Tab', desc: 'Navigate to previous table cell / Outdent list' },
       { key: 'Enter (in Checklist)', desc: 'Create new checklist item' },
       { key: 'Backspace (empty Checklist)', desc: 'Exit checklist mode back to normal paragraph' },
+      { key: 'Ctrl + Enter', desc: 'Run HTML, CSS & JavaScript Code in New Tab' },
+      { key: 'Alt + Shift + F', desc: 'Format Code with clean indentation' },
       { key: 'Space after "- " or "* "', desc: 'Auto-convert to Bullet list' },
       { key: 'Space after "1. "', desc: 'Auto-convert to Numbered list' },
       { key: 'Space after "[] "', desc: 'Auto-convert to To-Do Checklist' },

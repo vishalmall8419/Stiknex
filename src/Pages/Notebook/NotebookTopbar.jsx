@@ -1151,6 +1151,15 @@ const NotebookTopbar = ({
                 </button>
 
                 <Link
+                  to="/about#notepad"
+                  className={Style.moreMenuItem}
+                  onClick={() => setMoreMenuOpen(false)}
+                >
+                  <i className={`fa-solid fa-book-open ${Style.moreMenuIcon}`} style={{ color: "#3b82f6" }}></i>
+                  <span>About Notepad</span>
+                </Link>
+
+                <Link
                   to="/about"
                   className={Style.moreMenuItem}
                   onClick={() => setMoreMenuOpen(false)}

@@ -24,6 +24,10 @@ const About = lazy(
   () => import("./Pages/About/About")
 );
 
+const ToolDetails = lazy(
+  () => import("./Pages/About/ToolDetails")
+);
+
 const Tools = lazy(
   () => import("./Pages/Tools/Tools")
 );
@@ -82,26 +86,18 @@ const UserDashboard = lazy(() => import("./Pages/Dashboard/UserDashboard"));
 const AuthModal = lazy(() => import("./Component/AuthModal"));
 const UniversalMobileBottomNav = lazy(() => import("./Component/Navigation/UniversalMobileBottomNav"));
 const CircleLandingPage = lazy(() => import("./Pages/Showcase/CircleLandingPage"));
+const Sitemap = lazy(() => import("./Pages/Sitemap/Sitemap"));
+import SignatureLoader from "./Component/SignatureLoader";
 import { initSyncEngine } from "./services/syncManager";
 import RouteRestorationTracker from "./Component/RouteRestorationTracker";
 import { ALL_TOOLS } from "./data/toolsRegistry";
 
 // ============================================================
-// PAGE LOADER
+// PAGE LOADER (Signature SVG Handwriting Loader)
 // ============================================================
 
 const PageLoader = () => {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 transition-colors duration-300 dark:bg-slate-900">
-      <div className="flex flex-col items-center gap-4">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600 dark:border-indigo-900 dark:border-t-indigo-500"></div>
-
-        <p className="animate-pulse text-sm font-medium text-gray-500 dark:text-gray-400">
-          Loading workspace...
-        </p>
-      </div>
-    </div>
-  );
+  return <SignatureLoader size="md" text="" fullScreen={true} />;
 };
 
 // ============================================================
@@ -199,11 +195,10 @@ const App = () => {
             element={<Home />}
           />
 
-          {/* About */}
-          <Route
-            path="/about"
-            element={<About />}
-          />
+          {/* About & Deep-Dive Tool Details */}
+          <Route path="/about" element={<About />} />
+          <Route path="/about/tool-details" element={<ToolDetails />} />
+          <Route path="/about/tool-details/:slug" element={<ToolDetails />} />
 
           {/* URL Shortener & Click Tracking Analytics */}
           <Route path="/url-shortener" element={<UrlShortener />} />
@@ -348,17 +343,30 @@ const App = () => {
             element={<Navigate to="/dashboard" replace />}
           />
 
+          {/* HTML Visual Sitemap (All 206 Tools & Pages Index) */}
+          <Route
+            path="/sitemap"
+            element={<Sitemap />}
+          />
+
           {/* Showcase: Circle Landing Page (Sandhill Studio / Halo Lab Pinterest Replica) */}
           <Route
             path="/circle"
             element={<CircleLandingPage />}
           />
 
+          {/* Legal Pages (Privacy Policy & Terms of Service) */}
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/terms-of-service" element={<TermsOfService />} />
+
           {/* All 200 Clean Tool Slug Routes */}
           <Route
             path="/:toolSlug"
             element={<Tools />}
           />
+
+          {/* 404 — Catch-all for any unknown route */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
         <AuthModal />
         {!isAdminRoute && !isCircleRoute && !isStickyNotesRoute && <UniversalMobileBottomNav />}

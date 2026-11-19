@@ -66,7 +66,10 @@ import {
   insertTableColumn,
   deleteTableColumn,
   deleteTable,
+  insertCodeAsText,
+  replaceEditorWithCode,
 } from "./notebookClipboard";
+import { formatCode } from "./notebookCodeFormatter";
 import { NOTEBOOK_FONTS, lazyLoadFont } from "./notebookFonts";
 
 const TEXT_KEY = "notebookContent";
@@ -248,6 +251,7 @@ const Notebook = () => {
   const [selectedTextForTranslate, setSelectedTextForTranslate] = useState("");
   const [imageUrlModalOpen, setImageUrlModalOpen] = useState(false);
   const [shortcutsModalOpen, setShortcutsModalOpen] = useState(false);
+  const [codeExecutable, setCodeExecutable] = useState(false);
 
   // Context menu state
   const [contextMenu, setContextMenu] = useState({
@@ -310,8 +314,22 @@ const Notebook = () => {
   // Compile & execute HTML, CSS, or JS in a dedicated preview tab
   const handleRunCode = useCallback(() => {
     const selection = window.getSelection()?.toString()?.trim();
-    const sourceCode = selection || editorRef.current?.innerText || text || "";
-    if (!sourceCode.trim()) {
+    let sourceCode = "";
+    // Only use selection if user intentionally highlighted a meaningful code snippet
+    if (selection && selection.length > 10 && isExecutableCode(selection)) {
+      sourceCode = selection;
+    } else {
+      sourceCode = editorRef.current?.innerText || text || "";
+    }
+
+    // Clean non-breaking spaces (\u00A0), zero-width characters and normalize line endings
+    sourceCode = (sourceCode || "")
+      .replace(/\u00A0/g, " ")
+      .replace(/\u200B/g, "")
+      .replace(/\r\n/g, "\n")
+      .trim();
+
+    if (!sourceCode) {
       return;
     }
     runCodeInNewTab(sourceCode, title || "Notebook Code");
@@ -413,6 +431,15 @@ const Notebook = () => {
     scheduleCloudSync();
   }, [activeNotebookId, scheduleCloudSync]);
 
+  const checkIsCodePresent = useCallback(() => {
+    if (!editorRef.current) return false;
+    if (editorRef.current.querySelector("style, script, canvas")) {
+      return true;
+    }
+    const plain = editorRef.current.innerText || "";
+    return isExecutableCode(plain);
+  }, []);
+
   // Helper to update text statistics from innerText
   const updateStats = useCallback(() => {
     if (!editorRef.current) return;
@@ -421,6 +448,12 @@ const Notebook = () => {
     setCharCount(clean.length);
     setWordCount(countWords(clean));
     editorRef.current.setAttribute("data-empty", clean === "" ? "true" : "false");
+
+    // Dynamic visibility for Run & Format Code options
+    const isCode =
+      Boolean(editorRef.current.querySelector("style, script, canvas")) ||
+      isExecutableCode(clean);
+    setCodeExecutable(isCode);
   }, []);
 
   // Keep large editor content in IndexedDB and only notebook metadata in localStorage.
@@ -613,6 +646,41 @@ const Notebook = () => {
     }, 400);
 
   }, [settings.autoSave, persistContent, updateStats, pushHistorySnapshot]);
+
+  // Format code in editor (Alt+Shift+F or context menu)
+  const handleFormatCode = useCallback(() => {
+    if (!editorRef.current) return;
+    const sel = window.getSelection();
+    const selText = sel?.toString()?.trim();
+
+    if (sel && !sel.isCollapsed && selText && selText.length > 5 && isExecutableCode(selText)) {
+      const formattedSnippet = formatCode(selText);
+      insertCodeAsText(editorRef.current, formattedSnippet);
+      handleContentChange(true);
+      swal({
+        title: "Code Formatted!",
+        text: "Selected code formatted with clean indentation.",
+        icon: "success",
+        timer: 1200,
+        buttons: false,
+      });
+    } else {
+      const fullText = editorRef.current.innerText || "";
+      if (!isExecutableCode(fullText) && !editorRef.current.querySelector("style, script")) {
+        return;
+      }
+      const formatted = formatCode(fullText);
+      replaceEditorWithCode(editorRef.current, formatted);
+      handleContentChange(true);
+      swal({
+        title: "Code Formatted!",
+        text: "Code formatted with clean indentation (Alt+Shift+F).",
+        icon: "success",
+        timer: 1200,
+        buttons: false,
+      });
+    }
+  }, [handleContentChange]);
 
   // Load saved comments for active note
   useEffect(() => {
@@ -890,53 +958,92 @@ const Notebook = () => {
         editorRef.current.innerHTML = html;
 
         // Rehydrate valid images and immediately purge broken / empty image placeholders
+        let purgedBroken = false;
         const imgs = editorRef.current.querySelectorAll("img");
         for (const img of Array.from(imgs)) {
-          img.onerror = () => {
-            img.style.display = "none";
-            img.remove();
-          };
-
-          const rawSrc = img.getAttribute("src");
+          const rawSrc = (img.getAttribute("src") || "").trim();
           const imgId = img.getAttribute("data-img-id");
 
-          if (
+          const isInvalidSrc =
             !rawSrc ||
-            rawSrc.trim() === "" ||
             rawSrc === window.location.href ||
             rawSrc.endsWith('""') ||
-            rawSrc === "#"
-          ) {
+            rawSrc === "#" ||
+            rawSrc === "https://unsplash.com" ||
+            rawSrc === "http://unsplash.com" ||
+            rawSrc === "https://unsplash.com/" ||
+            rawSrc === "http://unsplash.com/";
+
+          if (isInvalidSrc) {
             if (imgId) {
               const data = await getImageFromDb(imgId);
               if (data && !cancelled) {
                 img.src = data;
               } else {
-                img.style.display = "none";
                 img.remove();
+                purgedBroken = true;
               }
             } else {
-              img.style.display = "none";
               img.remove();
+              purgedBroken = true;
             }
           } else if (img.complete && img.naturalWidth === 0 && !imgId) {
-            img.style.display = "none";
             img.remove();
+            purgedBroken = true;
+          } else {
+            // Attach permanent removal handlers if image fails to load
+            img.addEventListener(
+              "error",
+              () => {
+                img.remove();
+                handleContentChange();
+              },
+              { once: true },
+            );
+            img.addEventListener(
+              "load",
+              () => {
+                if (img.naturalWidth === 0) {
+                  img.remove();
+                  handleContentChange();
+                }
+              },
+              { once: true },
+            );
+          }
+        }
+
+        const cleanHtml = editorRef.current.innerHTML;
+        setText(cleanHtml);
+        setSelectedImage(null);
+        isInitialLoadRef.current = false;
+
+        // Initialize Undo/Redo history with the clean HTML
+        historyRef.current = [cleanHtml];
+        historyIndexRef.current = 0;
+        setCanUndo(false);
+        setCanRedo(false);
+
+        if (purgedBroken) {
+          // Immediately save clean content so broken images never return!
+          try {
+            saveExtendedNote(activeNotebookId, cleanHtml);
+            localStorage.setItem(`nb_content_${activeNotebookId}`, cleanHtml);
+          } catch (e) {
+            console.warn("Could not persist purged images:", e);
           }
         }
 
         updateStats();
+      } else {
+        setText(html);
+        setSelectedImage(null);
+        isInitialLoadRef.current = false;
+        historyRef.current = [html];
+        historyIndexRef.current = 0;
+        setCanUndo(false);
+        setCanRedo(false);
       }
-
-      setText(html);
-      setSelectedImage(null);
-      isInitialLoadRef.current = false;
-
-      // Initialize Undo/Redo history for this note
-      historyRef.current = [html];
-      historyIndexRef.current = 0;
-      setCanUndo(false);
-      setCanRedo(false);
 
       // Rehydrate drawings from IndexedDB
       try {
@@ -1052,6 +1159,16 @@ const Notebook = () => {
     const handleRemoteSync = (e) => {
       const payload = e.detail?.remotePayload;
       if (!payload) return;
+
+      // CRITICAL: If user is actively typing or editor has focus, NEVER overwrite or auto-undo user typing!
+      const isUserActivelyEditing =
+        document.activeElement === editorRef.current ||
+        Date.now() - (lastUserEditTimestampRef.current || 0) < 5000;
+
+      if (isUserActivelyEditing) {
+        return;
+      }
+
       if (Array.isArray(payload.notebooks) && payload.notebooks.length > 0) {
         setNotebooks(payload.notebooks);
 
@@ -1077,7 +1194,11 @@ const Notebook = () => {
 
         if (active) {
           setTitle(active.title || DEFAULT_NOTEBOOK_TITLE);
-          const activeHtml = plainTextToHtml(active.content || "");
+          const isHtml =
+            /<(p|div|ul|ol|li|img|span|h[1-6]|table|blockquote|html|head|body|pre|code|section|header|nav)\b/i.test(
+              active.content || ""
+            ) || /<!DOCTYPE\b/i.test(active.content || "");
+          const activeHtml = isHtml ? active.content : plainTextToHtml(active.content || "");
           setText(activeHtml);
           setComments(payload.comments?.[active.id] || []);
 
@@ -1156,6 +1277,23 @@ const Notebook = () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [activeNotebookId, title]);
+
+  // Automatically intercept and permanently delete any broken image that fails to load in editor
+  useEffect(() => {
+    const editor = editorRef.current;
+    if (!editor) return;
+
+    const handleImgErrorCapture = (e) => {
+      if (e.target && e.target.tagName === "IMG") {
+        e.target.style.display = "none";
+        e.target.remove();
+        handleContentChange();
+      }
+    };
+
+    editor.addEventListener("error", handleImgErrorCapture, true);
+    return () => editor.removeEventListener("error", handleImgErrorCapture, true);
+  }, [handleContentChange]);
 
   const handleNewNotebook = () => {
     const newNotebook = {
@@ -1422,6 +1560,22 @@ const Notebook = () => {
     const onKeyDown = (e) => {
       const meta = e.ctrlKey || e.metaKey;
 
+      // Format code shortcut: Alt+Shift+F
+      if (e.altKey && e.shiftKey && (e.key === "F" || e.key === "f")) {
+        e.preventDefault();
+        handleFormatCode();
+        return;
+      }
+
+      // Run code shortcut: Ctrl+Enter / Cmd+Enter
+      if (meta && e.key === "Enter") {
+        if (codeExecutable || checkIsCodePresent()) {
+          e.preventDefault();
+          handleRunCode();
+          return;
+        }
+      }
+
       // Toggle ribbon Alt keytips across topbar & toolbar
       if (e.key === "Alt") {
         const tag = e.target.tagName;
@@ -1625,6 +1779,20 @@ const Notebook = () => {
 
   // Key handling inside contenteditable (Enter & Backspace for To-dos and Markdown lists)
   const handleEditorKeyDown = (e) => {
+    // 0. Code formatting & execution shortcuts
+    if (e.altKey && e.shiftKey && (e.key === "F" || e.key === "f")) {
+      e.preventDefault();
+      handleFormatCode();
+      return;
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+      if (codeExecutable || checkIsCodePresent()) {
+        e.preventDefault();
+        handleRunCode();
+        return;
+      }
+    }
+
     // 1. Table navigation via Tab and Shift+Tab
     if (handleTableKeyNavigation(e, editorRef.current, handleContentChange)) {
       return;
@@ -2003,7 +2171,7 @@ const Notebook = () => {
           onOpenSyncModal={() => setSyncModalOpen(true)}
           onDismissAltKeytips={() => setAltKeyActive(false)}
           onRunCode={handleRunCode}
-          isCodeExecutable={isExecutableCode(text || editorRef.current?.innerText || "")}
+          isCodeExecutable={codeExecutable}
           altKeyActive={altKeyActive}
           altShortcutsEnabled={!moreMenuOpen}
           moreMenuOpen={moreMenuOpen}
@@ -2042,7 +2210,8 @@ const Notebook = () => {
           onOpenShortcuts={() => setShortcutsModalOpen(true)}
           onDismissAltKeytips={() => setAltKeyActive(false)}
           onRunCode={handleRunCode}
-          isCodeExecutable={isExecutableCode(text || editorRef.current?.innerText || "")}
+          onFormatCode={handleFormatCode}
+          isCodeExecutable={codeExecutable}
           fontFamily={settings.fontFamily || "inter"}
           onSelectFontFamily={(f) => updateSetting("fontFamily", f)}
           altKeyActive={altKeyActive && !moreMenuOpen}
@@ -2144,6 +2313,8 @@ const Notebook = () => {
           darkMode={darkMode}
           tableCell={contextMenu.tableCell}
           onRunCode={handleRunCode}
+          onFormatCode={handleFormatCode}
+          isCodeExecutable={codeExecutable}
           onClose={() => setContextMenu((prev) => ({ ...prev, open: false }))}
           onInsertTableRowAbove={() => {
             if (contextMenu.tableCell) {

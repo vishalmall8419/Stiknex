@@ -1607,11 +1607,11 @@ const Home = () => {
           }}
           className={`fixed inset-y-0 left-0 z-[61] flex h-full w-[min(82vw,280px)] shrink-0 flex-col overflow-y-auto border-r border-slate-200 bg-white px-0 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 shadow-2xl transition-[transform,width,box-shadow] duration-300 ease-in-out dark:border-slate-800 dark:bg-slate-900 ${mobileSidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:absolute lg:z-10 lg:translate-x-0 lg:shadow-sm ${sidebarExpanded ? "lg:w-56 lg:shadow-2xl" : "lg:w-16"}`}
         >
-          <div className="mb-4 flex shrink-0 items-center gap-2 px-3">
+          <Link to="/" className="mb-4 flex shrink-0 items-center gap-2 px-3">
             <img src="/logo.png" alt="Stiknex logo" width="28" height="28" className="h-7 w-7 shrink-0 object-contain" />
             <span className={`min-w-0 flex-1 overflow-hidden whitespace-nowrap text-base font-black tracking-tight transition-[max-width,opacity] duration-200 ${sidebarExpanded || mobileSidebarOpen ? "max-w-40 opacity-100" : "max-w-0 opacity-0"}`}>Stiknex</span>
             <button type="button" onClick={() => setMobileSidebarOpen(false)} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-slate-500 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 lg:hidden" aria-label="Close workspace menu"><i className="fa-solid fa-xmark"></i></button>
-          </div>
+          </Link>
           <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto">
             {sections.map((section) => (
               <button

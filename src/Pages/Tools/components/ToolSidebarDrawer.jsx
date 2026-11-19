@@ -229,15 +229,14 @@ export default function ToolSidebarDrawer({
 
             {/* Bottom Drawer Footer: Support Stiknex Amber CTA */}
             <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 shrink-0">
-              <a
-                href="https://buymeacoffee.com/stiknex"
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                to="/buy-me-a-coffee"
+                onClick={onClose}
                 className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-slate-950 font-bold text-xs shadow-sm hover:shadow transition cursor-pointer"
               >
                 <Coffee size={15} />
                 <span>Support Stiknex</span>
-              </a>
+              </Link>
             </div>
           </motion.aside>
         </div>

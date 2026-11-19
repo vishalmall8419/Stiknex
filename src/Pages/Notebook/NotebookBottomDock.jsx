@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import swal from "sweetalert";
@@ -97,6 +97,44 @@ const NotebookBottomDock = ({
   const [unicodeSheetOpen, setUnicodeSheetOpen] = useState(false);
   const [unicodeCategory, setUnicodeCategory] = useState("popular");
   const [snapshotsSearch, setSnapshotsSearch] = useState("");
+
+  // Press-and-hold (Long-press) tooltip state for mobile
+  const [activeTooltip, setActiveTooltip] = useState(null);
+  const pressTimerRef = useRef(null);
+  const isLongPressRef = useRef(false);
+
+  const handleTouchStart = useCallback((key) => {
+    isLongPressRef.current = false;
+    if (pressTimerRef.current) clearTimeout(pressTimerRef.current);
+    pressTimerRef.current = setTimeout(() => {
+      isLongPressRef.current = true;
+      setActiveTooltip(key);
+      if (typeof navigator !== "undefined" && navigator.vibrate) {
+        try {
+          navigator.vibrate(25);
+        } catch (_) {}
+      }
+    }, 280);
+  }, []);
+
+  const handleTouchEnd = useCallback((e) => {
+    if (pressTimerRef.current) clearTimeout(pressTimerRef.current);
+    if (isLongPressRef.current) {
+      if (e && e.cancelable) e.preventDefault();
+      setTimeout(() => {
+        setActiveTooltip(null);
+        isLongPressRef.current = false;
+      }, 1000);
+    } else {
+      setActiveTooltip(null);
+    }
+  }, []);
+
+  const handleTouchCancel = useCallback(() => {
+    if (pressTimerRef.current) clearTimeout(pressTimerRef.current);
+    setActiveTooltip(null);
+    isLongPressRef.current = false;
+  }, []);
 
   const closeAllSheets = () => {
     setIsMenuOpen(false);
@@ -280,113 +318,264 @@ const NotebookBottomDock = ({
           aria-label="Notepad mobile navigation"
         >
           {/* 1. Home */}
-          <Link
-            to="/"
-            className="p-2.5 sm:p-3 rounded-full text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
-            title="Home"
-            aria-label="Home"
-          >
-            <Home size={18} className="shrink-0 stroke-[2.2]" />
-          </Link>
+          <div className="relative flex items-center justify-center">
+            <AnimatePresence>
+              {activeTooltip === "home" && (
+                <motion.div
+                  initial={{ opacity: 0, y: 6, scale: 0.85 }}
+                  animate={{ opacity: 1, y: -10, scale: 1 }}
+                  exit={{ opacity: 0, y: 4, scale: 0.85 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute -top-10 left-1/2 -translate-x-1/2 px-2.5 py-1 rounded-lg bg-[#0F3944] dark:bg-slate-800 text-white text-[11px] font-bold tracking-tight shadow-xl whitespace-nowrap pointer-events-none z-50 flex items-center justify-center border border-white/20"
+                >
+                  <span>Home</span>
+                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-[#0F3944] dark:bg-slate-800 rotate-45 border-r border-b border-white/20" />
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <Link
+              to="/"
+              onClick={(e) => {
+                if (isLongPressRef.current) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  return;
+                }
+              }}
+              onTouchStart={() => handleTouchStart("home")}
+              onTouchEnd={handleTouchEnd}
+              onTouchCancel={handleTouchCancel}
+              onTouchMove={handleTouchCancel}
+              onContextMenu={(e) => {
+                if (isLongPressRef.current) e.preventDefault();
+              }}
+              className="p-2.5 sm:p-3 rounded-full text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
+              title="Home"
+              aria-label="Home"
+            >
+              <Home size={18} className="shrink-0 stroke-[2.2]" />
+            </Link>
+          </div>
 
           {/* 2. Notes (ACTIVE TAB ON NOTEPAD PAGE) */}
-          <button
-            type="button"
-            onClick={() => {
-              if (isMenuOpen) {
-                setIsMenuOpen(false);
-              } else {
-                setNotebooksSheetOpen(true);
-              }
-            }}
-            className={`relative flex items-center select-none transition-all cursor-pointer ${
-              !isMenuOpen
-                ? "px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-full text-white dark:text-slate-900 font-bold text-xs sm:text-sm gap-2"
-                : "p-2.5 sm:p-3 rounded-full text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60"
-            }`}
-            title="Notes (Active) - Tap to switch notebooks"
-            aria-label="Notes"
-          >
-            {!isMenuOpen && (
-              <motion.div
-                layoutId="activeNotebookBottomPill"
-                transition={{ type: "spring", stiffness: 450, damping: 32 }}
-                className="absolute inset-0 bg-[#18202F] dark:bg-white rounded-full -z-10 shadow-md"
-              />
-            )}
-            <BookOpen size={18} className="shrink-0 stroke-[2.2]" />
-            {!isMenuOpen && (
-              <motion.span
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                className="whitespace-nowrap tracking-tight"
-              >
-                Notes
-              </motion.span>
-            )}
-          </button>
+          <div className="relative flex items-center justify-center">
+            <AnimatePresence>
+              {activeTooltip === "notes" && isMenuOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: 6, scale: 0.85 }}
+                  animate={{ opacity: 1, y: -10, scale: 1 }}
+                  exit={{ opacity: 0, y: 4, scale: 0.85 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute -top-10 left-1/2 -translate-x-1/2 px-2.5 py-1 rounded-lg bg-[#0F3944] dark:bg-slate-800 text-white text-[11px] font-bold tracking-tight shadow-xl whitespace-nowrap pointer-events-none z-50 flex items-center justify-center border border-white/20"
+                >
+                  <span>Notes</span>
+                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-[#0F3944] dark:bg-slate-800 rotate-45 border-r border-b border-white/20" />
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <button
+              type="button"
+              onClick={(e) => {
+                if (isLongPressRef.current) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  return;
+                }
+                if (isMenuOpen) {
+                  setIsMenuOpen(false);
+                } else {
+                  setNotebooksSheetOpen(true);
+                }
+              }}
+              onTouchStart={() => handleTouchStart("notes")}
+              onTouchEnd={handleTouchEnd}
+              onTouchCancel={handleTouchCancel}
+              onTouchMove={handleTouchCancel}
+              onContextMenu={(e) => {
+                if (isLongPressRef.current) e.preventDefault();
+              }}
+              className={`relative flex items-center select-none transition-all cursor-pointer ${
+                !isMenuOpen
+                  ? "px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-full text-white dark:text-slate-900 font-bold text-xs sm:text-sm gap-2"
+                  : "p-2.5 sm:p-3 rounded-full text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60"
+              }`}
+              title="Notes (Active) - Tap to switch notebooks"
+              aria-label="Notes"
+            >
+              {!isMenuOpen && (
+                <motion.div
+                  layoutId="activeNotebookBottomPill"
+                  transition={{ type: "spring", stiffness: 450, damping: 32 }}
+                  className="absolute inset-0 bg-[#18202F] dark:bg-white rounded-full -z-10 shadow-md"
+                />
+              )}
+              <BookOpen size={18} className="shrink-0 stroke-[2.2]" />
+              {!isMenuOpen && (
+                <motion.span
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  className="whitespace-nowrap tracking-tight"
+                >
+                  Notes
+                </motion.span>
+              )}
+            </button>
+          </div>
 
           {/* 3. Whiteboard */}
-          <Link
-            to="/whiteboard"
-            className="p-2.5 sm:p-3 rounded-full text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
-            title="Whiteboard"
-            aria-label="Whiteboard"
-          >
-            <PenTool size={18} className="shrink-0 stroke-[2.2]" />
-          </Link>
+          <div className="relative flex items-center justify-center">
+            <AnimatePresence>
+              {activeTooltip === "board" && (
+                <motion.div
+                  initial={{ opacity: 0, y: 6, scale: 0.85 }}
+                  animate={{ opacity: 1, y: -10, scale: 1 }}
+                  exit={{ opacity: 0, y: 4, scale: 0.85 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute -top-10 left-1/2 -translate-x-1/2 px-2.5 py-1 rounded-lg bg-[#0F3944] dark:bg-slate-800 text-white text-[11px] font-bold tracking-tight shadow-xl whitespace-nowrap pointer-events-none z-50 flex items-center justify-center border border-white/20"
+                >
+                  <span>Whiteboard</span>
+                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-[#0F3944] dark:bg-slate-800 rotate-45 border-r border-b border-white/20" />
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <Link
+              to="/whiteboard"
+              onClick={(e) => {
+                if (isLongPressRef.current) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  return;
+                }
+              }}
+              onTouchStart={() => handleTouchStart("board")}
+              onTouchEnd={handleTouchEnd}
+              onTouchCancel={handleTouchCancel}
+              onTouchMove={handleTouchCancel}
+              onContextMenu={(e) => {
+                if (isLongPressRef.current) e.preventDefault();
+              }}
+              className="p-2.5 sm:p-3 rounded-full text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
+              title="Whiteboard"
+              aria-label="Whiteboard"
+            >
+              <PenTool size={18} className="shrink-0 stroke-[2.2]" />
+            </Link>
+          </div>
 
           {/* 4. Tools */}
-          <Link
-            to="/tools"
-            className="p-2.5 sm:p-3 rounded-full text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
-            title="Tools"
-            aria-label="Tools"
-          >
-            <Wrench size={18} className="shrink-0 stroke-[2.2]" />
-          </Link>
+          <div className="relative flex items-center justify-center">
+            <AnimatePresence>
+              {activeTooltip === "tools" && (
+                <motion.div
+                  initial={{ opacity: 0, y: 6, scale: 0.85 }}
+                  animate={{ opacity: 1, y: -10, scale: 1 }}
+                  exit={{ opacity: 0, y: 4, scale: 0.85 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute -top-10 left-1/2 -translate-x-1/2 px-2.5 py-1 rounded-lg bg-[#0F3944] dark:bg-slate-800 text-white text-[11px] font-bold tracking-tight shadow-xl whitespace-nowrap pointer-events-none z-50 flex items-center justify-center border border-white/20"
+                >
+                  <span>Tools</span>
+                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-[#0F3944] dark:bg-slate-800 rotate-45 border-r border-b border-white/20" />
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <Link
+              to="/tools"
+              onClick={(e) => {
+                if (isLongPressRef.current) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  return;
+                }
+              }}
+              onTouchStart={() => handleTouchStart("tools")}
+              onTouchEnd={handleTouchEnd}
+              onTouchCancel={handleTouchCancel}
+              onTouchMove={handleTouchCancel}
+              onContextMenu={(e) => {
+                if (isLongPressRef.current) e.preventDefault();
+              }}
+              className="p-2.5 sm:p-3 rounded-full text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
+              title="Tools"
+              aria-label="Tools"
+            >
+              <Wrench size={18} className="shrink-0 stroke-[2.2]" />
+            </Link>
+          </div>
 
           {/* 5. Menu / Tools trigger */}
-          <button
-            type="button"
-            onClick={() => {
-              setIsMenuOpen((prev) => !prev);
-              setNotebooksSheetOpen(false);
-              setSnapshotsSheetOpen(false);
-              setUnicodeSheetOpen(false);
-            }}
-            className={`relative flex items-center select-none transition-all cursor-pointer ${
-              isMenuOpen
-                ? "px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-full text-white dark:text-slate-900 font-bold text-xs sm:text-sm gap-2"
-                : "p-2.5 sm:p-3 rounded-full text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60"
-            }`}
-            title="Notepad Quick Tools"
-            aria-label="Notepad Quick Tools"
-          >
-            {isMenuOpen && (
-              <motion.div
-                layoutId="activeNotebookBottomPill"
-                transition={{ type: "spring", stiffness: 450, damping: 32 }}
-                className="absolute inset-0 bg-[#18202F] dark:bg-white rounded-full -z-10 shadow-md"
-              />
-            )}
-            {isMenuOpen ? (
-              <X size={18} className="shrink-0 stroke-[2.2]" />
-            ) : (
-              <MenuIcon size={18} className="shrink-0 stroke-[2.2]" />
-            )}
-            {isMenuOpen && (
-              <motion.span
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                className="whitespace-nowrap tracking-tight"
-              >
-                Menu
-              </motion.span>
-            )}
-          </button>
+          <div className="relative flex items-center justify-center">
+            <AnimatePresence>
+              {activeTooltip === "menu" && !isMenuOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: 6, scale: 0.85 }}
+                  animate={{ opacity: 1, y: -10, scale: 1 }}
+                  exit={{ opacity: 0, y: 4, scale: 0.85 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute -top-10 left-1/2 -translate-x-1/2 px-2.5 py-1 rounded-lg bg-[#0F3944] dark:bg-slate-800 text-white text-[11px] font-bold tracking-tight shadow-xl whitespace-nowrap pointer-events-none z-50 flex items-center justify-center border border-white/20"
+                >
+                  <span>Menu</span>
+                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-[#0F3944] dark:bg-slate-800 rotate-45 border-r border-b border-white/20" />
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <button
+              type="button"
+              onClick={(e) => {
+                if (isLongPressRef.current) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  return;
+                }
+                setIsMenuOpen((prev) => !prev);
+                setNotebooksSheetOpen(false);
+                setSnapshotsSheetOpen(false);
+                setUnicodeSheetOpen(false);
+              }}
+              onTouchStart={() => handleTouchStart("menu")}
+              onTouchEnd={handleTouchEnd}
+              onTouchCancel={handleTouchCancel}
+              onTouchMove={handleTouchCancel}
+              onContextMenu={(e) => {
+                if (isLongPressRef.current) e.preventDefault();
+              }}
+              className={`relative flex items-center select-none transition-all cursor-pointer ${
+                isMenuOpen
+                  ? "px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-full text-white dark:text-slate-900 font-bold text-xs sm:text-sm gap-2"
+                  : "p-2.5 sm:p-3 rounded-full text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60"
+              }`}
+              title="Notepad Quick Tools"
+              aria-label="Notepad Quick Tools"
+            >
+              {isMenuOpen && (
+                <motion.div
+                  layoutId="activeNotebookBottomPill"
+                  transition={{ type: "spring", stiffness: 450, damping: 32 }}
+                  className="absolute inset-0 bg-[#18202F] dark:bg-white rounded-full -z-10 shadow-md"
+                />
+              )}
+              {isMenuOpen ? (
+                <X size={18} className="shrink-0 stroke-[2.2]" />
+              ) : (
+                <MenuIcon size={18} className="shrink-0 stroke-[2.2]" />
+              )}
+              {isMenuOpen && (
+                <motion.span
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  className="whitespace-nowrap tracking-tight"
+                >
+                  Menu
+                </motion.span>
+              )}
+            </button>
+          </div>
         </nav>
       </div>
 

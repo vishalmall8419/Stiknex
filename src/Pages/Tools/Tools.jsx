@@ -256,6 +256,16 @@ const Tools = ({ directSlug = null }) => {
 
   const isCatalogRoute = location.pathname === "/tools" || location.pathname === "/tools/";
 
+  // If a slug came from URL (/:toolSlug route) but it's not a known tool → show 404
+  const isUnknownSlug = useMemo(() => {
+    if (isCatalogRoute) return false;
+    if (directSlug) return false; // explicitly mapped routes are always valid
+    if (location.pathname.startsWith("/tools/")) return false; // /tools/:toolId handled separately
+    const currentPath = location.pathname.replace(/^\//, "");
+    if (!currentPath) return false;
+    return !slugMap[currentPath];
+  }, [isCatalogRoute, directSlug, location.pathname]);
+
   const activeToolData = useMemo(() => {
     if (!activeSlug) return null;
     return (
@@ -390,26 +400,17 @@ const Tools = ({ directSlug = null }) => {
     }
   };
 
-  const STANDALONE_WORKSTATION_SLUGS = new Set([
-    "basic-calculator",
-    "simple-calculator",
-    "scientific-calculator",
-    "age-calculator",
-    "date-calculator",
-    "date-difference-calculator",
-    "percentage-calculator",
-    "time-calculator",
-    "unit-converter",
-    "temperature-converter",
-    "stiknex-typing"
-  ]);
+  // All individual tools are rendered as full-screen standalone workstations (like basic-calculator)
+  const isToolFullscreen = Boolean(activeToolData);
 
-  const isCalculatorFullscreen = Boolean(
-    activeToolData && STANDALONE_WORKSTATION_SLUGS.has(activeToolData.slug)
-  );
+  // Unknown slug → render 404 immediately (before any AppShell/SEO boilerplate)
+  if (isUnknownSlug) {
+    const requestedSlug = location.pathname.replace(/^\//, "");
+    return <NotFound requestedSlug={requestedSlug} />;
+  }
 
   return (
-    <AppShell fullWidth={true} hideNav={isCalculatorFullscreen} hideFooter={isCalculatorFullscreen}>
+    <AppShell fullWidth={true} hideNav={isToolFullscreen} hideFooter={isToolFullscreen}>
       <PageSEO
         title={seoData.title || (activeToolData ? `${activeToolData.title} | Free Online Utility – Stiknex` : "Free Online Tools Directory (200+ Utilities) – Stiknex")}
         description={seoData.description || (activeToolData ? activeToolData.tagline : "Explore 200+ free online utility tools across 20 categories. Calculators, converters, developer tools, formatters, and typing master.")}
@@ -419,7 +420,7 @@ const Tools = ({ directSlug = null }) => {
         faqs={seoData.faqs || null}
       />
 
-      {isCalculatorFullscreen ? (
+      {isToolFullscreen ? (
         <div className="w-full min-h-screen">
           {renderToolEngine(activeToolData)}
         </div>
@@ -432,7 +433,7 @@ const Tools = ({ directSlug = null }) => {
           <div className="absolute top-1/3 -right-24 w-[420px] h-[420px] rounded-full bg-gradient-to-tl from-purple-500/15 via-indigo-500/10 to-transparent blur-[85px] transform-gpu pointer-events-none"></div>
         </div>
 
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-20 sm:pt-28">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-6 sm:pt-10">
 
           {/* =========================================================
               ACTIVE TOOL VIEW: DEDICATED TOOL WORKSPACE
@@ -501,7 +502,7 @@ const Tools = ({ directSlug = null }) => {
                   HERO SECTION: REPLICATED EXACTLY FROM REFERENCE (media_1795078740182_eaa74192.jpg)
                   "Cabin In The Woods But In A Good Way!" Concept for Tools
               ========================================================== */}
-              <div className="mb-14 pt-4 sm:pt-8 pb-4">
+              <div className="mb-10 pt-2 pb-2">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
                   
                   {/* Left Column: Typography, Playful Doodle & Obsidian Pill CTA */}
@@ -592,12 +593,16 @@ const Tools = ({ directSlug = null }) => {
                             <span className="w-2 h-2 rounded-full bg-slate-900 border border-slate-800"></span>
                           </div>
 
-                          {/* App Topbar (Avatar + Brand) */}
+                          {/* App Topbar (Logo + Brand) */}
                           <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-200/60 dark:border-slate-800">
                             <div className="flex items-center gap-1.5">
-                              <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 text-white flex items-center justify-center text-[10px] font-bold">
-                                S
-                              </div>
+                              <img
+                                src="/logo.png"
+                                alt="Stiknex Logo"
+                                width="24"
+                                height="24"
+                                className="w-5 h-5 object-contain"
+                              />
                               <span className="text-xs font-black tracking-tight">Stiknex.</span>
                             </div>
                             <div className="flex items-center gap-1.5">

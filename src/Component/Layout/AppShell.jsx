@@ -264,6 +264,7 @@ const AppShell = ({ children, hideNav = false, hideFooter = false, fullWidth = f
                 <Link to="/terms-of-service" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Terms</Link>
                 <Link to="/blog" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Blog</Link>
                 <Link to="/buy-me-a-coffee" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Support</Link>
+                <Link to="/sitemap" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Sitemap</Link>
                 <button
                   type="button"
                   onClick={() => {

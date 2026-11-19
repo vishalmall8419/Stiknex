@@ -66,8 +66,11 @@ export function escapeHtml(str) {
  */
 export function plainTextToHtml(plain) {
   if (!plain) return "<p><br></p>";
-  // Check if string is already HTML
-  if (/<(p|div|ul|ol|li|img|span|h[1-6]|table|blockquote)\b/i.test(plain)) {
+  // Check if string is already HTML or contains HTML markup
+  if (
+    /<(p|div|ul|ol|li|img|span|h[1-6]|table|blockquote|html|head|body|pre|code|section|header|nav|style|script|meta|link)\b/i.test(plain) ||
+    /<!DOCTYPE\b/i.test(plain)
+  ) {
     return plain;
   }
   const lines = plain.split("\n");

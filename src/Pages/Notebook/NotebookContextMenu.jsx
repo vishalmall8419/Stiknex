@@ -9,6 +9,8 @@ const NotebookContextMenu = ({
   selectedText,
   onClose,
   onRunCode,
+  isCodeExecutable = false,
+  onFormatCode,
   onAddComment,
   onTranslate,
   onInsertImageUrl,
@@ -90,8 +92,8 @@ const NotebookContextMenu = ({
       role="menu"
       aria-label="Notebook actions menu"
     >
-            {/* RUN HTML, CSS & JAVASCRIPT CODE */}
-      {onRunCode && (
+            {/* RUN HTML, CSS & JAVASCRIPT CODE - ONLY SHOWN WHEN CODE IS WRITTEN */}
+      {onRunCode && isCodeExecutable && (
         <button
           type="button"
           className={Style.item}
@@ -101,6 +103,20 @@ const NotebookContextMenu = ({
           <i className="fa-solid fa-play" style={{ color: "#10b981" }}></i>
           <span>{selectedText ? "Run Selected Code in New Tab" : "Run Code in New Tab"}</span>
           <span className={Style.shortcut}>Ctrl+Enter</span>
+        </button>
+      )}
+
+      {/* FORMAT HTML, CSS & JAVASCRIPT CODE - ONLY SHOWN WHEN CODE IS WRITTEN */}
+      {onFormatCode && isCodeExecutable && (
+        <button
+          type="button"
+          className={Style.item}
+          onClick={() => handleAction(onFormatCode)}
+          style={{ fontWeight: 600, color: "#3b82f6" }}
+        >
+          <i className="fa-solid fa-code" style={{ color: "#3b82f6" }}></i>
+          <span>{selectedText ? "Format Selected Code" : "Format Code"}</span>
+          <span className={Style.shortcut}>Alt+Shift+F</span>
         </button>
       )}
 

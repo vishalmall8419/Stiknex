@@ -962,10 +962,16 @@
 .editor img[src=""],
 .editor img[src="#"],
 .editor img[src$='""'],
+.editor img[src*="unsplash.com"],
 .editor img.stiknex-broken-img {
   display: none !important;
   visibility: hidden !important;
 }
+
+.editor img {
+  max-width: 100%;
+}
+
 
 /* Prevent unwanted scrolling when notepad is completely empty */
 .paperAreaEmpty,

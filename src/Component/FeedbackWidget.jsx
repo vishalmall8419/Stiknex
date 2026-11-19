@@ -7,6 +7,8 @@ import {
   Send,
   CheckCircle2,
   Loader2,
+  Sparkles,
+  ShieldCheck,
 } from "lucide-react";
 
 const FeedbackWidget = ({ tool = "stiknex", showButton = true }) => {
@@ -21,9 +23,16 @@ const FeedbackWidget = ({ tool = "stiknex", showButton = true }) => {
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
-    const openFeedback = () => setIsOpen(true);
-    window.addEventListener("stiknex_open_feedback", openFeedback);
-    return () => window.removeEventListener("stiknex_open_feedback", openFeedback);
+    const handleOpenFeedback = (e) => {
+      setIsOpen(true);
+      if (e?.detail?.mode === "review") {
+        setMode("review");
+      } else if (e?.detail?.mode === "message") {
+        setMode("message");
+      }
+    };
+    window.addEventListener("stiknex_open_feedback", handleOpenFeedback);
+    return () => window.removeEventListener("stiknex_open_feedback", handleOpenFeedback);
   }, []);
 
   const handleSubmit = async (e) => {
@@ -40,7 +49,7 @@ const FeedbackWidget = ({ tool = "stiknex", showButton = true }) => {
       tool: mode === "message" ? "Direct Message" : tool,
       userName: name.trim() || "Anonymous",
       userEmail: email.trim(),
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     };
 
     try {
@@ -59,7 +68,7 @@ const FeedbackWidget = ({ tool = "stiknex", showButton = true }) => {
           setMessage("");
           setName("");
           setEmail("");
-        }, 2500);
+        }, 2200);
       } else {
         const errorData = await res.json().catch(() => null);
         console.warn("Feedback submission returned non-ok:", res.status, errorData);
@@ -77,7 +86,7 @@ const FeedbackWidget = ({ tool = "stiknex", showButton = true }) => {
           setMessage("");
           setName("");
           setEmail("");
-        }, 2500);
+        }, 2200);
       }
     } catch (err) {
       console.warn("Feedback network error, saving locally:", err);
@@ -95,18 +104,18 @@ const FeedbackWidget = ({ tool = "stiknex", showButton = true }) => {
         setMessage("");
         setName("");
         setEmail("");
-      }, 2500);
+      }, 2200);
     }
   };
 
   if (!showButton && !isOpen) return null;
 
   return (
-    <motion.div 
-      drag 
-      dragMomentum={false} 
+    <motion.div
+      drag
+      dragMomentum={false}
       dragElastic={0.15}
-      className="fixed bottom-6 right-6 z-[9999] font-sans cursor-grab active:cursor-grabbing select-none touch-none"
+      className="fixed bottom-24 sm:bottom-6 right-4 sm:right-6 z-[9999] font-sans cursor-grab active:cursor-grabbing select-none touch-none"
     >
       <AnimatePresence>
         {isOpen && (
@@ -114,75 +123,104 @@ const FeedbackWidget = ({ tool = "stiknex", showButton = true }) => {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="absolute bottom-16 right-0 w-80 sm:w-96 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden"
+            className="absolute bottom-14 sm:bottom-16 right-0 w-[340px] sm:w-[400px] bg-white dark:bg-[#0B0F17] rounded-3xl shadow-2xl border border-[#EADFD5] dark:border-slate-800 overflow-hidden max-h-[82vh] overflow-y-auto"
           >
-            <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-4 flex justify-between items-center">
-              <div>
-                <h3 className="font-bold text-base flex items-center gap-2">
-                  <MessageSquare size={18} /> {mode === "message" ? "Send a Message" : "Leave a Review"}
+            {/* Header: Circle & Stiknex Brand Gradient */}
+            <div className="bg-gradient-to-r from-[#134E5E] via-[#1D6A7D] to-[#0F3944] text-white p-5 flex justify-between items-start relative overflow-hidden">
+              <div className="absolute top-0 right-0 -mr-6 -mt-6 w-28 h-28 bg-[#FFA07A]/20 rounded-full blur-xl pointer-events-none" />
+
+              <div className="relative z-10">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-white/15 text-[#FFA07A] border border-white/10">
+                    <Sparkles size={11} /> Developer Inbox
+                  </span>
+                  <span className="flex items-center gap-1 text-[11px] text-white/80">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    Online
+                  </span>
+                </div>
+                <h3 className="font-extrabold text-lg flex items-center gap-2 tracking-tight">
+                  <MessageSquare size={18} className="text-[#FFA07A]" />
+                  {mode === "message" ? "Send a Message" : "Rate & Review Stiknex"}
                 </h3>
-                <p className="text-xs text-indigo-100">We respond to every message!</p>
+                <p className="text-xs text-white/75 mt-0.5">
+                  {mode === "message"
+                    ? "Share ideas, feature requests, or report issues directly."
+                    : "Your feedback helps us keep Stiknex free & independent."}
+                </p>
               </div>
+
               <button
                 onClick={() => setIsOpen(false)}
-                className="hover:bg-white/20 p-1 rounded-full transition"
+                className="relative z-10 p-1.5 rounded-full text-white/80 hover:text-white hover:bg-white/15 transition-colors cursor-pointer"
                 aria-label="Close message widget"
               >
                 <X size={18} />
               </button>
             </div>
 
-            {/* Mode switch */}
-            <div className="flex border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40 p-1.5 gap-1.5">
+            {/* Mode Switcher Tabs */}
+            <div className="flex border-b border-[#EADFD5] dark:border-slate-800 bg-[#FAF7F2] dark:bg-slate-900/60 p-1.5 gap-1.5">
               <button
                 type="button"
                 onClick={() => setMode("message")}
-                className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                className={`flex-1 py-2 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                   mode === "message"
-                    ? "bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm"
-                    : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                    ? "bg-white dark:bg-slate-800 text-[#134E5E] dark:text-emerald-400 shadow-xs border border-[#EADFD5] dark:border-slate-700"
+                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                 }`}
               >
-                ✉️ Send Message
+                <span>✉️</span>
+                <span>Send Message</span>
               </button>
               <button
                 type="button"
                 onClick={() => setMode("review")}
-                className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                className={`flex-1 py-2 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                   mode === "review"
-                    ? "bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm"
-                    : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                    ? "bg-white dark:bg-slate-800 text-[#134E5E] dark:text-emerald-400 shadow-xs border border-[#EADFD5] dark:border-slate-700"
+                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                 }`}
               >
-                ⭐ Rate & Review
+                <span>⭐</span>
+                <span>Rate & Review</span>
               </button>
             </div>
 
-            <div className="p-5">
+            {/* Form Body */}
+            <div className="p-5 bg-white dark:bg-[#0B0F17]">
               {status === "success" ? (
                 <div className="flex flex-col items-center justify-center py-8 text-center">
                   <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    className="text-green-500 mb-3"
+                    className="text-emerald-500 mb-3"
                   >
                     <CheckCircle2 size={48} />
                   </motion.div>
-                  <h4 className="font-bold text-lg text-slate-800 dark:text-white">
-                    {mode === "message" ? "Message Sent!" : "Thank You!"}
+                  <h4 className="font-extrabold text-lg text-slate-900 dark:text-white">
+                    {mode === "message" ? "Message Dispatched!" : "Thank You for the Review!"}
                   </h4>
-                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
-                    {mode === "message" ? "Thank you for getting in touch. We will review your message soon." : "Your feedback helps us make Stiknex better."}
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 max-w-xs">
+                    {mode === "message"
+                      ? "Thank you for getting in touch. Vishal Mall reads every note and will get back to you shortly."
+                      : "Your review powers our community and keeps Stiknex completely free and private."}
                   </p>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+                <form onSubmit={handleSubmit} className="flex flex-col gap-3.5">
+                  {/* Star Rating Area */}
                   {mode === "review" && (
-                    <div>
-                      <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 block">
-                        How would you rate your experience?
-                      </label>
-                      <div className="flex gap-2">
+                    <div className="p-3 rounded-2xl bg-[#FAF7F2] dark:bg-slate-900/60 border border-[#EADFD5] dark:border-slate-800">
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                          Overall Rating
+                        </label>
+                        <span className="text-xs font-semibold text-amber-500 dark:text-amber-400">
+                          {hoverRating || rating} / 5 Stars
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
                         {[1, 2, 3, 4, 5].map((star) => (
                           <button
                             key={star}
@@ -190,14 +228,14 @@ const FeedbackWidget = ({ tool = "stiknex", showButton = true }) => {
                             onMouseEnter={() => setHoverRating(star)}
                             onMouseLeave={() => setHoverRating(0)}
                             onClick={() => setRating(star)}
-                            className="focus:outline-none transition-transform hover:scale-110"
+                            className="p-1 focus:outline-none transition-transform hover:scale-125 cursor-pointer"
                           >
                             <Star
-                              size={24}
+                              size={26}
                               className={
                                 (hoverRating || rating) >= star
-                                  ? "fill-amber-400 text-amber-400"
-                                  : "text-slate-300 dark:text-slate-600"
+                                  ? "fill-amber-400 text-amber-400 drop-shadow-xs"
+                                  : "text-slate-300 dark:text-slate-700 hover:text-amber-300"
                               }
                             />
                           </button>
@@ -206,9 +244,10 @@ const FeedbackWidget = ({ tool = "stiknex", showButton = true }) => {
                     </div>
                   )}
 
-                  <div className="grid grid-cols-2 gap-2">
+                  {/* Name and Email Fields */}
+                  <div className="grid grid-cols-2 gap-2.5">
                     <div>
-                      <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 block">
+                      <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1 block uppercase tracking-wider">
                         Your Name
                       </label>
                       <input
@@ -216,11 +255,11 @@ const FeedbackWidget = ({ tool = "stiknex", showButton = true }) => {
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         placeholder="John Doe"
-                        className="w-full px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-xs dark:text-white"
+                        className="w-full px-3 py-2 bg-[#FAF7F2] dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-[#134E5E] focus:outline-none text-xs text-slate-900 dark:text-white placeholder:text-slate-400 transition-all"
                       />
                     </div>
                     <div>
-                      <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 block">
+                      <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1 block uppercase tracking-wider">
                         Email {mode === "message" ? "(for reply)" : "(optional)"}
                       </label>
                       <input
@@ -228,22 +267,27 @@ const FeedbackWidget = ({ tool = "stiknex", showButton = true }) => {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="john@example.com"
-                        className="w-full px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-xs dark:text-white"
+                        className="w-full px-3 py-2 bg-[#FAF7F2] dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-[#134E5E] focus:outline-none text-xs text-slate-900 dark:text-white placeholder:text-slate-400 transition-all"
                       />
                     </div>
                   </div>
 
+                  {/* Message Field */}
                   <div>
-                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 block">
-                      {mode === "message" ? "Your Message / Question" : "Your Review"}
+                    <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1 block uppercase tracking-wider">
+                      {mode === "message" ? "Message / Feature Request" : "Your Review"}
                     </label>
                     <textarea
                       required
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
-                      placeholder={mode === "message" ? "Type your message, feature request or issue here..." : "Share what you like or how we can improve..."}
+                      placeholder={
+                        mode === "message"
+                          ? "Type your message, suggestion, or question here..."
+                          : "Tell others why you love Stiknex or how it helped your workflow..."
+                      }
                       rows={3}
-                      className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-xs dark:text-white resize-none"
+                      className="w-full px-3.5 py-2.5 bg-[#FAF7F2] dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-[#134E5E] focus:outline-none text-xs text-slate-900 dark:text-white placeholder:text-slate-400 resize-none transition-all leading-relaxed"
                     />
                   </div>
 
@@ -253,19 +297,26 @@ const FeedbackWidget = ({ tool = "stiknex", showButton = true }) => {
                     </p>
                   )}
 
+                  {/* Submit Button */}
                   <button
                     type="submit"
                     disabled={status === "submitting" || !message.trim()}
-                    className="w-full py-2 bg-indigo-600 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-2 hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed mt-1 shadow-sm"
+                    className="w-full py-3 bg-gradient-to-r from-[#134E5E] via-[#1D6A7D] to-[#0F3944] text-white rounded-xl text-xs font-extrabold flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-[#134E5E]/25 hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-md"
                   >
                     {status === "submitting" ? (
                       <Loader2 className="animate-spin" size={16} />
                     ) : (
                       <>
-                        <Send size={14} /> {mode === "message" ? "Send Message" : "Submit Review"}
+                        <Send size={14} className="text-[#FFA07A]" />
+                        <span>{mode === "message" ? "Send Message" : "Submit Review"}</span>
                       </>
                     )}
                   </button>
+
+                  <div className="flex items-center justify-center gap-1.5 text-[11px] text-slate-400 mt-0.5">
+                    <ShieldCheck size={12} className="text-emerald-500" />
+                    <span>Private &amp; spam-free. We never share your email.</span>
+                  </div>
                 </form>
               )}
             </div>
@@ -273,24 +324,25 @@ const FeedbackWidget = ({ tool = "stiknex", showButton = true }) => {
         )}
       </AnimatePresence>
 
+      {/* Floating Launcher Pill Button */}
       {showButton && (
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="relative flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-full shadow-[0_4px_16px_rgba(79,70,229,0.35)] hover:shadow-[0_6px_22px_rgba(79,70,229,0.5)] border border-white/20 hover:scale-105 active:scale-95 transition-all text-xs font-semibold group cursor-grab active:cursor-grabbing backdrop-blur-md"
-          title="Feedback & Support (Drag me anywhere)"
+          className="relative flex items-center gap-2 px-3.5 py-2 bg-gradient-to-r from-[#134E5E] via-[#1D6A7D] to-[#0F3944] hover:brightness-110 text-white rounded-full shadow-[0_4px_20px_rgba(19,78,94,0.35)] hover:shadow-[0_6px_25px_rgba(19,78,94,0.5)] border border-white/20 hover:scale-105 active:scale-95 transition-all text-xs font-bold group cursor-grab active:cursor-grabbing backdrop-blur-md"
+          title="Feedback & Support (Drag anywhere)"
           aria-label="Send Feedback"
         >
           <span className="relative flex items-center justify-center">
             {isOpen ? (
-              <X size={14} />
+              <X size={15} />
             ) : (
               <>
-                <MessageSquare size={14} className="group-hover:rotate-12 transition-transform" />
-                <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-indigo-600 animate-pulse" />
+                <MessageSquare size={15} className="group-hover:rotate-12 transition-transform text-[#FFA07A]" />
+                <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-[#134E5E] animate-pulse" />
               </>
             )}
           </span>
-          <span className="text-[11px] font-bold tracking-tight">Feedback</span>
+          <span className="hidden sm:inline font-semibold">Feedback</span>
         </button>
       )}
     </motion.div>
