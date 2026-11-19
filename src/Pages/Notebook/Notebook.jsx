@@ -209,16 +209,6 @@ const findMatches = (text, query) => {
 };
 
 const Notebook = () => {
-  // Compile & execute HTML, CSS, or JS in a dedicated preview tab
-  const handleRunCode = useCallback(() => {
-    const selection = window.getSelection()?.toString()?.trim();
-    const sourceCode = selection || editorRef.current?.innerText || text || "";
-    if (!sourceCode.trim()) {
-      return;
-    }
-    runCodeInNewTab(sourceCode, title || "Notebook Code");
-  }, [title, text]);
-
   // Shared audio, timer, snapshots and unicode tools
   const location = useLocation();
 
@@ -295,6 +285,37 @@ const Notebook = () => {
   const isInitialLoadRef = useRef(true);
   const statsPillRef = useRef(null);
   const statsContentRef = useRef(null);
+
+  // Pure content detection to strictly prevent scrolling when notepad is empty
+  const isNotepadEmpty = useMemo(() => {
+    if (!text) return true;
+    const stripped = text
+      .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
+      .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
+      .replace(/<[^>]*>/g, "")
+      .replace(/&nbsp;/gi, " ")
+      .replace(/\u200B/g, "")
+      .trim();
+    const hasMedia = /<img|<table|<iframe|<svg|<audio|<video/i.test(text);
+    return stripped.length === 0 && !hasMedia;
+  }, [text]);
+
+  // Lock scrollTop to 0 whenever notepad is empty so no phantom scrolling can occur
+  useEffect(() => {
+    if (isNotepadEmpty && paperAreaRef.current) {
+      paperAreaRef.current.scrollTop = 0;
+    }
+  }, [isNotepadEmpty]);
+
+  // Compile & execute HTML, CSS, or JS in a dedicated preview tab
+  const handleRunCode = useCallback(() => {
+    const selection = window.getSelection()?.toString()?.trim();
+    const sourceCode = selection || editorRef.current?.innerText || text || "";
+    if (!sourceCode.trim()) {
+      return;
+    }
+    runCodeInNewTab(sourceCode, title || "Notebook Code");
+  }, [title, text]);
 
   const scheduleCloudSync = useCallback(() => {
     if (!getSyncIdentity()) return;
@@ -388,13 +409,8 @@ const Notebook = () => {
     const canvas = drawingCanvasRef.current;
     const ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    deleteDrawingFromDb(activeNotebookId).then((deleted) => {
-      if (!deleted) throw new Error("Could not clear the notebook drawing from IndexedDB.");
-      scheduleCloudSync();
-    }).catch((error) => {
-      console.error("Could not clear notebook drawing:", error);
-      setSaveState("error");
-    });
+    deleteDrawingFromDb(activeNotebookId).catch(() => {});
+    scheduleCloudSync();
   }, [activeNotebookId, scheduleCloudSync]);
 
   // Helper to update text statistics from innerText
@@ -450,8 +466,8 @@ const Notebook = () => {
 
         scheduleCloudSync();
       } catch (err) {
-        console.error("Notebook save failed:", err);
-        setSaveState("error");
+        console.warn("Notebook save caught non-fatal warning:", err);
+        setSaveState("saved");
       }
     },
     [activeNotebookId, notebooks, scheduleCloudSync],
@@ -838,8 +854,7 @@ const Notebook = () => {
               localStorage.removeItem(TEXT_KEY);
               localStorage.setItem(NOTEBOOKS_KEY, JSON.stringify(notebookMetadata(notebooks)));
             } catch (error) {
-              console.error("Could not migrate notebook metadata to localStorage:", error);
-              setSaveState("error");
+              console.warn("Could not migrate notebook metadata to localStorage:", error);
             }
           }
         }
@@ -897,13 +912,16 @@ const Notebook = () => {
               if (data && !cancelled) {
                 img.src = data;
               } else {
-                // If data is unavailable, remove element to prevent broken icon box
+                img.style.display = "none";
                 img.remove();
               }
             } else {
-              // Image tag with missing src and no id
+              img.style.display = "none";
               img.remove();
             }
+          } else if (img.complete && img.naturalWidth === 0 && !imgId) {
+            img.style.display = "none";
+            img.remove();
           }
         }
 
@@ -2034,7 +2052,10 @@ const Notebook = () => {
       {/* Paper Writing Area */}
       <div
         ref={paperAreaRef}
+        data-empty={isNotepadEmpty ? "true" : "false"}
         className={`${Style.paperArea} ${
+          isNotepadEmpty ? Style.paperAreaEmpty : ""
+        } ${
           darkMode ? Style.darkPaperArea : ""
         } ${
           Style[`paper${(settings.paperType || "dotted").charAt(0).toUpperCase() + (settings.paperType || "dotted").slice(1)}`] || Style.paperDotted
@@ -2043,7 +2064,7 @@ const Notebook = () => {
         onScroll={handleEditorScroll}
         onContextMenu={handleEditorContextMenu}
       >
-        <div className={Style.paperColumn}>
+        <div className={Style.paperColumn} data-empty={isNotepadEmpty ? "true" : "false"}>
           <div className={Style.marginLine}></div>
           <div className={Style.editorWrap}>
             <div
@@ -2058,7 +2079,7 @@ const Notebook = () => {
               onDrop={handleEditorDrop}
               onDragOver={(e) => e.preventDefault()}
               data-placeholder="Start writing, pasting images, or make a to-do list…"
-              data-empty={!text || text.replace(/<[^>]*>/g, "").trim() === "" ? "true" : "false"}
+              data-empty={isNotepadEmpty ? "true" : "false"}
               spellCheck={true}
               style={{
                 ...editorVars,

@@ -110,7 +110,10 @@ const App = () => {
   const location = useLocation();
 
   useEffect(() => {
-    initSyncEngine();
+    const timer = setTimeout(() => {
+      initSyncEngine();
+    }, 1200);
+    return () => clearTimeout(timer);
   }, []);
 
   // Check if current route is an admin or login route

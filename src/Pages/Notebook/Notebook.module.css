@@ -57,6 +57,7 @@
   box-sizing: border-box;
 }
 
+.paperColumn[data-empty="false"],
 .paperColumn:has(.editor[data-empty="false"]) {
   padding-bottom: 3.5rem;
 }
@@ -297,7 +298,8 @@
     min-height: 100%;
   }
 
-  .paperColumn:has(.editor[data-empty="false"]) {
+  .paperColumn[data-empty="false"],
+.paperColumn:has(.editor[data-empty="false"]) {
     padding-bottom: 3.5rem;
   }
 }
@@ -317,7 +319,8 @@
     min-height: 100%;
   }
 
-  .paperColumn:has(.editor[data-empty="false"]) {
+  .paperColumn[data-empty="false"],
+.paperColumn:has(.editor[data-empty="false"]) {
     padding-bottom: max(75px, calc(env(safe-area-inset-bottom, 16px) + 60px));
   }
 
@@ -965,6 +968,34 @@
 }
 
 /* Prevent unwanted scrolling when notepad is completely empty */
+.paperAreaEmpty,
+.paperArea[data-empty="true"],
 .paperArea:has(.editor[data-empty="true"]) {
   overflow-y: hidden !important;
+  overscroll-behavior-y: none !important;
+}
+
+.paperAreaEmpty .paperColumn,
+.paperColumn[data-empty="true"],
+.paperArea:has(.editor[data-empty="true"]) .paperColumn {
+  padding-bottom: 0 !important;
+  min-height: 100% !important;
+  max-height: 100% !important;
+  height: 100% !important;
+  overflow: hidden !important;
+}
+
+.paperAreaEmpty .editorWrap,
+.paperArea[data-empty="true"] .editorWrap {
+  height: 100% !important;
+  min-height: 0 !important;
+  max-height: 100% !important;
+  overflow: hidden !important;
+}
+
+.paperAreaEmpty .editor,
+.editor[data-empty="true"] {
+  min-height: 0 !important;
+  max-height: 100% !important;
+  overflow: hidden !important;
 }

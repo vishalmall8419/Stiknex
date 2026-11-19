@@ -25,7 +25,11 @@ const NotebookDrawingCanvas = ({
 
     // Use actual paper/content dimensions without inflating empty containers
     const contentWidth = Math.max(parent.clientWidth, paperCol ? paperCol.scrollWidth : parent.clientWidth);
-    const hasOverflow = paperCol && paperCol.scrollHeight > parent.clientHeight + 4;
+    const isEmpty =
+      parent.getAttribute?.("data-empty") === "true" ||
+      parent.className?.includes?.("paperAreaEmpty") ||
+      paperCol?.getAttribute?.("data-empty") === "true";
+    const hasOverflow = !isEmpty && paperCol && paperCol.scrollHeight > parent.clientHeight + 4;
     const contentHeight = hasOverflow ? paperCol.scrollHeight : parent.clientHeight;
     const dpr = window.devicePixelRatio || 1;
 

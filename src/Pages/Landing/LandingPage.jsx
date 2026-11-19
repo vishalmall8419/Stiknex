@@ -58,6 +58,7 @@ const LandingPage = () => {
   const [showExtensionModal, setShowExtensionModal] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const containerRef = useRef(null);
+  const [isDesktop] = useState(() => typeof window !== "undefined" && window.innerWidth >= 768 && !window.matchMedia("(pointer: coarse)").matches);
   const { scrollYProgress } = useScroll();
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
   
@@ -276,7 +277,7 @@ const LandingPage = () => {
       </header>
 
       <section className="relative pt-40 pb-20 px-6 min-h-screen flex items-center justify-center">
-        <motion.div style={{ y }} className="max-w-5xl mx-auto text-center z-10 w-full">
+        <motion.div style={isDesktop ? { y } : undefined} className="max-w-5xl mx-auto text-center z-10 w-full">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-medium text-xs sm:text-sm mb-6 sm:mb-8 border border-indigo-100 dark:border-indigo-500/20 whitespace-normal sm:whitespace-nowrap mx-auto max-w-full">
             <Sparkles size={16} className="shrink-0" /> Welcome to the new standard of ideation
           </div>

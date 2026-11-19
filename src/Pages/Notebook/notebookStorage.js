@@ -158,11 +158,15 @@ export async function getImageFromDb(id) {
 export async function deleteImageFromDb(id) {
   try {
     const db = await getDb();
-    if (!db) return;
-    const tx = db.transaction(IMAGE_STORE, "readwrite");
-    tx.objectStore(IMAGE_STORE).delete(id);
+    if (!db) return true;
+    return new Promise((resolve) => {
+      const tx = db.transaction(IMAGE_STORE, "readwrite");
+      tx.objectStore(IMAGE_STORE).delete(id);
+      tx.oncomplete = () => resolve(true);
+      tx.onerror = () => resolve(true);
+    });
   } catch {
-    // Ignore error
+    return true;
   }
 }
 

@@ -88,7 +88,21 @@
       media="print"
       onload="this.media = 'all'"
     />
-    <script src="https://analytics.ahrefs.com/analytics.js" data-key="IEHiuBH1/JDP856Q71eNHg" async></script>
+    <!-- Non-Blocking Deferred Analytics (Loaded after page load to preserve performance) -->
+    <script>
+      window.addEventListener('load', function() {
+        var ahrefs = document.createElement('script');
+        ahrefs.src = 'https://analytics.ahrefs.com/analytics.js';
+        ahrefs.setAttribute('data-key', 'IEHiuBH1/JDP856Q71eNHg');
+        ahrefs.async = true;
+        document.head.appendChild(ahrefs);
+
+        var shown = document.createElement('script');
+        shown.src = 'https://shown.io/metrics/5M0ZDpyy8P';
+        shown.defer = true;
+        document.body.appendChild(shown);
+      });
+    </script>
 
     <!-- =========================================================
          STIKNEX - SEO & META CONFIGURATION
@@ -362,12 +376,5 @@
     <div id="root"></div>
 
     <script type="module" src="/src/main.jsx"></script>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8724450228854599"
-     crossorigin="anonymous"></script>
-    <script
-      defer
-      src="https://shown.io/metrics/5M0ZDpyy8P"
-      type="text/javascript"
-    ></script>
   </body>
 </html>

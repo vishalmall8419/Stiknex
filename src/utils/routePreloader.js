@@ -35,7 +35,7 @@ export function preloadRoute(path) {
   }
 
   // Handle /tools/* or other tool slugs
-  if (cleanPath.startsWith('/tools') || cleanPath.startsWith('/')) {
+  if (cleanPath.startsWith('/tools')) {
     if (!preloadedRoutes.has('/tools')) {
       preloadedRoutes.add('/tools');
       try {
@@ -46,7 +46,8 @@ export function preloadRoute(path) {
 }
 
 /**
- * Initialize universal hover, touch, pointer and idle preloading
+ * Initialize universal hover, touch and pointer preloading
+ * Preloads targeted route chunks within 100-300ms before click without bloating initial page load
  */
 export function initRoutePreloader() {
   if (typeof window === 'undefined') return;
@@ -69,15 +70,4 @@ export function initRoutePreloader() {
   // Touch on mobile / Android / PWA (fires 100-300ms before click event!)
   document.addEventListener('touchstart', handleInteraction, { passive: true });
   document.addEventListener('pointerdown', handleInteraction, { passive: true });
-
-  // Idle background preloading: load core app pages when the browser is idle
-  const idleCallback = window.requestIdleCallback || ((cb) => setTimeout(cb, 1200));
-  idleCallback(() => {
-    // Preload top core routes so they are already warm in memory
-    preloadRoute('/sticky-notes');
-    preloadRoute('/whiteboard');
-    preloadRoute('/online-notebook');
-    preloadRoute('/tools');
-    preloadRoute('/dashboard');
-  });
 }
