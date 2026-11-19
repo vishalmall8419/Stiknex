@@ -487,6 +487,14 @@
     height: 30px !important;
   }
 
+  .runCodeBtn {
+    width: auto !important;
+    min-width: 60px !important;
+    height: 30px !important;
+    padding: 0 9px !important;
+    gap: 5px !important;
+  }
+
   .blockDropdownBtn {
     height: 30px;
     padding: 0 6px;
@@ -534,6 +542,14 @@
   .eraserBtn {
     width: auto !important;
     min-width: 32px !important;
+    height: 28px !important;
+    padding: 0 7px !important;
+    gap: 4px !important;
+  }
+
+  .runCodeBtn {
+    width: auto !important;
+    min-width: 54px !important;
     height: 28px !important;
     padding: 0 7px !important;
     gap: 4px !important;
@@ -801,14 +817,24 @@ button.paperBtn .btnLabel,
 
 /* Stiknex Code Runner Button */
 .runCodeBtn {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 0 10px;
+  justify-content: center;
+  width: auto !important;
+  min-width: 68px !important;
+  height: 32px !important;
+  gap: 6px;
+  padding: 0 12px !important;
   border-radius: 8px;
   background: rgba(16, 185, 129, 0.08);
-  border: 1px solid rgba(16, 185, 129, 0.25);
+  border: 1px solid rgba(16, 185, 129, 0.28);
   color: #059669;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+  box-sizing: border-box;
   cursor: pointer;
   transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }

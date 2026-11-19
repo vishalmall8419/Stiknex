@@ -1423,7 +1423,7 @@ const RichTextToolbar = ({
           <div className={Style.divider} />
           <button
             type="button"
-            className={`${Style.toolBtn} ${Style.runCodeBtn} ${isCodeExecutable ? Style.runCodeBtnActive : ""}`}
+            className={`${Style.runCodeBtn} ${isCodeExecutable ? Style.runCodeBtnActive : ""}`}
             onMouseDown={(e) => {
               e.preventDefault();
               onRunCode();
@@ -1431,7 +1431,7 @@ const RichTextToolbar = ({
             title="Run HTML, CSS & JavaScript Code in New Tab (Ctrl+Enter)"
             aria-label="Run Code in New Tab"
           >
-            <i className="fa-solid fa-play" style={{ color: isCodeExecutable ? "#10b981" : "#059669", fontSize: "11px" }}></i>
+            <i className="fa-solid fa-play" style={{ color: isCodeExecutable ? "#10b981" : "#059669", fontSize: "11px", display: "inline-block", flexShrink: 0 }}></i>
             <span className={Style.btnLabel} style={{ fontWeight: 700, color: isCodeExecutable ? "#059669" : "inherit" }}>Run</span>
             {altKeyActive && <span className={Style.keytipBadge}>R</span>}
           </button>
