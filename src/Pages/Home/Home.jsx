@@ -658,6 +658,18 @@ const Home = () => {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [workspaceOpen, setWorkspaceOpen] = useState(false);
 
+  // Lock body/html scroll on Sticky Notes canvas to prevent mobile/desktop page scrolling
+  useEffect(() => {
+    const origBodyOverflow = document.body.style.overflow;
+    const origHtmlOverflow = document.documentElement.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = origBodyOverflow;
+      document.documentElement.style.overflow = origHtmlOverflow;
+    };
+  }, []);
+
   // Global listener: toggle/open sidebar from UniversalMobileBottomNav
   useEffect(() => {
     const handleToggle = () => {
@@ -1529,6 +1541,22 @@ const Home = () => {
         path="/sticky-notes"
         type="webapp"
       />
+      {/* Ensure full-viewport lock with zero scrollbars on mobile & desktop */}
+      <style>{`
+        html, body, #root {
+          overflow: hidden !important;
+          height: 100% !important;
+          max-height: 100dvh !important;
+          overscroll-behavior: none !important;
+          scrollbar-width: none !important;
+        }
+        html::-webkit-scrollbar, body::-webkit-scrollbar, #root::-webkit-scrollbar {
+          display: none !important;
+          width: 0 !important;
+          height: 0 !important;
+        }
+      `}</style>
+
       {darkMode && (
         <style>{`
           .swal-modal { background-color: #1e293b !important; border: 1px solid #334155; }
@@ -1928,7 +1956,7 @@ const Home = () => {
           {showQuickComposer && (
             <form
               onSubmit={handleQuickNoteSubmit}
-              className="absolute left-1/2 z-40 flex w-[calc(100%-1rem)] max-w-[700px] -translate-x-1/2 flex-col gap-1.5 rounded-2xl border border-slate-200 bg-white/95 p-2 shadow-lg backdrop-blur-md transition-[border-color,box-shadow] duration-200 focus-within:border-indigo-300 focus-within:shadow-xl dark:border-slate-700 dark:bg-slate-900/95 sm:w-[calc(100%-2rem)] bottom-[max(4.75rem,calc(env(safe-area-inset-bottom)+4.25rem))] lg:bottom-4 lg:flex-row lg:items-center lg:gap-2 lg:rounded-full lg:px-3 lg:py-2"
+              className="absolute left-1/2 z-40 flex w-[calc(100%-1rem)] max-w-[700px] -translate-x-1/2 flex-col gap-1.5 rounded-2xl border border-slate-200 bg-white/95 p-2 shadow-lg backdrop-blur-md transition-[border-color,box-shadow] duration-200 focus-within:border-indigo-300 focus-within:shadow-xl dark:border-slate-700 dark:bg-slate-900/95 sm:w-[calc(100%-2rem)] bottom-[max(1rem,calc(env(safe-area-inset-bottom)+0.75rem))] lg:bottom-4 lg:flex-row lg:items-center lg:gap-2 lg:rounded-full lg:px-3 lg:py-2"
             >
               {activeSection === "mindmap" ? (
                 <textarea

@@ -50,8 +50,13 @@ export default function UniversalMobileBottomNav() {
     setMenuOpen(false);
   }, [pathname]);
 
-  // If on notebook route, Notebook.jsx has its own dedicated NotebookBottomDock
-  if (pathname === "/notebook" || pathname === "/online-notebook") {
+  // If on notebook or sticky-notes route, do not show universal bottom nav
+  if (
+    pathname === "/notebook" ||
+    pathname === "/online-notebook" ||
+    pathname === "/sticky-notes" ||
+    pathname === "/notes"
+  ) {
     return null;
   }
 

@@ -1,839 +1,982 @@
-import { useEffect, useRef, useState, lazy, Suspense } from "react";
+import React, { useEffect, useRef, useState, lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
-import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Lenis from "lenis";
 import PageSEO from "../../Component/SEO/PageSEO";
-import { 
-  ArrowRight, Sparkles, Layers, PenTool, LayoutDashboard, Code2, Zap, Check,
-  FileText, Type, Timer, Calculator, Ruler, Thermometer, QrCode, StickyNote, Search, Gamepad2,
-  Menu, X, Smartphone, Globe, Download, Laptop
+import {
+  ArrowRight,
+  Play,
+  CheckCircle2,
+  StickyNote,
+  FileText,
+  PenTool,
+  Calculator,
+  Ruler,
+  FileCheck,
+  Code2,
+  Sparkles,
+  Search,
+  ChevronRight,
+  Star,
+  ExternalLink,
+  ShieldCheck,
+  Zap,
+  Layers,
+  Cpu,
+  Heart,
+  Globe,
+  Menu,
+  X,
+  Compass
 } from "lucide-react";
 import { useAppContext } from "../../context/AppContext";
-import { ALL_TOOLS, TOOL_CATEGORIES } from "../../data/toolsRegistry";
-import AdBanner from "../../Component/Ad/AdBanner";
+import { ALL_TOOLS, TOOL_HUBS } from "../../data/toolsRegistry";
 
-const HomeBlogSection = lazy(() => import("./HomeBlogSection"));
-const Testimonials = lazy(() => import("../../Component/Testimonials"));
-const ExtensionModal = lazy(() => import("../../Component/ExtensionModal"));
+/**
+ * Stiknex Flagship Landing Page
+ * 
+ * Aesthetic: Inspired by "Circle" (Sandhill Studio / Halo Lab)
+ * Colors:
+ * - Teal Gradients: #134E5E -> #1D6A7D -> #0F3944
+ * - Background Cream / Linen: #FAF7F2 (Dark mode: #0B0F17)
+ * - Accent Coral / Peach: #FFA07A / #F8A88C
+ * - Surface Cards: #FFFFFF (Dark mode: #131A26)
+ * - Borders: #EADFD5 (Dark mode: #1E293B)
+ * - Typography: Plus Jakarta Sans geometric display + Playfair serif italic accents
+ */
 
-const ChromeIcon = ({ className = "w-4 h-4" }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-    <circle cx="12" cy="12" r="10" stroke="#4285F4" strokeWidth="2"/>
-    <circle cx="12" cy="12" r="4" fill="#4285F4"/>
-    <path d="M12 2a10 10 0 0 1 8.66 5H12" stroke="#EA4335" strokeWidth="2"/>
-    <path d="M20.66 7a10 10 0 0 1-5 13.66L12 12" stroke="#FBBC05" strokeWidth="2"/>
-    <path d="M15.66 20.66A10 10 0 0 1 3.34 12H12" stroke="#34A853" strokeWidth="2"/>
-  </svg>
-);
-
-const BrushUnderline = ({ className = "text-indigo-500" }) => (
-  <svg className={`absolute -bottom-2 sm:-bottom-3 left-0 w-full h-3 sm:h-4 pointer-events-none ${className}`} viewBox="0 0 300 20" fill="none" preserveAspectRatio="none">
-    <path d="M 5 14 Q 75 4, 150 11 Q 225 18, 295 8" stroke="currentColor" strokeWidth="5" strokeLinecap="round" strokeOpacity="0.85"/>
-  </svg>
-);
-
-const SparkleDoodle = ({ className = "" }) => (
-  <svg className={`pointer-events-none ${className}`} width="26" height="26" viewBox="0 0 28 28" fill="none">
-    <path d="M14 2L15.5 10.5L24 12L15.5 13.5L14 22L12.5 13.5L4 12L12.5 10.5L14 2Z" fill="#F59E0B" />
-  </svg>
-);
-
-const StudioBackground = () => (
-  <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10 bg-[#f8fafc] dark:bg-[#07090e] transition-colors duration-300">
-    {/* Subtle dot matrix grid */}
-    <div className="absolute inset-0 bg-[radial-gradient(#cbd5e1_1.2px,transparent_1.2px)] dark:bg-[radial-gradient(#1e293b_1.2px,transparent_1.2px)] [background-size:32px_32px] opacity-40"></div>
-    
-    {/* Advapay Motion Concept: Large Deep Royal Cobalt/Indigo Orb on Left */}
-    <div className="absolute -top-16 -left-36 sm:-left-48 w-[440px] h-[440px] sm:w-[600px] sm:h-[600px] lg:w-[720px] lg:h-[720px] rounded-full bg-gradient-to-br from-[#2f49d1] via-[#3a52e3] to-[#6366f1] opacity-75 sm:opacity-85 blur-[70px] sm:blur-[95px] animate-orb-left pointer-events-none transform-gpu"></div>
-
-    {/* Advapay Motion Concept: Complementary Orb on Bottom Right */}
-    <div className="absolute top-[480px] -right-24 sm:-right-36 w-[320px] h-[320px] sm:w-[460px] sm:h-[460px] rounded-full bg-gradient-to-tl from-[#3243be] via-[#4f46e5] to-transparent opacity-60 sm:opacity-75 blur-[75px] sm:blur-[90px] animate-orb-right pointer-events-none transform-gpu"></div>
-  </div>
-);
-
-const Features = [
-  { icon: Layers, title: "Infinite Board", desc: "A massive freeform canvas for your sticky notes. Drag, drop, and connect your thoughts freely." },
-  { icon: PenTool, title: "Excalidraw Whiteboard", desc: "Built-in Excalidraw integration for advanced sketching, diagramming, and brainstorming." },
-  { icon: LayoutDashboard, title: "Structured Notebooks", desc: "Organize your long-form content into beautiful notebooks with rich text and snapshots." },
-];
-
-const LandingPage = () => {
+export default function LandingPage() {
   const { darkMode, toggleDarkMode } = useAppContext();
-  const [showExtensionModal, setShowExtensionModal] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const containerRef = useRef(null);
-  const [isDesktop] = useState(() => typeof window !== "undefined" && window.innerWidth >= 768 && !window.matchMedia("(pointer: coarse)").matches);
-  const { scrollYProgress } = useScroll();
-  const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
-  
+  const [activeTab, setActiveTab] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [emailInput, setEmailInput] = useState("");
+  const [subscribed, setSubscribed] = useState(false);
+
+  // Initialize Lenis 60fps Smooth Scroll
   useEffect(() => {
-    // Only initialize smooth scrolling on desktop devices with fine pointer
-    const isDesktop = typeof window !== 'undefined' && 
-      window.innerWidth >= 768 && 
-      !window.matchMedia('(pointer: coarse)').matches;
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      orientation: "vertical",
+      gestureOrientation: "vertical",
+      smoothWheel: true,
+      wheelMultiplier: 1,
+      touchMultiplier: 2,
+    });
 
-    let lenis = null;
-    let rafId = null;
-
-    if (isDesktop) {
-      lenis = new Lenis({
-        duration: 1.2,
-        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-        direction: 'vertical',
-        gestureDirection: 'vertical',
-        smooth: true,
-        mouseMultiplier: 1,
-        smoothTouch: false,
-        touchMultiplier: 2,
-      });
-
-      function raf(time) {
-        if (lenis) {
-          lenis.raf(time);
-          rafId = requestAnimationFrame(raf);
-        }
-      }
-      rafId = requestAnimationFrame(raf);
+    function raf(time) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
     }
+    const rafId = requestAnimationFrame(raf);
 
     return () => {
-      if (lenis) lenis.destroy();
-      if (rafId) cancelAnimationFrame(rafId);
+      cancelAnimationFrame(rafId);
+      lenis.destroy();
     };
   }, []);
 
-  return (
-    <div ref={containerRef} className="relative min-h-screen overflow-hidden text-slate-900 dark:text-slate-100 selection:bg-indigo-500/30 font-sans">
-      <PageSEO
-        title="Stiknex - Free Sticky Notes, Online Notebook & Productivity Tools"
-        description="Stiknex is a free online productivity platform with infinite sticky boards, a rich-text notebook, Excalidraw whiteboard, calculators, QR code generator and more. No sign-up needed."
-        path="/"
-        type="webapp"
-        keywords="sticky notes, online sticky notes, free sticky notes app, online notebook, digital whiteboard, productivity tools, excalidraw, note taking app, free online tools"
-        faqs={[
-          { q: 'What is Stiknex?', a: 'Stiknex is a free online productivity platform featuring infinite sticky boards, a rich-text notebook, Excalidraw whiteboard, calculators, converters, QR code generator, and more.' },
-          { q: 'Is Stiknex free to use?', a: 'Yes, Stiknex is completely free with no sign-up required.' },
-          { q: 'What tools does Stiknex offer?', a: 'Stiknex offers sticky notes, a notebook editor, an Excalidraw whiteboard, calculators, unit converters, QR code generator, password generator, and color picker.' },
-          { q: 'Does Stiknex work on mobile?', a: 'Yes, Stiknex is a Progressive Web App (PWA) that works on all devices including mobile, tablet and desktop.' }
-        ]}
-      />
-      <StudioBackground />
+  const handleSubscribe = (e) => {
+    e.preventDefault();
+    if (!emailInput) return;
+    setSubscribed(true);
+    setTimeout(() => {
+      setEmailInput("");
+      setSubscribed(false);
+    }, 4000);
+  };
 
-      {/* Desktop Top Navigation Bar: Shown only on screens above phone (hidden md:block) */}
-      <header className="hidden md:block fixed top-4 sm:top-5 left-1/2 -translate-x-1/2 z-50 w-full max-w-6xl px-4 pointer-events-none">
-        <nav className="w-full px-5 py-2.5 bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl border border-slate-200/80 dark:border-slate-800/80 rounded-full shadow-lg flex items-center justify-between pointer-events-auto transition-all">
-          <Link to="/" className="flex items-center gap-2 group">
-            <img src="/logo.png" alt="Stiknex Logo" width="30" height="30" className="w-7 h-7 object-contain group-hover:scale-105 transition-transform" />
-            <span className="font-bold text-base tracking-tight text-slate-900 dark:text-white">Stiknex</span>
+  const filteredTools = searchQuery.trim()
+    ? ALL_TOOLS.filter(
+        (t) =>
+          t.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          t.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (t.description && t.description.toLowerCase().includes(searchQuery.toLowerCase()))
+      ).slice(0, 12)
+    : [];
+
+  return (
+    <div className={`min-h-screen font-sans antialiased selection:bg-[#F8A88C]/35 selection:text-[#0F3944] transition-colors duration-300 ${
+      darkMode ? "bg-[#0B0F17] text-[#F1F5F9]" : "bg-[#FAF7F2] text-[#1E293B]"
+    }`}>
+      
+      {/* Dynamic SEO Meta Tags */}
+      <PageSEO
+        title="Stiknex — Free Online Sticky Notes, Digital Notebook & 200+ Browser Utility Tools"
+        description="Fast, 100% free, local-first productivity workspace by Vishal Mall. Infinite sticky notes canvas, distraction-free markdown notepad, whiteboard, and 200+ client-side utility tools — private with zero logins."
+        path="/"
+        type="website"
+      />
+
+      {/* ========================================================
+          1. HEADER / NAVIGATION BAR (Circle Style)
+          ======================================================== */}
+      <header className={`sticky top-0 z-50 border-b backdrop-blur-md transition-all ${
+        darkMode ? "bg-[#0B0F17]/90 border-[#1E293B]/70" : "bg-[#FAF7F2]/90 border-[#EADFD5]/70"
+      }`}>
+        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+          
+          {/* Brand Logo: Stiknex Dotted Symbol */}
+          <Link to="/" className="flex items-center gap-3.5 group">
+            <div className="grid grid-cols-3 gap-1 w-6 h-6">
+              <span className={`w-1.5 h-1.5 rounded-full ${darkMode ? "bg-teal-400" : "bg-[#134E5E]"}`} />
+              <span className={`w-1.5 h-1.5 rounded-full ${darkMode ? "bg-teal-400" : "bg-[#134E5E]"}`} />
+              <span className={`w-1.5 h-1.5 rounded-full ${darkMode ? "bg-teal-400" : "bg-[#134E5E]"}`} />
+              <span className={`w-1.5 h-1.5 rounded-full ${darkMode ? "bg-teal-400" : "bg-[#134E5E]"}`} />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#FFA07A] scale-125 animate-pulse" />
+              <span className={`w-1.5 h-1.5 rounded-full ${darkMode ? "bg-teal-400" : "bg-[#134E5E]"}`} />
+              <span className={`w-1.5 h-1.5 rounded-full ${darkMode ? "bg-teal-400" : "bg-[#134E5E]"}`} />
+              <span className={`w-1.5 h-1.5 rounded-full ${darkMode ? "bg-teal-400" : "bg-[#134E5E]"}`} />
+              <span className={`w-1.5 h-1.5 rounded-full ${darkMode ? "bg-teal-400" : "bg-[#134E5E]"}`} />
+            </div>
+            <div className="flex flex-col">
+              <span className={`text-xl font-extrabold tracking-tight ${darkMode ? "text-white" : "text-[#134E5E]"}`}>
+                Stiknex
+              </span>
+              <span className="text-[9px] uppercase font-bold tracking-widest text-slate-400 -mt-1">
+                Workspace
+              </span>
+            </div>
           </Link>
 
-          <div className="flex items-center gap-1.5 text-sm font-semibold text-slate-600 dark:text-slate-300">
-            <Link to="/sticky-notes" className="px-3 py-1.5 rounded-full hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">Sticky Notes</Link>
-            <Link to="/online-notebook" className="px-3 py-1.5 rounded-full hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">Notebook</Link>
-            <Link to="/whiteboard" className="px-3 py-1.5 rounded-full hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">Whiteboard</Link>
-            <Link to="/tools" className="px-3 py-1.5 rounded-full hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center gap-1.5">
-              <span>Tools</span>
-              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300">200+</span>
-            </Link>
-            <Link to="/blog" className="px-3 py-1.5 rounded-full hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">Blog</Link>
-          </div>
+          {/* Desktop Navigation Links */}
+          <nav className={`hidden md:flex items-center gap-8 text-[13px] font-semibold ${
+            darkMode ? "text-slate-300" : "text-[#1E293B]"
+          }`}>
+            <Link to="/sticky-notes" className="hover:text-[#FFA07A] transition-colors">Sticky Notes</Link>
+            <Link to="/online-notebook" className="hover:text-[#FFA07A] transition-colors">Notepad</Link>
+            <Link to="/whiteboard" className="hover:text-[#FFA07A] transition-colors">Whiteboard</Link>
+            <Link to="/tools" className="hover:text-[#FFA07A] transition-colors">200+ Tools</Link>
+            <Link to="/blog" className="hover:text-[#FFA07A] transition-colors">Blog</Link>
+            <Link to="/about" className="hover:text-[#FFA07A] transition-colors">About</Link>
+          </nav>
 
-          <div className="flex items-center gap-2">
+          {/* Right Header Actions */}
+          <div className="flex items-center gap-3">
             <button
               type="button"
-              onClick={() => window.dispatchEvent(new Event("stiknex_open_quick_search"))}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 border border-slate-200/60 dark:border-slate-700/60 text-xs font-medium transition cursor-pointer"
-              title="Search (Ctrl+K)"
+              onClick={toggleDarkMode}
+              aria-label="Toggle theme"
+              className={`p-2.5 rounded-full transition-colors ${
+                darkMode ? "text-amber-400 hover:bg-slate-800" : "text-slate-600 hover:bg-white/70"
+              }`}
             >
-              <Search size={14} className="text-indigo-500" />
-              <span>Search</span>
-              <kbd className="text-[10px] bg-white dark:bg-slate-900 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700 font-mono text-slate-400">⌘K</kbd>
+              <i className={`fa-solid ${darkMode ? "fa-sun" : "fa-moon"} text-sm`} />
             </button>
 
-            <button 
-              onClick={toggleDarkMode} 
-              className="p-2 rounded-full text-slate-600 dark:text-slate-400 hover:text-indigo-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer" 
-              title="Toggle Theme"
-            >
-              {darkMode ? <Sparkles size={16} /> : <Zap size={16} />}
-            </button>
-
-            <button 
-              type="button"
-              onClick={() => setShowExtensionModal(true)} 
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-bold border border-indigo-200/80 dark:border-indigo-800/80 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 transition-colors text-xs cursor-pointer shadow-xs"
-            >
-              <ChromeIcon className="w-3.5 h-3.5" />
-              <span>Extension</span>
-            </button>
-          </div>
-        </nav>
-      </header>
-
-      <section className="relative pt-20 sm:pt-28 md:pt-36 pb-16 px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center text-center">
-        <div className="max-w-5xl mx-auto w-full z-10 flex flex-col items-center">
-          
-          {/* Top Status Pill (Advapay Style) */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-xs sm:text-sm shadow-xs mb-6">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span>100% Free &amp; Private • Local-First Productivity Studio</span>
-          </div>
-          
-          {/* Grand Centered Headline */}
-          <h1 className="text-4xl min-[480px]:text-5xl sm:text-6xl md:text-7xl lg:text-[76px] font-black tracking-tight leading-[1.08] text-slate-900 dark:text-white max-w-4xl mx-auto">
-            The freeform canvas for <br className="hidden sm:inline" />
-            <span className="text-indigo-600 dark:text-indigo-400">thinking, writing &amp; sketching.</span>
-          </h1>
-
-          {/* Centered Subtitle */}
-          <p className="mt-6 text-base sm:text-lg md:text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto font-normal leading-relaxed">
-            Infinite sticky notes, distraction-free markdown notebook, and integrated Excalidraw whiteboard. Plus 200+ fast, client-side utility tools — private in your browser with zero logins.
-          </p>
-
-          {/* Centered Dark Pill CTA Buttons */}
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
             <Link
               to="/sticky-notes"
-              className="px-8 sm:px-10 py-4 bg-[#18202F] hover:bg-[#0f141e] dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 rounded-full text-base font-bold shadow-xl shadow-slate-900/15 hover:shadow-2xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2.5 cursor-pointer"
+              className="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider text-white bg-gradient-to-r from-[#134E5E] to-[#1D6A7D] hover:shadow-lg hover:shadow-[#134E5E]/20 hover:-translate-y-0.5 transition-all"
             >
-              <span>Start with Sticky Notes</span>
-              <ArrowRight size={18} />
+              <span>Launch Canvas</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </Link>
-            <Link
-              to="/tools"
-              className="px-8 py-4 bg-white/80 dark:bg-slate-900/80 hover:bg-white dark:hover:bg-slate-800 border-2 border-slate-200/80 dark:border-slate-800 text-slate-800 dark:text-slate-200 rounded-full text-base font-bold shadow-xs hover:shadow transition-all flex items-center gap-2 cursor-pointer"
+
+            {/* Mobile Menu Toggle */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 text-slate-700 dark:text-slate-200"
+              aria-label="Toggle navigation"
             >
-              <span>Explore 200+ Tools</span>
-            </Link>
-          </div>
-
-          {/* Micro-Telemetry Trust Badges */}
-          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 mt-8 text-xs font-semibold text-slate-600 dark:text-slate-400">
-            <div className="flex items-center gap-1.5">
-              <Check size={14} className="text-emerald-500 shrink-0" />
-              <span>100% Free Forever</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <Check size={14} className="text-emerald-500 shrink-0" />
-              <span>Zero Sign-Up Required</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <Check size={14} className="text-emerald-500 shrink-0" />
-              <span>Encrypted Local Cache</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <Check size={14} className="text-emerald-500 shrink-0" />
-              <span>Offline PWA Ready</span>
-            </div>
-          </div>
-
-          {/* Peeking 3D Workstation Window Card (Advapay Exact Look) */}
-          <div className="mt-14 sm:mt-18 w-full max-w-4xl mx-auto">
-            <div className="relative rounded-3xl border border-slate-200/90 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl shadow-[0_30px_90px_rgba(24,32,47,0.14)] dark:shadow-[0_30px_90px_rgba(0,0,0,0.6)] overflow-hidden animate-peeking-card transform-gpu">
-              {/* Window Topbar */}
-              <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-200/80 dark:border-slate-800 bg-slate-50/90 dark:bg-slate-950/70">
-                <div className="flex items-center gap-2">
-                  <span className="w-3 h-3 rounded-full bg-rose-400"></span>
-                  <span className="w-3 h-3 rounded-full bg-amber-400"></span>
-                  <span className="w-3 h-3 rounded-full bg-emerald-400"></span>
-                </div>
-                <div className="flex items-center gap-1.5 text-xs font-bold text-slate-600 dark:text-slate-300">
-                  <span className="px-3 py-1 rounded-lg bg-indigo-600 text-white shadow-xs">Workspace</span>
-                  <span className="px-3 py-1 rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-white">Whiteboard</span>
-                  <span className="px-3 py-1 rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-white">200+ Tools</span>
-                </div>
-                <div className="text-[11px] font-mono text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> 0ms Local V8
-                </div>
-              </div>
-
-              {/* Live Workspace Deck inside Peeking Card */}
-              <div className="p-6 sm:p-8 bg-gradient-to-b from-slate-50/50 to-indigo-50/20 dark:from-slate-900/50 dark:to-slate-950/80">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-left">
-                  {/* Card 1 */}
-                  <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-900/60 shadow-xs">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 flex items-center gap-1">
-                        <StickyNote size={12} /> Sticky Notes Canvas
-                      </span>
-                      <span className="text-[10px] text-amber-600 dark:text-amber-400 font-mono">0ms Sync</span>
-                    </div>
-                    <h3 className="font-bold text-slate-900 dark:text-white text-sm mb-1">Architecture &amp; Thought Map</h3>
-                    <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                      Arrange infinite thoughts visually. Color-code, group, and connect notes with zero cloud lock-in.
-                    </p>
-                  </div>
-
-                  {/* Card 2 */}
-                  <div className="p-4 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200/80 dark:border-indigo-900/60 shadow-xs">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-700 dark:text-indigo-400 flex items-center gap-1">
-                        <FileText size={12} /> Distraction-Free Notebook
-                      </span>
-                      <span className="text-[10px] text-indigo-600 dark:text-indigo-400 font-mono">Auto-Saved</span>
-                    </div>
-                    <h3 className="font-bold text-slate-900 dark:text-white text-sm mb-1">Markdown with Live Code</h3>
-                    <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                      Rich-text formatting, table support, and code execution in an isolated preview sandbox.
-                    </p>
-                  </div>
-
-                  {/* Card 3 */}
-                  <div className="p-4 rounded-2xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200/80 dark:border-purple-900/60 shadow-xs">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-purple-700 dark:text-purple-400 flex items-center gap-1">
-                        <PenTool size={12} /> Excalidraw Whiteboard
-                      </span>
-                      <span className="text-[10px] text-purple-600 dark:text-purple-400 font-mono">Vector Engine</span>
-                    </div>
-                    <h3 className="font-bold text-slate-900 dark:text-white text-sm mb-1">Sketch, Diagram &amp; Wireframe</h3>
-                    <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                      Hand-drawn style diagrams, system architecture charts, and collaborative drawings.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
           </div>
 
         </div>
-      </section>
 
-      {/* Full-Width High-Impact Stats Ribbon (Inspired by Pin 1: Camplify) */}
-      <section className="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-700 text-white py-8 sm:py-10 px-4 sm:px-6 relative z-10 shadow-xl shadow-indigo-600/20">
-        <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 items-center divide-y md:divide-y-0 md:divide-x divide-white/20">
-          <div className="text-center sm:text-left sm:pl-4">
-            <div className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight">206+</div>
-            <div className="text-xs sm:text-sm font-medium text-indigo-100/90 mt-1">Free Offline Tools</div>
-          </div>
-          <div className="text-center sm:text-left sm:pl-6 pt-4 md:pt-0">
-            <div className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight">0ms</div>
-            <div className="text-xs sm:text-sm font-medium text-indigo-100/90 mt-1">Zero Server Latency</div>
-          </div>
-          <div className="text-center sm:text-left sm:pl-6 pt-4 md:pt-0">
-            <div className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight">100%</div>
-            <div className="text-xs sm:text-sm font-medium text-indigo-100/90 mt-1">Private Client-Side V8</div>
-          </div>
-          <div className="text-center sm:text-left sm:pl-6 pt-4 md:pt-0">
-            <div className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight flex items-center justify-center sm:justify-start gap-1">
-              <span>4.9</span>
-              <span className="text-amber-300 text-2xl sm:text-3xl">★</span>
-            </div>
-            <div className="text-xs sm:text-sm font-medium text-indigo-100/90 mt-1">Overall User Rating</div>
-          </div>
-        </div>
-      </section>
-
-      <section id="features" className="py-32 px-6 relative z-10">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-20">
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-medium text-sm border border-indigo-100 dark:border-indigo-500/20 mb-6">
-              <Sparkles size={16} /> Powerful Features
+        {/* Mobile Navigation Drawer */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className={`md:hidden px-6 pb-6 pt-2 border-b overflow-hidden ${
+                darkMode ? "bg-[#0B0F17] border-[#1E293B]" : "bg-[#FAF7F2] border-[#EADFD5]"
+              }`}
+            >
+              <div className="flex flex-col gap-3.5 text-sm font-semibold pt-2">
+                <Link to="/sticky-notes" onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-[#FFA07A]">Sticky Notes Canvas</Link>
+                <Link to="/online-notebook" onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-[#FFA07A]">Digital Notepad</Link>
+                <Link to="/whiteboard" onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-[#FFA07A]">Excalidraw Whiteboard</Link>
+                <Link to="/tools" onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-[#FFA07A]">200+ Browser Utilities</Link>
+                <Link to="/blog" onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-[#FFA07A]">Blog</Link>
+                <Link to="/about" onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-[#FFA07A]">About Stiknex & Vishal Mall</Link>
+                <Link
+                  to="/sticky-notes"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="mt-2 text-center py-3 rounded-full text-xs font-bold uppercase tracking-wider text-white bg-gradient-to-r from-[#134E5E] to-[#1D6A7D]"
+                >
+                  Launch Stiknex
+                </Link>
+              </div>
             </motion.div>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black mb-6 tracking-tight text-slate-900 dark:text-white">Designed for <span className="text-indigo-600 dark:text-indigo-400">Deep Work</span></h2>
-            <p className="text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">Everything you need to capture ideas before they slip away. Built for speed, flexibility, and absolute focus.</p>
-          </div>
+          )}
+        </AnimatePresence>
+      </header>
+
+      {/* ========================================================
+          2. HERO SECTION (Circle Style with Stiknex Core)
+          ======================================================== */}
+      <section className="relative pt-12 md:pt-20 pb-20 md:pb-28 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6">
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[...Features, 
-              { icon: Zap, title: "Lighting Fast", desc: "Optimized for speed. No loading screens, no waiting. Just instant access to your thoughts." },
-              { icon: Code2, title: "Markdown Support", desc: "Write at the speed of thought with full markdown support in your notebooks and sticky notes." },
-              { icon: Layers, title: "Infinite Canvas", desc: "Never run out of space. Pan and zoom across a massive digital workspace designed for huge mind maps." }
-            ].map((feat, i) => (
-              <motion.div 
-                key={i} 
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-100px" }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
-                className="group relative p-8 rounded-3xl bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/50 dark:border-slate-700/50 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:-translate-y-2 transition-transform duration-300"
-              >
-                <div className="w-14 h-14 rounded-2xl bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all">
-                  <feat.icon size={28} />
-                </div>
-                <h3 className="text-xl font-bold mb-4 text-slate-900 dark:text-white">{feat.title}</h3>
-                <p className="text-slate-600 dark:text-slate-300 leading-relaxed">{feat.desc}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="py-32 px-6 relative z-10 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-indigo-50/50 dark:via-indigo-950/20 to-transparent pointer-events-none"></div>
-        <div className="max-w-7xl mx-auto relative">
-          <div className="flex flex-col lg:flex-row items-center gap-16">
-            <div className="w-full lg:w-1/2 space-y-8">
-              <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white leading-tight">
-                Your brain's new <br />
-                <span className="text-indigo-600 dark:text-indigo-400">operating system.</span>
-              </h2>
-              <p className="text-xl text-slate-600 dark:text-slate-300 leading-relaxed">
-                Stiknex isn't just another note-taking app. It's a complete productivity suite designed to adapt to how your mind actually works. Visual, unstructured, and infinitely flexible.
-              </p>
-              
-              <div className="space-y-6 pt-4">
-                {[
-                  { title: "Visual Brainstorming", desc: "Connect ideas with arrows and sticky notes." },
-                  { title: "Distraction-free Writing", desc: "Focus mode for your most important documents." },
-                  { title: "All-in-one Toolkit", desc: "Calculators, converters, and utilities built-in." }
-                ].map((item, i) => (
-                  <motion.div 
-                    key={i}
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.2 }}
-                    className="flex gap-4 items-start"
-                  >
-                    <div className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-500/20 text-green-600 dark:text-green-400 flex items-center justify-center shrink-0 mt-1">
-                      <Check size={16} />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-bold text-slate-900 dark:text-white">{item.title}</h3>
-                      <p className="text-slate-600 dark:text-slate-300">{item.desc}</p>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
             
-            <div className="w-full lg:w-1/2 relative">
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.8, rotateY: -20 }}
-                whileInView={{ opacity: 1, scale: 1, rotateY: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.8, type: "spring" }}
-                className="relative z-10 rounded-2xl overflow-hidden shadow-2xl border border-slate-200/50 dark:border-slate-700/50 bg-slate-100 dark:bg-slate-800 p-2 perspective-1000"
-              >
-                <div className="aspect-4/3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden relative">
-                   <div className="h-10 border-b border-slate-200 dark:border-slate-800 flex items-center px-4 gap-2 bg-slate-50 dark:bg-slate-950/50">
-                      <div className="w-3 h-3 rounded-full bg-red-400"></div>
-                      <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
-                      <div className="w-3 h-3 rounded-full bg-green-400"></div>
-                   </div>
-                   <div className="flex-1 relative bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] dark:bg-[radial-gradient(#334155_1px,transparent_1px)] bg-size-[20px_20px]">
-                      <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 4, repeat: Infinity }} className="absolute top-10 left-10 w-32 h-32 bg-yellow-200 dark:bg-yellow-500/80 rounded-sm shadow-lg p-3 rotate-3 border border-black/5">
-                        <div className="w-16 h-2 bg-black/10 rounded-full mb-2"></div>
-                        <div className="w-full h-2 bg-black/10 rounded-full mb-2"></div>
-                        <div className="w-20 h-2 bg-black/10 rounded-full"></div>
-                      </motion.div>
-                      <motion.div animate={{ y: [0, 10, 0] }} transition={{ duration: 5, repeat: Infinity }} className="absolute bottom-10 right-10 w-40 h-32 bg-indigo-200 dark:bg-indigo-500/80 rounded-sm shadow-lg p-3 -rotate-6 border border-black/5">
-                        <div className="w-20 h-2 bg-black/10 rounded-full mb-2"></div>
-                        <div className="w-full h-2 bg-black/10 rounded-full mb-2"></div>
-                      </motion.div>
-                   </div>
+            {/* Left Hero Column */}
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7 }}
+              className="lg:col-span-7 space-y-6"
+            >
+              <span className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest ${
+                darkMode ? "bg-teal-950/60 text-teal-300 border border-teal-800/40" : "bg-[#134E5E]/10 text-[#134E5E]"
+              }`}>
+                <span className="w-2 h-2 rounded-full bg-[#FFA07A] animate-ping" />
+                100% Free &amp; Local-First Workspace
+              </span>
+
+              <h1 className={`text-4xl sm:text-5xl md:text-6xl lg:text-[62px] font-extrabold tracking-tight leading-[1.08] ${
+                darkMode ? "text-white" : "text-[#0F3944]"
+              }`}>
+                All-in-one canvas for <br />
+                <span className="font-serif italic font-normal text-[#134E5E] dark:text-teal-400">
+                  thinking, writing
+                </span> <br />
+                &amp; 200+ browser tools.
+              </h1>
+
+              <p className={`text-base sm:text-lg max-w-xl font-normal leading-relaxed ${
+                darkMode ? "text-slate-400" : "text-slate-600"
+              }`}>
+                Infinite zoomable sticky notes, distraction-free markdown notebook with instant code execution, interactive whiteboard, and 200+ client-side tools — fast, private, and zero logins required.
+              </p>
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap items-center gap-4 pt-2">
+                <Link
+                  to="/sticky-notes"
+                  className="inline-flex items-center gap-3 px-8 py-4 rounded-full text-sm font-bold text-white bg-gradient-to-r from-[#134E5E] to-[#1D6A7D] hover:shadow-xl hover:shadow-[#134E5E]/25 hover:-translate-y-0.5 transition-all"
+                >
+                  <span>Launch Sticky Notes</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+
+                <Link
+                  to="/online-notebook"
+                  className={`inline-flex items-center gap-2.5 px-6 py-4 rounded-full text-sm font-bold border transition-all ${
+                    darkMode
+                      ? "bg-slate-900 border-slate-700 text-white hover:bg-slate-800"
+                      : "bg-white border-[#EADFD5] text-[#0F3944] hover:bg-slate-50 shadow-sm"
+                  }`}
+                >
+                  <span className="w-6 h-6 rounded-full bg-[#134E5E]/10 dark:bg-teal-500/20 flex items-center justify-center text-[#134E5E] dark:text-teal-300">
+                    <FileText className="w-3.5 h-3.5" />
+                  </span>
+                  <span>Open Notepad</span>
+                </Link>
+
+                <Link
+                  to="/tools"
+                  className={`inline-flex items-center gap-2 px-5 py-4 rounded-full text-xs font-extrabold uppercase tracking-wider transition-all ${
+                    darkMode
+                      ? "text-slate-400 hover:text-white"
+                      : "text-slate-600 hover:text-[#134E5E]"
+                  }`}
+                >
+                  <span>Explore 200+ Tools</span>
+                  <ChevronRight className="w-4 h-4" />
+                </Link>
+              </div>
+
+              {/* Micro Credibility Row */}
+              <div className="pt-4 flex flex-wrap items-center gap-6 text-xs font-semibold">
+                <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
+                  <CheckCircle2 className="w-4 h-4" /> Zero Account Required
+                </span>
+                <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
+                  <ShieldCheck className="w-4 h-4" /> 100% Local-First Privacy
+                </span>
+                <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
+                  <Zap className="w-4 h-4" /> 0ms Server Latency
+                </span>
+              </div>
+            </motion.div>
+
+            {/* Right Hero Visual Card (Matching Circle Layout with Stiknex Live Preview) */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, delay: 0.15 }}
+              className="lg:col-span-5 relative flex justify-center"
+            >
+              <div className="relative w-full max-w-[460px] rounded-[36px] bg-gradient-to-br from-[#134E5E] via-[#1D6A7D] to-[#0F3944] p-7 flex flex-col justify-between shadow-2xl shadow-[#134E5E]/30 text-white overflow-hidden border border-white/10">
+                
+                {/* Glowing ambient orbs */}
+                <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-[#FFA07A]/25 blur-3xl pointer-events-none" />
+                <div className="absolute -bottom-16 -left-16 w-52 h-52 rounded-full bg-emerald-400/20 blur-3xl pointer-events-none" />
+
+                {/* Card Top Pill */}
+                <div className="relative z-10 flex items-center justify-between border-b border-white/15 pb-4">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#FFA07A] animate-pulse" />
+                    <span className="text-[11px] uppercase font-extrabold tracking-widest text-white/90">
+                      Stiknex Spatial Engine
+                    </span>
+                  </div>
+                  <span className="text-[11px] font-bold px-3 py-1 rounded-full bg-white/15 text-white/90 backdrop-blur-sm">
+                    v2.0 Active
+                  </span>
                 </div>
-              </motion.div>
-              
-              <div className="absolute -inset-10 bg-gradient-to-r from-blue-500/20 to-purple-500/20 blur-3xl -z-10 rounded-full"></div>
+
+                {/* Interactive Stiknex Canvas Graphic */}
+                <div className="relative z-10 py-6 my-auto space-y-4">
+                  
+                  {/* Visual Sticky Note 1 */}
+                  <div className="p-4 rounded-2xl bg-amber-100/90 text-slate-800 shadow-lg transform -rotate-2 hover:rotate-0 transition-transform">
+                    <div className="flex items-center justify-between border-b border-amber-300/50 pb-2 mb-2">
+                      <span className="text-xs font-bold text-amber-900">💡 Sprint Roadmap</span>
+                      <span className="text-[10px] font-semibold text-amber-800 bg-amber-200/80 px-2 py-0.5 rounded-full">Idea</span>
+                    </div>
+                    <p className="text-xs text-slate-700 leading-snug">
+                      Brainstorm, organize tasks, and connect mind-map branches on an infinite 6000x6000px canvas.
+                    </p>
+                  </div>
+
+                  {/* Visual Sticky Note 2 (Markdown & Code preview) */}
+                  <div className="p-4 rounded-2xl bg-[#0F3944]/90 border border-white/20 text-white shadow-xl transform rotate-1 hover:rotate-0 transition-transform">
+                    <div className="flex items-center justify-between border-b border-white/15 pb-2 mb-2">
+                      <div className="flex items-center gap-2">
+                        <Code2 className="w-3.5 h-3.5 text-[#FFA07A]" />
+                        <span className="text-xs font-bold text-white">Interactive Notepad</span>
+                      </div>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300">Live Run</span>
+                    </div>
+                    <code className="block text-[11px] font-mono text-emerald-300">
+                      &lt;h1&gt;Stiknex Run Preview&lt;/h1&gt;
+                    </code>
+                    <p className="text-[11px] text-white/80 mt-1">
+                      Write markdown, render HTML previews, and run code in real-time tabs.
+                    </p>
+                  </div>
+
+                </div>
+
+                {/* Card Bottom Meta */}
+                <div className="relative z-10 pt-4 border-t border-white/15 flex items-center justify-between text-xs">
+                  <div>
+                    <span className="block text-white/60 font-medium">Data Storage</span>
+                    <span className="font-bold text-white">Local IndexedDB</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="block text-white/60 font-medium">Available Tools</span>
+                    <span className="font-bold text-[#FFA07A]">206+ Built-in</span>
+                  </div>
+                </div>
+
+              </div>
+            </motion.div>
+
+          </div>
+
+        </div>
+      </section>
+
+      {/* ========================================================
+          3. STATS SHELF (Matching Circle's Key Numbers)
+          ======================================================== */}
+      <section className={`border-y py-12 transition-colors ${
+        darkMode ? "bg-slate-900/60 border-slate-800" : "bg-white/70 border-[#EADFD5]"
+      }`}>
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            
+            <div className="space-y-1">
+              <div className="text-3xl sm:text-4xl font-extrabold text-[#134E5E] dark:text-teal-400 tracking-tight">
+                .206+
+              </div>
+              <p className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                Browser Utilities
+              </p>
             </div>
+
+            <div className="space-y-1">
+              <div className="text-3xl sm:text-4xl font-extrabold text-[#134E5E] dark:text-teal-400 tracking-tight">
+                100%
+              </div>
+              <p className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                Local &amp; Private
+              </p>
+            </div>
+
+            <div className="space-y-1">
+              <div className="text-3xl sm:text-4xl font-extrabold text-[#134E5E] dark:text-teal-400 tracking-tight">
+                0ms
+              </div>
+              <p className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                Server Latency
+              </p>
+            </div>
+
+            <div className="space-y-1">
+              <div className="text-3xl sm:text-4xl font-extrabold text-[#FFA07A] tracking-tight">
+                4.9/5
+              </div>
+              <p className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                User Satisfaction
+              </p>
+            </div>
+
           </div>
         </div>
       </section>
 
-      
-      {/* Dedicated Multi-Platform Ecosystem & Apps Section with Rich SEO Internal Linking */}
-      <section className="py-24 px-6 relative z-10 max-w-7xl mx-auto">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold text-xs uppercase tracking-wider mb-4 border border-indigo-100 dark:border-indigo-500/20">
-            <Globe size={14} /> Multi-Platform Productivity
-          </div>
-          <h2 className="text-3xl sm:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
-            Work Seamlessly On <span className="text-indigo-600 dark:text-indigo-400">Every Screen</span>
+      {/* ========================================================
+          4. PROGRAM ROADMAP (01, 02, 03 Stiknex Ecosystem)
+          ======================================================== */}
+      <section className="py-24 max-w-7xl mx-auto px-6">
+        <div className="text-center max-w-2xl mx-auto mb-16 space-y-4">
+          <span className={`text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-full ${
+            darkMode ? "bg-teal-950 text-teal-300 border border-teal-800/40" : "bg-[#134E5E]/10 text-[#134E5E]"
+          }`}>
+            Core Ecosystem
+          </span>
+          <h2 className={`text-3xl sm:text-4xl font-extrabold tracking-tight ${
+            darkMode ? "text-white" : "text-[#0F3944]"
+          }`}>
+            Structured tools built for maximum focus
           </h2>
-          <p className="text-slate-600 dark:text-slate-300 mt-4 text-base sm:text-lg leading-relaxed">
-            Whether you are capturing thoughts on your phone, writing inside Google Chrome, or running fully offline on your desktop, Stiknex delivers instantaneous speed and zero friction.
+          <p className={`text-sm sm:text-base ${darkMode ? "text-slate-400" : "text-slate-600"}`}>
+            A seamless three-tier productivity flow: capture raw thoughts, compose in-depth documents, and execute client-side utilities without distractions.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           
-          {/* Card 1: Android Mobile App */}
-          <div className="p-8 rounded-3xl bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800 shadow-xl flex flex-col justify-between hover:-translate-y-1.5 transition-all">
-            <div>
-              <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-6 border border-emerald-200/60 dark:border-emerald-800/60">
-                <Smartphone size={28} />
-              </div>
-              <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Mobile Edition</span>
-              <h3 className="text-xl font-bold text-slate-900 dark:text-white mt-1 mb-3">Android Mobile App</h3>
-              <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-6">
-                Native gesture navigation, touch-optimized canvas for <Link to="/sticky-notes" className="text-indigo-600 dark:text-indigo-400 hover:underline font-medium">sticky notes</Link>, and instant offline access to your <Link to="/online-notebook" className="text-indigo-600 dark:text-indigo-400 hover:underline font-medium">online notebook</Link>.
+          {/* Stage 01 */}
+          <div className={`rounded-3xl p-8 border shadow-sm hover:shadow-xl transition-all group flex flex-col justify-between ${
+            darkMode ? "bg-slate-900 border-slate-800" : "bg-white border-[#EADFD5]"
+          }`}>
+            <div className="space-y-4">
+              <span className="inline-block text-4xl font-black text-[#FFA07A]">01</span>
+              <h3 className={`text-xl font-bold group-hover:text-[#134E5E] dark:group-hover:text-teal-400 transition-colors ${
+                darkMode ? "text-white" : "text-[#0F3944]"
+              }`}>
+                Capture &amp; Mind Map
+              </h3>
+              <p className={`text-sm leading-relaxed ${darkMode ? "text-slate-400" : "text-slate-600"}`}>
+                Infinite zoomable board with smooth panning, color-coded cards, connected branches, checklists, and instant drag-and-drop screenshot uploads.
               </p>
             </div>
-            <div>
-              <a
-                href="/Stiknex.apk"
-                download
-                className="w-full flex items-center justify-center gap-2.5 py-3.5 px-5 bg-slate-900 dark:bg-black hover:bg-slate-800 text-white rounded-2xl font-bold text-sm shadow-lg transition"
-              >
-                <Download size={16} className="text-emerald-400" />
-                <span>Download Android APK</span>
-              </a>
-              <p className="text-[11px] text-slate-400 text-center mt-2.5">Direct APK download • Virus-free • No Play Store login</p>
+            <div className="pt-6 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs font-bold text-[#134E5E] dark:text-teal-400">
+              <Link to="/sticky-notes" className="flex items-center gap-1 hover:underline">
+                <span>Explore Sticky Notes</span>
+                <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
             </div>
           </div>
 
-          {/* Card 2: Chrome Extension */}
-          <div className="p-8 rounded-3xl bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-indigo-200/80 dark:border-indigo-900/50 shadow-xl flex flex-col justify-between hover:-translate-y-1.5 transition-all relative overflow-hidden">
-            <div className="absolute top-0 right-0 px-3 py-1 bg-indigo-500 text-white text-[10px] font-black uppercase tracking-wider rounded-bl-xl">Popular</div>
-            <div>
-              <div className="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-6 border border-indigo-200/60 dark:border-indigo-800/60">
-                <ChromeIcon className="w-7 h-7" />
-              </div>
-              <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Browser Toolbar</span>
-              <h3 className="text-xl font-bold text-slate-900 dark:text-white mt-1 mb-3">Google Chrome Extension</h3>
-              <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-6">
-                One-click scratchpad side panel on any webpage. Jot thoughts while browsing, calculate formulas, or open our <Link to="/tools" className="text-indigo-600 dark:text-indigo-400 hover:underline font-medium">200+ browser tools</Link> instantly.
+          {/* Stage 02 (Core Active) */}
+          <div className={`rounded-3xl p-8 border-2 shadow-md hover:shadow-2xl transition-all group flex flex-col justify-between relative ${
+            darkMode ? "bg-slate-900 border-teal-500" : "bg-white border-[#134E5E]"
+          }`}>
+            <div className="absolute -top-3 right-6 bg-[#134E5E] text-white text-[10px] font-extrabold uppercase tracking-widest px-3 py-1 rounded-full">
+              Flagship Editor
+            </div>
+            <div className="space-y-4">
+              <span className="inline-block text-4xl font-black text-[#134E5E] dark:text-teal-400">02</span>
+              <h3 className={`text-xl font-bold group-hover:text-[#134E5E] dark:group-hover:text-teal-400 transition-colors ${
+                darkMode ? "text-white" : "text-[#0F3944]"
+              }`}>
+                Distraction-Free Notepad
+              </h3>
+              <p className={`text-sm leading-relaxed ${darkMode ? "text-slate-400" : "text-slate-600"}`}>
+                Dual-pane Markdown writer, live code runner (HTML/CSS/JS preview in browser), Zen writing mode, word counts, and real-time auto-saving.
               </p>
             </div>
-            <div>
-              <button
-                type="button"
-                onClick={() => setShowExtensionModal(true)}
-                className="w-full flex items-center justify-center gap-2.5 py-3.5 px-5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-bold text-sm shadow-lg shadow-indigo-600/30 transition cursor-pointer"
-              >
-                <ChromeIcon className="w-4 h-4" />
-                <span>Add to Google Chrome</span>
-              </button>
-              <p className="text-[11px] text-slate-400 text-center mt-2.5">Lightweight manifest v3 • Works on Chrome & Brave</p>
+            <div className="pt-6 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs font-bold text-[#134E5E] dark:text-teal-400">
+              <Link to="/online-notebook" className="flex items-center gap-1 hover:underline">
+                <span>Open Digital Notepad</span>
+                <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
             </div>
           </div>
 
-          {/* Card 3: Desktop & Mobile PWA */}
-          <div className="p-8 rounded-3xl bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800 shadow-xl flex flex-col justify-between hover:-translate-y-1.5 transition-all">
-            <div>
-              <div className="w-14 h-14 rounded-2xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center mb-6 border border-purple-200/60 dark:border-purple-800/60">
-                <Laptop size={28} />
-              </div>
-              <span className="text-[11px] font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400">Desktop & Tablet</span>
-              <h3 className="text-xl font-bold text-slate-900 dark:text-white mt-1 mb-3">Offline Progressive Web App</h3>
-              <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-6">
-                Install Stiknex directly on Windows, macOS, iPad, or Linux. Launches in a standalone borderless window with full offline access to our <Link to="/whiteboard" className="text-indigo-600 dark:text-indigo-400 hover:underline font-medium">digital whiteboard</Link>.
+          {/* Stage 03 */}
+          <div className={`rounded-3xl p-8 border shadow-sm hover:shadow-xl transition-all group flex flex-col justify-between ${
+            darkMode ? "bg-slate-900 border-slate-800" : "bg-white border-[#EADFD5]"
+          }`}>
+            <div className="space-y-4">
+              <span className="inline-block text-4xl font-black text-[#FFA07A]">03</span>
+              <h3 className={`text-xl font-bold group-hover:text-[#134E5E] dark:group-hover:text-teal-400 transition-colors ${
+                darkMode ? "text-white" : "text-[#0F3944]"
+              }`}>
+                206+ Client-Side Utilities
+              </h3>
+              <p className={`text-sm leading-relaxed ${darkMode ? "text-slate-400" : "text-slate-600"}`}>
+                High-precision financial calculators, unit converters, PDF tools, image compressors, color extractors, and developer formatters running 100% in browser memory.
               </p>
             </div>
-            <div>
-              <button
-                type="button"
-                onClick={() => {
-                  if (window.deferredPWA) {
-                    window.deferredPWA.prompt();
-                    window.deferredPWA.userChoice.then(() => { window.deferredPWA = null; });
-                  } else {
-                    alert("To install the PWA, please use 'Add to Home Screen' in your browser menu (or Share -> Add to Home Screen on iOS).");
-                  }
-                }}
-                className="w-full flex items-center justify-center gap-2.5 py-3.5 px-5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/60 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-2xl font-bold text-sm shadow-md transition cursor-pointer"
-              >
-                <Download size={16} className="text-purple-500" />
-                <span>Install Web App (PWA)</span>
-              </button>
-              <p className="text-[11px] text-slate-400 text-center mt-2.5">No app store download • 100% offline capable</p>
+            <div className="pt-6 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs font-bold text-[#134E5E] dark:text-teal-400">
+              <Link to="/tools" className="flex items-center gap-1 hover:underline">
+                <span>Browse Directory</span>
+                <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
             </div>
           </div>
 
         </div>
       </section>
 
-      {/* Flagship Stiknex Typing Lab Showcase Section */}
-      <section className="py-16 px-6 relative z-10 max-w-7xl mx-auto">
-        <div className="rounded-3xl bg-gradient-to-br from-indigo-950 via-slate-900 to-purple-950 border border-indigo-500/30 p-8 sm:p-12 shadow-2xl relative overflow-hidden">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-            <div className="space-y-6">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/20 text-indigo-300 font-bold text-xs uppercase tracking-wider border border-indigo-500/30">
-                <Zap size={14} className="text-amber-400" /> Flagship Release
-              </div>
-              <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
-                Master Touch Typing & Speed in <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-400">Typing Master</span>
+      {/* ========================================================
+          5. FLAGSHIP WORKSPACE CARDS (3 Cards matching Circle's Grid)
+          ======================================================== */}
+      <section id="workspaces" className={`py-20 border-t transition-colors ${
+        darkMode ? "bg-slate-950 border-slate-800" : "bg-gradient-to-b from-[#FAF7F2] to-white border-[#EADFD5]"
+      }`}>
+        <div className="max-w-7xl mx-auto px-6">
+          
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+            <div className="space-y-3">
+              <span className={`text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-full ${
+                darkMode ? "bg-teal-950 text-teal-300" : "bg-[#134E5E]/10 text-[#134E5E]"
+              }`}>
+                Flagship Workspaces
+              </span>
+              <h2 className={`text-3xl sm:text-4xl font-extrabold tracking-tight ${
+                darkMode ? "text-white" : "text-[#0F3944]"
+              }`}>
+                Dedicated Tools for Every Task
               </h2>
-              <p className="text-slate-300 text-base sm:text-lg leading-relaxed">
-                Boost your typing speed with instant 15s, 30s, 60s, and 120s WPM benchmark tests, structured touch typing syllabus lessons, developer code syntax challenges, and 6 original arcade typing games.
-              </p>
-              <div className="flex flex-wrap gap-4 pt-2">
-                <Link
-                  to="/stiknex-typing"
-                  className="px-6 py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-2xl font-black text-sm shadow-xl shadow-amber-500/25 transition-all flex items-center gap-2"
-                >
-                  Launch Typing Master <ArrowRight size={16} />
-                </Link>
-                <Link
-                  to="/typing-speed-test"
-                  className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-2xl font-semibold text-sm transition-all"
-                >
-                  Quick 60s WPM Test
-                </Link>
-              </div>
             </div>
-
-            <div className="bg-slate-950/80 border border-white/10 rounded-2xl p-6 font-mono space-y-4">
-              <div className="flex justify-between items-center text-xs text-slate-400 border-b border-white/10 pb-3">
-                <span className="flex items-center gap-1.5"><Zap className="w-4 h-4 text-amber-400" /> Live Benchmark</span>
-                <span className="text-emerald-400 font-bold">100% Free & Local</span>
-              </div>
-              <div className="grid grid-cols-3 gap-3 text-center">
-                <div className="bg-slate-900 p-3 rounded-xl border border-white/5">
-                  <span className="text-[10px] text-slate-400 uppercase">Speed</span>
-                  <div className="text-2xl font-bold text-indigo-400 mt-1">84 WPM</div>
-                </div>
-                <div className="bg-slate-900 p-3 rounded-xl border border-white/5">
-                  <span className="text-[10px] text-slate-400 uppercase">Accuracy</span>
-                  <div className="text-2xl font-bold text-emerald-400 mt-1">98.5%</div>
-                </div>
-                <div className="bg-slate-900 p-3 rounded-xl border border-white/5">
-                  <span className="text-[10px] text-slate-400 uppercase">Lessons</span>
-                  <div className="text-2xl font-bold text-amber-400 mt-1">20+ Levels</div>
-                </div>
-              </div>
-              <div className="p-3 bg-slate-900/50 rounded-xl text-xs text-slate-400 leading-relaxed">
-                "Practice every single day to dramatically boost your typing speed and computer fluency..."
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Popular Online Productivity Tools Section */}
-      <section className="py-20 px-6 relative z-10 max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
-          <div>
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-bold text-xs uppercase tracking-wider mb-4 border border-indigo-100 dark:border-indigo-900/50">
-              <Sparkles size={14} /> 200+ Free Browser Utilities
-            </div>
-            <h2 className="text-3xl sm:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
-              Essential Tools for Modern Thinkers
-            </h2>
-            <p className="text-slate-600 dark:text-slate-300 mt-3 text-base sm:text-lg max-w-2xl">
-              Fast, privacy-first calculators, converters, developer utilities, and formatters running entirely in your browser with zero server uploads.
+            <p className="text-sm text-slate-500 max-w-md font-medium">
+              Free, local-first applications designed with obsessive attention to fluid motion and privacy.
             </p>
           </div>
-          <Link
-            to="/tools"
-            className="inline-flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold text-sm sm:text-base hover:gap-3 transition-all self-start md:self-end"
-          >
-            Explore All 200+ Tools <ArrowRight size={18} />
-          </Link>
-        </div>
 
-        {/* Categories Bar */}
-        <div className="flex flex-wrap gap-2 mb-8">
-          {TOOL_CATEGORIES.slice(0, 10).map((cat) => (
-            <Link
-              key={cat.id}
-              to="/tools"
-              className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 text-slate-700 dark:text-slate-300 hover:text-indigo-600 text-xs font-semibold transition border border-slate-200/60 dark:border-slate-800"
-            >
-              {cat.name}
-            </Link>
-          ))}
-          <Link
-            to="/tools"
-            className="px-3 py-1.5 rounded-xl bg-indigo-600 text-white text-xs font-bold transition shadow-sm"
-          >
-            +10 More Categories
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {[
-            {
-              title: "Word Counter",
-              desc: "Instant word, character, and sentence count with reading time estimator.",
-              path: "/word-counter",
-              Icon: FileText,
-              tag: "Writing"
-            },
-            {
-              title: "Character Counter",
-              desc: "Measure exact characters with and without spaces for social media and essays.",
-              path: "/character-counter",
-              Icon: Type,
-              tag: "Writing"
-            },
-            {
-              title: "Reading Time Calculator",
-              desc: "Estimate silent reading and speaking duration for articles and presentations.",
-              path: "/reading-time-calculator",
-              Icon: Timer,
-              tag: "Writing"
-            },
-            {
-              title: "Scientific Calculator",
-              desc: "Trigonometry, logarithms, powers, and advanced math formulas online.",
-              path: "/scientific-calculator",
-              Icon: Calculator,
-              tag: "Calculators"
-            },
-            {
-              title: "Universal Unit Converter",
-              desc: "Convert length, area, volume, mass, pressure, and power units with precision.",
-              path: "/unit-converter",
-              Icon: Ruler,
-              tag: "Converters"
-            },
-            {
-              title: "Temperature Converter",
-              desc: "Instant conversion between Celsius (°C), Fahrenheit (°F), and Kelvin (K).",
-              path: "/temperature-converter",
-              Icon: Thermometer,
-              tag: "Converters"
-            },
-            {
-              title: "QR Code Generator",
-              desc: "Generate custom, high-resolution QR codes for links, text, Wi-Fi, and contacts.",
-              path: "/qr-code-generator",
-              Icon: QrCode,
-              tag: "Generators"
-            },
-            {
-              title: "Online Sticky Notes",
-              desc: "Infinite freeform digital canvas to organize, color-code, and drag ideas.",
-              path: "/sticky-notes",
-              Icon: StickyNote,
-              tag: "Notes"
-            }
-          ].map((tool, idx) => (
-            <Link
-              key={idx}
-              to={tool.path}
-              className="group p-6 rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border border-slate-200/80 dark:border-slate-800 hover:border-indigo-500 dark:hover:border-indigo-500 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col"
-            >
-              <div className="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xl mb-4 group-hover:scale-110 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-sm">
-                <tool.Icon size={22} />
+          {/* 3-Card Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            
+            {/* Card 1: Sticky Notes Canvas */}
+            <div className={`rounded-3xl overflow-hidden border shadow-sm hover:shadow-xl transition-all flex flex-col group ${
+              darkMode ? "bg-slate-900 border-slate-800" : "bg-white border-[#EADFD5]"
+            }`}>
+              <div className="h-48 bg-gradient-to-tr from-[#134E5E] to-[#246A7B] p-6 flex flex-col justify-between text-white relative">
+                <span className="text-xs font-bold px-3 py-1 rounded-full bg-white/20 self-start">
+                  Spatial Canvas
+                </span>
+                <div>
+                  <span className="text-xs text-white/80 font-medium">Infinite Board • Mind Mapping</span>
+                  <h4 className="text-xl font-bold tracking-tight mt-1 text-white">Sticky Notes Workspace</h4>
+                </div>
               </div>
-              <span className="text-[11px] font-extrabold uppercase tracking-wider text-indigo-500 dark:text-indigo-400 mb-1">
-                {tool.tag}
-              </span>
-              <h3 className="font-bold text-lg text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors mb-2">
-                {tool.title}
-              </h3>
-              <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed flex-1">
-                {tool.desc}
-              </p>
-              <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center gap-1 text-xs font-bold text-indigo-600 dark:text-indigo-400 group-hover:translate-x-1 transition-transform">
-                Launch Tool <ArrowRight size={14} />
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      <section className="py-24 px-6 relative z-10">
-        <div className="max-w-5xl mx-auto bg-gradient-to-br from-indigo-600 to-purple-700 rounded-[3rem] p-12 md:p-20 text-center relative overflow-hidden shadow-2xl">
-          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay"></div>
-          <div className="relative z-10 text-white">
-            <h2 className="text-4xl md:text-6xl font-black mb-6 leading-tight">Ready to transform <br/>your workflow?</h2>
-            <p className="text-lg md:text-xl text-indigo-100 mb-10 max-w-2xl mx-auto">Join thousands of creators, developers, and thinkers who use Stiknex to organize their chaotic brilliant minds.</p>
-            <Link to="/sticky-notes" className="inline-flex items-center gap-3 px-8 py-4 bg-white text-indigo-600 rounded-full text-lg font-bold hover:scale-105 transition-transform shadow-[0_0_40px_rgba(255,255,255,0.3)]">
-              Open App Now <ArrowRight size={20} />
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      <Suspense fallback={<div className="min-h-[300px]" />}>
-        <Testimonials />
-      </Suspense>
-
-      <Suspense fallback={<div className="min-h-[400px]" />}>
-        <HomeBlogSection />
-      </Suspense>
-
-      {/* Slim & Compact AdSense Banner */}
-      <AdBanner className="my-10" />
-
-      {/* Comprehensive Categorized Footer Matching AppShell for Full Link Equity */}
-      <footer className="py-16 px-6 border-t border-slate-200/60 dark:border-slate-800/60 bg-white/60 dark:bg-slate-950/60 backdrop-blur-md relative z-10 text-sm">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 mb-12">
-            <div>
-              <h3 className="font-bold text-slate-900 dark:text-white mb-4 uppercase tracking-wider text-xs">Writing & Notes</h3>
-              <ul className="space-y-2.5 text-slate-600 dark:text-slate-300">
-                <li><Link to="/sticky-notes" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Sticky Notes</Link></li>
-                <li><Link to="/online-notebook" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Online Notebook</Link></li>
-                <li><Link to="/whiteboard" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Whiteboard</Link></li>
-                <li><Link to="/word-counter" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Word Counter</Link></li>
-                <li><Link to="/character-counter" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Character Counter</Link></li>
-                <li><Link to="/reading-time-calculator" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Reading Time Calculator</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-bold text-slate-900 dark:text-white mb-4 uppercase tracking-wider text-xs">Calculators</h3>
-              <ul className="space-y-2.5 text-slate-600 dark:text-slate-300">
-                <li><Link to="/simple-calculator" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Simple Calculator</Link></li>
-                <li><Link to="/scientific-calculator" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Scientific Calculator</Link></li>
-                <li><Link to="/date-calculator" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Date Calculator</Link></li>
-                <li><Link to="/currency-converter" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Currency Converter</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-bold text-slate-900 dark:text-white mb-4 uppercase tracking-wider text-xs">Unit Converters</h3>
-              <ul className="space-y-2.5 text-slate-600 dark:text-slate-300">
-                <li><Link to="/unit-converter" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Universal Unit Converter</Link></li>
-                <li><Link to="/length-converter" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Length Converter</Link></li>
-                <li><Link to="/area-converter" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Area Converter</Link></li>
-                <li><Link to="/volume-converter" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Volume Converter</Link></li>
-                <li><Link to="/weight-converter" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Weight Converter</Link></li>
-                <li><Link to="/temperature-converter" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Temperature Converter</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-bold text-slate-900 dark:text-white mb-4 uppercase tracking-wider text-xs">Generators & Tech</h3>
-              <ul className="space-y-2.5 text-slate-600 dark:text-slate-300">
-                <li><Link to="/qr-code-generator" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">QR Code Generator</Link></li>
-                <li><Link to="/password-generator" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Password Generator</Link></li>
-                <li><Link to="/color-picker" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Color Picker</Link></li>
-                <li><Link to="/speed-converter" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Speed Converter</Link></li>
-                <li><Link to="/pressure-converter" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Pressure Converter</Link></li>
-                <li><Link to="/power-converter" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Power Converter</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-bold text-slate-900 dark:text-white mb-4 uppercase tracking-wider text-xs">Platform</h3>
-              <ul className="space-y-2.5 text-slate-600 dark:text-slate-300">
-                <li><Link to="/" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Home</Link></li>
-                <li><Link to="/tools" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">All Online Tools</Link></li>
-                <li><Link to="/blog" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Productivity Blog</Link></li>
-                <li><Link to="/about" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">About Stiknex</Link></li>
-                <li><Link to="/buy-me-a-coffee" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Support Development</Link></li>
-                <li>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const btn = document.querySelector('button[title*="Feedback"]');
-                      if (btn) btn.click();
-                    }}
-                    className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors cursor-pointer text-left"
+              <div className="p-6 space-y-4 flex-1 flex flex-col justify-between">
+                <p className={`text-sm ${darkMode ? "text-slate-400" : "text-slate-600"}`}>
+                  Freely position, color-code, and organize thoughts. Drag images, build connection links, and search instantly.
+                </p>
+                <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                  <span className="text-lg font-extrabold text-[#134E5E] dark:text-teal-400">100% Free</span>
+                  <Link
+                    to="/sticky-notes"
+                    className="px-5 py-2.5 rounded-full text-xs font-bold bg-[#134E5E]/10 dark:bg-teal-500/20 text-[#134E5E] dark:text-teal-300 group-hover:bg-[#134E5E] group-hover:text-white transition-colors"
                   >
-                    Contact & Feedback
-                  </button>
-                </li>
-              </ul>
+                    Open Canvas →
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            {/* Card 2: Digital Notepad & Code Runner */}
+            <div className={`rounded-3xl overflow-hidden border shadow-sm hover:shadow-xl transition-all flex flex-col group ${
+              darkMode ? "bg-slate-900 border-slate-800" : "bg-white border-[#EADFD5]"
+            }`}>
+              <div className="h-48 bg-gradient-to-tr from-[#0F3944] to-[#134E5E] p-6 flex flex-col justify-between text-white relative">
+                <span className="text-xs font-bold px-3 py-1 rounded-full bg-[#FFA07A]/30 text-[#FFA07A] self-start">
+                  Writing &amp; Code
+                </span>
+                <div>
+                  <span className="text-xs text-white/80 font-medium">Markdown • Live Code Runner</span>
+                  <h4 className="text-xl font-bold tracking-tight mt-1 text-white">Online Digital Notepad</h4>
+                </div>
+              </div>
+              <div className="p-6 space-y-4 flex-1 flex flex-col justify-between">
+                <p className={`text-sm ${darkMode ? "text-slate-400" : "text-slate-600"}`}>
+                  Distraction-free Markdown editor with instant HTML/JS/CSS new-tab preview, Zen mode, and auto-saving.
+                </p>
+                <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                  <span className="text-lg font-extrabold text-[#134E5E] dark:text-teal-400">100% Free</span>
+                  <Link
+                    to="/online-notebook"
+                    className="px-5 py-2.5 rounded-full text-xs font-bold bg-[#134E5E]/10 dark:bg-teal-500/20 text-[#134E5E] dark:text-teal-300 group-hover:bg-[#134E5E] group-hover:text-white transition-colors"
+                  >
+                    Open Notepad →
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            {/* Card 3: 200+ Browser Utilities Directory */}
+            <div className={`rounded-3xl overflow-hidden border shadow-sm hover:shadow-xl transition-all flex flex-col group ${
+              darkMode ? "bg-slate-900 border-slate-800" : "bg-white border-[#EADFD5]"
+            }`}>
+              <div className="h-48 bg-gradient-to-tr from-[#1D6A7D] to-[#2B7D91] p-6 flex flex-col justify-between text-white relative">
+                <span className="text-xs font-bold px-3 py-1 rounded-full bg-white/20 self-start">
+                  Client Utilities
+                </span>
+                <div>
+                  <span className="text-xs text-white/80 font-medium">206 Tools • Local Processing</span>
+                  <h4 className="text-xl font-bold tracking-tight mt-1 text-white">Browser Utility Hub</h4>
+                </div>
+              </div>
+              <div className="p-6 space-y-4 flex-1 flex flex-col justify-between">
+                <p className={`text-sm ${darkMode ? "text-slate-400" : "text-slate-600"}`}>
+                  Financial calculators, unit converters, PDF mergers, image compressors, and developer formatters with zero lag.
+                </p>
+                <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                  <span className="text-lg font-extrabold text-[#134E5E] dark:text-teal-400">100% Free</span>
+                  <Link
+                    to="/tools"
+                    className="px-5 py-2.5 rounded-full text-xs font-bold bg-[#134E5E]/10 dark:bg-teal-500/20 text-[#134E5E] dark:text-teal-300 group-hover:bg-[#134E5E] group-hover:text-white transition-colors"
+                  >
+                    Explore Directory →
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+      {/* ========================================================
+          6. QUICK TOOL EXPLORER BAR
+          ======================================================== */}
+      <section className="py-16 max-w-7xl mx-auto px-6">
+        <div className={`rounded-3xl p-8 border shadow-sm ${
+          darkMode ? "bg-slate-900 border-slate-800" : "bg-white border-[#EADFD5]"
+        }`}>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+            <div>
+              <h3 className={`text-2xl font-bold ${darkMode ? "text-white" : "text-[#0F3944]"}`}>
+                Find Any Tool Instantly
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                Search across all 206 client-side tools or filter by category.
+              </p>
+            </div>
+
+            <div className="relative max-w-md w-full">
+              <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search tools (e.g. 'json to csv', 'age calc', 'percentage')..."
+                className={`w-full pl-10 pr-4 py-2.5 rounded-full text-sm outline-none border transition-all ${
+                  darkMode
+                    ? "bg-slate-800 border-slate-700 text-white focus:border-teal-400"
+                    : "bg-slate-50 border-slate-200 text-slate-900 focus:border-[#134E5E] focus:bg-white"
+                }`}
+              />
             </div>
           </div>
 
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 pt-8 border-t border-slate-200/60 dark:border-slate-800/60 text-xs text-slate-600 dark:text-slate-400">
-            <div>
-              &copy; {new Date().getFullYear()} Stiknex. All rights reserved. Created with passion by{" "}
-              <a href="https://vishalmall.vercel.app/" target="_blank" rel="noreferrer" className="text-indigo-600 dark:text-indigo-400 hover:underline font-semibold">
-                Vishal Mall
-              </a>.
+          {/* Search Results Dropdown/Grid if search active */}
+          {searchQuery.trim() && (
+            <div className="mb-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              {filteredTools.length > 0 ? (
+                filteredTools.map((tool) => (
+                  <Link
+                    key={tool.slug}
+                    to={`/${tool.slug}`}
+                    className={`p-3 rounded-2xl border text-left transition hover:-translate-y-0.5 hover:shadow-md ${
+                      darkMode
+                        ? "bg-slate-800/80 border-slate-700 hover:border-teal-400"
+                        : "bg-slate-50 border-slate-200 hover:border-[#134E5E]"
+                    }`}
+                  >
+                    <span className="block text-xs font-bold text-[#134E5E] dark:text-teal-300">
+                      {tool.title}
+                    </span>
+                    <span className="block text-[11px] text-slate-500 truncate mt-0.5">
+                      {tool.description || tool.category}
+                    </span>
+                  </Link>
+                ))
+              ) : (
+                <p className="col-span-full text-xs text-slate-400 py-3 text-center">
+                  No matching tools found. Explore the full directory below!
+                </p>
+              )}
             </div>
-            <div className="flex items-center gap-4">
-              <Link to="/about" className="hover:underline">About</Link>
-              <Link to="/blog" className="hover:underline">Blog</Link>
-              <Link to="/tools" className="hover:underline">Tools</Link>
-              <Link to="/buy-me-a-coffee" className="hover:underline">Buy Me a Coffee</Link>
+          )}
+
+          {/* Category Quick Chips */}
+          <div className="flex flex-wrap gap-2.5">
+            {[
+              { label: "Calculators", to: "/basic-calculator" },
+              { label: "Age Calculator", to: "/age-calculator" },
+              { label: "Date Calculator", to: "/date-calculator" },
+              { label: "Percentage Calculator", to: "/percentage-calculator" },
+              { label: "Length Converter", to: "/length-converter" },
+              { label: "Currency Converter", to: "/currency-converter" },
+              { label: "QR Code Generator", to: "/qr-code-generator" },
+              { label: "Password Generator", to: "/password-generator" },
+              { label: "Word Counter", to: "/word-counter" },
+              { label: "JSON to CSV", to: "/json-to-csv" },
+              { label: "Image Compressor", to: "/image-compressor" },
+              { label: "Merge PDF", to: "/merge-pdf" },
+              { label: "Color Picker", to: "/color-picker" },
+              { label: "EMI Calculator", to: "/emi-calculator" },
+              { label: "Typing Test", to: "/stiknex-typing" },
+            ].map(({ label, to }) => (
+              <Link
+                key={label}
+                to={to}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold border transition-all ${
+                  darkMode
+                    ? "bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700 hover:text-white"
+                    : "bg-slate-100/80 border-slate-200 text-slate-700 hover:bg-[#134E5E] hover:text-white"
+                }`}
+              >
+                {label}
+              </Link>
+            ))}
+          </div>
+
+        </div>
+      </section>
+
+      {/* ========================================================
+          7. USER REVIEWS / TESTIMONIALS
+          ======================================================== */}
+      <section id="reviews" className={`py-24 border-t transition-colors ${
+        darkMode ? "bg-[#0B0F17] border-slate-800" : "bg-[#FAF7F2] border-[#EADFD5]"
+      }`}>
+        <div className="max-w-7xl mx-auto px-6">
+          
+          <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
+            <span className={`text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-full ${
+              darkMode ? "bg-teal-950 text-teal-300" : "bg-[#134E5E]/10 text-[#134E5E]"
+            }`}>
+              Community Love
+            </span>
+            <h2 className={`text-3xl sm:text-4xl font-extrabold tracking-tight ${
+              darkMode ? "text-white" : "text-[#0F3944]"
+            }`}>
+              What people say about Stiknex
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            
+            <div className={`rounded-3xl p-8 border shadow-sm space-y-4 ${
+              darkMode ? "bg-slate-900 border-slate-800" : "bg-white border-[#EADFD5]"
+            }`}>
+              <div className="flex items-center gap-1 text-amber-400">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="w-4 h-4 fill-current" />
+                ))}
+              </div>
+              <p className={`text-sm italic ${darkMode ? "text-slate-300" : "text-slate-600"}`}>
+                "Having sticky notes, a markdown notebook, and instant calculators all in one tab with zero logins is an absolute productivity lifesaver."
+              </p>
+              <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-[#134E5E] text-white flex items-center justify-center font-bold text-sm">
+                  AR
+                </div>
+                <div>
+                  <h5 className={`text-sm font-bold ${darkMode ? "text-white" : "text-[#0F3944]"}`}>Aman Rawat</h5>
+                  <p className="text-xs text-slate-500">Frontend Developer</p>
+                </div>
+              </div>
+            </div>
+
+            <div className={`rounded-3xl p-8 border shadow-sm space-y-4 ${
+              darkMode ? "bg-slate-900 border-slate-800" : "bg-white border-[#EADFD5]"
+            }`}>
+              <div className="flex items-center gap-1 text-amber-400">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="w-4 h-4 fill-current" />
+                ))}
+              </div>
+              <p className={`text-sm italic ${darkMode ? "text-slate-300" : "text-slate-600"}`}>
+                "The infinite sticky notes canvas feels so natural. I use it every day for sprint planning and mind mapping ideas."
+              </p>
+              <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-[#FFA07A] text-[#0F3944] flex items-center justify-center font-bold text-sm">
+                  PS
+                </div>
+                <div>
+                  <h5 className={`text-sm font-bold ${darkMode ? "text-white" : "text-[#0F3944]"}`}>Pooja Sharma</h5>
+                  <p className="text-xs text-slate-500">Product Designer</p>
+                </div>
+              </div>
+            </div>
+
+            <div className={`rounded-3xl p-8 border shadow-sm space-y-4 ${
+              darkMode ? "bg-slate-900 border-slate-800" : "bg-white border-[#EADFD5]"
+            }`}>
+              <div className="flex items-center gap-1 text-amber-400">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="w-4 h-4 fill-current" />
+                ))}
+              </div>
+              <p className={`text-sm italic ${darkMode ? "text-slate-300" : "text-slate-600"}`}>
+                "Local-first privacy means my notes never leave my browser. It loads in milliseconds and works completely offline as a PWA."
+              </p>
+              <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-[#1D6A7D] text-white flex items-center justify-center font-bold text-sm">
+                  DK
+                </div>
+                <div>
+                  <h5 className={`text-sm font-bold ${darkMode ? "text-white" : "text-[#0F3944]"}`}>David Keller</h5>
+                  <p className="text-xs text-slate-500">Software Architect</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+      {/* ========================================================
+          8. CREATOR & COMMUNITY NEWSLETTER CTA (Matching Circle CTA)
+          ======================================================== */}
+      <section className="py-20 bg-gradient-to-br from-[#134E5E] via-[#1D6A7D] to-[#0F3944] text-white relative overflow-hidden">
+        <div className="absolute -top-32 -left-32 w-80 h-80 rounded-full bg-[#FFA07A]/20 blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-32 -right-32 w-80 h-80 rounded-full bg-emerald-400/15 blur-3xl pointer-events-none" />
+
+        <div className="max-w-5xl mx-auto px-6 relative z-10 text-center space-y-8">
+          
+          <span className="inline-block text-xs font-bold uppercase tracking-widest text-[#FFA07A] bg-white/10 px-4 py-1.5 rounded-full">
+            Local-First &amp; Free Forever
+          </span>
+
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight max-w-2xl mx-auto leading-tight">
+            Stay productive with Stiknex. <br />
+            <span className="font-serif italic font-normal text-white/90">Created by Vishal Mall.</span>
+          </h2>
+
+          <p className="text-white/80 text-sm sm:text-base max-w-xl mx-auto">
+            Get product updates, new tool releases, and join our community of thinkers, writers, and builders.
+          </p>
+
+          <form onSubmit={handleSubscribe} className="max-w-md mx-auto flex flex-col sm:flex-row gap-3">
+            <input 
+              type="email" 
+              required
+              value={emailInput}
+              onChange={(e) => setEmailInput(e.target.value)}
+              placeholder="Enter your email address..."
+              className="flex-1 px-5 py-4 rounded-full bg-white/10 border border-white/20 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-[#FFA07A] text-sm"
+            />
+            <button 
+              type="submit"
+              className="px-8 py-4 rounded-full font-bold text-xs uppercase tracking-wider bg-[#FFA07A] hover:bg-[#F8A88C] text-[#0F3944] transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+            >
+              Subscribe
+            </button>
+          </form>
+
+          {subscribed && (
+            <p className="text-emerald-300 font-semibold text-sm animate-fade-in">
+              ✓ Thank you! You are subscribed to Stiknex product updates.
+            </p>
+          )}
+
+          <div className="pt-4 flex items-center justify-center gap-4 text-xs font-semibold text-white/80">
+            <Link to="/buy-me-a-coffee" className="hover:text-[#FFA07A] transition-colors flex items-center gap-1.5">
+              <Heart className="w-3.5 h-3.5 text-rose-400 fill-current" /> Support the Creator
+            </Link>
+            <span>•</span>
+            <Link to="/about" className="hover:text-[#FFA07A] transition-colors">
+              About the Developer
+            </Link>
+          </div>
+
+        </div>
+      </section>
+
+      {/* ========================================================
+          9. FOOTER (Matching Circle's Studio Footer)
+          ======================================================== */}
+      <footer className={`border-t py-16 transition-colors ${
+        darkMode ? "bg-slate-950 border-slate-800" : "bg-white border-[#EADFD5]"
+      }`}>
+        <div className="max-w-7xl mx-auto px-6">
+          
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-10 pb-12">
+            
+            {/* Col 1: Brand */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="grid grid-cols-3 gap-1 w-6 h-6">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#134E5E]" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#134E5E]" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#134E5E]" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#134E5E]" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#FFA07A]" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#134E5E]" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#134E5E]" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#134E5E]" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#134E5E]" />
+                </div>
+                <span className={`text-xl font-bold tracking-tight ${darkMode ? "text-white" : "text-[#134E5E]"}`}>
+                  Stiknex
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                The freeform canvas for thinking, writing &amp; 200+ browser utilities. Created with passion by Vishal Mall.
+              </p>
+            </div>
+
+            {/* Col 2: Workspaces */}
+            <div className="space-y-3 text-xs font-bold text-slate-500 uppercase tracking-wider">
+              <Link to="/sticky-notes" className="block hover:text-[#134E5E] dark:hover:text-teal-400">Sticky Notes</Link>
+              <Link to="/online-notebook" className="block hover:text-[#134E5E] dark:hover:text-teal-400">Digital Notepad</Link>
+              <Link to="/whiteboard" className="block hover:text-[#134E5E] dark:hover:text-teal-400">Excalidraw Whiteboard</Link>
+              <Link to="/tools" className="block hover:text-[#134E5E] dark:hover:text-teal-400">200+ Tools Directory</Link>
+            </div>
+
+            {/* Col 3: Popular Utilities */}
+            <div className="space-y-3 text-xs font-bold text-slate-500 uppercase tracking-wider">
+              <Link to="/basic-calculator" className="block hover:text-[#134E5E] dark:hover:text-teal-400">Calculators</Link>
+              <Link to="/qr-code-generator" className="block hover:text-[#134E5E] dark:hover:text-teal-400">QR Generator</Link>
+              <Link to="/stiknex-typing" className="block hover:text-[#134E5E] dark:hover:text-teal-400">Typing Test</Link>
+              <Link to="/blog" className="block hover:text-[#134E5E] dark:hover:text-teal-400">Blog &amp; Tutorials</Link>
+            </div>
+
+            {/* Col 4: Platform & Support */}
+            <div className="space-y-2 text-xs text-slate-500">
+              <span className={`block font-bold ${darkMode ? "text-teal-300" : "text-[#134E5E]"}`}>
+                WWW.STIKNEX.SITE
+              </span>
+              <span className="block">FOUNDER: VISHAL MALL</span>
+              <span className="block">100% PRIVATE &amp; LOCAL-FIRST</span>
+              <Link to="/buy-me-a-coffee" className="block text-[#FFA07A] font-bold hover:underline">
+                Buy Me A Coffee →
+              </Link>
+            </div>
+
+          </div>
+
+          <div className="pt-8 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+            <p>© 2026 Stiknex. All rights reserved. Created by Vishal Mall.</p>
+            <div className="flex items-center gap-4 text-slate-500 font-semibold text-xs">
+              <Link to="/privacy-policy" className="hover:text-[#134E5E] dark:hover:text-teal-400">Privacy Policy</Link>
+              <span>•</span>
+              <Link to="/terms-of-service" className="hover:text-[#134E5E] dark:hover:text-teal-400">Terms of Service</Link>
             </div>
           </div>
+
         </div>
       </footer>
 
-      {/* Chrome Extension Modal */}
-      <Suspense fallback={null}>
-        <ExtensionModal isOpen={showExtensionModal} onClose={() => setShowExtensionModal(false)} />
-      </Suspense>
     </div>
   );
-};
-
-export default LandingPage;
+}

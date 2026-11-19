@@ -24,6 +24,43 @@ const categorizedToolsHtml = TOOL_HUBS.map(hub => {
 }).join('\n');
 
 const staticSsrHtml = `
+    <!-- Initial Splash Overlay (Prevents raw crawler HTML flash for human users while preserving 100% crawlability for Googlebot) -->
+    <style id="initial-splash-style">
+      #initial-app-splash {
+        position: fixed;
+        inset: 0;
+        z-index: 99999999;
+        background: #FAF7F2;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        transition: opacity 0.25s ease-out, visibility 0.25s ease-out;
+      }
+      .dark #initial-app-splash {
+        background: #0f172a;
+      }
+      .initial-splash-spinner {
+        width: 38px;
+        height: 38px;
+        border: 3.5px solid #EADFD5;
+        border-top-color: #134E5E;
+        border-radius: 50%;
+        animation: initialSplashSpin 0.75s linear infinite;
+      }
+      .dark .initial-splash-spinner {
+        border-color: #334155;
+        border-top-color: #38bdf8;
+      }
+      @keyframes initialSplashSpin {
+        to { transform: rotate(360deg); }
+      }
+    </style>
+    <div id="initial-app-splash" aria-hidden="true">
+      <div class="initial-splash-spinner"></div>
+    </div>
+
     <div id="root">
       <!-- Semantic Pre-Rendered HTML for Googlebot, Bingbot & Search Crawlers (Replaced on React hydration) -->
       <header style="padding: 20px 16px; border-bottom: 1px solid #e2e8f0; text-align: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
@@ -121,7 +158,7 @@ const staticSsrHtml = `
     </div>`;
 
 // Update index.html in project root
-const rootDivRegex = /<div id="root">[\s\S]*?<\/div>\s*(?=\s*<script)/;
+const rootDivRegex = /(?:<!-- Initial Splash Overlay[\s\S]*?-->\s*)?(?:<style id="initial-splash-style">[\s\S]*?<\/style>\s*<div id="initial-app-splash"[\s\S]*?<\/div>\s*)?<div id="root">[\s\S]*?<\/div>\s*(?=\s*<script)/;
 
 const indexPath = path.join(rootDir, 'index.html');
 if (fs.existsSync(indexPath)) {

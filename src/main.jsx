@@ -57,6 +57,20 @@ window.addEventListener('beforeinstallprompt', (e) => {
 // Synchronous restoration before BrowserRouter mounts — eliminates homepage flash on PWA / app cold start
 resolveStartupRestoration();
 
+// Dismiss initial pre-render SEO splash once React bundle loads
+if (typeof document !== 'undefined') {
+  const splash = document.getElementById('initial-app-splash');
+  if (splash) {
+    splash.style.opacity = '0';
+    splash.style.visibility = 'hidden';
+    setTimeout(() => {
+      splash.remove();
+      const style = document.getElementById('initial-splash-style');
+      if (style) style.remove();
+    }, 260);
+  }
+}
+
 createRoot(document.getElementById("root")).render(
   <AppProvider>
     <BrowserRouter>

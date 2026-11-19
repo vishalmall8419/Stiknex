@@ -81,6 +81,7 @@ const CommandPalette = lazy(
 const UserDashboard = lazy(() => import("./Pages/Dashboard/UserDashboard"));
 const AuthModal = lazy(() => import("./Component/AuthModal"));
 const UniversalMobileBottomNav = lazy(() => import("./Component/Navigation/UniversalMobileBottomNav"));
+const CircleLandingPage = lazy(() => import("./Pages/Showcase/CircleLandingPage"));
 import { initSyncEngine } from "./services/syncManager";
 import RouteRestorationTracker from "./Component/RouteRestorationTracker";
 import { ALL_TOOLS } from "./data/toolsRegistry";
@@ -122,11 +123,12 @@ const App = () => {
     location.pathname.startsWith('/dashboard') || 
     location.pathname.startsWith('/stiknex-secure-login-portal') ||
     location.pathname.startsWith('/setup-2fa-admin');
+  const isCircleRoute = location.pathname === '/circle';
 
   const isNotebookRoute =
     location.pathname === '/notebook' ||
     location.pathname === '/online-notebook';
-  const isStickyNotesRoute = location.pathname === '/sticky-notes';
+  const isStickyNotesRoute = location.pathname === '/sticky-notes' || location.pathname === '/notes';
   const isWhiteboardRoute = location.pathname === '/whiteboard';
   const isCalculatorRoute =
     location.pathname === '/basic-calculator' ||
@@ -346,6 +348,12 @@ const App = () => {
             element={<Navigate to="/dashboard" replace />}
           />
 
+          {/* Showcase: Circle Landing Page (Sandhill Studio / Halo Lab Pinterest Replica) */}
+          <Route
+            path="/circle"
+            element={<CircleLandingPage />}
+          />
+
           {/* All 200 Clean Tool Slug Routes */}
           <Route
             path="/:toolSlug"
@@ -353,7 +361,7 @@ const App = () => {
           />
         </Routes>
         <AuthModal />
-        {!isAdminRoute && <UniversalMobileBottomNav />}
+        {!isAdminRoute && !isCircleRoute && !isStickyNotesRoute && <UniversalMobileBottomNav />}
       </Suspense>
     </>
   );

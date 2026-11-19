@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stiknex — Free Online Sticky Notes, Digital Notebook & 200+ Browser Utility Tools</title>
+  <meta name="description" content="Local-first productivity workspace by Vishal Mall. Infinite sticky notes canvas, distraction-free markdown notepad, whiteboard, and 200+ client-side utility tools — private with zero logins.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Playfair+Display:ital,wght@0,600;1,500;1,600&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Lenis Smooth Scroll CDN -->
+  <script src="https://unpkg.com/lenis@1.1.20/dist/lenis.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              teal: '#134E5E',
+              tealDark: '#0F3944',
+              tealMedium: '#1D6A7D',
+              cream: '#FAF7F2',
+              creamDark: '#EADFD5',
+              coral: '#FFA07A',
+              coralDark: '#F8A88C',
+              dark: '#1E293B'
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            serif: ['"Playfair Display"', 'serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    html.lenis, html.lenis body {
+      height: auto;
+    }
+    .lenis.lenis-smooth {
+      scroll-behavior: auto !important;
+    }
+    .lenis.lenis-smooth [data-lenis-prevent] {
+      overscroll-behavior: contain;
+    }
+    .lenis.lenis-stopped {
+      overflow: hidden;
+    }
+    .lenis.lenis-scrolling iframe {
+      pointer-events: none;
+    }
+    ::selection {
+      background: rgba(248, 168, 140, 0.4);
+      color: #0F3944;
+    }
+  </style>
+</head>
+<body class="bg-[#FAF7F2] text-[#1E293B] font-sans antialiased overflow-x-hidden selection:bg-[#F8A88C]/40 selection:text-[#0F3944]">
+
+  <!-- ==========================================
+       1. HEADER / NAVIGATION
+       ========================================== -->
+  <header class="sticky top-0 z-50 bg-[#FAF7F2]/90 backdrop-blur-md border-b border-[#EADFD5]/60 transition-all">
+    <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+      
+      <!-- Brand Logo: Stiknex -->
+      <a href="/" class="flex items-center gap-3.5 group">
+        <div class="grid grid-cols-3 gap-1 w-6 h-6">
+          <span class="w-1.5 h-1.5 rounded-full bg-[#134E5E]"></span>
+          <span class="w-1.5 h-1.5 rounded-full bg-[#134E5E]"></span>
+          <span class="w-1.5 h-1.5 rounded-full bg-[#134E5E]"></span>
+          <span class="w-1.5 h-1.5 rounded-full bg-[#134E5E]"></span>
+          <span class="w-1.5 h-1.5 rounded-full bg-[#FFA07A] scale-125"></span>
+          <span class="w-1.5 h-1.5 rounded-full bg-[#134E5E]"></span>
+          <span class="w-1.5 h-1.5 rounded-full bg-[#134E5E]"></span>
+          <span class="w-1.5 h-1.5 rounded-full bg-[#134E5E]"></span>
+          <span class="w-1.5 h-1.5 rounded-full bg-[#134E5E]"></span>
+        </div>
+        <div class="flex flex-col">
+          <span class="text-xl font-extrabold tracking-tight text-[#134E5E]">Stiknex</span>
+          <span class="text-[9px] uppercase font-bold tracking-widest text-slate-400 -mt-1">Workspace</span>
+        </div>
+      </a>
+
+      <!-- Desktop Navigation Links -->
+      <nav class="hidden md:flex items-center gap-8 text-[13px] font-semibold text-[#1E293B]">
+        <a href="/sticky-notes" class="hover:text-[#134E5E] transition-colors">Sticky Notes</a>
+        <a href="/online-notebook" class="hover:text-[#134E5E] transition-colors">Notepad</a>
+        <a href="/whiteboard" class="hover:text-[#134E5E] transition-colors">Whiteboard</a>
+        <a href="/tools" class="hover:text-[#134E5E] transition-colors">200+ Tools</a>
+        <a href="/blog" class="hover:text-[#134E5E] transition-colors">Blog</a>
+        <a href="/about" class="hover:text-[#134E5E] transition-colors">About</a>
+      </nav>
+
+      <!-- Right Header Actions -->
+      <div class="hidden sm:flex items-center gap-4">
+        <a href="/tools" class="p-2.5 rounded-full text-slate-600 hover:text-[#134E5E] hover:bg-white/60 transition-colors">
+          <i data-lucide="search" class="w-4 h-4"></i>
+        </a>
+        <a href="/sticky-notes" class="px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider text-white bg-gradient-to-r from-[#134E5E] to-[#1D6A7D] hover:shadow-lg hover:shadow-[#134E5E]/20 hover:-translate-y-0.5 transition-all">
+          Launch Canvas
+        </a>
+      </div>
+
+      <!-- Mobile Menu Toggle -->
+      <button id="mobile-toggle" class="md:hidden p-2 text-slate-700 hover:text-[#134E5E]">
+        <i data-lucide="menu" class="w-6 h-6"></i>
+      </button>
+    </div>
+
+    <!-- Mobile Drawer -->
+    <div id="mobile-drawer" class="hidden md:hidden px-6 pb-6 pt-2 bg-[#FAF7F2] border-b border-[#EADFD5]">
+      <div class="flex flex-col gap-4 text-sm font-semibold">
+        <a href="/sticky-notes" class="py-2 text-slate-700 hover:text-[#134E5E]">Sticky Notes</a>
+        <a href="/online-notebook" class="py-2 text-slate-700 hover:text-[#134E5E]">Digital Notepad</a>
+        <a href="/whiteboard" class="py-2 text-slate-700 hover:text-[#134E5E]">Whiteboard</a>
+        <a href="/tools" class="py-2 text-slate-700 hover:text-[#134E5E]">200+ Browser Utilities</a>
+        <a href="/blog" class="py-2 text-slate-700 hover:text-[#134E5E]">Blog</a>
+        <a href="/about" class="py-2 text-slate-700 hover:text-[#134E5E]">About Vishal Mall</a>
+        <a href="/sticky-notes" class="text-center py-2.5 rounded-full text-xs font-bold uppercase tracking-wider bg-[#134E5E] text-white">Launch Stiknex</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==========================================
+       2. HERO SECTION
+       ========================================== -->
+  <section class="relative pt-12 md:pt-20 pb-20 md:pb-28 overflow-hidden">
+    <div class="max-w-7xl mx-auto px-6">
+      
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+        
+        <!-- Left Hero Content -->
+        <div class="lg:col-span-7 space-y-6">
+          <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-[#134E5E]/10 text-[#134E5E]">
+            <span class="w-2 h-2 rounded-full bg-[#FFA07A] animate-ping"></span>
+            100% Free &amp; Local-First Workspace
+          </span>
+
+          <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-[62px] font-extrabold tracking-tight text-[#0F3944] leading-[1.08]">
+            All-in-one canvas for <br />
+            <span class="font-serif italic font-normal text-[#134E5E]">thinking, writing</span> <br />
+            &amp; 200+ browser tools.
+          </h1>
+
+          <p class="text-base sm:text-lg text-slate-600 max-w-xl font-normal leading-relaxed">
+            Infinite zoomable sticky notes, distraction-free markdown notebook with instant code execution, interactive whiteboard, and 200+ client-side tools — fast, private, and zero logins required.
+          </p>
+
+          <div class="flex flex-wrap items-center gap-4 pt-3">
+            <a href="/sticky-notes" class="inline-flex items-center gap-3 px-8 py-4 rounded-full text-sm font-bold text-white bg-gradient-to-r from-[#134E5E] to-[#1D6A7D] hover:shadow-xl hover:shadow-[#134E5E]/20 hover:-translate-y-0.5 transition-all">
+              <span>Launch Sticky Notes</span>
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </a>
+
+            <a href="/online-notebook" class="inline-flex items-center gap-2.5 px-6 py-4 rounded-full text-sm font-bold text-[#0F3944] bg-white border border-[#EADFD5] hover:bg-slate-50 shadow-sm transition-all">
+              <span class="w-7 h-7 rounded-full bg-[#134E5E]/10 flex items-center justify-center text-[#134E5E]">
+                <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+              </span>
+              <span>Open Notepad</span>
+            </a>
+
+            <a href="/tools" class="inline-flex items-center gap-2 px-5 py-4 rounded-full text-xs font-extrabold uppercase tracking-wider text-slate-600 hover:text-[#134E5E] transition-all">
+              <span>Explore 200+ Tools</span>
+              <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </a>
+          </div>
+
+          <!-- Micro Credibility Row -->
+          <div class="pt-6 flex flex-wrap items-center gap-6 text-xs text-slate-500 font-semibold">
+            <span class="flex items-center gap-1.5 text-emerald-700">
+              <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i> Zero Account Required
+            </span>
+            <span class="flex items-center gap-1.5 text-emerald-700">
+              <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i> 100% Local-First Privacy
+            </span>
+            <span class="flex items-center gap-1.5 text-emerald-700">
+              <i data-lucide="zap" class="w-4 h-4 text-emerald-600"></i> 0ms Server Latency
+            </span>
+          </div>
+        </div>
+
+        <!-- Right Hero Visual Illustration Card -->
+        <div class="lg:col-span-5 relative flex justify-center">
+          <div class="relative w-full max-w-[460px] rounded-[36px] bg-gradient-to-br from-[#134E5E] via-[#1D6A7D] to-[#0F3944] p-8 flex flex-col justify-between shadow-2xl shadow-[#134E5E]/25 text-white overflow-hidden border border-white/10">
+            
+            <!-- Soft glowing gradient blurs -->
+            <div class="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-[#FFA07A]/25 blur-3xl"></div>
+            <div class="absolute -bottom-16 -left-16 w-52 h-52 rounded-full bg-emerald-400/20 blur-3xl"></div>
+
+            <!-- Card Header -->
+            <div class="relative z-10 flex items-center justify-between border-b border-white/15 pb-4">
+              <div class="flex items-center gap-2.5">
+                <div class="w-3 h-3 rounded-full bg-[#FFA07A] animate-pulse"></div>
+                <span class="text-xs uppercase font-extrabold tracking-widest text-white/90">Stiknex Spatial Engine</span>
+              </div>
+              <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-white/10 text-white/90">v2.0 Active</span>
+            </div>
+
+            <!-- Central Content Elements -->
+            <div class="relative z-10 my-auto py-6 space-y-4">
+              <div class="p-4 rounded-2xl bg-amber-100/95 text-slate-800 shadow-md">
+                <div class="flex items-center justify-between border-b border-amber-300/60 pb-2 mb-2">
+                  <span class="text-xs font-bold text-amber-900">💡 Sprint Roadmap &amp; Tasks</span>
+                  <span class="text-[10px] font-semibold text-amber-800 bg-amber-200/90 px-2 py-0.5 rounded-full">Idea</span>
+                </div>
+                <p class="text-xs text-slate-700 leading-snug">
+                  Brainstorm, organize tasks, and connect mind-map branches on an infinite 6000x6000px canvas.
+                </p>
+              </div>
+
+              <div class="p-4 rounded-2xl bg-[#0F3944]/95 border border-white/20 text-white shadow-xl">
+                <div class="flex items-center justify-between border-b border-white/15 pb-2 mb-2">
+                  <div class="flex items-center gap-2">
+                    <i data-lucide="code-2" class="w-3.5 h-3.5 text-[#FFA07A]"></i>
+                    <span class="text-xs font-bold text-white">Interactive Notepad</span>
+                  </div>
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300">Live Run</span>
+                </div>
+                <code class="block text-[11px] font-mono text-emerald-300">
+                  &lt;h1&gt;Stiknex Run Preview&lt;/h1&gt;
+                </code>
+                <p class="text-[11px] text-white/80 mt-1">
+                  Write markdown, render HTML previews, and run code in real-time tabs.
+                </p>
+              </div>
+            </div>
+
+            <!-- Card Bottom Stats Row -->
+            <div class="relative z-10 pt-4 border-t border-white/15 flex items-center justify-between text-xs">
+              <div>
+                <span class="block text-white/60 font-medium">Data Storage</span>
+                <span class="font-bold text-white">Local IndexedDB</span>
+              </div>
+              <div class="text-right">
+                <span class="block text-white/60 font-medium">Available Tools</span>
+                <span class="font-bold text-[#FFA07A]">206+ Built-in</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==========================================
+       3. KEY NUMBERS / STATS SHELF
+       ========================================== -->
+  <section class="border-y border-[#EADFD5] bg-white/70 py-12">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+        
+        <div class="space-y-1">
+          <div class="text-3xl sm:text-4xl font-extrabold text-[#134E5E] tracking-tight">.206+</div>
+          <p class="text-xs sm:text-sm font-semibold uppercase tracking-wider text-slate-500">Browser Utilities</p>
+        </div>
+
+        <div class="space-y-1">
+          <div class="text-3xl sm:text-4xl font-extrabold text-[#134E5E] tracking-tight">100%</div>
+          <p class="text-xs sm:text-sm font-semibold uppercase tracking-wider text-slate-500">Local &amp; Private</p>
+        </div>
+
+        <div class="space-y-1">
+          <div class="text-3xl sm:text-4xl font-extrabold text-[#134E5E] tracking-tight">0ms</div>
+          <p class="text-xs sm:text-sm font-semibold uppercase tracking-wider text-slate-500">Server Latency</p>
+        </div>
+
+        <div class="space-y-1">
+          <div class="text-3xl sm:text-4xl font-extrabold text-[#FFA07A] tracking-tight">4.9/5</div>
+          <p class="text-xs sm:text-sm font-semibold uppercase tracking-wider text-slate-500">User Satisfaction</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       4. ECOSYSTEM TIMELINE (01, 02, 03)
+       ========================================== -->
+  <section class="py-24 max-w-7xl mx-auto px-6">
+    <div class="text-center max-w-2xl mx-auto mb-16 space-y-4">
+      <span class="text-xs font-bold uppercase tracking-widest text-[#134E5E] bg-[#134E5E]/10 px-4 py-1.5 rounded-full">
+        Core Ecosystem
+      </span>
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-[#0F3944] tracking-tight">
+        Structured tools built for maximum focus
+      </h2>
+      <p class="text-slate-600 text-sm sm:text-base">
+        A seamless three-tier productivity flow: capture raw thoughts, compose in-depth documents, and execute client-side utilities without distractions.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+      
+      <!-- Stage 01 -->
+      <div class="bg-white rounded-3xl p-8 border border-[#EADFD5] shadow-sm hover:shadow-xl transition-all group flex flex-col justify-between">
+        <div class="space-y-4">
+          <span class="inline-block text-4xl font-black text-[#FFA07A]">01</span>
+          <h3 class="text-xl font-bold text-[#0F3944] group-hover:text-[#134E5E] transition-colors">
+            Capture &amp; Mind Map
+          </h3>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            Infinite zoomable board with smooth panning, color-coded cards, connected branches, checklists, and instant drag-and-drop screenshot uploads.
+          </p>
+        </div>
+        <div class="pt-6 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-[#134E5E]">
+          <a href="/sticky-notes" class="flex items-center gap-1 hover:underline">
+            <span>Explore Sticky Notes</span>
+            <i data-lucide="chevron-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Stage 02 -->
+      <div class="bg-white rounded-3xl p-8 border-2 border-[#134E5E] shadow-md hover:shadow-2xl transition-all group flex flex-col justify-between relative">
+        <div class="absolute -top-3 right-6 bg-[#134E5E] text-white text-[10px] font-extrabold uppercase tracking-widest px-3 py-1 rounded-full">
+          Flagship Editor
+        </div>
+        <div class="space-y-4">
+          <span class="inline-block text-4xl font-black text-[#134E5E]">02</span>
+          <h3 class="text-xl font-bold text-[#0F3944] group-hover:text-[#134E5E] transition-colors">
+            Distraction-Free Notepad
+          </h3>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            Dual-pane Markdown writer, live code runner (HTML/CSS/JS preview in browser), Zen writing mode, word counts, and real-time auto-saving.
+          </p>
+        </div>
+        <div class="pt-6 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-[#134E5E]">
+          <a href="/online-notebook" class="flex items-center gap-1 hover:underline">
+            <span>Open Digital Notepad</span>
+            <i data-lucide="chevron-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Stage 03 -->
+      <div class="bg-white rounded-3xl p-8 border border-[#EADFD5] shadow-sm hover:shadow-xl transition-all group flex flex-col justify-between">
+        <div class="space-y-4">
+          <span class="inline-block text-4xl font-black text-[#FFA07A]">03</span>
+          <h3 class="text-xl font-bold text-[#0F3944] group-hover:text-[#134E5E] transition-colors">
+            206+ Client-Side Utilities
+          </h3>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            High-precision financial calculators, unit converters, PDF tools, image compressors, color extractors, and developer formatters running 100% in browser memory.
+          </p>
+        </div>
+        <div class="pt-6 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-[#134E5E]">
+          <a href="/tools" class="flex items-center gap-1 hover:underline">
+            <span>Browse Directory</span>
+            <i data-lucide="chevron-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==========================================
+       5. FEATURED WORKSPACES SHOWCASE
+       ========================================== -->
+  <section class="py-20 bg-gradient-to-b from-[#FAF7F2] to-white border-t border-[#EADFD5]">
+    <div class="max-w-7xl mx-auto px-6">
+      
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+        <div class="space-y-3">
+          <span class="text-xs font-bold uppercase tracking-widest text-[#134E5E] bg-[#134E5E]/10 px-4 py-1.5 rounded-full">
+            Flagship Workspaces
+          </span>
+          <h2 class="text-3xl sm:text-4xl font-extrabold text-[#0F3944] tracking-tight">
+            Dedicated Tools for Every Task
+          </h2>
+        </div>
+        <p class="text-sm text-slate-500 max-w-md font-medium">
+          Free, local-first applications designed with obsessive attention to fluid motion and privacy.
+        </p>
+      </div>
+
+      <!-- 3-Card Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        
+        <!-- Workspace 1: Sticky Notes Canvas -->
+        <div class="bg-white rounded-3xl overflow-hidden border border-[#EADFD5] shadow-sm hover:shadow-xl transition-all flex flex-col group">
+          <div class="h-48 bg-gradient-to-tr from-[#134E5E] to-[#246A7B] p-6 flex flex-col justify-between text-white relative">
+            <span class="text-xs font-bold px-3 py-1 rounded-full bg-white/20 self-start">Spatial Canvas</span>
+            <div>
+              <span class="text-xs text-white/80 font-medium">Infinite Board • Mind Mapping</span>
+              <h4 class="text-xl font-bold tracking-tight mt-1 text-white">Sticky Notes Workspace</h4>
+            </div>
+          </div>
+          <div class="p-6 space-y-4 flex-1 flex flex-col justify-between">
+            <p class="text-sm text-slate-600">
+              Freely position, color-code, and organize thoughts. Drag images, build connection links, and search instantly.
+            </p>
+            <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+              <span class="text-lg font-extrabold text-[#134E5E]">100% Free</span>
+              <a href="/sticky-notes" class="px-5 py-2.5 rounded-full text-xs font-bold bg-[#134E5E]/10 text-[#134E5E] group-hover:bg-[#134E5E] group-hover:text-white transition-colors">
+                Open Canvas →
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Workspace 2: Digital Notepad & Code Runner -->
+        <div class="bg-white rounded-3xl overflow-hidden border border-[#EADFD5] shadow-sm hover:shadow-xl transition-all flex flex-col group">
+          <div class="h-48 bg-gradient-to-tr from-[#0F3944] to-[#134E5E] p-6 flex flex-col justify-between text-white relative">
+            <span class="text-xs font-bold px-3 py-1 rounded-full bg-[#FFA07A]/30 text-[#FFA07A] self-start">Writing &amp; Code</span>
+            <div>
+              <span class="text-xs text-white/80 font-medium">Markdown • Live Code Runner</span>
+              <h4 class="text-xl font-bold tracking-tight mt-1 text-white">Online Digital Notepad</h4>
+            </div>
+          </div>
+          <div class="p-6 space-y-4 flex-1 flex flex-col justify-between">
+            <p class="text-sm text-slate-600">
+              Distraction-free Markdown editor with instant HTML/JS/CSS new-tab preview, Zen mode, and auto-saving.
+            </p>
+            <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+              <span class="text-lg font-extrabold text-[#134E5E]">100% Free</span>
+              <a href="/online-notebook" class="px-5 py-2.5 rounded-full text-xs font-bold bg-[#134E5E]/10 text-[#134E5E] group-hover:bg-[#134E5E] group-hover:text-white transition-colors">
+                Open Notepad →
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Workspace 3: 200+ Browser Utilities Directory -->
+        <div class="bg-white rounded-3xl overflow-hidden border border-[#EADFD5] shadow-sm hover:shadow-xl transition-all flex flex-col group">
+          <div class="h-48 bg-gradient-to-tr from-[#1D6A7D] to-[#2B7D91] p-6 flex flex-col justify-between text-white relative">
+            <span class="text-xs font-bold px-3 py-1 rounded-full bg-white/20 self-start">Client Utilities</span>
+            <div>
+              <span class="text-xs text-white/80 font-medium">206 Tools • Local Processing</span>
+              <h4 class="text-xl font-bold tracking-tight mt-1 text-white">Browser Utility Hub</h4>
+            </div>
+          </div>
+          <div class="p-6 space-y-4 flex-1 flex flex-col justify-between">
+            <p class="text-sm text-slate-600">
+              Financial calculators, unit converters, PDF mergers, image compressors, and developer formatters with zero lag.
+            </p>
+            <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+              <span class="text-lg font-extrabold text-[#134E5E]">100% Free</span>
+              <a href="/tools" class="px-5 py-2.5 rounded-full text-xs font-bold bg-[#134E5E]/10 text-[#134E5E] group-hover:bg-[#134E5E] group-hover:text-white transition-colors">
+                Explore Directory →
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==========================================
+       6. USER REVIEWS / TESTIMONIALS
+       ========================================== -->
+  <section class="py-24 bg-[#FAF7F2] border-t border-[#EADFD5]">
+    <div class="max-w-7xl mx-auto px-6">
+      
+      <div class="text-center max-w-2xl mx-auto mb-16 space-y-3">
+        <span class="text-xs font-bold uppercase tracking-widest text-[#134E5E] bg-[#134E5E]/10 px-4 py-1.5 rounded-full">
+          Community Love
+        </span>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-[#0F3944] tracking-tight">
+          What people say about Stiknex
+        </h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        
+        <div class="bg-white rounded-3xl p-8 border border-[#EADFD5] shadow-sm space-y-4">
+          <div class="flex items-center gap-1 text-amber-400">
+            <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+            <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+            <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+            <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+            <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+          </div>
+          <p class="text-sm text-slate-600 italic">
+            "Having sticky notes, a markdown notebook, and instant calculators all in one tab with zero logins is an absolute productivity lifesaver."
+          </p>
+          <div class="pt-4 border-t border-slate-100 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[#134E5E] text-white flex items-center justify-center font-bold text-sm">
+              AR
+            </div>
+            <div>
+              <h5 class="text-sm font-bold text-[#0F3944]">Aman Rawat</h5>
+              <p class="text-xs text-slate-500">Frontend Developer</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-3xl p-8 border border-[#EADFD5] shadow-sm space-y-4">
+          <div class="flex items-center gap-1 text-amber-400">
+            <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+            <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+            <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+            <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+            <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+          </div>
+          <p class="text-sm text-slate-600 italic">
+            "The infinite sticky notes canvas feels so natural. I use it every day for sprint planning and mind mapping ideas."
+          </p>
+          <div class="pt-4 border-t border-slate-100 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[#FFA07A] text-[#0F3944] flex items-center justify-center font-bold text-sm">
+              PS
+            </div>
+            <div>
+              <h5 class="text-sm font-bold text-[#0F3944]">Pooja Sharma</h5>
+              <p class="text-xs text-slate-500">Product Designer</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-3xl p-8 border border-[#EADFD5] shadow-sm space-y-4">
+          <div class="flex items-center gap-1 text-amber-400">
+            <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+            <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+            <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+            <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+            <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+          </div>
+          <p class="text-sm text-slate-600 italic">
+            "Local-first privacy means my notes never leave my browser. It loads in milliseconds and works completely offline as a PWA."
+          </p>
+          <div class="pt-4 border-t border-slate-100 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[#1D6A7D] text-white flex items-center justify-center font-bold text-sm">
+              DK
+            </div>
+            <div>
+              <h5 class="text-sm font-bold text-[#0F3944]">David Keller</h5>
+              <p class="text-xs text-slate-500">Software Architect</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==========================================
+       7. NEWSLETTER & CREATOR CTA
+       ========================================== -->
+  <section class="py-20 bg-gradient-to-br from-[#134E5E] via-[#1D6A7D] to-[#0F3944] text-white relative overflow-hidden">
+    <div class="absolute -top-32 -left-32 w-80 h-80 rounded-full bg-[#FFA07A]/20 blur-3xl"></div>
+    <div class="absolute -bottom-32 -right-32 w-80 h-80 rounded-full bg-emerald-400/15 blur-3xl"></div>
+
+    <div class="max-w-5xl mx-auto px-6 relative z-10 text-center space-y-8">
+      
+      <span class="inline-block text-xs font-bold uppercase tracking-widest text-[#FFA07A] bg-white/10 px-4 py-1.5 rounded-full">
+        Local-First &amp; Free Forever
+      </span>
+
+      <h2 class="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight max-w-2xl mx-auto leading-tight">
+        Stay productive with Stiknex. <br />
+        <span class="font-serif italic font-normal text-white/90">Created by Vishal Mall.</span>
+      </h2>
+
+      <p class="text-white/80 text-sm sm:text-base max-w-xl mx-auto">
+        Get product updates, new tool releases, and join our community of thinkers, writers, and builders.
+      </p>
+
+      <form id="newsletter-form" class="max-w-md mx-auto flex flex-col sm:flex-row gap-3">
+        <input 
+          type="email" 
+          id="email-input"
+          required
+          placeholder="Enter your email address..."
+          class="flex-1 px-5 py-4 rounded-full bg-white/10 border border-white/20 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-[#FFA07A] text-sm"
+        />
+        <button 
+          type="submit"
+          class="px-8 py-4 rounded-full font-bold text-xs uppercase tracking-wider bg-[#FFA07A] hover:bg-[#F8A88C] text-[#0F3944] transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+        >
+          Subscribe
+        </button>
+      </form>
+
+      <div id="form-success" class="hidden text-emerald-300 font-semibold text-sm">
+        ✓ Thank you! You are subscribed to Stiknex product updates.
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==========================================
+       8. FOOTER
+       ========================================== -->
+  <footer class="bg-white border-t border-[#EADFD5] py-16">
+    <div class="max-w-7xl mx-auto px-6">
+      
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-10 pb-12">
+        
+        <!-- Col 1: Brand -->
+        <div class="space-y-4">
+          <div class="flex items-center gap-3">
+            <div class="grid grid-cols-3 gap-1 w-6 h-6">
+              <span class="w-1.5 h-1.5 rounded-full bg-[#134E5E]"></span>
+              <span class="w-1.5 h-1.5 rounded-full bg-[#134E5E]"></span>
+              <span class="w-1.5 h-1.5 rounded-full bg-[#134E5E]"></span>
+              <span class="w-1.5 h-1.5 rounded-full bg-[#134E5E]"></span>
+              <span class="w-1.5 h-1.5 rounded-full bg-[#FFA07A]"></span>
+              <span class="w-1.5 h-1.5 rounded-full bg-[#134E5E]"></span>
+              <span class="w-1.5 h-1.5 rounded-full bg-[#134E5E]"></span>
+              <span class="w-1.5 h-1.5 rounded-full bg-[#134E5E]"></span>
+              <span class="w-1.5 h-1.5 rounded-full bg-[#134E5E]"></span>
+            </div>
+            <span class="text-xl font-bold tracking-tight text-[#134E5E]">Stiknex</span>
+          </div>
+          <p class="text-xs text-slate-500 leading-relaxed">
+            The freeform canvas for thinking, writing &amp; 200+ browser utilities. Created with passion by Vishal Mall.
+          </p>
+        </div>
+
+        <!-- Col 2: Workspaces -->
+        <div class="space-y-3 text-xs font-bold text-slate-500 uppercase tracking-wider">
+          <a href="/sticky-notes" class="block hover:text-[#134E5E]">Sticky Notes</a>
+          <a href="/online-notebook" class="block hover:text-[#134E5E]">Digital Notepad</a>
+          <a href="/whiteboard" class="block hover:text-[#134E5E]">Excalidraw Whiteboard</a>
+          <a href="/tools" class="block hover:text-[#134E5E]">200+ Tools Directory</a>
+        </div>
+
+        <!-- Col 3: Popular Utilities -->
+        <div class="space-y-3 text-xs font-bold text-slate-500 uppercase tracking-wider">
+          <a href="/basic-calculator" class="block hover:text-[#134E5E]">Calculators</a>
+          <a href="/qr-code-generator" class="block hover:text-[#134E5E]">QR Generator</a>
+          <a href="/stiknex-typing" class="block hover:text-[#134E5E]">Typing Test</a>
+          <a href="/blog" class="block hover:text-[#134E5E]">Blog &amp; Tutorials</a>
+        </div>
+
+        <!-- Col 4: Platform & Support -->
+        <div class="space-y-2 text-xs text-slate-500">
+          <span class="block font-bold text-[#134E5E]">WWW.STIKNEX.SITE</span>
+          <span class="block">FOUNDER: VISHAL MALL</span>
+          <span class="block">100% PRIVATE &amp; LOCAL-FIRST</span>
+          <a href="/buy-me-a-coffee" class="block text-[#FFA07A] font-bold hover:underline">Support Creator →</a>
+        </div>
+
+      </div>
+
+      <div class="pt-8 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+        <p>© 2026 Stiknex. All rights reserved. Created by Vishal Mall.</p>
+        <div class="flex items-center gap-4 text-slate-500 font-semibold text-xs">
+          <a href="/privacy-policy" class="hover:text-[#134E5E]">Privacy Policy</a>
+          <span>•</span>
+          <a href="/terms-of-service" class="hover:text-[#134E5E]">Terms of Service</a>
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script>
+    // Initialize Lucide Icons
+    lucide.createIcons();
+
+    // Initialize Lenis Smooth Scroll
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      orientation: 'vertical',
+      gestureOrientation: 'vertical',
+      smoothWheel: true
+    });
+
+    function raf(time) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+    requestAnimationFrame(raf);
+
+    // Mobile Drawer Toggle
+    const mobileToggle = document.getElementById('mobile-toggle');
+    const mobileDrawer = document.getElementById('mobile-drawer');
+    if (mobileToggle && mobileDrawer) {
+      mobileToggle.addEventListener('click', () => {
+        mobileDrawer.classList.toggle('hidden');
+      });
+    }
+
+    // Form Handling
+    const form = document.getElementById('newsletter-form');
+    const successMsg = document.getElementById('form-success');
+    if (form && successMsg) {
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        successMsg.classList.remove('hidden');
+        form.reset();
+        setTimeout(() => {
+          successMsg.classList.add('hidden');
+        }, 4000);
+      });
+    }
+  </script>
+
+</body>
+</html>
