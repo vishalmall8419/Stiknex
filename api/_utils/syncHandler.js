@@ -43,6 +43,7 @@ export async function handleSync(req, res) {
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
     const changes = Array.isArray(body.changes) ? body.changes : [];
     const lastSyncedAt = Number(body.lastSyncedAt) || 0;
+    const syncGroupId = body.syncGroupId || null;
     const syncedIds = [];
 
     // --- STEP 1: PUSH (Process client changes via bulkWrite) ---
@@ -75,6 +76,9 @@ export async function handleSync(req, res) {
 
           if (userId) {
             updateFields.userId = userId;
+          }
+          if (syncGroupId) {
+            updateFields.syncGroupId = syncGroupId;
           }
 
           bulkOps.push({
@@ -120,9 +124,14 @@ export async function handleSync(req, res) {
       };
 
       if (userId) {
-        query.$or = [{ userId }, { userId: null }, { userId: { $exists: false } }];
+        query.userId = userId;
+      } else if (syncGroupId) {
+        query.syncGroupId = syncGroupId;
       } else {
-        query.$or = [{ userId: null }, { userId: { $exists: false } }];
+        // Guest with no account/syncGroupId stores data safely local-first;
+        // never pull other unauthenticated users' deleted records from global pool
+        updates[colName] = [];
+        continue;
       }
 
       const items = await Model.find(query).lean().limit(500);

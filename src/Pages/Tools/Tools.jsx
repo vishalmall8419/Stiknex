@@ -244,11 +244,11 @@ const Tools = ({ directSlug = null }) => {
   // Determine current active tool slug
   const activeSlug = useMemo(() => {
     if (directSlug) return slugMap[directSlug] || directSlug;
-    if (paramSlug) return slugMap[paramSlug] || paramSlug;
-    if (toolSlug) return slugMap[toolSlug] || toolSlug;
+    if (paramSlug) return slugMap[paramSlug] || null;
+    if (toolSlug) return slugMap[toolSlug] || null;
     
     // Check if pathname matches any tool slug directly (e.g. /percentage-calculator)
-    const currentPath = location.pathname.replace(/^\//, "");
+    const currentPath = location.pathname.replace(/^\/+|\/+$/g, "");
     if (slugMap[currentPath]) return slugMap[currentPath];
     
     return null;
@@ -256,15 +256,25 @@ const Tools = ({ directSlug = null }) => {
 
   const isCatalogRoute = location.pathname === "/tools" || location.pathname === "/tools/";
 
-  // If a slug came from URL (/:toolSlug route) but it's not a known tool → show 404
+  // If a slug came from URL (/:toolSlug or /tools/:toolId) but it's not a known tool → show 404
   const isUnknownSlug = useMemo(() => {
     if (isCatalogRoute) return false;
     if (directSlug) return false; // explicitly mapped routes are always valid
-    if (location.pathname.startsWith("/tools/")) return false; // /tools/:toolId handled separately
-    const currentPath = location.pathname.replace(/^\//, "");
+
+    // If on /tools/:toolId, verify paramSlug is valid
+    if (paramSlug) {
+      return !slugMap[paramSlug];
+    }
+
+    // If on /:toolSlug, verify toolSlug or path is valid
+    if (toolSlug) {
+      return !slugMap[toolSlug];
+    }
+
+    const currentPath = location.pathname.replace(/^\/+|\/+$/g, "");
     if (!currentPath) return false;
     return !slugMap[currentPath];
-  }, [isCatalogRoute, directSlug, location.pathname]);
+  }, [isCatalogRoute, directSlug, paramSlug, toolSlug, location.pathname]);
 
   const activeToolData = useMemo(() => {
     if (!activeSlug) return null;
@@ -405,7 +415,7 @@ const Tools = ({ directSlug = null }) => {
 
   // Unknown slug → render 404 immediately (before any AppShell/SEO boilerplate)
   if (isUnknownSlug) {
-    const requestedSlug = location.pathname.replace(/^\//, "");
+    const requestedSlug = (paramSlug || toolSlug || location.pathname).replace(/^\/+|\/+$/g, "");
     return <NotFound requestedSlug={requestedSlug} />;
   }
 

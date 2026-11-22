@@ -9,7 +9,9 @@ import {
   Loader2,
   Sparkles,
   ShieldCheck,
+  Radio,
 } from "lucide-react";
+import { emitRealtimeFeedback } from "../services/socketService";
 
 const FeedbackWidget = ({ tool = "stiknex", showButton = true }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -51,6 +53,13 @@ const FeedbackWidget = ({ tool = "stiknex", showButton = true }) => {
       userEmail: email.trim(),
       createdAt: new Date().toISOString(),
     };
+
+    // 1. Instant Socket.io real-time transmission (< 20ms)
+    try {
+      emitRealtimeFeedback(payload);
+    } catch (sockErr) {
+      console.warn("Socket feedback emit error:", sockErr);
+    }
 
     try {
       const res = await fetch("/api/reviews", {
@@ -315,7 +324,11 @@ const FeedbackWidget = ({ tool = "stiknex", showButton = true }) => {
 
                   <div className="flex items-center justify-center gap-1.5 text-[11px] text-slate-400 mt-0.5">
                     <ShieldCheck size={12} className="text-emerald-500" />
-                    <span>Private &amp; spam-free. We never share your email.</span>
+                    <span>Private &amp; spam-free.</span>
+                    <span className="text-emerald-500 dark:text-emerald-400 font-semibold inline-flex items-center gap-1 ml-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                      Socket.io Live
+                    </span>
                   </div>
                 </form>
               )}

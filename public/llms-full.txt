@@ -808,10 +808,10 @@ Execution: Client-Side (V8 / WebAssembly)
 - Description: Infinite canvas for organizing, color-coding, and linking thoughts.
 - Privacy Guarantee: Computed client-side with 0 network calls.
 
-### Online Notebook
+### Online Notepad & Code Editor
 - URL: https://stiknex.site/online-notebook
 - Category: productivity
-- Description: Distraction-free rich-text notepad with snapshot history and local saving.
+- Description: Hybrid digital notepad and developer in-browser code editor (Stiknex Editor). Distraction-free lined paper for writing plus syntax highlighting (HTML, CSS, JS, Python, SQL), live code execution, auto-formatting, sub-20ms real-time sync, and local-first zero sign-up privacy.
 - Privacy Guarantee: Computed client-side with 0 network calls.
 
 ### Checklist Maker

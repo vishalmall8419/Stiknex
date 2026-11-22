@@ -89,6 +89,8 @@ const RichTextToolbar = ({
   onRunCode,
   isCodeExecutable = false,
   onFormatCode,
+  isMonacoActive = false,
+  onToggleMonacoMode,
 }) => {
   const [activeFormats, setActiveFormats] = useState({
     bold: false,
@@ -1454,6 +1456,29 @@ const RichTextToolbar = ({
         >
           <i className="fa-solid fa-wand-magic-sparkles" style={{ color: "#3b82f6", fontSize: "11px", display: "inline-block", flexShrink: 0 }}></i>
           <span className={Style.btnLabel} style={{ fontWeight: 600, color: "#2563eb" }}>Format</span>
+        </button>
+      )}
+
+      {/* Toggle between Stiknex Code Editor and Paper Notes view */}
+      {isCodeExecutable && onToggleMonacoMode && (
+        <button
+          type="button"
+          className={Style.runCodeBtn}
+          onMouseDown={(e) => {
+            e.preventDefault();
+            onToggleMonacoMode();
+          }}
+          title={isMonacoActive ? "Switch to Paper Notes view" : "Open in Stiknex Code Editor"}
+          aria-label="Toggle Stiknex Code Editor"
+          style={{ marginLeft: "4px" }}
+        >
+          <i
+            className={`fa-solid ${isMonacoActive ? "fa-file-lines" : "fa-code"}`}
+            style={{ color: isMonacoActive ? "#f59e0b" : "#6366f1", fontSize: "11px", display: "inline-block", flexShrink: 0 }}
+          ></i>
+          <span className={Style.btnLabel} style={{ fontWeight: 600, color: isMonacoActive ? "#d97706" : "#4f46e5" }}>
+            {isMonacoActive ? "Paper Notes" : "Code Editor"}
+          </span>
         </button>
       )}
 

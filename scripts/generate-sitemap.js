@@ -47,7 +47,8 @@ const coreFileMap = {
   '/tools': 'src/Pages/Tools/Tools.jsx',
   '/privacy-policy': 'src/Pages/Legal/PrivacyPolicy.jsx',
   '/terms-of-service': 'src/Pages/Legal/TermsOfService.jsx',
-  '/contact': 'src/Pages/Legal/ContactUs.jsx'
+  '/contact': 'src/Pages/Legal/ContactUs.jsx',
+  '/sitemap': 'src/Pages/Sitemap/Sitemap.jsx'
 };
 
 // Cache engine dates

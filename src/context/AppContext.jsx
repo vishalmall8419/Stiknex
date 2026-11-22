@@ -13,7 +13,11 @@ import {
   emitRealtimeNoteChange,
   emitRealtimeWhiteboardChange,
 } from "../services/socketService";
-import { linkAccountSync } from "../Pages/Notebook/notebookSyncManager";
+import {
+  linkAccountSync,
+  recordDeletedNoteId,
+  getDeletedNoteIds,
+} from "../Pages/Notebook/notebookSyncManager";
 
 const AppContext = createContext();
 
@@ -340,15 +344,40 @@ export const AppProvider = ({ children }) => {
     const refreshNotesFromStorage = (event) => {
       if (event.type === "storage" && event.key !== "notes") return;
       const syncedNotes = event.detail?.remotePayload?.stickyNotes;
+      const deletedNotes = getDeletedNoteIds();
       try {
         const stored = Array.isArray(syncedNotes)
           ? syncedNotes
           : JSON.parse(localStorage.getItem("notes") || "[]");
         if (Array.isArray(stored)) {
-          setNotes(stored.map((note, idx) => ({
-            ...note,
-            zIndex: note.zIndex !== undefined ? note.zIndex : idx + 1,
-          })));
+          setNotes((prevNotes) => {
+            const currentMap = new Map(prevNotes.map((n) => [n.id || n.clientId, n]));
+            // Merge incoming notes safely without blindly replacing or destroying local cards
+            for (const inNote of stored) {
+              const noteId = inNote.id || inNote.clientId;
+              if (!noteId || deletedNotes[noteId] || inNote.isDeleted) {
+                currentMap.delete(noteId);
+                continue;
+              }
+              const local = currentMap.get(noteId);
+              if (!local) {
+                currentMap.set(noteId, inNote);
+              } else {
+                const lText = local.text || local.content || "";
+                const rText = inNote.text || inNote.content || "";
+                // If remote note has empty content but local has real text, keep local text!
+                if (lText && !rText) {
+                  currentMap.set(noteId, { ...inNote, text: lText, content: lText });
+                } else if ((inNote.updatedAt || 0) >= (local.updatedAt || 0)) {
+                  currentMap.set(noteId, inNote);
+                }
+              }
+            }
+            return Array.from(currentMap.values()).map((note, idx) => ({
+              ...note,
+              zIndex: note.zIndex !== undefined ? note.zIndex : idx + 1,
+            }));
+          });
         }
       } catch (error) {
         console.error("Could not load synchronized sticky notes:", error);
@@ -385,6 +414,11 @@ export const AppProvider = ({ children }) => {
 
       // Dexie 0ms write + auto-sync enqueue + socket.io real-time broadcast
       db.notes.put(newNote).catch(console.error);
+      try {
+        const currentRaw = localStorage.getItem("notes");
+        const currentList = currentRaw ? JSON.parse(currentRaw) : [];
+        localStorage.setItem("notes", JSON.stringify([...currentList.filter(n => n.id !== newNote.id), newNote]));
+      } catch {}
       enqueueSyncOperation({
         collection: "notes",
         action: "CREATE",
@@ -409,6 +443,7 @@ export const AppProvider = ({ children }) => {
 
   const deleteNote = (id) => {
     const now = Date.now();
+    recordDeletedNoteId(id);
     setNotes((prev) =>
       prev.map((note) => {
         if (note.id === id || note.clientId === id) {
@@ -486,6 +521,12 @@ export const AppProvider = ({ children }) => {
 
   const permanentlyDeleteNote = (id) => {
     const now = Date.now();
+    recordDeletedNoteId(id);
+    try {
+      const currentRaw = localStorage.getItem("notes");
+      const currentList = currentRaw ? JSON.parse(currentRaw) : [];
+      localStorage.setItem("notes", JSON.stringify(currentList.filter(n => n.id !== id && n.clientId !== id)));
+    } catch {}
     setNotes((prev) => {
       const target = prev.find((n) => n.id === id || n.clientId === id);
       if (target) {
@@ -510,6 +551,8 @@ export const AppProvider = ({ children }) => {
       prev.forEach((note) => {
         if (note.trashedAt) {
           const clientId = note.clientId || note.id;
+          if (note.id) recordDeletedNoteId(note.id);
+          if (clientId) recordDeletedNoteId(clientId);
           db.notes.put({ ...note, isDeleted: true, updatedAt: now }).catch(console.error);
           enqueueSyncOperation({
             collection: "notes",
@@ -520,7 +563,11 @@ export const AppProvider = ({ children }) => {
         }
       });
       scheduleDebouncedSync();
-      return prev.filter((note) => !note.trashedAt);
+      const kept = prev.filter((note) => !note.trashedAt);
+      try {
+        localStorage.setItem("notes", JSON.stringify(kept));
+      } catch {}
+      return kept;
     });
   };
 

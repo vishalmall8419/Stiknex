@@ -4,10 +4,11 @@
  * with full DOM rendering, error capturing, and an interactive on-screen console.
  */
 
-// Heuristics to detect if text contains HTML, CSS or JS code
-const HTML_TAG_REGEX = /<\/?(?:html|head|body|div|span|h[1-6]|ul|ol|li|table|tr|td|th|button|input|form|a|img|canvas|svg|style|script|link|meta|section|header|footer|nav|main|aside|article|video|audio|iframe)\b/i;
-const JS_KEYWORD_REGEX = /\b(?:console\.(?:log|error|warn|info|table)|document\.(?:getElementById|querySelector|createElement|body)|window\.|alert\(|prompt\(|confirm\(|function\s*\w*\s*\(|const\s+\w+\s*=|let\s+\w+\s*=|var\s+\w+\s*=|=>|addEventListener\(|setTimeout\(|setInterval\(|fetch\()\b/;
-const CSS_RULE_REGEX = /(?:[.#\w-][^{}]*)\s*\{\s*[\w-]+:\s*[^}]+;?\s*\}/;
+// Heuristics to detect whether text contains genuine HTML, CSS or JS executable code
+const HTML_STRUCTURE_REGEX = /<!DOCTYPE\b|<html\b|<body\b|<script[\s>]/i;
+const HTML_PAIR_REGEX = /<(div|section|article|header|footer|nav|table|form|button|ul|ol|canvas|svg)[\s>][\s\S]*<\/\1>/i;
+const JS_KEYWORD_REGEX = /(?:\b(?:const|let|var)\s+[a-zA-Z_$][\w$]*\s*=|\bfunction\s+[a-zA-Z_$][\w$]*\s*\(|console\.(?:log|error|warn|info|table)\s*\(|document\.(?:getElementById|querySelector|querySelectorAll|createElement)\s*\(|\.addEventListener\s*\(|\b(?:setTimeout|setInterval)\s*\(|\(?\s*[a-zA-Z0-9_$,\s]*\)?\s*=>\s*\{)/;
+const CSS_BLOCK_REGEX = /(?:[.#][a-zA-Z0-9_-]+|[a-zA-Z]+)\s*\{\s*[a-zA-Z-]+:\s*[^;{}]+;?\s*\}/;
 
 /**
  * Checks whether content contains executable HTML, CSS, or JavaScript
@@ -15,14 +16,14 @@ const CSS_RULE_REGEX = /(?:[.#\w-][^{}]*)\s*\{\s*[\w-]+:\s*[^}]+;?\s*\}/;
 export function isExecutableCode(content) {
   if (!content || typeof content !== "string") return false;
   const trimmed = content.trim();
-  if (trimmed.length < 5) return false;
+  // Require at least 15 characters of substantial content to avoid false triggers
+  if (trimmed.length < 15) return false;
 
   return (
-    trimmed.startsWith("<!DOCTYPE") ||
-    trimmed.startsWith("<html") ||
-    HTML_TAG_REGEX.test(trimmed) ||
+    HTML_STRUCTURE_REGEX.test(trimmed) ||
+    HTML_PAIR_REGEX.test(trimmed) ||
     JS_KEYWORD_REGEX.test(trimmed) ||
-    CSS_RULE_REGEX.test(trimmed)
+    CSS_BLOCK_REGEX.test(trimmed)
   );
 }
 

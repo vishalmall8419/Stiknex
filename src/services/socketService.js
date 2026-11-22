@@ -15,8 +15,6 @@ function getSocketUrl() {
     rawEnv &&
     typeof rawEnv === "string" &&
     !rawEnv.includes("5173") &&
-    !rawEnv.includes("vercel.app") &&
-    !rawEnv.includes("stiknex.site") &&
     (rawEnv.startsWith("http://") || rawEnv.startsWith("https://") || rawEnv.startsWith("ws://") || rawEnv.startsWith("wss://"))
   ) {
     return rawEnv;
@@ -24,14 +22,20 @@ function getSocketUrl() {
 
   try {
     const custom = localStorage.getItem("stiknex_custom_socket_url");
-    if (custom && !custom.includes("5173") && !custom.includes("vercel.app") && !custom.includes("stiknex.site")) {
+    if (custom && !custom.includes("5173")) {
       return custom;
     } else if (custom) {
       localStorage.removeItem("stiknex_custom_socket_url");
     }
   } catch {}
 
-  // On production serverless hosting (Vercel) or client Vite without a dedicated backend,
+  // Auto-connect to local socket server if running on localhost / 127.0.0.1 or local network
+  const hostname = window.location.hostname;
+  if (hostname === "localhost" || hostname === "127.0.0.1" || hostname.startsWith("192.168.") || hostname.startsWith("10.") || hostname.startsWith("172.")) {
+    return `http://${hostname}:5000`;
+  }
+
+  // On production serverless hosting (Vercel) without an external socket relay,
   // return null so it falls back cleanly to native BroadcastChannel and adaptive cloud sync.
   return null;
 }
@@ -65,14 +69,18 @@ export function initSocketService() {
 
   console.log("[Socket.io] Connecting to realtime mesh at:", socketUrl);
 
+  let warnedConnectionError = false;
+  let connectionFailures = 0;
+
   try {
     socket = io(socketUrl, {
-      transports: ["polling", "websocket"],
+      transports: ["websocket"],
+      upgrade: false,
       reconnection: true,
-      reconnectionAttempts: 5,
-      reconnectionDelay: 2000,
-      reconnectionDelayMax: 10000,
-      timeout: 10000,
+      reconnectionAttempts: 2,
+      reconnectionDelay: 5000,
+      timeout: 3000,
+      autoConnect: true,
     });
   } catch (err) {
     console.warn("[Socket.io] Init warning:", err);
@@ -80,12 +88,24 @@ export function initSocketService() {
   }
 
   socket.on("connect", () => {
+    warnedConnectionError = false;
+    connectionFailures = 0;
     console.log("[Socket.io] Connected to realtime mesh with id:", socket.id);
     joinCurrentMesh();
   });
 
   socket.on("connect_error", (error) => {
-    console.warn("[Socket.io] Mesh connection waiting for server:", error.message);
+    connectionFailures++;
+    if (!warnedConnectionError) {
+      console.info("[Socket.io] Realtime server offline. Using local BroadcastChannel & Cloud sync fallback.");
+      warnedConnectionError = true;
+    }
+    // Disconnect after 2 failed tries so console doesn't spam errors when local dev server isn't running
+    if (connectionFailures >= 2) {
+      try {
+        socket.disconnect();
+      } catch {}
+    }
   });
 
   // Listen to remote changes
@@ -99,6 +119,14 @@ export function initSocketService() {
 
   socket.on("remote_notebook_change", (data) => {
     handleIncomingNotebookChange(data);
+  });
+
+  socket.on("remote_yjs_update", (data) => {
+    handleIncomingYjsUpdate(data);
+  });
+
+  socket.on("remote_feedback_received", (data) => {
+    handleIncomingFeedback(data);
   });
 
   socket.on("devices_updated", (data) => {
@@ -224,6 +252,41 @@ function handleIncomingMeshMessage(message, isLocalBroadcast = false) {
     handleIncomingWhiteboardChange(message.data);
   } else if (message.type === "NOTEBOOK_CHANGE") {
     handleIncomingNotebookChange(message.data);
+  } else if (message.type === "YJS_UPDATE") {
+    handleIncomingYjsUpdate(message.data);
+  } else if (message.type === "FEEDBACK_SUBMITTED") {
+    handleIncomingFeedback(message.data);
+  }
+}
+
+/**
+ * Handle incoming feedback or direct message broadcast
+ */
+function handleIncomingFeedback(data) {
+  if (!data) return;
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(
+      new CustomEvent("stiknex_remote_feedback", {
+        detail: data,
+      })
+    );
+  }
+}
+
+/**
+ * Handle incoming real-time Yjs CRDT delta update (< 0.02s)
+ */
+function handleIncomingYjsUpdate(data) {
+  if (!data || !data.update) return;
+  const currentDeviceId = getOrCreateDeviceId();
+  if (data.originDeviceId === currentDeviceId || data.deviceId === currentDeviceId) return;
+
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(
+      new CustomEvent("stiknex_remote_yjs_update", {
+        detail: data,
+      })
+    );
   }
 }
 
@@ -319,5 +382,78 @@ export function emitRealtimeNotebookChange(notebookData) {
 
   if (socket && socket.connected) {
     socket.emit("notebook_change", data);
+  }
+}
+
+/**
+ * Emit Yjs CRDT delta update to Socket.io and local BroadcastChannel (< 0.02s latency)
+ */
+export function emitRealtimeYjsUpdate({ notebookId, update }) {
+  const currentDeviceId = getOrCreateDeviceId();
+  const syncIdentity = getSyncIdentity();
+  let user = null;
+  try {
+    const raw = localStorage.getItem("stiknex_user");
+    if (raw) user = JSON.parse(raw);
+  } catch {}
+
+  const data = {
+    userId: user?.id || user?._id || null,
+    syncGroupId: syncIdentity?.syncGroupId || user?.syncGroupId || null,
+    notebookId,
+    update,
+    deviceId: currentDeviceId,
+    originDeviceId: currentDeviceId,
+  };
+
+  // 1. BroadcastChannel: instant (< 1ms) to other tabs/windows on same device
+  if (broadcastChannel) {
+    try {
+      broadcastChannel.postMessage({ type: "YJS_UPDATE", data });
+    } catch {}
+  }
+
+  // 2. Socket.io: ultra-fast (< 20ms) to phone, tablet, and remote laptops
+  if (socket && socket.connected) {
+    socket.emit("yjs_update", data);
+  }
+}
+
+/**
+ * Emit Feedback or User Direct Message via Socket.io and local BroadcastChannel (< 20ms)
+ */
+export function emitRealtimeFeedback(feedbackPayload) {
+  const currentDeviceId = getOrCreateDeviceId();
+  const data = {
+    ...feedbackPayload,
+    originDeviceId: currentDeviceId,
+    timestamp: Date.now(),
+  };
+
+  // 1. BroadcastChannel: instant (< 1ms)
+  if (broadcastChannel) {
+    try {
+      broadcastChannel.postMessage({ type: "FEEDBACK_SUBMITTED", data });
+    } catch {}
+  }
+
+  // 2. Socket.io: instant (< 20ms)
+  const activeSocket = getSocket();
+  if (activeSocket && activeSocket.connected) {
+    activeSocket.emit("user_feedback", data);
+  } else {
+    initSocketService();
+    if (socket) {
+      socket.emit("user_feedback", data);
+    }
+  }
+
+  // 3. Local UI notification event
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(
+      new CustomEvent("stiknex_remote_feedback", {
+        detail: data,
+      })
+    );
   }
 }

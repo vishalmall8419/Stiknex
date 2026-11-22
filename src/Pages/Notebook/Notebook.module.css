@@ -42,6 +42,18 @@
   background-attachment: local !important;
 }
 
+.monacoPaperArea {
+  padding: 0 !important;
+  margin: 0 !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  overflow: hidden !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
 .paperColumn {
   display: flex;
   flex-direction: column;
@@ -957,12 +969,15 @@
   min-width: 2em;
 }
 
-/* Suppress broken or empty image placeholders */
+/* Suppress broken, empty or invalid image placeholders across all browsers */
 .editor img:not([src]),
 .editor img[src=""],
 .editor img[src="#"],
+.editor img[src="null"],
+.editor img[src="undefined"],
 .editor img[src$='""'],
 .editor img[src*="unsplash.com"],
+.editor img[src^="blob:"],
 .editor img.stiknex-broken-img {
   display: none !important;
   visibility: hidden !important;

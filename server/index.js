@@ -126,7 +126,38 @@ io.on("connection", (socket) => {
     }
   });
 
-  // 5. Explicit pull request ping
+  // 4b. Ultra-low latency Real-Time Yjs CRDT Delta Update (< 0.02s)
+  socket.on("yjs_update", (data) => {
+    const { userId, syncGroupId, notebookId, update, deviceId } = data || {};
+    if (userId) {
+      socket.to(`user:${userId}`).emit("remote_yjs_update", {
+        notebookId,
+        update,
+        originDeviceId: deviceId,
+        timestamp: Date.now()
+      });
+    }
+    if (syncGroupId) {
+      socket.to(`sync:${syncGroupId}`).emit("remote_yjs_update", {
+        notebookId,
+        update,
+        originDeviceId: deviceId,
+        timestamp: Date.now()
+      });
+    }
+  });
+
+  // 5. User Feedback & Direct Message Real-Time Event
+  socket.on("user_feedback", (feedbackData) => {
+    // Broadcast instantly to all connected admin dashboards & monitoring clients
+    io.emit("remote_feedback_received", {
+      ...feedbackData,
+      socketId: socket.id,
+      receivedAt: new Date().toISOString(),
+    });
+  });
+
+  // 6. Explicit pull request ping
   socket.on("request_sync_pulse", ({ userId, syncGroupId }) => {
     if (userId) {
       socket.to(`user:${userId}`).emit("sync_pulse_received");

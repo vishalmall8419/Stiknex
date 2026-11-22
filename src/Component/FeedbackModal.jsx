@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, Star, MessageSquare } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { emitRealtimeFeedback } from '../services/socketService';
 
 const FeedbackModal = ({ isOpen, onClose }) => {
   const [type, setType] = useState('review'); // 'review' or 'message'
@@ -16,21 +17,32 @@ const FeedbackModal = ({ isOpen, onClose }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
+    const feedbackPayload = {
+      name,
+      userName: name,
+      email,
+      userEmail: email,
+      type,
+      tool,
+      rating,
+      content,
+      message: content,
+      createdAt: new Date().toISOString()
+    };
+
+    // 1. Instant Socket.io real-time transmission (< 20ms)
+    try {
+      emitRealtimeFeedback(feedbackPayload);
+    } catch (sockErr) {
+      console.warn("Socket feedback emit error:", sockErr);
+    }
+
     try {
       const res = await fetch('/api/reviews', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name,
-          userName: name,
-          email,
-          userEmail: email,
-          type,
-          tool,
-          rating,
-          content,
-          message: content
-        })
+        body: JSON.stringify(feedbackPayload)
       });
       if (res.ok) {
         setSuccess(true);

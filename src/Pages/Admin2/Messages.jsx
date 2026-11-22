@@ -34,6 +34,28 @@ const Messages = () => {
 
   useEffect(() => {
     fetchMessages();
+
+    // Listen to real-time feedback submissions via Socket.io
+    const handleRealtimeFeedback = (e) => {
+      const liveMsg = e.detail;
+      if (!liveMsg) return;
+      setMessages((prev) => [
+        {
+          _id: liveMsg._id || `live_${Date.now()}`,
+          userName: liveMsg.userName || liveMsg.name || "Anonymous",
+          userEmail: liveMsg.userEmail || liveMsg.email || "",
+          tool: liveMsg.tool || "Direct Message",
+          rating: liveMsg.rating || 5,
+          message: liveMsg.message || liveMsg.content || "",
+          createdAt: liveMsg.createdAt || new Date().toISOString(),
+          isLive: true,
+        },
+        ...prev,
+      ]);
+    };
+
+    window.addEventListener("stiknex_remote_feedback", handleRealtimeFeedback);
+    return () => window.removeEventListener("stiknex_remote_feedback", handleRealtimeFeedback);
   }, []);
 
   const handleDelete = async (id) => {

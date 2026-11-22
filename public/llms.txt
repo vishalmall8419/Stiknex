@@ -7,7 +7,7 @@
 ## Flagship Workspaces
 
 - [Sticky Notes Board](https://stiknex.site/sticky-notes): Infinite 2D zoomable canvas for visual notes, thought-linking arrows, color-coded sticky pads, and offline local cache.
-- [Markdown Notebook](https://stiknex.site/online-notebook): Distraction-free rich text editor with real-time word counting, code block execution, auto-save, and markdown export.
+- [Online Notepad & Code Editor](https://stiknex.site/online-notebook): Hybrid digital notepad and professional in-browser code editor (Stiknex Editor). Write distraction-free notes or switch seamlessly to code mode with syntax highlighting (HTML, CSS, JS, Python, SQL), live in-browser code execution, auto-formatting, sub-20ms real-time sync, and local-first zero sign-up privacy.
 - [Digital Whiteboard](https://stiknex.site/whiteboard): Integrated Excalidraw vector canvas for sketching architecture diagrams, wireframes, and brainstorming.
 - [Typing Master & Lessons](https://stiknex.site/stiknex-typing): Full touch-typing mastery laboratory with WPM accuracy tracking, code challenges, and finger ergonomics.
 
@@ -17,7 +17,7 @@
 Digital notebooks, sticky notes boards, infinite whiteboards, to-do lists, and productivity planners.
 
 - [Sticky Notes Board](https://stiknex.site/sticky-notes): Infinite canvas for organizing, color-coding, and linking thoughts.
-- [Online Notebook](https://stiknex.site/online-notebook): Distraction-free rich-text notepad with snapshot history and local saving.
+- [Online Notepad & Code Editor](https://stiknex.site/online-notebook): Dual-engine digital notepad and developer code editor. Features distraction-free lined paper for writing plus full IDE capabilities with live code execution.
 - [Checklist Maker](https://stiknex.site/checklist-maker): Create, reorder, check off, and export interactive reusable checklists.
 - [To-Do List](https://stiknex.site/to-do-list): Track priorities, filter completed tasks, and clear clutter in your browser.
 - [Habit Tracker](https://stiknex.site/habit-tracker): Build positive routines and track weekly completion streaks locally.

@@ -41,8 +41,11 @@ export async function triggerSync() {
     const lastSyncedAt = metaLastSynced?.value || 0;
 
     let token = null;
+    let syncGroupId = null;
     try {
       token = localStorage.getItem('stiknex_token');
+      const rawIdentity = localStorage.getItem('stiknex_sync_identity');
+      if (rawIdentity) syncGroupId = JSON.parse(rawIdentity)?.syncGroupId || null;
     } catch {}
 
     const headers = {
@@ -58,6 +61,7 @@ export async function triggerSync() {
       body: JSON.stringify({
         changes,
         lastSyncedAt,
+        syncGroupId,
       }),
     });
 
@@ -149,9 +153,10 @@ export async function triggerSync() {
 }
 
 /**
- * Schedule a debounced sync after a local mutation (2 seconds)
+ * Schedule a debounced write-behind sync after a local mutation (6 seconds of user idle)
+ * Prevents hammering MongoDB while actively typing or editing.
  */
-export function scheduleDebouncedSync(delay = 2000) {
+export function scheduleDebouncedSync(delay = 6000) {
   if (debounceTimer) clearTimeout(debounceTimer);
   debounceTimer = setTimeout(() => {
     triggerSync();
@@ -159,7 +164,45 @@ export function scheduleDebouncedSync(delay = 2000) {
 }
 
 /**
- * Initialize event listeners for network changes and app startup
+ * Emergency background flush on tab close / hide using keepalive / sendBeacon
+ */
+export async function emergencyFlush() {
+  try {
+    const pending = await db.syncQueue.toArray();
+    if (!pending || pending.length === 0) return;
+
+    let token = null;
+    let syncGroupId = null;
+    try {
+      token = localStorage.getItem('stiknex_token');
+      const raw = localStorage.getItem('stiknex_sync_identity');
+      if (raw) syncGroupId = JSON.parse(raw)?.syncGroupId || null;
+    } catch {}
+
+    const payload = JSON.stringify({
+      changes: pending,
+      lastSyncedAt: Date.now(),
+      syncGroupId,
+    });
+
+    if (typeof navigator !== 'undefined' && navigator.sendBeacon) {
+      navigator.sendBeacon('/api/sync', new Blob([payload], { type: 'application/json' }));
+    } else {
+      fetch('/api/sync', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: payload,
+        keepalive: true,
+      }).catch(() => {});
+    }
+  } catch (_) {}
+}
+
+/**
+ * Initialize event listeners for network changes, idle batching, and tab close flush
  */
 export function initSyncEngine() {
   if (typeof window === 'undefined') return;
@@ -180,26 +223,34 @@ export function initSyncEngine() {
     }
   });
 
+  // Emergency flush on tab hide / browser minimize / navigation
   document.addEventListener('visibilitychange', () => {
-    if (typeof navigator !== 'undefined' && navigator.onLine && !document.hidden) {
+    if (document.visibilityState === 'hidden') {
+      emergencyFlush();
+    } else if (typeof navigator !== 'undefined' && navigator.onLine) {
       triggerSync();
     }
   });
+
+  // Emergency flush on tab close / browser quit
+  window.addEventListener('pagehide', emergencyFlush);
+  window.addEventListener('beforeunload', emergencyFlush);
 
   // Trigger initial sync on startup if online
   if (navigator.onLine) {
     setTimeout(() => {
       triggerSync();
-    }, 1500);
+    }, 2500);
   }
 
-  // Periodic silent background sync every 10 seconds to auto-pull remote changes and flush queue
+  // Gentle periodic background sync: every 3 minutes (180s) instead of 10s
+  // Minimizes MongoDB load by 95% while keeping devices aligned
   setInterval(async () => {
     if (typeof navigator !== 'undefined' && navigator.onLine && !document.hidden) {
       try {
         triggerSync();
       } catch {}
     }
-  }, 10000);
+  }, 180000);
 }
 

@@ -33,6 +33,45 @@ function notebookMetadata(notebooks) {
   return notebooks.map((notebook) => ({ ...notebook, content: '' }));
 }
 
+// Tombstone tracking for robust distributed deletes (prevents deleted items from resurrecting)
+export function recordDeletedNotebookId(id) {
+  if (!id) return;
+  try {
+    const raw = localStorage.getItem('stiknex_deleted_notebook_ids');
+    const map = raw ? JSON.parse(raw) : {};
+    map[id] = Date.now();
+    localStorage.setItem('stiknex_deleted_notebook_ids', JSON.stringify(map));
+  } catch {}
+}
+
+export function getDeletedNotebookIds() {
+  try {
+    const raw = localStorage.getItem('stiknex_deleted_notebook_ids');
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
+export function recordDeletedNoteId(id) {
+  if (!id) return;
+  try {
+    const raw = localStorage.getItem('stiknex_deleted_note_ids');
+    const map = raw ? JSON.parse(raw) : {};
+    map[id] = Date.now();
+    localStorage.setItem('stiknex_deleted_note_ids', JSON.stringify(map));
+  } catch {}
+}
+
+export function getDeletedNoteIds() {
+  try {
+    const raw = localStorage.getItem('stiknex_deleted_note_ids');
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
 // Helper to get or create this device's unique ID
 export function getOrCreateDeviceId() {
   let id = localStorage.getItem(DEVICE_ID_KEY);
@@ -333,8 +372,16 @@ export async function collectLocalPayload(version) {
     }
   }
 
+  // Filter out any locally deleted notebooks and sticky notes to prevent resurrection
+  const deletedNotebookIds = getDeletedNotebookIds();
+  const deletedNoteIds = getDeletedNoteIds();
+  notebooks = notebooks.filter((nb) => nb?.id && !deletedNotebookIds[nb.id]);
+  stickyNotes = stickyNotes.filter((sn) => sn?.id && !deletedNoteIds[sn.id]);
+
   return {
     notebooks,
+    deletedNotebookIds,
+    deletedNoteIds,
     comments,
     stickyNotes,
     stickyImages,
@@ -467,9 +514,23 @@ async function handleConflictResolution(identity, cryptoKey, conflictData) {
     const remotePayload = await decryptData(conflictData.ciphertext, conflictData.iv, cryptoKey);
     const localPayload = await collectLocalPayload(identity.version);
 
-    // Merge notebooks list
-    const remoteList = remotePayload.notebooks || [];
-    const localList = localPayload.notebooks || [];
+    // Track tombstones across both devices to prevent deleted items from resurrecting
+    const deletedNotebooks = {
+      ...getDeletedNotebookIds(),
+      ...(remotePayload.deletedNotebookIds || {}),
+    };
+    const deletedNotes = {
+      ...getDeletedNoteIds(),
+      ...(remotePayload.deletedNoteIds || {}),
+    };
+    try {
+      localStorage.setItem('stiknex_deleted_notebook_ids', JSON.stringify(deletedNotebooks));
+      localStorage.setItem('stiknex_deleted_note_ids', JSON.stringify(deletedNotes));
+    } catch {}
+
+    // Merge notebooks list (strictly excluding deleted ones)
+    const remoteList = (remotePayload.notebooks || []).filter((n) => n?.id && !deletedNotebooks[n.id]);
+    const localList = (localPayload.notebooks || []).filter((n) => n?.id && !deletedNotebooks[n.id]);
     const mergedList = [...localList];
 
     for (const rNote of remoteList) {
@@ -512,7 +573,6 @@ async function handleConflictResolution(identity, cryptoKey, conflictData) {
           winningNote = lNote;
         } else {
           // Both have content -> FIFO / Timestamp Scheduling: newest version cleanly updates in-place!
-          // No duplicate conflict pages created!
           if ((rNote.updatedAt || 0) >= (lNote.updatedAt || 0)) {
             winningContent = rNote.content;
             winningNote = rNote;
@@ -543,13 +603,22 @@ async function handleConflictResolution(identity, cryptoKey, conflictData) {
 
     const mergedStickyNotes = new Map(
       (Array.isArray(localPayload.stickyNotes) ? localPayload.stickyNotes : [])
+        .filter((note) => note?.id && !deletedNotes[note.id])
         .map((note) => [note.id, note]),
     );
     for (const remoteNote of Array.isArray(remotePayload.stickyNotes) ? remotePayload.stickyNotes : []) {
-      if (!remoteNote?.id) continue;
+      if (!remoteNote?.id || deletedNotes[remoteNote.id]) continue;
       const localNote = mergedStickyNotes.get(remoteNote.id);
-      if (!localNote || (remoteNote.updatedAt || 0) > (localNote.updatedAt || 0)) {
+      if (!localNote) {
         mergedStickyNotes.set(remoteNote.id, remoteNote);
+      } else if ((remoteNote.updatedAt || 0) > (localNote.updatedAt || 0)) {
+        const lText = localNote.text || localNote.content || "";
+        const rText = remoteNote.text || remoteNote.content || "";
+        if (lText && !rText) {
+          mergedStickyNotes.set(remoteNote.id, { ...remoteNote, text: lText, content: lText });
+        } else {
+          mergedStickyNotes.set(remoteNote.id, remoteNote);
+        }
       }
     }
     const stickyNotes = [...mergedStickyNotes.values()];
@@ -663,21 +732,73 @@ async function handleConflictResolution(identity, cryptoKey, conflictData) {
 async function applyRemotePayload(payload) {
   if (!payload) return;
 
+  // 1. Merge tombstones from remote payload to prevent deleted items from resurrecting
+  const remoteDelNbs = payload.deletedNotebookIds || {};
+  const remoteDelNotes = payload.deletedNoteIds || {};
+  const mergedDelNbs = { ...getDeletedNotebookIds(), ...remoteDelNbs };
+  const mergedDelNotes = { ...getDeletedNoteIds(), ...remoteDelNotes };
+  try {
+    localStorage.setItem('stiknex_deleted_notebook_ids', JSON.stringify(mergedDelNbs));
+    localStorage.setItem('stiknex_deleted_note_ids', JSON.stringify(mergedDelNotes));
+  } catch {}
+
+  // 2. Sticky Images
   if (payload.stickyImages && typeof payload.stickyImages === 'object') {
     for (const [imageId, dataUrl] of Object.entries(payload.stickyImages)) {
-      if (typeof dataUrl === 'string' && !(await saveImageToDb(imageId, dataUrl))) {
-        throw new Error(`Could not save synchronized sticky note image ${imageId}.`);
+      if (typeof dataUrl === 'string') {
+        await saveImageToDb(imageId, dataUrl).catch(() => {});
       }
     }
   }
 
+  // 3. Smart Merge Sticky Notes: Never resurrect deleted notes, never overwrite newer local notes or replace text with empty
   if (Array.isArray(payload.stickyNotes)) {
-    localStorage.setItem('notes', JSON.stringify(payload.stickyNotes));
+    let localNotes = [];
+    try {
+      const raw = localStorage.getItem('notes');
+      if (raw) localNotes = JSON.parse(raw);
+    } catch {}
+
+    const noteMap = new Map();
+    // Start with local notes that are NOT deleted
+    for (const lNote of (Array.isArray(localNotes) ? localNotes : [])) {
+      if (lNote?.id && !mergedDelNotes[lNote.id] && !lNote.isDeleted) {
+        noteMap.set(lNote.id, lNote);
+      }
+    }
+
+    // Merge in remote notes
+    for (const rNote of payload.stickyNotes) {
+      if (!rNote?.id || mergedDelNotes[rNote.id] || rNote.isDeleted) continue;
+      const lNote = noteMap.get(rNote.id);
+      if (!lNote) {
+        noteMap.set(rNote.id, rNote);
+      } else {
+        const lTime = lNote.updatedAt || 0;
+        const rTime = rNote.updatedAt || 0;
+        const lText = lNote.text || lNote.content || '';
+        const rText = rNote.text || rNote.content || '';
+
+        // If remote has empty text but local has text, preserve local text!
+        if (lText && !rText) {
+          noteMap.set(rNote.id, { ...rNote, text: lText, content: lText });
+        } else if (rTime >= lTime) {
+          noteMap.set(rNote.id, rNote);
+        }
+      }
+    }
+
+    const mergedNotes = Array.from(noteMap.values());
+    try {
+      localStorage.setItem('notes', JSON.stringify(mergedNotes));
+    } catch {}
   }
+
   if (Array.isArray(payload.stickyConnections)) {
     localStorage.setItem('stiknex_connections', JSON.stringify(payload.stickyConnections));
   }
 
+  // 4. Smart Merge Notebooks: Strictly exclude deleted notebooks, preserve active local unsaved edits
   if (Array.isArray(payload.notebooks)) {
     let localNotes = [];
     try {
@@ -685,12 +806,19 @@ async function applyRemotePayload(payload) {
       if (raw) localNotes = JSON.parse(raw);
     } catch {}
 
-    for (const nb of payload.notebooks) {
+    // Filter out deleted notebooks
+    const validRemote = payload.notebooks.filter((nb) => nb?.id && !mergedDelNbs[nb.id]);
+
+    for (const nb of validRemote) {
       if (nb.id && nb.content) {
         try {
-          localStorage.setItem(`nb_content_${nb.id}`, nb.content);
+          const existingContent = localStorage.getItem(`nb_content_${nb.id}`) || '';
+          // Don't overwrite if existing local content has real text and remote is empty
+          if (!existingContent || nb.content.trim()) {
+            localStorage.setItem(`nb_content_${nb.id}`, nb.content);
+            await saveExtendedNote(nb.id, nb.content);
+          }
         } catch {}
-        await saveExtendedNote(nb.id, nb.content);
 
         // Check if existing local note had the same title with another ID
         if (nb.title) {
@@ -698,16 +826,32 @@ async function applyRemotePayload(payload) {
           const localMatch = localNotes.find(
             (l) => l.title && l.title.trim().toLowerCase() === titleNorm && l.id !== nb.id
           );
-          if (localMatch) {
+          if (localMatch && !mergedDelNbs[localMatch.id]) {
             try {
               localStorage.setItem(`nb_content_${localMatch.id}`, nb.content);
+              await saveExtendedNote(localMatch.id, nb.content);
             } catch {}
-            await saveExtendedNote(localMatch.id, nb.content);
           }
         }
       }
     }
-    localStorage.setItem(NOTEBOOKS_KEY, JSON.stringify(notebookMetadata(payload.notebooks)));
+
+    // Merge notebook list preserving local notebooks that aren't on remote yet
+    const nbMap = new Map();
+    for (const lNb of localNotes) {
+      if (lNb?.id && !mergedDelNbs[lNb.id]) {
+        nbMap.set(lNb.id, lNb);
+      }
+    }
+    for (const rNb of validRemote) {
+      if (!nbMap.has(rNb.id) || (rNb.updatedAt || 0) >= (nbMap.get(rNb.id).updatedAt || 0)) {
+        nbMap.set(rNb.id, rNb);
+      }
+    }
+    const mergedNbList = Array.from(nbMap.values());
+    try {
+      localStorage.setItem(NOTEBOOKS_KEY, JSON.stringify(notebookMetadata(mergedNbList)));
+    } catch {}
   }
 
   if (payload.comments && typeof payload.comments === 'object') {

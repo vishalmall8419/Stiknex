@@ -206,6 +206,7 @@ const App = () => {
 
           {/* Direct Clean Tool Routes */}
           <Route path="/sticky-notes" element={<Home />} />
+          <Route path="/stickynotes" element={<Navigate to="/sticky-notes" replace />} />
           <Route path="/online-notebook" element={<Notebook />} />
           <Route path="/word-counter" element={<Tools directSlug="word-counter" />} />
           <Route path="/character-counter" element={<Tools directSlug="character-counter" />} />

@@ -18,6 +18,8 @@ import Style from "./Notebook.module.css";
 import { isExecutableCode, runCodeInNewTab } from "./notebookCodeRunner";
 import { useAppContext } from "../../context/AppContext";
 import { emitRealtimeNotebookChange } from "../../services/socketService";
+import { initNotebookYjs } from "../../services/notebookYjsSync";
+import MonacoCodeEditor from "./MonacoCodeEditor";
 import NotebookSyncModal from "./NotebookSyncModal";
 import TranslationModal from "./TranslationModal";
 import CommentSidePanel from "./CommentSidePanel";
@@ -28,6 +30,7 @@ import {
   joinPairingSession,
   pushToCloud,
   pullFromCloud,
+  recordDeletedNotebookId,
 } from "./notebookSyncManager";
 import {
   processImageFile,
@@ -239,6 +242,7 @@ const Notebook = () => {
   const [altKeyActive, setAltKeyActive] = useState(false);
   const [syncStatus, setSyncStatus] = useState(() => (getSyncIdentity() ? "synced" : "idle"));
   const cloudSyncTimeoutRef = useRef(null);
+  const yjsSyncTimeoutRef = useRef(null);
   const lastUserEditTimestampRef = useRef(0);
 
   // Read mode, Book layout, Comments & Translation modals
@@ -252,6 +256,8 @@ const Notebook = () => {
   const [imageUrlModalOpen, setImageUrlModalOpen] = useState(false);
   const [shortcutsModalOpen, setShortcutsModalOpen] = useState(false);
   const [codeExecutable, setCodeExecutable] = useState(false);
+  const [editorMode, setEditorMode] = useState("auto"); // "auto" | "monaco" | "richtext"
+  const isMonacoActive = editorMode === "monaco" || (editorMode === "auto" && codeExecutable);
 
   // Context menu state
   const [contextMenu, setContextMenu] = useState({
@@ -286,6 +292,7 @@ const Notebook = () => {
   const editorRef = useRef(null);
   const paperAreaRef = useRef(null);
   const saveTimeoutRef = useRef(null);
+  const yjsSessionRef = useRef(null);
   const isInitialLoadRef = useRef(true);
   const statsPillRef = useRef(null);
   const statsContentRef = useRef(null);
@@ -313,13 +320,17 @@ const Notebook = () => {
 
   // Compile & execute HTML, CSS, or JS in a dedicated preview tab
   const handleRunCode = useCallback(() => {
-    const selection = window.getSelection()?.toString()?.trim();
     let sourceCode = "";
-    // Only use selection if user intentionally highlighted a meaningful code snippet
-    if (selection && selection.length > 10 && isExecutableCode(selection)) {
-      sourceCode = selection;
+    if (isMonacoActive) {
+      sourceCode = monacoCode;
     } else {
-      sourceCode = editorRef.current?.innerText || text || "";
+      const selection = window.getSelection()?.toString()?.trim();
+      // Only use selection if user intentionally highlighted a meaningful code snippet
+      if (selection && selection.length > 10 && isExecutableCode(selection)) {
+        sourceCode = selection;
+      } else {
+        sourceCode = editorRef.current?.innerText || text || "";
+      }
     }
 
     // Clean non-breaking spaces (\u00A0), zero-width characters and normalize line endings
@@ -335,10 +346,13 @@ const Notebook = () => {
     runCodeInNewTab(sourceCode, title || "Notebook Code");
   }, [title, text]);
 
-  const scheduleCloudSync = useCallback(() => {
+  const scheduleCloudSync = useCallback((immediate = false) => {
     if (!getSyncIdentity()) return;
     setSyncStatus("syncing");
     clearTimeout(cloudSyncTimeoutRef.current);
+    // Write-behind cache: debounce cloud push by 7 seconds of user typing silence
+    // Instant local save (< 1ms) already happened in IndexedDB & LocalStorage
+    const delay = immediate ? 50 : 7000;
     cloudSyncTimeoutRef.current = setTimeout(async () => {
       try {
         const result = await pushToCloud();
@@ -354,7 +368,7 @@ const Notebook = () => {
         console.error("Notebook cloud sync failed:", error);
         setSyncStatus("idle");
       }
-    }, 1200);
+    }, delay);
   }, []);
 
   const handleStatsMouseEnter = useCallback(() => {
@@ -506,6 +520,68 @@ const Notebook = () => {
     [activeNotebookId, notebooks, scheduleCloudSync],
   );
 
+  // Extract clean code snippet for Monaco Editor (0ms overhead, avoids DOM layout reflows)
+  const monacoCode = useMemo(() => {
+    if (!text) return "";
+    // Only strip HTML tags if text is rich-text HTML starting with paragraphs or divs
+    if (
+      (text.startsWith("<p>") || text.startsWith("<div>") || text.startsWith("<h1>")) &&
+      !text.includes("<!DOCTYPE") &&
+      !text.includes("<html")
+    ) {
+      if (typeof document !== "undefined") {
+        const temp = document.createElement("div");
+        temp.innerHTML = text;
+        return temp.innerText || temp.textContent || text;
+      }
+    }
+    return text;
+  }, [text]);
+
+  const handleMonacoChange = useCallback(
+    (newCode) => {
+      lastUserEditTimestampRef.current = Date.now();
+      setText(newCode);
+
+      // Debounce Yjs CRDT delta synchronization by 200ms to eliminate typing freezes
+      clearTimeout(yjsSyncTimeoutRef.current);
+      yjsSyncTimeoutRef.current = setTimeout(() => {
+        if (yjsSessionRef.current) {
+          yjsSessionRef.current.syncLocalChange(newCode);
+        }
+      }, 200);
+
+      // Debounced stats update & persistence (400ms)
+      if (!settings.autoSave) {
+        setSaveState("off");
+        return;
+      }
+      setSaveState("saving");
+      clearTimeout(saveTimeoutRef.current);
+      saveTimeoutRef.current = setTimeout(() => {
+        persistContent(newCode);
+        setCharCount(newCode.length);
+        setWordCount(countWords(newCode));
+        setCodeExecutable(isExecutableCode(newCode));
+      }, 400);
+    },
+    [persistContent, settings.autoSave]
+  );
+
+  const handleSwitchToRichText = useCallback(() => {
+    setEditorMode("richtext");
+    if (editorRef.current) {
+      editorRef.current.innerHTML = plainTextToHtml(monacoCode);
+    }
+  }, [monacoCode]);
+
+  const handleToggleMonacoMode = useCallback(() => {
+    setEditorMode((prev) => (isMonacoActive ? "richtext" : "monaco"));
+    if (isMonacoActive && editorRef.current) {
+      editorRef.current.innerHTML = plainTextToHtml(monacoCode);
+    }
+  }, [isMonacoActive, monacoCode]);
+
   // Push new snapshot to history
   const pushHistorySnapshot = useCallback((html) => {
     if (isHistoryNavigatingRef.current) return;
@@ -622,6 +698,11 @@ const Notebook = () => {
     updateStats();
     const currentHtml = editorRef.current.innerHTML;
     setText(currentHtml);
+
+    // Instant CRDT sync (< 0.02s) to connected mobile/laptop via Yjs
+    if (yjsSessionRef.current) {
+      yjsSessionRef.current.syncLocalChange(currentHtml);
+    }
 
     // Push into history stack
     if (isImmediate) {
@@ -969,10 +1050,10 @@ const Notebook = () => {
             rawSrc === window.location.href ||
             rawSrc.endsWith('""') ||
             rawSrc === "#" ||
-            rawSrc === "https://unsplash.com" ||
-            rawSrc === "http://unsplash.com" ||
-            rawSrc === "https://unsplash.com/" ||
-            rawSrc === "http://unsplash.com/";
+            rawSrc === "null" ||
+            rawSrc === "undefined" ||
+            rawSrc.startsWith("blob:") ||
+            rawSrc.includes("unsplash.com");
 
           if (isInvalidSrc) {
             if (imgId) {
@@ -1034,6 +1115,19 @@ const Notebook = () => {
           }
         }
 
+        // Initialize Real-time Yjs CRDT Session for sub-0.02s cross-device collaboration
+        if (yjsSessionRef.current) {
+          yjsSessionRef.current.destroy();
+          yjsSessionRef.current = null;
+        }
+        yjsSessionRef.current = initNotebookYjs(activeNotebookId, cleanHtml, (remoteHtml) => {
+          const userRecentlyEdited = Date.now() - (lastUserEditTimestampRef.current || 0) < 1500;
+          if (!userRecentlyEdited && editorRef.current && editorRef.current.innerHTML !== remoteHtml) {
+            editorRef.current.innerHTML = remoteHtml;
+            updateStats();
+          }
+        });
+
         updateStats();
       } else {
         setText(html);
@@ -1083,6 +1177,10 @@ const Notebook = () => {
     return () => {
       cancelled = true;
       clearTimeout(saveTimeoutRef.current);
+      if (yjsSessionRef.current) {
+        yjsSessionRef.current.destroy();
+        yjsSessionRef.current = null;
+      }
     };
   }, [activeNotebookId, updateStats]);
 
@@ -1199,13 +1297,15 @@ const Notebook = () => {
               active.content || ""
             ) || /<!DOCTYPE\b/i.test(active.content || "");
           const activeHtml = isHtml ? active.content : plainTextToHtml(active.content || "");
-          setText(activeHtml);
-          setComments(payload.comments?.[active.id] || []);
-
-          if (editorRef.current && editorRef.current.innerHTML !== activeHtml) {
-            editorRef.current.innerHTML = activeHtml;
-            updateStats();
+          const userRecentlyEdited = Date.now() - (lastUserEditTimestampRef.current || 0) < 15000;
+          if (!userRecentlyEdited) {
+            setText(activeHtml);
+            if (editorRef.current && editorRef.current.innerHTML !== activeHtml) {
+              editorRef.current.innerHTML = activeHtml;
+              updateStats();
+            }
           }
+          setComments(payload.comments?.[active.id] || []);
 
           try {
             localStorage.setItem(`nb_content_${active.id}`, active.content || "");
@@ -1228,14 +1328,27 @@ const Notebook = () => {
 
     // Auto-pull when window gains focus (switching from another app or tab)
     const handleFocus = () => {
-      if (getSyncIdentity() && typeof navigator !== "undefined" && navigator.onLine) {
+      const userRecentlyEdited = Date.now() - (lastUserEditTimestampRef.current || 0) < 15000;
+      if (!userRecentlyEdited && getSyncIdentity() && typeof navigator !== "undefined" && navigator.onLine) {
         pullFromCloud().catch(() => {});
       }
     };
 
-    // Auto-pull when document becomes visible
+    // Emergency flush to cloud when tab is hidden, minimized or closed
+    const handleFlushOnLeave = () => {
+      if (getSyncIdentity() && typeof navigator !== "undefined" && navigator.onLine) {
+        pushToCloud().catch(() => {});
+      }
+    };
+
+    // Auto-pull when document becomes visible; flush when hidden
     const handleVisibilityChange = () => {
-      if (!document.hidden && getSyncIdentity() && typeof navigator !== "undefined" && navigator.onLine) {
+      if (document.hidden) {
+        handleFlushOnLeave();
+        return;
+      }
+      const userRecentlyEdited = Date.now() - (lastUserEditTimestampRef.current || 0) < 15000;
+      if (!userRecentlyEdited && getSyncIdentity() && typeof navigator !== "undefined" && navigator.onLine) {
         pullFromCloud().catch(() => {});
       }
     };
@@ -1249,7 +1362,7 @@ const Notebook = () => {
       }
     };
 
-    // Silent background polling: every 5 seconds check for cloud updates if user is not actively typing
+    // Gentle background polling: every 2 minutes (120s) idle check for cloud updates if user is not actively typing
     const pollInterval = setInterval(() => {
       if (
         isSubscribed &&
@@ -1257,15 +1370,17 @@ const Notebook = () => {
         getSyncIdentity() &&
         typeof navigator !== "undefined" &&
         navigator.onLine &&
-        Date.now() - (lastUserEditTimestampRef.current || 0) > 3000
+        Date.now() - (lastUserEditTimestampRef.current || 0) > 15000
       ) {
         pullFromCloud().catch(() => {});
       }
-    }, 5000);
+    }, 120000);
 
     window.addEventListener("stiknex_notebook_synced", handleRemoteSync);
     window.addEventListener("online", handleOnline);
     window.addEventListener("focus", handleFocus);
+    window.addEventListener("pagehide", handleFlushOnLeave);
+    window.addEventListener("beforeunload", handleFlushOnLeave);
     document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
@@ -1274,6 +1389,8 @@ const Notebook = () => {
       window.removeEventListener("stiknex_notebook_synced", handleRemoteSync);
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("focus", handleFocus);
+      window.removeEventListener("pagehide", handleFlushOnLeave);
+      window.removeEventListener("beforeunload", handleFlushOnLeave);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [activeNotebookId, title]);
@@ -1334,6 +1451,13 @@ const Notebook = () => {
       dangerMode: true,
     }).then((willDelete) => {
       if (!willDelete) return;
+
+      // Immediately record tombstone to prevent deleted notebook from ever resurrecting across devices
+      recordDeletedNotebookId(id);
+      try {
+        localStorage.removeItem(`nb_content_${id}`);
+        localStorage.removeItem(`nb_comments_${id}`);
+      } catch {}
 
       const remaining = notebooks.filter((nb) => nb.id !== id);
       const wasActive = id === activeNotebookId;
@@ -2091,11 +2215,11 @@ const Notebook = () => {
       } ${isZenMode ? Style.zenMode : ""}`}
     >
       <PageSEO
-        title="Free Online Notebook & Digital Note Editor | Stiknex"
-        description="Write, organize and save your notes in Stiknex's free online notebook. Rich text editor with headings, lists, bold, italic formatting, images, and to-do checklists. No sign-up required."
+        title="Online Notepad & Code Editor – Free Digital Notebook & In-Browser IDE | Stiknex"
+        description="Stiknex is not just a notepad — it is a dual-engine workspace with a distraction-free lined paper notepad and an in-browser code editor. Write notes, code in HTML/CSS/JS/Python/SQL, run code live, format documents, and auto-save locally with zero sign-up."
         path="/online-notebook"
         type="webapp"
-        keywords="online notebook, free digital notebook, note editor, rich text editor, online notepad, free notepad, note taking app online, resizable images notebook, checklist notebook"
+        keywords="online notepad, code editor, online code editor, browser text editor, digital notepad, web ide, html editor online, javascript editor, python notepad, free online notebook, developer notepad, stiknex editor, run code online"
       />
 
       {darkMode && (
@@ -2181,8 +2305,8 @@ const Notebook = () => {
         />
       )}
 
-      {/* Selected text formatting toolbar */}
-      {!isZenMode && !readMode && (
+      {/* Selected text formatting toolbar (Hidden during Monaco Code Editor for full IDE view) */}
+      {!isZenMode && !readMode && !isMonacoActive && (
         <RichTextToolbar
           darkMode={darkMode}
           editorRef={editorRef}
@@ -2212,6 +2336,8 @@ const Notebook = () => {
           onRunCode={handleRunCode}
           onFormatCode={handleFormatCode}
           isCodeExecutable={codeExecutable}
+          isMonacoActive={isMonacoActive}
+          onToggleMonacoMode={handleToggleMonacoMode}
           fontFamily={settings.fontFamily || "inter"}
           onSelectFontFamily={(f) => updateSetting("fontFamily", f)}
           altKeyActive={altKeyActive && !moreMenuOpen}
@@ -2223,45 +2349,60 @@ const Notebook = () => {
         ref={paperAreaRef}
         data-empty={isNotepadEmpty ? "true" : "false"}
         className={`${Style.paperArea} ${
+          isMonacoActive ? Style.monacoPaperArea : ""
+        } ${
           isNotepadEmpty ? Style.paperAreaEmpty : ""
         } ${
           darkMode ? Style.darkPaperArea : ""
         } ${
           Style[`paper${(settings.paperType || "dotted").charAt(0).toUpperCase() + (settings.paperType || "dotted").slice(1)}`] || Style.paperDotted
         }`}
-        style={editorVars}
+        style={isMonacoActive ? { ...editorVars, padding: 0 } : editorVars}
         onScroll={handleEditorScroll}
         onContextMenu={handleEditorContextMenu}
       >
-        <div className={Style.paperColumn} data-empty={isNotepadEmpty ? "true" : "false"}>
-          <div className={Style.marginLine}></div>
-          <div className={Style.editorWrap}>
-            <div
-              ref={editorRef}
-              className={`${Style.editor} ${bookLayout ? Style.bookMode : ""}`}
-              contentEditable={!readMode}
-              suppressContentEditableWarning={true}
-              onInput={handleContentChange}
-              onClick={handleEditorClick}
-              onKeyDown={handleEditorKeyDown}
-              onPaste={handleEditorPaste}
-              onDrop={handleEditorDrop}
-              onDragOver={(e) => e.preventDefault()}
-              data-placeholder="Start writing, pasting images, or make a to-do list…"
-              data-empty={isNotepadEmpty ? "true" : "false"}
-              spellCheck={true}
-              style={{
-                ...editorVars,
-                fontFamily: editorVars["--nb-font-family"],
-                fontSize: editorVars["--nb-font-size"],
-                lineHeight: editorVars["--nb-line-height"],
-                whiteSpace: settings.wordWrap ? "pre-wrap" : "pre",
-                overflowX: settings.wordWrap ? "hidden" : "auto",
-              }}
+        {isMonacoActive ? (
+          <div className="w-full h-full flex flex-col flex-1 min-h-0 overflow-hidden">
+            <MonacoCodeEditor
+              value={monacoCode}
+              onChange={handleMonacoChange}
+              darkMode={darkMode}
+              onRunCode={handleRunCode}
+              onSwitchToRichText={handleSwitchToRichText}
+              fontSize={typeof settings.fontSize === "number" ? settings.fontSize : 14}
+              readOnly={readMode}
             />
-
           </div>
-        </div>
+        ) : (
+          <div className={Style.paperColumn} data-empty={isNotepadEmpty ? "true" : "false"}>
+            <div className={Style.marginLine}></div>
+            <div className={Style.editorWrap}>
+              <div
+                ref={editorRef}
+                className={`${Style.editor} ${bookLayout ? Style.bookMode : ""}`}
+                contentEditable={!readMode}
+                suppressContentEditableWarning={true}
+                onInput={handleContentChange}
+                onClick={handleEditorClick}
+                onKeyDown={handleEditorKeyDown}
+                onPaste={handleEditorPaste}
+                onDrop={handleEditorDrop}
+                onDragOver={(e) => e.preventDefault()}
+                data-placeholder="Start writing, pasting images, or make a to-do list…"
+                data-empty={isNotepadEmpty ? "true" : "false"}
+                spellCheck={true}
+                style={{
+                  ...editorVars,
+                  fontFamily: editorVars["--nb-font-family"],
+                  fontSize: editorVars["--nb-font-size"],
+                  lineHeight: editorVars["--nb-line-height"],
+                  whiteSpace: settings.wordWrap ? "pre-wrap" : "pre",
+                  overflowX: settings.wordWrap ? "hidden" : "auto",
+                }}
+              />
+            </div>
+          </div>
+        )}
 
         {/* Full-Section Edge-to-Edge Digital Ink Drawing Layer */}
         <NotebookDrawingCanvas

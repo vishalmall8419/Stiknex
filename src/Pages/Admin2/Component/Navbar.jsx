@@ -52,6 +52,27 @@ const Navbar = ({ isSidebarOpen, onToggleSidebar }) => {
       } catch (_) {}
     };
     fetchNotifications();
+
+    // Listen to real-time feedback submissions via Socket.io
+    const handleRealtimeFeedback = (e) => {
+      const liveItem = e.detail;
+      if (!liveItem) return;
+      setMessageCount((prev) => prev + 1);
+      setNotifications((prev) => [
+        {
+          _id: liveItem._id || `live_${Date.now()}`,
+          userName: liveItem.userName || liveItem.name || "Anonymous",
+          message: liveItem.message || liveItem.content || "",
+          tool: liveItem.tool || "Direct Message",
+          createdAt: liveItem.createdAt || new Date().toISOString(),
+          isLive: true,
+        },
+        ...prev,
+      ]);
+    };
+
+    window.addEventListener("stiknex_remote_feedback", handleRealtimeFeedback);
+    return () => window.removeEventListener("stiknex_remote_feedback", handleRealtimeFeedback);
   }, []);
 
   useEffect(() => {

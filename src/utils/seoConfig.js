@@ -731,36 +731,52 @@ export const seoConfig = {
   "/online-notebook": {
   "path": "/online-notebook",
   "canonical": "https://stiknex.site/online-notebook",
-  "title": "Online Notepad – Free, No Sign-Up Digital Notebook | Stiknex",
-  "h1": "Free Online Notepad & Digital Notebook",
-  "description": "Distraction-free online notepad and digital lined paper notebook. Format headings, lists, code snippets, and auto-save notes locally with zero sign-up.",
-  "primaryIntent": "online notepad / digital notepad",
+  "title": "Online Notepad & Code Editor – Free Digital Notebook & In-Browser IDE | Stiknex",
+  "h1": "Free Online Notepad & Professional Code Editor",
+  "description": "Stiknex is not just a notepad — it is a dual-engine workspace with a distraction-free lined paper notepad and an in-browser code editor. Write notes, code in HTML/CSS/JS/Python/SQL, run code live, format documents, and auto-save locally with zero sign-up.",
+  "primaryIntent": "online notepad / browser code editor / digital notebook / web ide",
   "secondaryIntents": [
-    "notepad online free",
-    "free online notebook",
-    "browser notepad no signup",
-    "digital notepad for students"
+    "online code editor free",
+    "browser notepad with syntax highlighting",
+    "run code in online notepad",
+    "developer notepad online",
+    "notepad and code editor combined",
+    "web ide no signup",
+    "digital lined paper notepad"
   ],
-  "keywords": "online notepad, digital notepad, online notebook, free online notepad, browser text editor, note taking online, lined paper notebook",
-  "schemaType": "WebApplication",
-  "cluster": "Notes & Planning",
+  "keywords": "online notepad, code editor, online code editor, browser text editor, digital notepad, web ide, html editor online, javascript editor, python notepad, free online notebook, developer notepad, stiknex editor, run code online",
+  "schemaType": "SoftwareApplication",
+  "breadcrumbs": [
+    { "name": "Home", "item": "https://stiknex.site/" },
+    { "name": "Notepad & Code Editor", "item": "https://stiknex.site/online-notebook" }
+  ],
+  "cluster": "Notes & Development",
   "relatedTools": [
     "/sticky-notes",
     "/word-counter",
-    "/to-do-list"
+    "/to-do-list",
+    "/whiteboard"
   ],
   "faqs": [
     {
-      "q": "Is this online notepad free to use without signing in?",
-      "a": "Yes, Stiknex Online Notebook is 100% free with zero registration, accounts, or subscription walls required."
+      "q": "Is Stiknex only a basic notepad or also a code editor?",
+      "a": "Stiknex Online Notebook is a hybrid dual-engine platform. It works both as a clean, distraction-free lined paper notepad for writing, and as a professional code editor (Stiknex Editor) supporting HTML, CSS, JavaScript, TypeScript, Python, JSON, SQL, and Markdown with live formatting, syntax highlighting, and instant browser execution."
     },
     {
-      "q": "Where are my notebook notes saved?",
-      "a": "Your notes are saved in your browser's secure IndexedDB and localStorage cache. They persist across browser restarts and tab closures."
+      "q": "Can I run and test code directly inside Stiknex Notepad?",
+      "a": "Yes! Whenever you write or paste executable HTML, JavaScript, CSS, or canvas code, you can run it instantly in a new browser tab with one click or by pressing Ctrl+Enter."
     },
     {
-      "q": "How does this compare to Windows Notepad or desktop apps?",
-      "a": "Stiknex runs inside any web browser on desktop, tablet, or phone, offering lined paper aesthetics, rich formatting, word count, and optional multi-device sync."
+      "q": "Is this online notepad and code editor free without signing in?",
+      "a": "Yes, Stiknex is 100% free with zero registration, accounts, or subscription walls required. All your work saves locally in your browser memory and IndexedDB."
+    },
+    {
+      "q": "Where are my notes and code snippets saved?",
+      "a": "Your notes and code are saved in your browser's secure IndexedDB and localStorage cache. They persist across browser restarts, page reloads, and tab closures with optional encrypted multi-device sync."
+    },
+    {
+      "q": "How does Stiknex compare to Windows Notepad or desktop IDEs?",
+      "a": "Unlike basic text pads, Stiknex delivers the best of both worlds: paper notepad aesthetics for creative writing and full IDE power (syntax highlighting, auto-close brackets, format on shortcut, live code execution) that works on any browser across desktop, tablet, and mobile with sub-20ms real-time sync."
     }
   ]
 },
@@ -923,27 +939,6 @@ export const seoConfig = {
     ]
   },
 
-  "/online-notebook": {
-    path: "/online-notebook",
-    canonical: `${BASE_URL}/online-notebook`,
-    title: "Free Online Notebook & Digital Notepad | Stiknex",
-    h1: "Free Online Notebook & Text Editor",
-    description: "Distraction-free rich text notebook editor online. Format headings, bullet lists, code snippets, and auto-save notes locally with zero account sign-up.",
-    primaryIntent: "online notebook / digital notebook / free online notebook",
-    secondaryIntents: ["online notepad", "browser note editor", "distraction free writing"],
-    keywords: "online notebook, digital notebook, free online notebook, online notepad, browser text editor, note taking online",
-    schemaType: "WebApplication",
-    breadcrumbs: [
-      { name: "Home", item: `${BASE_URL}/` },
-      { name: "Notebook", item: `${BASE_URL}/online-notebook` }
-    ],
-    cluster: "Writing & Organization",
-    relatedTools: ["/sticky-notes", "/word-counter", "/character-counter", "/whiteboard"],
-    faqs: [
-      { q: "Is the online notebook free to use?", a: "Yes, Stiknex Online Notebook is completely free and requires no registration." },
-      { q: "Can I export my notes?", a: "Yes, you can copy, print, or download your formatted notes anytime." }
-    ]
-  },
 
   "/word-counter": {
     path: "/word-counter",
@@ -1526,6 +1521,10 @@ ALL_TOOLS.forEach((t) => {
 
 // Aliases for legacy and sub-path links
 export const seoAliases = {
+  "/stopwatch": "/stopwatch-with-laps",
+  "/online-clock": "/live-clock",
+  "/clock": "/live-clock",
+  "/typing": "/stiknex-typing",
   "/dataconverter": "/data-converter",
   "/tools/dataconverter": "/data-converter",
   "/tools/data-converter": "/data-converter",
@@ -1557,19 +1556,98 @@ export const seoAliases = {
   "/tools/color-picker": "/color-picker"
 };
 
+// Comprehensive index of all tool slugs, ids, and aliases from toolsRegistry
+const knownToolSlugs = new Set([
+  ...ALL_TOOLS.map(t => t.slug),
+  ...ALL_TOOLS.filter(t => t.id).map(t => t.id),
+  ...ALL_TOOLS.flatMap(t => t.aliases || [])
+]);
+
+// Explicit static known routes
+const STATIC_KNOWN_ROUTES = new Set([
+  "/",
+  "/sitemap",
+  "/sitemap.xml",
+  "/robots.txt",
+  "/circle",
+  "/about",
+  "/about/tool-details",
+  "/tools",
+  "/notebook",
+  "/online-notebook",
+  "/sticky-notes",
+  "/stickynotes",
+  "/notes",
+  "/whiteboard",
+  "/buy-me-a-coffee",
+  "/blog",
+  "/privacy-policy",
+  "/terms-of-service",
+  "/url-shortener",
+  "/dashboard",
+  "/profile",
+  "/stiknex-typing"
+]);
+
 export const getSeoForPath = (path) => {
-  const clean = path.startsWith("/") ? path : `/${path}`;
+  let clean = path.startsWith("/") ? path : `/${path}`;
+  if (clean.length > 1 && clean.endsWith("/")) {
+    clean = clean.slice(0, -1);
+  }
   if (seoConfig[clean]) return seoConfig[clean];
   const unaliased = seoAliases[clean] || (clean.startsWith("/tools/") ? clean.replace(/^\/tools\//, "/") : clean);
-  return seoConfig[unaliased] || seoConfig["/"];
-};
+  if (seoConfig[unaliased]) return seoConfig[unaliased];
 
+  // Specific high-value static pages
+  if (clean === "/sitemap") {
+    return {
+      path: "/sitemap",
+      canonical: `${SITE_URL}/sitemap`,
+      title: "Visual HTML Sitemap — All 206+ Tools & Pages Index | Stiknex",
+      h1: "Stiknex HTML Sitemap Directory",
+      description: "Explore the complete directory of 206+ local-first web utilities, calculators, converters, digital notebooks, sticky notes, and development tools on Stiknex.",
+      keywords: "stiknex sitemap, tools directory, all calculators, developer tools list",
+      schemaType: "CollectionPage",
+      cluster: "Platform",
+      faqs: []
+    };
+  }
+
+  // Dynamic tool fallback for any registered tool in ALL_TOOLS
+  const toolSlug = clean.startsWith("/tools/") ? clean.slice(7) : clean.slice(1);
+  const tool = ALL_TOOLS.find(t => t.slug === toolSlug || t.id === toolSlug || (t.aliases || []).includes(toolSlug));
+  if (tool) {
+    return {
+      path: `/${tool.slug}`,
+      canonical: `${SITE_URL}/${tool.slug}`,
+      title: `${tool.title} | Free Online Utility – Stiknex`,
+      h1: tool.h1 || `Free Online ${tool.title}`,
+      description: tool.tagline || `Use the free, private, and instant ${tool.title} on Stiknex. 100% client-side in your browser.`,
+      keywords: Array.isArray(tool.keywords) ? tool.keywords.join(", ") : (tool.keywords || `${tool.title}, online utility`),
+      schemaType: "WebApplication",
+      cluster: tool.category || "Utility",
+      faqs: []
+    };
+  }
+
+  return seoConfig["/"];
+};
 
 export const isKnownRoute = (path) => {
   if (!path) return false;
-  const clean = path.startsWith("/") ? path : `/${path}`;
-  if (clean === "/" || seoConfig[clean]) return true;
-  if (seoAliases[clean]) return true;
-  if (clean.startsWith("/tools/") && (seoConfig[clean.replace(/^\/tools\//, "/")] || seoAliases[clean])) return true;
+  let clean = path.startsWith("/") ? path : `/${path}`;
+  if (clean.length > 1 && clean.endsWith("/")) {
+    clean = clean.slice(0, -1);
+  }
+  if (STATIC_KNOWN_ROUTES.has(clean) || seoConfig[clean] || seoAliases[clean]) {
+    return true;
+  }
+  if (clean.startsWith("/blog/") || clean.startsWith("/about/tool-details/") || clean.startsWith("/url-shortener/analytics/")) {
+    return true;
+  }
+  const toolSlug = clean.startsWith("/tools/") ? clean.slice(7) : clean.slice(1);
+  if (knownToolSlugs.has(toolSlug)) {
+    return true;
+  }
   return false;
 };

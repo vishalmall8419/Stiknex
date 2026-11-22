@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
   FileQuestion, 
@@ -13,6 +13,7 @@ import {
   Link2
 } from 'lucide-react';
 import AppShell from '../../Component/Layout/AppShell';
+import PageSEO from '../../Component/SEO/PageSEO';
 
 export default function NotFound({ requestedSlug }) {
   const [searchTerm, setSearchTerm] = useState('');
@@ -31,7 +32,7 @@ export default function NotFound({ requestedSlug }) {
     {
       title: 'Sticky Notes',
       desc: 'Smart, draggable scratchpad with auto-save & rich Markdown formatting',
-      href: '/stickynotes',
+      href: '/sticky-notes',
       icon: StickyNote,
       color: 'from-amber-500 to-orange-500'
     },
@@ -74,6 +75,12 @@ export default function NotFound({ requestedSlug }) {
 
   return (
     <AppShell activePage="404">
+      <PageSEO
+        title="404 — Page Not Found | Stiknex"
+        description="The requested page could not be found or has been moved."
+        path="/404"
+        noIndex={true}
+      />
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col justify-center py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center w-full">
           {/* Badge */}

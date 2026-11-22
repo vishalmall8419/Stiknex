@@ -60,7 +60,13 @@ import {
   Check,
   Wand2,
   Clock,
-  VolumeX
+  VolumeX,
+  Smartphone,
+  Laptop,
+  Radio,
+  Wifi,
+  WifiOff,
+  CloudLightning
 } from "lucide-react";
 import { TOOL_HUBS, ALL_TOOLS } from "../../data/toolsRegistry";
 
@@ -138,11 +144,19 @@ export default function About() {
 
             <div className="pt-4 flex flex-wrap items-center justify-center gap-4">
               <a
+                href="#realtime-sync"
+                className="px-6 py-3 rounded-full text-xs font-black uppercase tracking-wider text-white bg-gradient-to-r from-teal-600 to-emerald-600 hover:shadow-xl hover:shadow-teal-600/20 hover:-translate-y-0.5 transition-all flex items-center gap-2"
+              >
+                <RefreshCw size={14} className="animate-spin-slow" />
+                <span>Phone ⇄ Laptop Sync ↓</span>
+              </a>
+
+              <a
                 href="#notepad"
                 className="px-6 py-3 rounded-full text-xs font-black uppercase tracking-wider text-white bg-gradient-to-r from-[#134E5E] to-[#1D6A7D] hover:shadow-xl hover:shadow-[#134E5E]/20 hover:-translate-y-0.5 transition-all flex items-center gap-2"
               >
                 <BookOpen size={14} />
-                <span>Notepad Guide ↓</span>
+                <span>Notepad &amp; Code Editor ↓</span>
               </a>
 
               <a
@@ -159,6 +173,14 @@ export default function About() {
               >
                 <PenTool size={14} />
                 <span>Whiteboard Guide ↓</span>
+              </a>
+
+              <a
+                href="#why-use-stiknex"
+                className="px-6 py-3 rounded-full text-xs font-black uppercase tracking-wider text-[#0F3944] dark:text-teal-300 bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 hover:border-[#134E5E] hover:shadow-md transition-all flex items-center gap-2"
+              >
+                <Sparkles size={14} className="text-[#FFA07A]" />
+                <span>Why Use Stiknex? ↓</span>
               </a>
 
               <Link
@@ -226,6 +248,168 @@ export default function About() {
         </section>
 
         {/* ========================================================
+            2.5. REAL-TIME CROSS-DEVICE SYNC: PHONE & LAPTOP ARCHITECTURE
+            ======================================================== */}
+        <section id="realtime-sync" className="py-16 px-6 max-w-6xl mx-auto scroll-mt-24 border-t border-[#EADFD5] dark:border-slate-800">
+          <div className="rounded-[36px] p-8 sm:p-12 bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm relative overflow-hidden space-y-10">
+            <div className="absolute top-0 right-0 w-96 h-96 bg-teal-500/5 rounded-full blur-3xl pointer-events-none" />
+            
+            {/* Header */}
+            <div className="space-y-4 max-w-4xl relative z-10">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300 text-xs font-black uppercase tracking-widest border border-teal-200 dark:border-teal-800/40">
+                <RefreshCw size={14} className="animate-spin-slow" />
+                Cross-Device Mesh &amp; Cloud Write-Behind Sync
+              </div>
+              <h2 className="text-3xl sm:text-5xl font-black text-[#0F3944] dark:text-white tracking-tight leading-[1.15]">
+                How Real-Time Sync Works: Phone ⇄ Laptop in Perfect Harmony
+              </h2>
+              <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
+                Ever wondered how you can jot down notes or brainstorm code on your laptop, and immediately see it live on your smartphone without creating an account or paying for cloud databases? Here is the deep engineering architecture behind Stiknex&apos;s sub-20ms, Instagram-style write-behind sync engine.
+              </p>
+            </div>
+
+            {/* 4 Architectural Pillars Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
+              
+              {/* Pillar 1: Local-First Speed */}
+              <div className="p-6 rounded-3xl bg-[#FAF7F2] dark:bg-slate-800/50 border border-[#EADFD5] dark:border-slate-700/60 space-y-3">
+                <div className="w-10 h-10 rounded-2xl bg-teal-500/10 text-teal-600 dark:text-teal-300 flex items-center justify-center font-black">
+                  <Zap size={20} />
+                </div>
+                <h3 className="text-base font-bold text-[#0F3944] dark:text-white">
+                  1. Local-First (&lt; 1ms Speed)
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                  Every keystroke writes instantly to your browser&apos;s local memory (IndexedDB &amp; LocalStorage). You get a native 120 FPS desktop feel with zero input lag because the UI never waits for remote servers to acknowledge your typing.
+                </p>
+              </div>
+
+              {/* Pillar 2: Multi-Tab Mesh */}
+              <div className="p-6 rounded-3xl bg-[#FAF7F2] dark:bg-slate-800/50 border border-[#EADFD5] dark:border-slate-700/60 space-y-3">
+                <div className="w-10 h-10 rounded-2xl bg-sky-500/10 text-sky-600 dark:text-sky-300 flex items-center justify-center font-black">
+                  <Layers size={20} />
+                </div>
+                <h3 className="text-base font-bold text-[#0F3944] dark:text-white">
+                  2. Same-Device Multi-Tab Mesh
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                  Using the browser&apos;s native <code className="text-xs font-mono">BroadcastChannel API</code>, opening Stiknex across multiple windows or tabs on the same laptop or phone updates all tabs simultaneously in 0ms without consuming any network bandwidth.
+                </p>
+              </div>
+
+              {/* Pillar 3: Zero-Login QR Pairing */}
+              <div className="p-6 rounded-3xl bg-[#FAF7F2] dark:bg-slate-800/50 border border-[#EADFD5] dark:border-slate-700/60 space-y-3">
+                <div className="w-10 h-10 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-300 flex items-center justify-center font-black">
+                  <QrCode size={20} />
+                </div>
+                <h3 className="text-base font-bold text-[#0F3944] dark:text-white">
+                  3. 2-Second QR Mobile Pairing
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                  Press <kbd className="px-1.5 py-0.5 rounded bg-white dark:bg-slate-700 text-xs font-mono shadow-sm">Alt+Y</kbd> on your laptop to generate an encrypted pairing QR code. Scan it with your phone camera or enter the 6-digit PIN. No email, password, or verification required!
+                </p>
+              </div>
+
+              {/* Pillar 4: Instagram-Style Write-Behind Caching */}
+              <div className="p-6 rounded-3xl bg-[#FAF7F2] dark:bg-slate-800/50 border border-[#EADFD5] dark:border-slate-700/60 space-y-3">
+                <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-300 flex items-center justify-center font-black">
+                  <CloudLightning size={20} />
+                </div>
+                <h3 className="text-base font-bold text-[#0F3944] dark:text-white">
+                  4. Write-Behind Cloud Caching
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                  Just like Instagram saves likes locally and flushes to the server asynchronously, Stiknex holds edits in fast cache and syncs to MongoDB on idle debounce (6–7s). On tab close, an emergency Beacon fires so you never lose a character while saving 95% server costs.
+                </p>
+              </div>
+
+            </div>
+
+            {/* Step-by-Step Flowchart / Visual Progression */}
+            <div className="p-6 sm:p-8 rounded-3xl bg-slate-900 text-white space-y-6 relative z-10">
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <span className="text-xs font-black uppercase tracking-wider text-teal-400">
+                    Step-by-Step Lifecycle
+                  </span>
+                  <h4 className="text-lg sm:text-xl font-bold">
+                    What Happens Behind the Scenes When You Type on Phone or Laptop
+                  </h4>
+                </div>
+                <div className="flex items-center gap-2 text-xs font-semibold text-slate-400">
+                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                  <span>Continuous 0-Lag Processing</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
+                
+                {/* Step 1 */}
+                <div className="p-5 rounded-2xl bg-slate-800/80 border border-slate-700 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-mono font-bold text-teal-300 uppercase px-2.5 py-1 rounded bg-teal-950/80 border border-teal-800/60">
+                      Step 01
+                    </span>
+                    <Smartphone size={18} className="text-slate-400" />
+                  </div>
+                  <h5 className="font-bold text-sm text-white">Instant Local Save (0ms)</h5>
+                  <p className="text-xs text-slate-300 leading-relaxed">
+                    User inputs a word, checkmarks a to-do, or formats code. Content is instantly mirrored to IndexedDB on the device. Even if your browser crashes right now, your content is 100% safe.
+                  </p>
+                </div>
+
+                {/* Step 2 */}
+                <div className="p-5 rounded-2xl bg-slate-800/80 border border-slate-700 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-mono font-bold text-amber-300 uppercase px-2.5 py-1 rounded bg-amber-950/80 border border-amber-800/60">
+                      Step 02
+                    </span>
+                    <Radio size={18} className="text-slate-400" />
+                  </div>
+                  <h5 className="font-bold text-sm text-white">Local Mesh &amp; Debounce (6s)</h5>
+                  <p className="text-xs text-slate-300 leading-relaxed">
+                    BroadcastChannel immediately updates all other open tabs on your machine. Meanwhile, an intelligent debounce timer waits for 6–7s of idle typing before packaging a compact delta for cloud sync.
+                  </p>
+                </div>
+
+                {/* Step 3 */}
+                <div className="p-5 rounded-2xl bg-slate-800/80 border border-slate-700 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-mono font-bold text-emerald-300 uppercase px-2.5 py-1 rounded bg-emerald-950/80 border border-emerald-800/60">
+                      Step 03
+                    </span>
+                    <Laptop size={18} className="text-slate-400" />
+                  </div>
+                  <h5 className="font-bold text-sm text-white">Cloud Write-Behind &amp; Beacon Flush</h5>
+                  <p className="text-xs text-slate-300 leading-relaxed">
+                    The delta syncs to MongoDB in the background. If you close your browser tab or switch away on mobile, <code className="text-[11px] font-mono text-teal-300">pagehide</code> and <code className="text-[11px] font-mono text-teal-300">sendBeacon</code> immediately push pending changes before the page unloads.
+                  </p>
+                </div>
+
+              </div>
+
+              {/* Offline Resiliency Callout */}
+              <div className="p-4 rounded-2xl bg-teal-950/60 border border-teal-800/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs text-teal-200">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-teal-900/80 text-teal-300 flex items-center justify-center shrink-0">
+                    <WifiOff size={16} />
+                  </div>
+                  <div>
+                    <strong className="text-white block">Offline Mode Guarantee:</strong>
+                    Flying on an airplane or caught in a subway tunnel with no network? You can keep writing, coding, and sketching with zero disruption. All changes queue locally and auto-sync when Wi-Fi returns.
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <Wifi size={14} className="text-emerald-400" />
+                  <span className="font-bold text-emerald-300">Zero Data Loss</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        {/* ========================================================
             3. IN-DEPTH ARCHITECTURE OF THE CORE CREATIVE ENGINES
             ======================================================== */}
         <section className="py-16 px-6 max-w-6xl mx-auto border-t border-[#EADFD5] dark:border-slate-800">
@@ -269,11 +453,11 @@ export default function About() {
                   </div>
 
                   <h3 className="text-3xl sm:text-4xl font-black text-[#0F3944] dark:text-white tracking-tight">
-                    Stiknex Notepad — Distraction-Free Smart Editor
+                    Stiknex Notepad &amp; Code Editor — Hybrid Paper Notes &amp; In-Browser IDE
                   </h3>
 
                   <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed max-w-4xl">
-                    Stiknex Notepad is a high-performance, hybrid rich-text and code notebook designed for writers, coders, students, and thinkers. It combines the tactile warmth of real paper (dotted, ruled, grid, plain) with modern developer powers: live HTML/CSS/JS execution sandbox, automatic code beautifier (<kbd className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-xs font-mono">Alt+Shift+F</kbd>), digital ink drawing, ambient focus audio, Pomodoro sprint timer, voice read-aloud synthesis, and multi-device peer-to-peer sync.
+                    Stiknex Notepad is a revolutionary <strong>dual-engine productivity studio</strong>: it is not just a digital notepad, but also a professional <strong>in-browser Code Editor &amp; IDE</strong> powered by the Microsoft Monaco core. Seamlessly switch between tactile lined paper notes and a full-featured code editor with HTML/CSS/JS/Python/SQL support, live compilation, automatic code formatting (<kbd className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-xs font-mono">Alt+Shift+F</kbd>), digital ink drawing, ambient study audio, and instant cross-device sync.
                   </p>
 
                   {/* Why & How It Works (Kaise aur Kyu) */}
@@ -283,64 +467,91 @@ export default function About() {
                       Why &amp; How It Works (Kaise Aur Kyu)
                     </h4>
                     <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-                      <strong>The Problem With Traditional Note Apps:</strong> Modern online editors (Notion, Google Docs, Evernote) take 5–10 seconds to launch, demand mandatory logins, harvest your notes for advertising telemetry, and break completely the moment your internet drops. On the other hand, desktop apps like Windows Notepad lack formatting, tables, image embedding, or cloud pairing.
+                      <strong>The Problem With Traditional Note Apps:</strong> Typical note apps (Notion, Google Docs, Apple Notes) make you choose between rigid text documents or plain text files. They cannot execute code, crash when offline, demand mandatory accounts, and take 5–10 seconds to open. Meanwhile, developer IDEs (VS Code, WebStorm) are heavy desktop applications with gigabytes of dependencies that don&apos;t run instantly in a mobile browser.
                     </p>
                     <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-                      <strong>The Stiknex Solution:</strong> Stiknex Notepad executes 100% inside your browser's local sandbox using HTML5 ContentEditable and IndexedDB (via <code>dexie</code>). It saves changes in real-time with an intelligent 350ms debounced storage pipeline. Notes load in under <strong>500ms</strong>, function seamlessly offline as a Progressive Web App (PWA), and stay private on your hardware.
+                      <strong>The Stiknex Dual-Engine Solution:</strong> Stiknex provides a zero-lag hybrid workspace. Click <strong>&quot;Code Editor&quot;</strong> to activate the Monaco editor with syntax highlighting for HTML, JS, Python, and SQL with 1-click sandbox execution. Click <strong>&quot;Paper Notes&quot;</strong> to return to distraction-free ruled paper with rich formatting. All data persists instantly into browser IndexedDB (<code className="text-xs font-mono">&lt; 1ms</code>) and syncs across phone and laptop via our intelligent write-behind cache.
                     </p>
                   </div>
                 </div>
               </div>
 
-              {/* What Can Be Done (Kya Kya Ho Sakta Hai) - 8 Feature Cards */}
+              {/* What Can Be Done (Kya Kya Ho Sakta Hai) - 12 Feature Cards */}
               <div className="space-y-4">
                 <h4 className="text-xl font-bold text-[#0F3944] dark:text-white flex items-center gap-2">
                   <CheckCircle2 size={20} className="text-[#134E5E] dark:text-teal-400" />
-                  <span>What Can You Do With Stiknex Notepad? (Capabilities &amp; Workflows)</span>
+                  <span>Complete Stiknex Notepad &amp; Code Editor Capabilities &amp; Workflows</span>
                 </h4>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   
+                  {/* Card 1: Stiknex Code Editor / Monaco IDE */}
+                  <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm space-y-2">
+                    <div className="w-9 h-9 rounded-xl bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 flex items-center justify-center">
+                      <Code2 size={18} />
+                    </div>
+                    <h5 className="text-sm font-bold text-[#0F3944] dark:text-white">Stiknex Code Editor (Monaco IDE)</h5>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                      Built on the same engine powering VS Code. Full multi-language syntax highlighting for HTML5, CSS3, JavaScript, TypeScript, Python, SQL, Markdown, and JSON with line numbers and error diagnostics.
+                    </p>
+                  </div>
+
+                  {/* Card 2: Live Code Execution */}
                   <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm space-y-2">
                     <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center">
                       <FileCode size={18} />
                     </div>
-                    <h5 className="text-sm font-bold text-[#0F3944] dark:text-white">Live Code Execution</h5>
+                    <h5 className="text-sm font-bold text-[#0F3944] dark:text-white">Live Sandbox Code Execution</h5>
                     <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                      Write or paste HTML, CSS, and JS code. Press <kbd className="px-1 py-0.5 rounded bg-slate-100 dark:bg-slate-800 font-mono text-[10px]">Ctrl+Enter</kbd> to compile and preview your page in a live isolated tab with interactive console.
+                      Write or paste HTML, CSS, and JS code. Press <kbd className="px-1 py-0.5 rounded bg-slate-100 dark:bg-slate-800 font-mono text-[10px]">Ctrl+Enter</kbd> to compile and execute your page in a live isolated tab with interactive developer console.
                     </p>
                   </div>
 
+                  {/* Card 3: Code Beautifier */}
                   <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm space-y-2">
                     <div className="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
                       <Wand2 size={18} />
                     </div>
-                    <h5 className="text-sm font-bold text-[#0F3944] dark:text-white">Alt+Shift+F Code Beautifier</h5>
+                    <h5 className="text-sm font-bold text-[#0F3944] dark:text-white">Alt+Shift+F Smart Beautifier</h5>
                     <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                       Instant clean 2-space indentation for messy HTML, nested <code className="text-[11px]">&lt;style&gt;</code> CSS rules, and JavaScript functions with a single keystroke.
                     </p>
                   </div>
 
+                  {/* Card 4: Tactile Paper Mode */}
+                  <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm space-y-2">
+                    <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                      <BookOpen size={18} />
+                    </div>
+                    <h5 className="text-sm font-bold text-[#0F3944] dark:text-white">Tactile Paper Textures</h5>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                      Switch between Ruled/Lined notebook paper, Dotted bullet journal paper, Engineering Grid/Graph paper, or Clean Plain Blank paper with smooth responsive line-height alignment.
+                    </p>
+                  </div>
+
+                  {/* Card 5: Digital Ink Drawing Layer */}
                   <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm space-y-2">
                     <div className="w-9 h-9 rounded-xl bg-teal-50 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 flex items-center justify-center">
                       <PenTool size={18} />
                     </div>
                     <h5 className="text-sm font-bold text-[#0F3944] dark:text-white">Digital Ink Drawing Layer</h5>
                     <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                      Switch to Pen Mode to draw freehand sketches, sign documents, annotate notes, or draw diagrams with custom colors and brush thickness.
+                      Switch to Pen Mode to draw freehand sketches, sign documents, annotate notes, or draw diagrams with custom colors and brush thickness directly over your writing.
                     </p>
                   </div>
 
+                  {/* Card 6: Ambient Focus Audio */}
                   <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm space-y-2">
                     <div className="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center">
                       <Music size={18} />
                     </div>
                     <h5 className="text-sm font-bold text-[#0F3944] dark:text-white">Ambient Focus Audio</h5>
                     <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                      Built-in ambient sound player featuring Rain, Lo-Fi, White Noise, and Relaxing Waves to eliminate outside distractions while studying or writing.
+                      Built-in ambient sound player featuring Rain, Lo-Fi beats, White Noise, and Relaxing Waves to eliminate outside distractions while studying or writing.
                     </p>
                   </div>
 
+                  {/* Card 7: Pomodoro Sprint Timer */}
                   <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm space-y-2">
                     <div className="w-9 h-9 rounded-xl bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center">
                       <Clock size={18} />
@@ -351,6 +562,7 @@ export default function About() {
                     </p>
                   </div>
 
+                  {/* Card 8: Read Aloud TTS */}
                   <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm space-y-2">
                     <div className="w-9 h-9 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center">
                       <Volume2 size={18} />
@@ -361,8 +573,9 @@ export default function About() {
                     </p>
                   </div>
 
+                  {/* Card 9: Phone ⇄ Laptop QR Sync */}
                   <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm space-y-2">
-                    <div className="w-9 h-9 rounded-xl bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 flex items-center justify-center">
+                    <div className="w-9 h-9 rounded-xl bg-teal-50 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 flex items-center justify-center">
                       <QrCode size={18} />
                     </div>
                     <h5 className="text-sm font-bold text-[#0F3944] dark:text-white">QR Code Mobile Pairing</h5>
@@ -371,6 +584,7 @@ export default function About() {
                     </p>
                   </div>
 
+                  {/* Card 10: Point-in-Time Snapshots */}
                   <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm space-y-2">
                     <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
                       <History size={18} />
@@ -378,6 +592,28 @@ export default function About() {
                     <h5 className="text-sm font-bold text-[#0F3944] dark:text-white">Point-In-Time Snapshots</h5>
                     <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                       Take manual version snapshots (<kbd className="px-1 py-0.5 rounded bg-slate-100 dark:bg-slate-800 font-mono text-[10px]">Ctrl+Shift+H</kbd>) to preserve major draft milestones and restore previous states with zero risk.
+                    </p>
+                  </div>
+
+                  {/* Card 11: Multi-Format Document Export */}
+                  <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm space-y-2">
+                    <div className="w-9 h-9 rounded-xl bg-violet-50 dark:bg-violet-950/60 text-violet-600 dark:text-violet-400 flex items-center justify-center">
+                      <Download size={18} />
+                    </div>
+                    <h5 className="text-sm font-bold text-[#0F3944] dark:text-white">Multi-Format Instant Export</h5>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                      Export your notes with 100% fidelity to PDF, Markdown (.md), clean HTML (.html), or raw plain text (.txt). Print directly to physical paper with clean margin formatting.
+                    </p>
+                  </div>
+
+                  {/* Card 12: Interactive Checklists & Tables */}
+                  <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm space-y-2">
+                    <div className="w-9 h-9 rounded-xl bg-orange-50 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 flex items-center justify-center">
+                      <CheckSquare size={18} />
+                    </div>
+                    <h5 className="text-sm font-bold text-[#0F3944] dark:text-white">Checklists &amp; Nested Tables</h5>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                      Create interactive to-do lists with checkbox progress tracking, and insert responsive nested tables with dynamic row and column management for structured data.
                     </p>
                   </div>
 
@@ -542,11 +778,11 @@ export default function About() {
                 </div>
               </div>
 
-              {/* What Can Be Done (Kya Kya Ho Sakta Hai) - 6 Feature Cards */}
+              {/* What Can Be Done (Kya Kya Ho Sakta Hai) - 9 Feature Cards */}
               <div className="space-y-4">
                 <h4 className="text-xl font-bold text-[#0F3944] dark:text-white flex items-center gap-2">
                   <CheckCircle2 size={20} className="text-amber-600" />
-                  <span>What Can You Do With Stiknex Sticky Notes? (Capabilities &amp; Workflows)</span>
+                  <span>Complete Stiknex Sticky Notes Capabilities &amp; Workflows</span>
                 </h4>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -608,6 +844,36 @@ export default function About() {
                     <h5 className="text-sm font-bold text-[#0F3944] dark:text-white">Offline JSON Backup &amp; Restore</h5>
                     <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                       Download your entire board with all notes, coordinates, and arrows as a portable JSON file. Restore boards on any computer with 100% fidelity.
+                    </p>
+                  </div>
+
+                  <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm space-y-2">
+                    <div className="w-9 h-9 rounded-xl bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 flex items-center justify-center">
+                      <Search size={18} />
+                    </div>
+                    <h5 className="text-sm font-bold text-[#0F3944] dark:text-white">Camera Auto-Centering Search</h5>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                      Never lose a note on an infinite canvas. Type keywords in the search bar and the camera viewport will smoothly pan and zoom directly to the matching card.
+                    </p>
+                  </div>
+
+                  <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm space-y-2">
+                    <div className="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                      <Lock size={18} />
+                    </div>
+                    <h5 className="text-sm font-bold text-[#0F3944] dark:text-white">Pin Layer &amp; Coordinate Locking</h5>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                      Pin top-priority notes to stay on the highest z-index layer above overlapping cards, or lock positions to prevent accidental dragging during presentations.
+                    </p>
+                  </div>
+
+                  <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-[#EADFD5] dark:border-slate-800 shadow-sm space-y-2">
+                    <div className="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+                      <Image size={18} />
+                    </div>
+                    <h5 className="text-sm font-bold text-[#0F3944] dark:text-white">Image &amp; Screenshot Embedding</h5>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                      Paste or upload reference images, photos, and UI mockups directly into sticky notes. Perfect for design moodboards, bug captures, and visual ideation.
                     </p>
                   </div>
 
@@ -967,77 +1233,139 @@ export default function About() {
             </div>
 
             {/* ========================================================
-                COMPARISON MATRIX TABLE
+                COMPARISON MATRIX TABLE & WHY USE STIKNEX
                 ======================================================== */}
-            <div className="p-8 sm:p-12 rounded-[36px] bg-gradient-to-br from-[#0F3944] to-[#134E5E] text-white space-y-6 shadow-xl">
+            <div id="why-use-stiknex" className="scroll-mt-28 p-8 sm:p-12 rounded-[36px] bg-gradient-to-br from-[#0F3944] to-[#134E5E] text-white space-y-10 shadow-xl">
               <div className="space-y-2">
                 <span className="text-xs font-black uppercase tracking-widest text-[#FFA07A]">
-                  Architecture Comparison
+                  Architecture Comparison &amp; Value Proposition
                 </span>
-                <h3 className="text-2xl sm:text-3xl font-black">
-                  Why Stiknex Over Traditional Productivity Apps?
+                <h3 className="text-2xl sm:text-4xl font-black">
+                  Why People Should Use Stiknex (Logo Ko Kyu Use Krna Chahiye)
                 </h3>
-                <p className="text-xs sm:text-sm text-teal-100 max-w-2xl">
-                  A side-by-side comparison between Stiknex's local-first architecture and conventional cloud-locked platforms.
+                <p className="text-xs sm:text-sm text-teal-100 max-w-3xl leading-relaxed">
+                  Traditional productivity suites have trapped users in heavy subscription paywalls, slow loading times, mandatory account walls, and invasive privacy policies. Stiknex was engineered from the ground up to solve these fundamental frustrations with a sovereign, local-first ecosystem.
                 </p>
               </div>
 
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs sm:text-sm border-collapse">
-                  <thead>
-                    <tr className="border-b border-teal-700 text-teal-200 uppercase text-[11px] font-black">
-                      <th className="py-3 px-3">Dimension</th>
-                      <th className="py-3 px-3 font-bold text-[#FFA07A]">Stiknex</th>
-                      <th className="py-3 px-3">Notion / Evernote</th>
-                      <th className="py-3 px-3">Miro / Mural</th>
-                      <th className="py-3 px-3">Google Docs</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-teal-800/60 text-teal-100">
-                    <tr>
-                      <td className="py-3 px-3 font-bold text-white">Pricing &amp; Paywalls</td>
-                      <td className="py-3 px-3 font-bold text-emerald-300">100% Free Forever ($0)</td>
-                      <td className="py-3 px-3 text-slate-300">$10–$18 / month</td>
-                      <td className="py-3 px-3 text-slate-300">3-board free cap</td>
-                      <td className="py-3 px-3 text-slate-300">Storage tied to Gmail</td>
-                    </tr>
-                    <tr>
-                      <td className="py-3 px-3 font-bold text-white">Account &amp; Logins</td>
-                      <td className="py-3 px-3 font-bold text-emerald-300">Zero Logins Required</td>
-                      <td className="py-3 px-3 text-slate-300">Mandatory Login</td>
-                      <td className="py-3 px-3 text-slate-300">Mandatory Login</td>
-                      <td className="py-3 px-3 text-slate-300">Google Account Req.</td>
-                    </tr>
-                    <tr>
-                      <td className="py-3 px-3 font-bold text-white">Offline Capability</td>
-                      <td className="py-3 px-3 font-bold text-emerald-300">100% Offline PWA</td>
-                      <td className="py-3 px-3 text-rose-300">Broken / Limited Offline</td>
-                      <td className="py-3 px-3 text-rose-300">Online Only</td>
-                      <td className="py-3 px-3 text-slate-300">Needs Chrome Extension</td>
-                    </tr>
-                    <tr>
-                      <td className="py-3 px-3 font-bold text-white">Privacy &amp; Data</td>
-                      <td className="py-3 px-3 font-bold text-emerald-300">IndexedDB On-Device</td>
-                      <td className="py-3 px-3 text-slate-300">Scanned on Cloud</td>
-                      <td className="py-3 px-3 text-slate-300">Hosted on Cloud</td>
-                      <td className="py-3 px-3 text-slate-300">Google Cloud Servers</td>
-                    </tr>
-                    <tr>
-                      <td className="py-3 px-3 font-bold text-white">Live Code Execution</td>
-                      <td className="py-3 px-3 font-bold text-emerald-300">Built-in (HTML/CSS/JS)</td>
-                      <td className="py-3 px-3 text-rose-300">Syntax Highlight Only</td>
-                      <td className="py-3 px-3 text-rose-300">No Execution</td>
-                      <td className="py-3 px-3 text-rose-300">No Execution</td>
-                    </tr>
-                    <tr>
-                      <td className="py-3 px-3 font-bold text-white">Watermarks on Export</td>
-                      <td className="py-3 px-3 font-bold text-emerald-300">Zero Watermarks</td>
-                      <td className="py-3 px-3 text-slate-300">Export Restrictions</td>
-                      <td className="py-3 px-3 text-rose-300">Watermarked in Free</td>
-                      <td className="py-3 px-3 text-slate-300">Clean PDF</td>
-                    </tr>
-                  </tbody>
-                </table>
+              {/* Persona Cards Grid: Who is Stiknex for */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-[#1E293B]">
+                
+                {/* Persona 1: Developers */}
+                <div className="p-5 rounded-2xl bg-white/95 dark:bg-slate-900/95 shadow-md space-y-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                    <Code2 size={18} />
+                  </div>
+                  <h4 className="text-sm font-bold text-[#0F3944] dark:text-white">For Developers &amp; Coders</h4>
+                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                    A zero-latency Monaco code scratchpad in your browser. Test HTML/CSS/JS in live sandboxes, format with <kbd className="px-1 py-0.5 rounded bg-slate-100 dark:bg-slate-800 font-mono text-[10px]">Alt+Shift+F</kbd>, write SQL/Python notes, and map system architectures on the Whiteboard without booting heavy desktop IDEs.
+                  </p>
+                </div>
+
+                {/* Persona 2: Students */}
+                <div className="p-5 rounded-2xl bg-white/95 dark:bg-slate-900/95 shadow-md space-y-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+                    <BookOpen size={18} />
+                  </div>
+                  <h4 className="text-sm font-bold text-[#0F3944] dark:text-white">For Students &amp; Learners</h4>
+                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                    Integrated Pomodoro sprint timer and ambient focus sounds (Rain, Lo-Fi, Ocean) keep you in flow. Proofread exam essays with natural Text-to-Speech audio, and take notes in lecture halls on mobile that sync to your laptop.
+                  </p>
+                </div>
+
+                {/* Persona 3: Writers */}
+                <div className="p-5 rounded-2xl bg-white/95 dark:bg-slate-900/95 shadow-md space-y-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center">
+                    <PenTool size={18} />
+                  </div>
+                  <h4 className="text-sm font-bold text-[#0F3944] dark:text-white">For Writers &amp; Creators</h4>
+                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                    Tactile lined and dotted paper with 8 curated typography styles. Zen mode eliminates all visual noise, digital ink enables handwritten signatures, and snapshot history ensures you never lose a draft milestone.
+                  </p>
+                </div>
+
+                {/* Persona 4: Founders */}
+                <div className="p-5 rounded-2xl bg-white/95 dark:bg-slate-900/95 shadow-md space-y-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center">
+                    <Sparkles size={18} />
+                  </div>
+                  <h4 className="text-sm font-bold text-[#0F3944] dark:text-white">For Planners &amp; Founders</h4>
+                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                    Brainstorm pitch decks and product roadmaps on the 2D infinite sticky canvas. Connect thoughts with dynamic vector arrows, toggle to Timeline or Mind Map views, and sketch flows on Whiteboard with 100% data privacy.
+                  </p>
+                </div>
+
+              </div>
+
+              {/* Side-by-side Table Comparison */}
+              <div className="space-y-3">
+                <h4 className="text-sm font-bold uppercase tracking-wider text-teal-200">
+                  Head-to-Head Architecture Comparison
+                </h4>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs sm:text-sm border-collapse">
+                    <thead>
+                      <tr className="border-b border-teal-700 text-teal-200 uppercase text-[11px] font-black">
+                        <th className="py-3 px-3">Dimension</th>
+                        <th className="py-3 px-3 font-bold text-[#FFA07A]">Stiknex</th>
+                        <th className="py-3 px-3">Notion / Evernote</th>
+                        <th className="py-3 px-3">Miro / Mural</th>
+                        <th className="py-3 px-3">Google Docs</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-teal-800/60 text-teal-100">
+                      <tr>
+                        <td className="py-3 px-3 font-bold text-white">Pricing &amp; Paywalls</td>
+                        <td className="py-3 px-3 font-bold text-emerald-300">100% Free Forever ($0)</td>
+                        <td className="py-3 px-3 text-slate-300">$10–$18 / month</td>
+                        <td className="py-3 px-3 text-slate-300">3-board free cap</td>
+                        <td className="py-3 px-3 text-slate-300">Storage tied to Gmail</td>
+                      </tr>
+                      <tr>
+                        <td className="py-3 px-3 font-bold text-white">Account &amp; Logins</td>
+                        <td className="py-3 px-3 font-bold text-emerald-300">Zero Logins Required</td>
+                        <td className="py-3 px-3 text-slate-300">Mandatory Login</td>
+                        <td className="py-3 px-3 text-slate-300">Mandatory Login</td>
+                        <td className="py-3 px-3 text-slate-300">Google Account Req.</td>
+                      </tr>
+                      <tr>
+                        <td className="py-3 px-3 font-bold text-white">Cross-Device Sync</td>
+                        <td className="py-3 px-3 font-bold text-emerald-300">2-Sec QR Pairing + Write-Behind</td>
+                        <td className="py-3 px-3 text-slate-300">Cloud Login Dependent</td>
+                        <td className="py-3 px-3 text-slate-300">Cloud Login Dependent</td>
+                        <td className="py-3 px-3 text-slate-300">Google Auth Dependent</td>
+                      </tr>
+                      <tr>
+                        <td className="py-3 px-3 font-bold text-white">Offline Capability</td>
+                        <td className="py-3 px-3 font-bold text-emerald-300">100% Offline PWA</td>
+                        <td className="py-3 px-3 text-rose-300">Broken / Limited Offline</td>
+                        <td className="py-3 px-3 text-rose-300">Online Only</td>
+                        <td className="py-3 px-3 text-slate-300">Needs Chrome Extension</td>
+                      </tr>
+                      <tr>
+                        <td className="py-3 px-3 font-bold text-white">Privacy &amp; Data</td>
+                        <td className="py-3 px-3 font-bold text-emerald-300">IndexedDB On-Device</td>
+                        <td className="py-3 px-3 text-slate-300">Scanned on Cloud</td>
+                        <td className="py-3 px-3 text-slate-300">Hosted on Cloud</td>
+                        <td className="py-3 px-3 text-slate-300">Google Cloud Servers</td>
+                      </tr>
+                      <tr>
+                        <td className="py-3 px-3 font-bold text-white">Code Execution &amp; IDE</td>
+                        <td className="py-3 px-3 font-bold text-emerald-300">Built-in (Monaco IDE + HTML/JS Sandbox)</td>
+                        <td className="py-3 px-3 text-rose-300">Syntax Highlight Only</td>
+                        <td className="py-3 px-3 text-rose-300">No Execution</td>
+                        <td className="py-3 px-3 text-rose-300">No Execution</td>
+                      </tr>
+                      <tr>
+                        <td className="py-3 px-3 font-bold text-white">Watermarks on Export</td>
+                        <td className="py-3 px-3 font-bold text-emerald-300">Zero Watermarks (PDF, SVG, PNG)</td>
+                        <td className="py-3 px-3 text-slate-300">Export Restrictions</td>
+                        <td className="py-3 px-3 text-rose-300">Watermarked in Free</td>
+                        <td className="py-3 px-3 text-slate-300">Clean PDF</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
 

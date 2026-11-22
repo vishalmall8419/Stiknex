@@ -80,6 +80,35 @@ export default async function handler(req, res) {
         }
     }
 
+    // Direct static crawler & SEO assets protection (robots.txt, sitemap.xml)
+    if (cleanPath === '/robots.txt') {
+        res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+        res.setHeader('Cache-Control', 'public, max-age=86400');
+        try {
+            const robotsPath = path.join(process.cwd(), 'public', 'robots.txt');
+            if (fs.existsSync(robotsPath)) {
+                const content = await fs.promises.readFile(robotsPath, 'utf-8');
+                return res.status(200).send(content);
+            }
+        } catch (_) {}
+        return res.status(200).send("User-agent: *\nAllow: /\nSitemap: https://stiknex.site/sitemap.xml\n");
+    }
+    if (cleanPath === '/sitemap.xml') {
+        res.setHeader('Content-Type', 'application/xml; charset=utf-8');
+        res.setHeader('Cache-Control', 'public, max-age=86400');
+        try {
+            const sitemapPath = path.join(process.cwd(), 'public', 'sitemap.xml');
+            if (fs.existsSync(sitemapPath)) {
+                const content = await fs.promises.readFile(sitemapPath, 'utf-8');
+                return res.status(200).send(content);
+            }
+        } catch (_) {}
+        try {
+            const sitemapHandler = (await import('./sitemap.xml.js')).default;
+            return sitemapHandler(req, res);
+        } catch (_) {}
+    }
+
 
     try {
         // Load index.html: try local dist first, then fetch fallback
