@@ -143,9 +143,9 @@ const MonacoCodeEditor = ({
       {/* Top action header for Monaco Editor */}
       <div className={`${Style.monacoHeader} ${darkMode ? Style.darkHeader : ""}`}>
         <div className={Style.headerLeft}>
-          <div className={Style.badge}>
+          <div className={Style.badge} title="Stiknex Editor">
             <i className="fa-solid fa-code"></i>
-            <span>Stiknex Editor</span>
+            <span className={Style.badgeText}>Stiknex Editor</span>
           </div>
 
           {/* Language selector */}
@@ -170,9 +170,10 @@ const MonacoCodeEditor = ({
             onClick={handleFormat}
             className={`${Style.actionBtn} ${darkMode ? Style.darkActionBtn : ""}`}
             title="Format Code (Alt+Shift+F)"
+            aria-label="Format Code"
           >
             <i className="fa-solid fa-wand-magic-sparkles" style={{ color: "#38bdf8" }}></i>
-            <span>Format</span>
+            <span className={Style.btnText}>Format</span>
           </button>
 
           {/* Fullscreen Toggle */}
@@ -183,9 +184,10 @@ const MonacoCodeEditor = ({
               isFullscreen ? Style.fullscreenBtnActive : Style.fullscreenBtn
             } ${darkMode ? Style.darkActionBtn : ""}`}
             title={isFullscreen ? "Exit Fullscreen (Esc)" : "Expand to Fullscreen"}
+            aria-label={isFullscreen ? "Exit Fullscreen" : "Full Page"}
           >
             <i className={isFullscreen ? "fa-solid fa-compress" : "fa-solid fa-expand"}></i>
-            <span>{isFullscreen ? "Exit Fullscreen" : "Full Page"}</span>
+            <span className={Style.btnText}>{isFullscreen ? "Exit Fullscreen" : "Full Page"}</span>
           </button>
 
           {/* Run Code in New Tab */}
@@ -194,10 +196,11 @@ const MonacoCodeEditor = ({
               type="button"
               onClick={onRunCode}
               className={`${Style.actionBtn} ${Style.runBtn}`}
-              title="Run HTML/CSS/JS in New Tab (Ctrl+Enter)"
+              title="Run HTML/CSS/JS in Live Preview Tab (Ctrl+Enter)"
+              aria-label="Run Code"
             >
               <i className="fa-solid fa-play"></i>
-              <span>Run Code</span>
+              <span className={Style.btnText}>Run</span>
             </button>
           )}
 
@@ -207,10 +210,12 @@ const MonacoCodeEditor = ({
               type="button"
               onClick={onSwitchToRichText}
               className={`${Style.actionBtn} ${Style.switchBtn} ${darkMode ? Style.darkActionBtn : ""}`}
-              title="Switch back to Rich Text Paper Mode"
+              title="Scroll up to Paper Notes (Code remains safely preserved)"
+              aria-label="Paper Notes"
             >
               <i className="fa-solid fa-file-lines" style={{ color: "#f59e0b" }}></i>
-              <span>Paper Notes</span>
+              <span className={Style.btnText}>Paper Notes</span>
+              <i className={`fa-solid fa-arrow-up ${Style.upArrow}`} style={{ fontSize: "10px", opacity: 0.8 }}></i>
             </button>
           )}
         </div>

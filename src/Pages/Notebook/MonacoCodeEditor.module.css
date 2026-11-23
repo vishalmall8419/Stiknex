@@ -175,3 +175,67 @@
   font-size: 14px;
   gap: 12px;
 }
+
+/* ==========================================================================
+   Mobile Responsive Rules (<= 640px)
+   Replaces text labels with sleek, touch-friendly icon buttons so that all
+   controls fit neatly on a single horizontal row on smartphone screens.
+   ========================================================================== */
+@media (max-width: 640px) {
+  .monacoHeader {
+    padding: 6px 10px;
+    gap: 6px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .monacoHeader::-webkit-scrollbar {
+    display: none;
+  }
+
+  .headerLeft {
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .badge {
+    padding: 6px 8px;
+    font-size: 12px;
+    min-width: 32px;
+    justify-content: center;
+  }
+
+  .badgeText {
+    display: none;
+  }
+
+  .languageSelect {
+    font-size: 11px;
+    padding: 4px 6px;
+    max-width: 78px;
+    height: 30px;
+  }
+
+  .headerRight {
+    gap: 5px;
+    flex-shrink: 0;
+  }
+
+  .actionBtn {
+    padding: 6px 9px;
+    font-size: 12px;
+    min-width: 32px;
+    height: 30px;
+    justify-content: center;
+  }
+
+  .btnText {
+    display: none;
+  }
+
+  .upArrow {
+    display: none;
+  }
+}

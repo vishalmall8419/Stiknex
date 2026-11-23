@@ -166,6 +166,34 @@ export function compileHtmlDocument(sourceCode, title = "Code Preview") {
         window.addEventListener('unhandledrejection', function(event) {
           appendLog('error', ['Unhandled Promise Rejection: ' + (event.reason ? (event.reason.stack || event.reason) : event)]);
         });
+
+        // Stiknex Live Code Preview synchronization listener
+        function reloadLiveContent(newHtml) {
+          try {
+            document.open();
+            document.write(newHtml);
+            document.close();
+          } catch(err) {
+            console.error('[Stiknex Live Sync Error]:', err);
+          }
+        }
+
+        try {
+          if (typeof BroadcastChannel !== 'undefined') {
+            var liveBc = new BroadcastChannel('stiknex_live_code_preview_channel');
+            liveBc.onmessage = function(event) {
+              if (event.data && event.data.type === 'LIVE_CODE_UPDATE' && event.data.html) {
+                reloadLiveContent(event.data.html);
+              }
+            };
+          }
+
+          window.addEventListener('message', function(event) {
+            if (event.data && event.data.type === 'LIVE_CODE_UPDATE' && event.data.html) {
+              reloadLiveContent(event.data.html);
+            }
+          });
+        } catch(e) {}
       })();
     </script>
   `;
@@ -284,12 +312,61 @@ export function compileHtmlDocument(sourceCode, title = "Code Preview") {
 </html>`;
 }
 
+// Active live preview window & broadcast channel tracking
+let activePreviewWindow = null;
+let previewBroadcastChannel = null;
+
 /**
- * Compiles and launches the code in a new browser tab
+ * Broadcasts code updates in real time to any currently open live preview tab
+ */
+export function broadcastLiveCodeUpdate(sourceCode, title = "Notebook Code") {
+  if (!sourceCode || typeof window === "undefined") return;
+  const compiledHtml = compileHtmlDocument(sourceCode, title);
+
+  // 1. BroadcastChannel: updates across all open preview tabs of the same origin in 0ms
+  try {
+    if (typeof BroadcastChannel !== "undefined") {
+      if (!previewBroadcastChannel) {
+        previewBroadcastChannel = new BroadcastChannel("stiknex_live_code_preview_channel");
+      }
+      previewBroadcastChannel.postMessage({
+        type: "LIVE_CODE_UPDATE",
+        html: compiledHtml,
+        timestamp: Date.now(),
+      });
+    }
+  } catch (err) {}
+
+  // 2. Window postMessage fallback
+  try {
+    if (activePreviewWindow && !activePreviewWindow.closed) {
+      activePreviewWindow.postMessage(
+        {
+          type: "LIVE_CODE_UPDATE",
+          html: compiledHtml,
+          timestamp: Date.now(),
+        },
+        "*"
+      );
+    }
+  } catch (err) {}
+}
+
+/**
+ * Compiles and launches the code in a new browser tab or refreshes the existing live preview
  */
 export function runCodeInNewTab(sourceCode, title = "Notebook Code") {
   if (!sourceCode || !sourceCode.trim()) {
     return false;
+  }
+
+  // If a preview window is already open, focus it and broadcast the updated code immediately
+  if (activePreviewWindow && !activePreviewWindow.closed) {
+    try {
+      activePreviewWindow.focus();
+      broadcastLiveCodeUpdate(sourceCode, title);
+      return true;
+    } catch (e) {}
   }
 
   const compiledHtml = compileHtmlDocument(sourceCode, title);
@@ -297,6 +374,7 @@ export function runCodeInNewTab(sourceCode, title = "Notebook Code") {
   const previewUrl = URL.createObjectURL(blob);
 
   const newWindow = window.open(previewUrl, "_blank");
+  activePreviewWindow = newWindow;
 
   if (!newWindow || newWindow.closed || typeof newWindow.closed === "undefined") {
     // Fallback if popup is blocked
@@ -309,11 +387,11 @@ export function runCodeInNewTab(sourceCode, title = "Notebook Code") {
     setTimeout(() => {
       anchor.remove();
       URL.revokeObjectURL(previewUrl);
-    }, 10000);
+    }, 15000);
   } else {
     setTimeout(() => {
       URL.revokeObjectURL(previewUrl);
-    }, 10000);
+    }, 15000);
   }
 
   return true;

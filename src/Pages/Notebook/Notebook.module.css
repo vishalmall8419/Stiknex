@@ -54,6 +54,64 @@
   flex-direction: column !important;
 }
 
+/* Monaco Editor Slide-Up Container */
+.monacoOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 40;
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.monacoVisible {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.monacoScrolledUp {
+  transform: translateY(-100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.restoreCodePill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px auto 14px;
+  padding: 6px 16px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba(99, 102, 241, 0.1);
+  color: #4f46e5;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.08);
+  user-select: none;
+}
+
+.darkPaperArea .restoreCodePill {
+  background: rgba(99, 102, 241, 0.2);
+  color: #818cf8;
+  border-color: rgba(99, 102, 241, 0.4);
+}
+
+.restoreCodePill:hover {
+  background: #4f46e5;
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3);
+}
+
 .paperColumn {
   display: flex;
   flex-direction: column;

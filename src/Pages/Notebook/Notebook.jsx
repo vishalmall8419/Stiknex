@@ -15,7 +15,7 @@ import NotebookDrawingCanvas from "./NotebookDrawingCanvas";
 import PenControlsBar from "./PenControlsBar";
 import PageSEO from "../../Component/SEO/PageSEO";
 import Style from "./Notebook.module.css";
-import { isExecutableCode, runCodeInNewTab } from "./notebookCodeRunner";
+import { isExecutableCode, runCodeInNewTab, broadcastLiveCodeUpdate } from "./notebookCodeRunner";
 import { useAppContext } from "../../context/AppContext";
 import { emitRealtimeNotebookChange } from "../../services/socketService";
 import { initNotebookYjs } from "../../services/notebookYjsSync";
@@ -296,6 +296,83 @@ const Notebook = () => {
   const isInitialLoadRef = useRef(true);
   const statsPillRef = useRef(null);
   const statsContentRef = useRef(null);
+  const livePreviewDebounceRef = useRef(null);
+
+  const scheduleCloudSync = useCallback((immediate = false) => {
+    if (!getSyncIdentity()) return;
+    setSyncStatus("syncing");
+    clearTimeout(cloudSyncTimeoutRef.current);
+    // Write-behind cache: debounce cloud push by 7 seconds of user typing silence
+    // Instant local save (< 1ms) already happened in IndexedDB & LocalStorage
+    const delay = immediate ? 50 : 7000;
+    cloudSyncTimeoutRef.current = setTimeout(async () => {
+      try {
+        const result = await pushToCloud();
+        if (result?.success) {
+          setSyncStatus("synced");
+        } else if (result?.reason === "Offline") {
+          setSyncStatus("offline");
+        } else {
+          console.error("Notebook cloud sync failed:", result?.error || result?.reason);
+          setSyncStatus("idle");
+        }
+      } catch (error) {
+        console.error("Notebook cloud sync failed:", error);
+        setSyncStatus("idle");
+      }
+    }, delay);
+  }, []);
+
+  // Keep large editor content in IndexedDB and only notebook metadata in localStorage.
+  // Initialized early right after refs to guarantee zero TDZ (Temporal Dead Zone) ReferenceErrors
+  const persistContent = useCallback(
+    async (htmlToSave) => {
+      try {
+        const updated = notebooks.map((notebook) =>
+          notebook.id === activeNotebookId
+            ? { ...notebook, content: htmlToSave, updatedAt: Date.now() }
+            : notebook,
+        );
+        setNotebooks(updated);
+        localStorage.removeItem(TEXT_KEY);
+
+        // 1. Save only lightweight metadata to localStorage (safely caught so QuotaExceeded never fails save)
+        try {
+          localStorage.removeItem(TEXT_KEY);
+          localStorage.setItem(NOTEBOOKS_KEY, JSON.stringify(notebookMetadata(updated)));
+        } catch (lsErr) {
+          console.warn("localStorage quota reached, note safely stored in IndexedDB:", lsErr);
+        }
+
+        // Instant save feedback to user (< 5ms)
+        setSaveState("saved");
+
+        // 2. High-capacity content persistence to IndexedDB and fast localStorage cache
+        try {
+          localStorage.setItem(`nb_content_${activeNotebookId}`, htmlToSave);
+        } catch {}
+
+        saveExtendedNote(activeNotebookId, htmlToSave).catch((idbErr) => {
+          console.warn("IndexedDB background save error:", idbErr);
+        });
+
+        // Broadcast real-time change to all user's connected devices via Socket.io
+        try {
+          emitRealtimeNotebookChange({
+            notebook: { id: activeNotebookId, title, content: htmlToSave, updatedAt: Date.now() },
+            notebooks: updated,
+            comments,
+          });
+        } catch {}
+
+        scheduleCloudSync();
+      } catch (err) {
+        console.warn("Notebook save caught non-fatal warning:", err);
+        setSaveState("saved");
+      }
+    },
+    [activeNotebookId, notebooks, scheduleCloudSync, title, comments],
+  );
 
   // Pure content detection to strictly prevent scrolling when notepad is empty
   const isNotepadEmpty = useMemo(() => {
@@ -345,31 +422,6 @@ const Notebook = () => {
     }
     runCodeInNewTab(sourceCode, title || "Notebook Code");
   }, [title, text]);
-
-  const scheduleCloudSync = useCallback((immediate = false) => {
-    if (!getSyncIdentity()) return;
-    setSyncStatus("syncing");
-    clearTimeout(cloudSyncTimeoutRef.current);
-    // Write-behind cache: debounce cloud push by 7 seconds of user typing silence
-    // Instant local save (< 1ms) already happened in IndexedDB & LocalStorage
-    const delay = immediate ? 50 : 7000;
-    cloudSyncTimeoutRef.current = setTimeout(async () => {
-      try {
-        const result = await pushToCloud();
-        if (result?.success) {
-          setSyncStatus("synced");
-        } else if (result?.reason === "Offline") {
-          setSyncStatus("offline");
-        } else {
-          console.error("Notebook cloud sync failed:", result?.error || result?.reason);
-          setSyncStatus("idle");
-        }
-      } catch (error) {
-        console.error("Notebook cloud sync failed:", error);
-        setSyncStatus("idle");
-      }
-    }, delay);
-  }, []);
 
   const handleStatsMouseEnter = useCallback(() => {
     if (!statsPillRef.current || !statsContentRef.current) return;
@@ -470,56 +522,6 @@ const Notebook = () => {
     setCodeExecutable(isCode);
   }, []);
 
-  // Keep large editor content in IndexedDB and only notebook metadata in localStorage.
-  const persistContent = useCallback(
-    async (htmlToSave) => {
-      try {
-        const updated = notebooks.map((notebook) =>
-          notebook.id === activeNotebookId
-            ? { ...notebook, content: htmlToSave, updatedAt: Date.now() }
-            : notebook,
-        );
-        setNotebooks(updated);
-        localStorage.removeItem(TEXT_KEY);
-
-        // 1. Save only lightweight metadata to localStorage (safely caught so QuotaExceeded never fails save)
-        try {
-          localStorage.removeItem(TEXT_KEY);
-          localStorage.setItem(NOTEBOOKS_KEY, JSON.stringify(notebookMetadata(updated)));
-        } catch (lsErr) {
-          console.warn("localStorage quota reached, note safely stored in IndexedDB:", lsErr);
-        }
-
-        // Instant save feedback to user (< 5ms)
-        setSaveState("saved");
-
-        // 2. High-capacity content persistence to IndexedDB and fast localStorage cache
-        try {
-          localStorage.setItem(`nb_content_${activeNotebookId}`, htmlToSave);
-        } catch {}
-
-        saveExtendedNote(activeNotebookId, htmlToSave).catch((idbErr) => {
-          console.warn("IndexedDB background save error:", idbErr);
-        });
-
-        // Broadcast real-time change to all user's connected devices via Socket.io
-        try {
-          emitRealtimeNotebookChange({
-            notebook: { id: activeNotebookId, title, content: htmlToSave, updatedAt: Date.now() },
-            notebooks: updated,
-            comments,
-          });
-        } catch {}
-
-        scheduleCloudSync();
-      } catch (err) {
-        console.warn("Notebook save caught non-fatal warning:", err);
-        setSaveState("saved");
-      }
-    },
-    [activeNotebookId, notebooks, scheduleCloudSync],
-  );
-
   // Extract clean code snippet for Monaco Editor (0ms overhead, avoids DOM layout reflows)
   const monacoCode = useMemo(() => {
     if (!text) return "";
@@ -543,6 +545,12 @@ const Notebook = () => {
       lastUserEditTimestampRef.current = Date.now();
       setText(newCode);
 
+      // Real-time live code preview synchronization to open Run Tab
+      clearTimeout(livePreviewDebounceRef.current);
+      livePreviewDebounceRef.current = setTimeout(() => {
+        broadcastLiveCodeUpdate(newCode, title || "Notebook Code");
+      }, 250);
+
       // Debounce Yjs CRDT delta synchronization by 200ms to eliminate typing freezes
       clearTimeout(yjsSyncTimeoutRef.current);
       yjsSyncTimeoutRef.current = setTimeout(() => {
@@ -565,22 +573,18 @@ const Notebook = () => {
         setCodeExecutable(isExecutableCode(newCode));
       }, 400);
     },
-    [persistContent, settings.autoSave]
+    [persistContent, settings.autoSave, title]
   );
 
   const handleSwitchToRichText = useCallback(() => {
+    // Smoothly scroll/slide Monaco Editor UP out of view without unmounting or erasing code
     setEditorMode("richtext");
-    if (editorRef.current) {
-      editorRef.current.innerHTML = plainTextToHtml(monacoCode);
-    }
-  }, [monacoCode]);
+  }, []);
 
   const handleToggleMonacoMode = useCallback(() => {
-    setEditorMode((prev) => (isMonacoActive ? "richtext" : "monaco"));
-    if (isMonacoActive && editorRef.current) {
-      editorRef.current.innerHTML = plainTextToHtml(monacoCode);
-    }
-  }, [isMonacoActive, monacoCode]);
+    // Smoothly toggle between full-page Code Editor and Paper Notes without wiping code
+    setEditorMode((prev) => (prev === "monaco" ? "richtext" : "monaco"));
+  }, []);
 
   // Push new snapshot to history
   const pushHistorySnapshot = useCallback((html) => {
@@ -2361,48 +2365,68 @@ const Notebook = () => {
         onScroll={handleEditorScroll}
         onContextMenu={handleEditorContextMenu}
       >
-        {isMonacoActive ? (
-          <div className="w-full h-full flex flex-col flex-1 min-h-0 overflow-hidden">
-            <MonacoCodeEditor
-              value={monacoCode}
-              onChange={handleMonacoChange}
-              darkMode={darkMode}
-              onRunCode={handleRunCode}
-              onSwitchToRichText={handleSwitchToRichText}
-              fontSize={typeof settings.fontSize === "number" ? settings.fontSize : 14}
-              readOnly={readMode}
+        {/* Monaco Editor Section - smoothly scrolls / slides up without unmounting or erasing code */}
+        <div
+          className={`${Style.monacoOverlay} ${
+            isMonacoActive ? Style.monacoVisible : Style.monacoScrolledUp
+          }`}
+        >
+          <MonacoCodeEditor
+            value={monacoCode}
+            onChange={handleMonacoChange}
+            darkMode={darkMode}
+            onRunCode={handleRunCode}
+            onSwitchToRichText={handleSwitchToRichText}
+            fontSize={typeof settings.fontSize === "number" ? settings.fontSize : 14}
+            readOnly={readMode}
+          />
+        </div>
+
+        {/* Paper Column: Always kept in DOM so notes are never lost */}
+        <div className={Style.paperColumn} data-empty={isNotepadEmpty ? "true" : "false"}>
+          {/* Quick Pill to bring back Code Editor if user scrolled it up */}
+          {!isMonacoActive && (codeExecutable || monacoCode) && (
+            <div className="flex justify-center w-full">
+              <button
+                type="button"
+                onClick={handleToggleMonacoMode}
+                className={Style.restoreCodePill}
+                title="Open Stiknex Code Editor (Scroll Down)"
+              >
+                <i className="fa-solid fa-code"></i>
+                <span>Stiknex Editor (Code Preserved)</span>
+                <i className="fa-solid fa-arrow-down" style={{ fontSize: "10px" }}></i>
+              </button>
+            </div>
+          )}
+
+          <div className={Style.marginLine}></div>
+          <div className={Style.editorWrap}>
+            <div
+              ref={editorRef}
+              className={`${Style.editor} ${bookLayout ? Style.bookMode : ""}`}
+              contentEditable={!readMode}
+              suppressContentEditableWarning={true}
+              onInput={handleContentChange}
+              onClick={handleEditorClick}
+              onKeyDown={handleEditorKeyDown}
+              onPaste={handleEditorPaste}
+              onDrop={handleEditorDrop}
+              onDragOver={(e) => e.preventDefault()}
+              data-placeholder="Start writing, pasting images, or make a to-do list…"
+              data-empty={isNotepadEmpty ? "true" : "false"}
+              spellCheck={true}
+              style={{
+                ...editorVars,
+                fontFamily: editorVars["--nb-font-family"],
+                fontSize: editorVars["--nb-font-size"],
+                lineHeight: editorVars["--nb-line-height"],
+                whiteSpace: settings.wordWrap ? "pre-wrap" : "pre",
+                overflowX: settings.wordWrap ? "hidden" : "auto",
+              }}
             />
           </div>
-        ) : (
-          <div className={Style.paperColumn} data-empty={isNotepadEmpty ? "true" : "false"}>
-            <div className={Style.marginLine}></div>
-            <div className={Style.editorWrap}>
-              <div
-                ref={editorRef}
-                className={`${Style.editor} ${bookLayout ? Style.bookMode : ""}`}
-                contentEditable={!readMode}
-                suppressContentEditableWarning={true}
-                onInput={handleContentChange}
-                onClick={handleEditorClick}
-                onKeyDown={handleEditorKeyDown}
-                onPaste={handleEditorPaste}
-                onDrop={handleEditorDrop}
-                onDragOver={(e) => e.preventDefault()}
-                data-placeholder="Start writing, pasting images, or make a to-do list…"
-                data-empty={isNotepadEmpty ? "true" : "false"}
-                spellCheck={true}
-                style={{
-                  ...editorVars,
-                  fontFamily: editorVars["--nb-font-family"],
-                  fontSize: editorVars["--nb-font-size"],
-                  lineHeight: editorVars["--nb-line-height"],
-                  whiteSpace: settings.wordWrap ? "pre-wrap" : "pre",
-                  overflowX: settings.wordWrap ? "hidden" : "auto",
-                }}
-              />
-            </div>
-          </div>
-        )}
+        </div>
 
         {/* Full-Section Edge-to-Edge Digital Ink Drawing Layer */}
         <NotebookDrawingCanvas
@@ -2618,8 +2642,8 @@ const Notebook = () => {
         </div>
       )}
 
-      {/* Universal Beautiful Bottom Tab / Dock (Exclusively for Mobile / Phone View) */}
-      {!isZenMode && (
+      {/* Universal Beautiful Bottom Tab / Dock (Exclusively for Mobile / Phone View - hidden in Monaco IDE for full viewport focus) */}
+      {!isZenMode && !isMonacoActive && (
         <NotebookBottomDock
           darkMode={darkMode}
           onOpenSyncModal={() => setSyncModalOpen(true)}
