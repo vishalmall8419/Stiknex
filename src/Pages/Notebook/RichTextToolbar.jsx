@@ -1477,7 +1477,7 @@ const RichTextToolbar = ({
             style={{ color: isMonacoActive ? "#f59e0b" : "#6366f1", fontSize: "11px", display: "inline-block", flexShrink: 0 }}
           ></i>
           <span className={Style.btnLabel} style={{ fontWeight: 600, color: isMonacoActive ? "#d97706" : "#4f46e5" }}>
-            {isMonacoActive ? "Paper Notes" : "Code Editor"}
+            {isMonacoActive ? "Paper Notes" : "Stiknex Editor"}
           </span>
         </button>
       )}

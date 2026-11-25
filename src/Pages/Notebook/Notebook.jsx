@@ -31,6 +31,7 @@ import {
   pushToCloud,
   pullFromCloud,
   recordDeletedNotebookId,
+  formatLocalCollisionTitle,
 } from "./notebookSyncManager";
 import {
   processImageFile,
@@ -135,6 +136,12 @@ const resolveActiveNotebook = (requestedId = null) => {
     list.find((nb) => nb.id === requestedId) ||
     list.find((nb) => nb.id === savedActiveId) ||
     list[0];
+  if (active && !active.content) {
+    try {
+      const cached = localStorage.getItem(`nb_content_${active.id}`);
+      if (cached) active.content = cached;
+    } catch {}
+  }
   return { list, active };
 };
 
@@ -256,8 +263,8 @@ const Notebook = () => {
   const [imageUrlModalOpen, setImageUrlModalOpen] = useState(false);
   const [shortcutsModalOpen, setShortcutsModalOpen] = useState(false);
   const [codeExecutable, setCodeExecutable] = useState(false);
-  const [editorMode, setEditorMode] = useState("auto"); // "auto" | "monaco" | "richtext"
-  const isMonacoActive = editorMode === "monaco" || (editorMode === "auto" && codeExecutable);
+  const [editorMode, setEditorMode] = useState("richtext"); // "richtext" | "monaco"
+  const isMonacoActive = editorMode === "monaco";
 
   // Context menu state
   const [contextMenu, setContextMenu] = useState({
@@ -298,13 +305,29 @@ const Notebook = () => {
   const statsContentRef = useRef(null);
   const livePreviewDebounceRef = useRef(null);
 
+  // Stale-closure immune refs
+  const notebooksRef = useRef(notebooks);
+  useEffect(() => {
+    notebooksRef.current = notebooks;
+  }, [notebooks]);
+
+  const activeNotebookIdRef = useRef(activeNotebookId);
+  useEffect(() => {
+    activeNotebookIdRef.current = activeNotebookId;
+  }, [activeNotebookId]);
+
+  const titleRef = useRef(title);
+  useEffect(() => {
+    titleRef.current = title;
+  }, [title]);
+
   const scheduleCloudSync = useCallback((immediate = false) => {
     if (!getSyncIdentity()) return;
     setSyncStatus("syncing");
     clearTimeout(cloudSyncTimeoutRef.current);
-    // Write-behind cache: debounce cloud push by 7 seconds of user typing silence
+    // Write-behind cache: debounce cloud push by 1.2 seconds of user typing silence
     // Instant local save (< 1ms) already happened in IndexedDB & LocalStorage
-    const delay = immediate ? 50 : 7000;
+    const delay = immediate ? 50 : 1200;
     cloudSyncTimeoutRef.current = setTimeout(async () => {
       try {
         const result = await pushToCloud();
@@ -328,39 +351,45 @@ const Notebook = () => {
   const persistContent = useCallback(
     async (htmlToSave) => {
       try {
-        const updated = notebooks.map((notebook) =>
-          notebook.id === activeNotebookId
-            ? { ...notebook, content: htmlToSave, updatedAt: Date.now() }
-            : notebook,
-        );
-        setNotebooks(updated);
-        localStorage.removeItem(TEXT_KEY);
+        const currentActiveId = activeNotebookIdRef.current;
+        let updatedSnapshot = [];
 
-        // 1. Save only lightweight metadata to localStorage (safely caught so QuotaExceeded never fails save)
-        try {
-          localStorage.removeItem(TEXT_KEY);
-          localStorage.setItem(NOTEBOOKS_KEY, JSON.stringify(notebookMetadata(updated)));
-        } catch (lsErr) {
-          console.warn("localStorage quota reached, note safely stored in IndexedDB:", lsErr);
-        }
+        setNotebooks((prev) => {
+          const updated = prev.map((notebook) =>
+            notebook.id === currentActiveId
+              ? { ...notebook, content: htmlToSave, updatedAt: Date.now() }
+              : notebook,
+          );
+          updatedSnapshot = updated;
+          notebooksRef.current = updated;
+
+          // 1. Save only lightweight metadata to localStorage (safely caught so QuotaExceeded never fails save)
+          try {
+            localStorage.removeItem(TEXT_KEY);
+            localStorage.setItem(NOTEBOOKS_KEY, JSON.stringify(notebookMetadata(updated)));
+          } catch (lsErr) {
+            console.warn("localStorage quota reached, note safely stored in IndexedDB:", lsErr);
+          }
+          return updated;
+        });
 
         // Instant save feedback to user (< 5ms)
         setSaveState("saved");
 
         // 2. High-capacity content persistence to IndexedDB and fast localStorage cache
         try {
-          localStorage.setItem(`nb_content_${activeNotebookId}`, htmlToSave);
+          localStorage.setItem(`nb_content_${currentActiveId}`, htmlToSave);
         } catch {}
 
-        saveExtendedNote(activeNotebookId, htmlToSave).catch((idbErr) => {
+        saveExtendedNote(currentActiveId, htmlToSave).catch((idbErr) => {
           console.warn("IndexedDB background save error:", idbErr);
         });
 
         // Broadcast real-time change to all user's connected devices via Socket.io
         try {
           emitRealtimeNotebookChange({
-            notebook: { id: activeNotebookId, title, content: htmlToSave, updatedAt: Date.now() },
-            notebooks: updated,
+            notebook: { id: currentActiveId, title: titleRef.current, content: htmlToSave, updatedAt: Date.now() },
+            notebooks: updatedSnapshot.length > 0 ? updatedSnapshot : notebooksRef.current,
             comments,
           });
         } catch {}
@@ -371,7 +400,7 @@ const Notebook = () => {
         setSaveState("saved");
       }
     },
-    [activeNotebookId, notebooks, scheduleCloudSync, title, comments],
+    [scheduleCloudSync, comments],
   );
 
   // Pure content detection to strictly prevent scrolling when notepad is empty
@@ -499,7 +528,7 @@ const Notebook = () => {
 
   const checkIsCodePresent = useCallback(() => {
     if (!editorRef.current) return false;
-    if (editorRef.current.querySelector("style, script, canvas")) {
+    if (editorRef.current.querySelector("style, script")) {
       return true;
     }
     const plain = editorRef.current.innerText || "";
@@ -517,7 +546,7 @@ const Notebook = () => {
 
     // Dynamic visibility for Run & Format Code options
     const isCode =
-      Boolean(editorRef.current.querySelector("style, script, canvas")) ||
+      Boolean(editorRef.current.querySelector("style, script")) ||
       isExecutableCode(clean);
     setCodeExecutable(isCode);
   }, []);
@@ -525,7 +554,11 @@ const Notebook = () => {
   // Extract clean code snippet for Monaco Editor (0ms overhead, avoids DOM layout reflows)
   const monacoCode = useMemo(() => {
     if (!text) return "";
-    // Only strip HTML tags if text is rich-text HTML starting with paragraphs or divs
+    // If user is currently editing inside Monaco Editor, ALWAYS preserve raw code untouched!
+    if (isMonacoActive) {
+      return text;
+    }
+    // Only strip HTML tags if text was created by rich-text paper editor (<p>...</p>)
     if (
       (text.startsWith("<p>") || text.startsWith("<div>") || text.startsWith("<h1>")) &&
       !text.includes("<!DOCTYPE") &&
@@ -538,7 +571,7 @@ const Notebook = () => {
       }
     }
     return text;
-  }, [text]);
+  }, [text, isMonacoActive]);
 
   const handleMonacoChange = useCallback(
     (newCode) => {
@@ -548,7 +581,7 @@ const Notebook = () => {
       // Real-time live code preview synchronization to open Run Tab
       clearTimeout(livePreviewDebounceRef.current);
       livePreviewDebounceRef.current = setTimeout(() => {
-        broadcastLiveCodeUpdate(newCode, title || "Notebook Code");
+        broadcastLiveCodeUpdate(newCode, titleRef.current || "Notebook Code");
       }, 250);
 
       // Debounce Yjs CRDT delta synchronization by 200ms to eliminate typing freezes
@@ -573,7 +606,7 @@ const Notebook = () => {
         setCodeExecutable(isExecutableCode(newCode));
       }, 400);
     },
-    [persistContent, settings.autoSave, title]
+    [persistContent, settings.autoSave]
   );
 
   const handleSwitchToRichText = useCallback(() => {
@@ -687,11 +720,20 @@ const Notebook = () => {
 
   const updateTitle = (newTitle) => {
     setTitle(newTitle);
-    setNotebooks((prev) =>
-      prev.map((nb) =>
-        nb.id === activeNotebookId ? { ...nb, title: newTitle } : nb,
-      ),
-    );
+    titleRef.current = newTitle;
+    try {
+      localStorage.setItem(TITLE_KEY, newTitle);
+    } catch {}
+    setNotebooks((prev) => {
+      const updated = prev.map((nb) =>
+        nb.id === activeNotebookIdRef.current ? { ...nb, title: newTitle } : nb,
+      );
+      notebooksRef.current = updated;
+      try {
+        localStorage.setItem(NOTEBOOKS_KEY, JSON.stringify(notebookMetadata(updated)));
+      } catch {}
+      return updated;
+    });
     scheduleCloudSync();
   };
 
@@ -998,40 +1040,8 @@ const Notebook = () => {
 
       // 3. Fallback to localStorage notebook record
       if (!rawContent) {
-        const found = notebooks.find((nb) => nb.id === activeNotebookId);
+        const found = notebooksRef.current.find((nb) => nb.id === activeNotebookId);
         rawContent = found ? found.content : "";
-        if (rawContent) {
-          const migrated = await saveExtendedNote(activeNotebookId, rawContent);
-          if (migrated) {
-            try {
-              localStorage.removeItem(TEXT_KEY);
-              localStorage.setItem(NOTEBOOKS_KEY, JSON.stringify(notebookMetadata(notebooks)));
-            } catch (error) {
-              console.warn("Could not migrate notebook metadata to localStorage:", error);
-            }
-          }
-        }
-      }
-
-      // 4. Content-Aware Preservation: If note is empty, check if another note matches by title and has content
-      if (!rawContent && title) {
-        const titleNorm = title.trim().toLowerCase();
-        const titleMatch = notebooks.find(
-          (nb) => nb.title && nb.title.trim().toLowerCase() === titleNorm && nb.id !== activeNotebookId
-        );
-        if (titleMatch) {
-          rawContent = titleMatch.content;
-          if (!rawContent) {
-            try {
-              rawContent = localStorage.getItem(`nb_content_${titleMatch.id}`);
-            } catch {}
-          }
-          if (!rawContent) {
-            try {
-              rawContent = await getExtendedNote(titleMatch.id);
-            } catch {}
-          }
-        }
       }
 
       if (cancelled) return;
@@ -1262,59 +1272,114 @@ const Notebook = () => {
       const payload = e.detail?.remotePayload;
       if (!payload) return;
 
-      // CRITICAL: If user is actively typing or editor has focus, NEVER overwrite or auto-undo user typing!
-      const isUserActivelyEditing =
-        document.activeElement === editorRef.current ||
-        Date.now() - (lastUserEditTimestampRef.current || 0) < 5000;
-
-      if (isUserActivelyEditing) {
+      // CRITICAL: If user is actively typing on this device in the last 1.8s, delay to prevent typing race conditions
+      const isUserActivelyTypingOnThisDevice = Date.now() - (lastUserEditTimestampRef.current || 0) < 1800;
+      if (isUserActivelyTypingOnThisDevice) {
         return;
       }
 
       if (Array.isArray(payload.notebooks) && payload.notebooks.length > 0) {
-        setNotebooks(payload.notebooks);
+        const deletedIds = getDeletedNotebookIds();
+        const currentActiveId = activeNotebookIdRef.current;
+        const remoteIds = new Set(payload.notebooks.map((r) => r.id));
+        const allRemoteTitles = payload.notebooks.map((r) => r.title || "Untitled Notebook");
+        let hasLocalRenamedOrAdded = false;
 
-        // 1. First look for exact ID match
-        let active = payload.notebooks.find((nb) => nb.id === activeNotebookId);
+        setNotebooks((prev) => {
+          const nbMap = new Map();
+          // Keep all existing local notebooks that are not deleted
+          for (const lNb of prev) {
+            if (!lNb?.id || deletedIds[lNb.id]) continue;
 
-        // 2. If not found by ID, look for match by title (case-insensitive)
-        if (!active && title) {
-          const currentTitleNorm = title.trim().toLowerCase();
-          active = payload.notebooks.find(
-            (nb) => nb.title && nb.title.trim().toLowerCase() === currentTitleNorm
-          );
-          if (active) {
-            setActiveNotebookId(active.id);
+            // Check if this local notebook was created locally before login/sync
+            if (!remoteIds.has(lNb.id)) {
+              hasLocalRenamedOrAdded = true;
+              const lTitleClean = (lNb.title || "").trim().toLowerCase();
+              const hasCollision = allRemoteTitles.some(
+                (rTitle) => (rTitle || "").trim().toLowerCase() === lTitleClean
+              );
+
+              if (hasCollision) {
+                const newTitle = formatLocalCollisionTitle(lNb.title, allRemoteTitles);
+                lNb.title = newTitle;
+                lNb.updatedAt = Date.now();
+                allRemoteTitles.push(newTitle);
+
+                // If currently open on screen, update title and title bar immediately
+                if (lNb.id === currentActiveId) {
+                  titleRef.current = newTitle;
+                  setTitle(newTitle);
+                  try {
+                    localStorage.setItem(TITLE_KEY, newTitle);
+                  } catch {}
+                }
+              }
+            }
+
+            nbMap.set(lNb.id, lNb);
           }
-        }
 
-        // 3. Fallback to first notebook
-        if (!active) {
-          active = payload.notebooks[0];
-          if (active) setActiveNotebookId(active.id);
-        }
+          // Merge incoming remote notebooks
+          for (const rNb of payload.notebooks) {
+            if (!rNb?.id || deletedIds[rNb.id]) continue;
+            const lNb = nbMap.get(rNb.id);
+            if (!lNb) {
+              nbMap.set(rNb.id, rNb);
+              if (rNb.content) {
+                try {
+                  localStorage.setItem(`nb_content_${rNb.id}`, rNb.content);
+                } catch {}
+                saveExtendedNote(rNb.id, rNb.content).catch(() => {});
+              }
+            } else {
+              // Remote note exists: check if remote is strictly newer than local
+              if ((rNb.updatedAt || 0) > (lNb.updatedAt || 0)) {
+                nbMap.set(rNb.id, rNb);
+                if (rNb.content !== undefined) {
+                  try {
+                    localStorage.setItem(`nb_content_${rNb.id}`, rNb.content);
+                  } catch {}
+                  saveExtendedNote(rNb.id, rNb.content).catch(() => {});
 
-        if (active) {
-          setTitle(active.title || DEFAULT_NOTEBOOK_TITLE);
-          const isHtml =
-            /<(p|div|ul|ol|li|img|span|h[1-6]|table|blockquote|html|head|body|pre|code|section|header|nav)\b/i.test(
-              active.content || ""
-            ) || /<!DOCTYPE\b/i.test(active.content || "");
-          const activeHtml = isHtml ? active.content : plainTextToHtml(active.content || "");
-          const userRecentlyEdited = Date.now() - (lastUserEditTimestampRef.current || 0) < 15000;
-          if (!userRecentlyEdited) {
-            setText(activeHtml);
-            if (editorRef.current && editorRef.current.innerHTML !== activeHtml) {
-              editorRef.current.innerHTML = activeHtml;
-              updateStats();
+                  // Live-update current active note on screen in real time (phone <-> laptop)
+                  if (rNb.id === currentActiveId) {
+                    setText(rNb.content || "");
+                    if (editorRef.current && document.activeElement !== editorRef.current) {
+                      editorRef.current.innerHTML = plainTextToHtml(rNb.content || "");
+                    }
+                    if (rNb.title && rNb.title !== titleRef.current) {
+                      titleRef.current = rNb.title;
+                      setTitle(rNb.title);
+                    }
+                  }
+                }
+              }
             }
           }
-          setComments(payload.comments?.[active.id] || []);
 
+          const merged = Array.from(nbMap.values());
+          notebooksRef.current = merged;
           try {
-            localStorage.setItem(`nb_content_${active.id}`, active.content || "");
+            localStorage.setItem(NOTEBOOKS_KEY, JSON.stringify(notebookMetadata(merged)));
           } catch {}
-          saveExtendedNote(active.id, active.content || "").catch(() => {});
+          return merged;
+        });
+
+        // If local notes were renamed or merged from this device, push the merged set to the cloud
+        if (hasLocalRenamedOrAdded && typeof navigator !== "undefined" && navigator.onLine) {
+          scheduleCloudSync(true);
+        }
+
+        // NEVER force switch active notebook away from user unless current note was deleted
+        if (deletedIds[currentActiveId]) {
+          const remaining = notebooksRef.current.filter((nb) => !deletedIds[nb.id]);
+          if (remaining.length > 0) {
+            const next = remaining[0];
+            activeNotebookIdRef.current = next.id;
+            titleRef.current = next.title || DEFAULT_NOTEBOOK_TITLE;
+            setActiveNotebookId(next.id);
+            setTitle(next.title || DEFAULT_NOTEBOOK_TITLE);
+          }
         }
       }
       if (payload.settings && typeof payload.settings === "object") {
@@ -1332,7 +1397,7 @@ const Notebook = () => {
 
     // Auto-pull when window gains focus (switching from another app or tab)
     const handleFocus = () => {
-      const userRecentlyEdited = Date.now() - (lastUserEditTimestampRef.current || 0) < 15000;
+      const userRecentlyEdited = Date.now() - (lastUserEditTimestampRef.current || 0) < 1800;
       if (!userRecentlyEdited && getSyncIdentity() && typeof navigator !== "undefined" && navigator.onLine) {
         pullFromCloud().catch(() => {});
       }
@@ -1351,7 +1416,7 @@ const Notebook = () => {
         handleFlushOnLeave();
         return;
       }
-      const userRecentlyEdited = Date.now() - (lastUserEditTimestampRef.current || 0) < 15000;
+      const userRecentlyEdited = Date.now() - (lastUserEditTimestampRef.current || 0) < 1800;
       if (!userRecentlyEdited && getSyncIdentity() && typeof navigator !== "undefined" && navigator.onLine) {
         pullFromCloud().catch(() => {});
       }
@@ -1366,7 +1431,7 @@ const Notebook = () => {
       }
     };
 
-    // Gentle background polling: every 2 minutes (120s) idle check for cloud updates if user is not actively typing
+    // Adaptive live background polling: every 2.5s real-time check for active cross-device sync (Phone <-> Laptop)
     const pollInterval = setInterval(() => {
       if (
         isSubscribed &&
@@ -1374,11 +1439,11 @@ const Notebook = () => {
         getSyncIdentity() &&
         typeof navigator !== "undefined" &&
         navigator.onLine &&
-        Date.now() - (lastUserEditTimestampRef.current || 0) > 15000
+        Date.now() - (lastUserEditTimestampRef.current || 0) > 1800
       ) {
         pullFromCloud().catch(() => {});
       }
-    }, 120000);
+    }, 2500);
 
     window.addEventListener("stiknex_notebook_synced", handleRemoteSync);
     window.addEventListener("online", handleOnline);
@@ -1397,7 +1462,7 @@ const Notebook = () => {
       window.removeEventListener("beforeunload", handleFlushOnLeave);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [activeNotebookId, title]);
+  }, []);
 
   // Automatically intercept and permanently delete any broken image that fails to load in editor
   useEffect(() => {
@@ -1419,30 +1484,56 @@ const Notebook = () => {
   const handleNewNotebook = () => {
     const newNotebook = {
       id: genId(),
-      title: nextNotebookTitle(notebooks),
+      title: nextNotebookTitle(notebooksRef.current),
       content: "<p><br></p>",
       updatedAt: Date.now(),
     };
-    saveExtendedNote(newNotebook.id, newNotebook.content).then((saved) => {
-      if (saved) scheduleCloudSync();
-    }).catch((error) => {
+
+    // 1. Synchronously persist to localStorage so no background sync or race condition can overwrite it
+    try {
+      localStorage.setItem(`nb_content_${newNotebook.id}`, newNotebook.content);
+      const updatedList = [newNotebook, ...notebooksRef.current.filter((n) => n.id !== newNotebook.id)];
+      localStorage.setItem(NOTEBOOKS_KEY, JSON.stringify(notebookMetadata(updatedList)));
+      localStorage.setItem(ACTIVE_NOTEBOOK_KEY, newNotebook.id);
+      localStorage.setItem(TITLE_KEY, newNotebook.title);
+      notebooksRef.current = updatedList;
+      activeNotebookIdRef.current = newNotebook.id;
+      titleRef.current = newNotebook.title;
+    } catch (e) {
+      console.warn("Could not write new notebook to localStorage:", e);
+    }
+
+    saveExtendedNote(newNotebook.id, newNotebook.content).catch((error) => {
       console.warn("Could not initialize new notebook storage:", error);
     });
-    setNotebooks((prev) => [newNotebook, ...prev]);
+
+    setNotebooks((prev) => [newNotebook, ...prev.filter((n) => n.id !== newNotebook.id)]);
     setActiveNotebookId(newNotebook.id);
     setTitle(newNotebook.title);
+    setText(newNotebook.content);
+    if (editorRef.current) {
+      editorRef.current.innerHTML = newNotebook.content;
+      updateStats();
+    }
+    scheduleCloudSync();
   };
 
   const handleSwitchNotebook = (id) => {
-    if (id === activeNotebookId) return;
-    const target = notebooks.find((nb) => nb.id === id);
+    if (id === activeNotebookIdRef.current) return;
+    const target = notebooksRef.current.find((nb) => nb.id === id);
     if (!target) return;
+    try {
+      localStorage.setItem(ACTIVE_NOTEBOOK_KEY, id);
+      localStorage.setItem(TITLE_KEY, target.title || DEFAULT_NOTEBOOK_TITLE);
+    } catch {}
+    activeNotebookIdRef.current = id;
+    titleRef.current = target.title || DEFAULT_NOTEBOOK_TITLE;
     setActiveNotebookId(id);
     setTitle(target.title || DEFAULT_NOTEBOOK_TITLE);
   };
 
   const handleDeleteNotebook = (id) => {
-    const target = notebooks.find((nb) => nb.id === id);
+    const target = notebooksRef.current.find((nb) => nb.id === id);
     if (!target) return;
 
     swal({
@@ -1456,26 +1547,25 @@ const Notebook = () => {
     }).then((willDelete) => {
       if (!willDelete) return;
 
-      // Immediately record tombstone to prevent deleted notebook from ever resurrecting across devices
+      // 1. Immediately record tombstone to prevent deleted notebook from ever resurrecting across devices
       recordDeletedNotebookId(id);
+
+      const remaining = notebooksRef.current.filter((nb) => nb.id !== id);
+      const wasActive = id === activeNotebookIdRef.current;
+
+      // 2. Synchronously write remaining list to localStorage
       try {
+        localStorage.setItem(NOTEBOOKS_KEY, JSON.stringify(notebookMetadata(remaining)));
         localStorage.removeItem(`nb_content_${id}`);
         localStorage.removeItem(`nb_comments_${id}`);
       } catch {}
 
-      const remaining = notebooks.filter((nb) => nb.id !== id);
-      const wasActive = id === activeNotebookId;
+      notebooksRef.current = remaining;
 
       Promise.all([deleteDrawingFromDb(id), deleteExtendedNote(id), deleteNotebookComments(id)])
         .catch((error) => {
           console.warn("Could not delete all notebook data from IndexedDB:", error);
         });
-      try {
-        localStorage.removeItem(`nb_comments_${id}`);
-      } catch (error) {
-        console.error("Could not remove notebook comments:", error);
-      }
-      scheduleCloudSync();
 
       if (remaining.length === 0) {
         handleClearDrawing();
@@ -1485,18 +1575,41 @@ const Notebook = () => {
           content: "<p><br></p>",
           updatedAt: Date.now(),
         };
+        try {
+          localStorage.setItem(`nb_content_${fresh.id}`, fresh.content);
+          localStorage.setItem(NOTEBOOKS_KEY, JSON.stringify(notebookMetadata([fresh])));
+          localStorage.setItem(ACTIVE_NOTEBOOK_KEY, fresh.id);
+          localStorage.setItem(TITLE_KEY, fresh.title);
+        } catch {}
+        notebooksRef.current = [fresh];
+        activeNotebookIdRef.current = fresh.id;
+        titleRef.current = fresh.title;
         setNotebooks([fresh]);
         setActiveNotebookId(fresh.id);
         setTitle(fresh.title);
+        setText(fresh.content);
+        if (editorRef.current) {
+          editorRef.current.innerHTML = fresh.content;
+          updateStats();
+        }
+        scheduleCloudSync();
         return;
       }
 
       setNotebooks(remaining);
       if (wasActive) {
         const next = remaining[0];
+        try {
+          localStorage.setItem(ACTIVE_NOTEBOOK_KEY, next.id);
+          localStorage.setItem(TITLE_KEY, next.title || DEFAULT_NOTEBOOK_TITLE);
+        } catch {}
+        activeNotebookIdRef.current = next.id;
+        titleRef.current = next.title || DEFAULT_NOTEBOOK_TITLE;
         setActiveNotebookId(next.id);
         setTitle(next.title || DEFAULT_NOTEBOOK_TITLE);
       }
+
+      scheduleCloudSync();
     });
   };
 

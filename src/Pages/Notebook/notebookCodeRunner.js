@@ -6,7 +6,7 @@
 
 // Heuristics to detect whether text contains genuine HTML, CSS or JS executable code
 const HTML_STRUCTURE_REGEX = /<!DOCTYPE\b|<html\b|<body\b|<script[\s>]/i;
-const HTML_PAIR_REGEX = /<(div|section|article|header|footer|nav|table|form|button|ul|ol|canvas|svg)[\s>][\s\S]*<\/\1>/i;
+const HTML_PAIR_REGEX = /<(section|article|header|footer|nav|form|button|canvas|svg)[\s>][\s\S]*<\/\1>/i;
 const JS_KEYWORD_REGEX = /(?:\b(?:const|let|var)\s+[a-zA-Z_$][\w$]*\s*=|\bfunction\s+[a-zA-Z_$][\w$]*\s*\(|console\.(?:log|error|warn|info|table)\s*\(|document\.(?:getElementById|querySelector|querySelectorAll|createElement)\s*\(|\.addEventListener\s*\(|\b(?:setTimeout|setInterval)\s*\(|\(?\s*[a-zA-Z0-9_$,\s]*\)?\s*=>\s*\{)/;
 const CSS_BLOCK_REGEX = /(?:[.#][a-zA-Z0-9_-]+|[a-zA-Z]+)\s*\{\s*[a-zA-Z-]+:\s*[^;{}]+;?\s*\}/;
 

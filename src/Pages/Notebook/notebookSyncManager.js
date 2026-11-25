@@ -200,11 +200,12 @@ export async function connectWithRecoveryKey(recoveryKeyHex, customDeviceName) {
     lastSyncTime: Date.now(),
   };
 
-  // Pull latest notebooks from cloud
-  const syncResult = await pullFromCloud(identity, cryptoKey);
+  // Pull latest notebooks from cloud with forced initial merge
+  const syncResult = await pullFromCloud(identity, cryptoKey, true);
   if (!syncResult.success) {
     throw new Error(syncResult.error || 'Failed to load the recovery-key sync group.');
   }
+  await pushToCloud(identity, cryptoKey).catch(() => {});
   return identity;
 }
 
@@ -251,9 +252,9 @@ export async function linkAccountSync(user) {
 
   saveSyncIdentity(identity);
 
-  // 2. Pull remote notebooks from cloud and merge with local notes
+  // 2. Pull remote notebooks from cloud and merge with local notes (with forced initial merge)
   try {
-    await pullFromCloud(identity, cryptoKey);
+    await pullFromCloud(identity, cryptoKey, true);
     await pushToCloud(identity, cryptoKey);
   } catch (syncErr) {
     console.warn('Account sync initial pull/push notice:', syncErr);
@@ -457,7 +458,7 @@ export async function pushToCloud(customIdentity = null, customCryptoKey = null)
 /**
  * Pulls latest state from cloud with E2EE
  */
-export async function pullFromCloud(customIdentity = null, customCryptoKey = null) {
+export async function pullFromCloud(customIdentity = null, customCryptoKey = null, force = false) {
   const identity = customIdentity || getSyncIdentity();
   if (!identity || !identity.rawKeyHex) return { success: false, reason: 'Sync not enabled' };
 
@@ -482,6 +483,19 @@ export async function pullFromCloud(customIdentity = null, customCryptoKey = nul
       return { success: true, message: 'No remote data yet' };
     }
 
+    // Fast-path: If remote version hasn't incremented, skip redundant decryption & re-renders (unless forced)
+    if (
+      !force &&
+      identity.hasCompletedInitialMerge &&
+      typeof data.version === 'number' &&
+      typeof identity.version === 'number' &&
+      data.version <= identity.version
+    ) {
+      identity.lastSyncTime = Date.now();
+      saveSyncIdentity(identity);
+      return { success: true, version: data.version, unchanged: true };
+    }
+
     const { cryptoKey } = customCryptoKey
       ? { cryptoKey: customCryptoKey }
       : await importSyncKey(identity.rawKeyHex);
@@ -489,6 +503,7 @@ export async function pullFromCloud(customIdentity = null, customCryptoKey = nul
     const remotePayload = await decryptData(data.ciphertext, data.iv, cryptoKey);
     await applyRemotePayload(remotePayload);
 
+    identity.hasCompletedInitialMerge = true;
     identity.version = data.version;
     identity.lastSyncTime = Date.now();
     identity.devices = data.devices || [];
@@ -534,12 +549,7 @@ async function handleConflictResolution(identity, cryptoKey, conflictData) {
     const mergedList = [...localList];
 
     for (const rNote of remoteList) {
-      let localIdx = mergedList.findIndex((n) => n.id === rNote.id);
-      if (localIdx === -1 && rNote.title) {
-        // Also match by normalized title so different IDs for the same notebook are merged in-place
-        const rTitleNorm = rNote.title.trim().toLowerCase();
-        localIdx = mergedList.findIndex((n) => n.title && n.title.trim().toLowerCase() === rTitleNorm);
-      }
+      const localIdx = mergedList.findIndex((n) => n.id === rNote.id);
 
       if (localIdx === -1) {
         // Remote note created on another device -> Add it
@@ -727,6 +737,25 @@ async function handleConflictResolution(identity, cryptoKey, conflictData) {
 }
 
 /**
+ * Resolves title collision for pre-existing local notebooks by appending (Local) or (Local N)
+ */
+export function formatLocalCollisionTitle(originalTitle, allExistingTitles = []) {
+  const baseTitle = (originalTitle || 'Untitled Notebook')
+    .replace(/\s*\(Local(?:\s+\d+)?\)$/i, '')
+    .trim() || 'Untitled Notebook';
+  let candidate = `${baseTitle} (Local)`;
+  let counter = 2;
+  const existingSet = new Set(
+    allExistingTitles.map((t) => (t || '').trim().toLowerCase())
+  );
+  while (existingSet.has(candidate.toLowerCase())) {
+    candidate = `${baseTitle} (Local ${counter})`;
+    counter++;
+  }
+  return candidate;
+}
+
+/**
  * Applies decrypted remote payload to local IndexedDB and localStorage
  */
 async function applyRemotePayload(payload) {
@@ -798,7 +827,7 @@ async function applyRemotePayload(payload) {
     localStorage.setItem('stiknex_connections', JSON.stringify(payload.stickyConnections));
   }
 
-  // 4. Smart Merge Notebooks: Strictly exclude deleted notebooks, preserve active local unsaved edits
+  // 4. Smart Merge Notebooks: Strictly exclude deleted notebooks, rename local title collisions to (Local) & upload
   if (Array.isArray(payload.notebooks)) {
     let localNotes = [];
     try {
@@ -819,29 +848,40 @@ async function applyRemotePayload(payload) {
             await saveExtendedNote(nb.id, nb.content);
           }
         } catch {}
+      }
+    }
 
-        // Check if existing local note had the same title with another ID
-        if (nb.title) {
-          const titleNorm = nb.title.trim().toLowerCase();
-          const localMatch = localNotes.find(
-            (l) => l.title && l.title.trim().toLowerCase() === titleNorm && l.id !== nb.id
-          );
-          if (localMatch && !mergedDelNbs[localMatch.id]) {
-            try {
-              localStorage.setItem(`nb_content_${localMatch.id}`, nb.content);
-              await saveExtendedNote(localMatch.id, nb.content);
-            } catch {}
-          }
+    const remoteIds = new Set(validRemote.map((r) => r.id));
+    const allTitlesInRemote = validRemote.map((r) => r.title || 'Untitled Notebook');
+    let hasLocalRenamedOrAdded = false;
+
+    // Check pre-existing local notebooks
+    const resolvedLocalNotes = [];
+    for (const lNb of (Array.isArray(localNotes) ? localNotes : [])) {
+      if (!lNb?.id || mergedDelNbs[lNb.id]) continue;
+
+      if (!remoteIds.has(lNb.id)) {
+        // This notebook was created locally before login or cloud sync!
+        hasLocalRenamedOrAdded = true;
+        const lTitleTrimmed = (lNb.title || '').trim().toLowerCase();
+        const hasCollision = allTitlesInRemote.some(
+          (rTitle) => (rTitle || '').trim().toLowerCase() === lTitleTrimmed
+        );
+
+        if (hasCollision) {
+          const newTitle = formatLocalCollisionTitle(lNb.title, allTitlesInRemote);
+          lNb.title = newTitle;
+          lNb.updatedAt = Date.now();
+          allTitlesInRemote.push(newTitle);
         }
       }
+      resolvedLocalNotes.push(lNb);
     }
 
     // Merge notebook list preserving local notebooks that aren't on remote yet
     const nbMap = new Map();
-    for (const lNb of localNotes) {
-      if (lNb?.id && !mergedDelNbs[lNb.id]) {
-        nbMap.set(lNb.id, lNb);
-      }
+    for (const lNb of resolvedLocalNotes) {
+      nbMap.set(lNb.id, lNb);
     }
     for (const rNb of validRemote) {
       if (!nbMap.has(rNb.id) || (rNb.updatedAt || 0) >= (nbMap.get(rNb.id).updatedAt || 0)) {
@@ -852,6 +892,13 @@ async function applyRemotePayload(payload) {
     try {
       localStorage.setItem(NOTEBOOKS_KEY, JSON.stringify(notebookMetadata(mergedNbList)));
     } catch {}
+
+    // If local notes were renamed or added that weren't on the remote, push merged set to cloud database!
+    if (hasLocalRenamedOrAdded && typeof navigator !== 'undefined' && navigator.onLine) {
+      pushToCloud().catch((err) => {
+        console.warn('Initial merged local notes push notice:', err);
+      });
+    }
   }
 
   if (payload.comments && typeof payload.comments === 'object') {
@@ -1074,10 +1121,11 @@ export async function joinPairingSession(pairingId, pairingKeyHex, customDeviceN
   };
 
   // Only persist the new identity after confirming the cloud group is available.
-  const syncResult = await pullFromCloud(identity);
+  const syncResult = await pullFromCloud(identity, null, true);
   if (!syncResult.success) {
     throw new Error(syncResult.error || 'Could not load the existing sync group.');
   }
+  await pushToCloud(identity).catch(() => {});
 
   return { success: true, identity };
 }

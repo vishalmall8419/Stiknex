@@ -457,7 +457,7 @@ export default function About() {
                   </h3>
 
                   <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed max-w-4xl">
-                    Stiknex Notepad is a revolutionary <strong>dual-engine productivity studio</strong>: it is not just a digital notepad, but also a professional <strong>in-browser Code Editor &amp; IDE</strong> powered by the Microsoft Monaco core. Seamlessly switch between tactile lined paper notes and a full-featured code editor with HTML/CSS/JS/Python/SQL support, live compilation, automatic code formatting (<kbd className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-xs font-mono">Alt+Shift+F</kbd>), digital ink drawing, ambient study audio, and instant cross-device sync.
+                    Stiknex Notepad is a revolutionary <strong>dual-engine productivity studio</strong>: it is not just a digital notepad, but also a professional <strong>in-browser Code Editor &amp; IDE</strong> powered by the Stiknex Editor engine. Seamlessly switch between tactile lined paper notes and a full-featured code editor with HTML/CSS/JS/Python/SQL support, live compilation, automatic code formatting (<kbd className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-xs font-mono">Alt+Shift+F</kbd>), digital ink drawing, ambient study audio, and instant cross-device sync.
                   </p>
 
                   {/* Why & How It Works (Kaise aur Kyu) */}
@@ -470,7 +470,7 @@ export default function About() {
                       <strong>The Problem With Traditional Note Apps:</strong> Typical note apps (Notion, Google Docs, Apple Notes) make you choose between rigid text documents or plain text files. They cannot execute code, crash when offline, demand mandatory accounts, and take 5–10 seconds to open. Meanwhile, developer IDEs (VS Code, WebStorm) are heavy desktop applications with gigabytes of dependencies that don&apos;t run instantly in a mobile browser.
                     </p>
                     <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-                      <strong>The Stiknex Dual-Engine Solution:</strong> Stiknex provides a zero-lag hybrid workspace. Click <strong>&quot;Code Editor&quot;</strong> to activate the Monaco editor with syntax highlighting for HTML, JS, Python, and SQL with 1-click sandbox execution. Click <strong>&quot;Paper Notes&quot;</strong> to return to distraction-free ruled paper with rich formatting. All data persists instantly into browser IndexedDB (<code className="text-xs font-mono">&lt; 1ms</code>) and syncs across phone and laptop via our intelligent write-behind cache.
+                      <strong>The Stiknex Dual-Engine Solution:</strong> Stiknex provides a zero-lag hybrid workspace. Click <strong>&quot;Stiknex Editor&quot;</strong> to activate the Stiknex Code Editor with syntax highlighting for HTML, JS, Python, and SQL with 1-click sandbox execution. Click <strong>&quot;Paper Notes&quot;</strong> to return to distraction-free ruled paper with rich formatting. All data persists instantly into browser IndexedDB (<code className="text-xs font-mono">&lt; 1ms</code>) and syncs across phone and laptop via our intelligent write-behind cache.
                     </p>
                   </div>
                 </div>
@@ -490,9 +490,9 @@ export default function About() {
                     <div className="w-9 h-9 rounded-xl bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 flex items-center justify-center">
                       <Code2 size={18} />
                     </div>
-                    <h5 className="text-sm font-bold text-[#0F3944] dark:text-white">Stiknex Code Editor (Monaco IDE)</h5>
+                    <h5 className="text-sm font-bold text-[#0F3944] dark:text-white">Stiknex Code Editor &amp; IDE</h5>
                     <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                      Built on the same engine powering VS Code. Full multi-language syntax highlighting for HTML5, CSS3, JavaScript, TypeScript, Python, SQL, Markdown, and JSON with line numbers and error diagnostics.
+                      Professional developer-grade code studio in your browser. Full multi-language syntax highlighting for HTML5, CSS3, JavaScript, TypeScript, Python, SQL, Markdown, and JSON with line numbers and error diagnostics.
                     </p>
                   </div>
 
@@ -1258,7 +1258,7 @@ export default function About() {
                   </div>
                   <h4 className="text-sm font-bold text-[#0F3944] dark:text-white">For Developers &amp; Coders</h4>
                   <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                    A zero-latency Monaco code scratchpad in your browser. Test HTML/CSS/JS in live sandboxes, format with <kbd className="px-1 py-0.5 rounded bg-slate-100 dark:bg-slate-800 font-mono text-[10px]">Alt+Shift+F</kbd>, write SQL/Python notes, and map system architectures on the Whiteboard without booting heavy desktop IDEs.
+                    A zero-latency Stiknex code scratchpad and in-browser IDE. Test HTML/CSS/JS in live sandboxes, format with <kbd className="px-1 py-0.5 rounded bg-slate-100 dark:bg-slate-800 font-mono text-[10px]">Alt+Shift+F</kbd>, write SQL/Python notes, and map system architectures on the Whiteboard without booting heavy desktop IDEs.
                   </p>
                 </div>
 
@@ -1351,7 +1351,7 @@ export default function About() {
                       </tr>
                       <tr>
                         <td className="py-3 px-3 font-bold text-white">Code Execution &amp; IDE</td>
-                        <td className="py-3 px-3 font-bold text-emerald-300">Built-in (Monaco IDE + HTML/JS Sandbox)</td>
+                        <td className="py-3 px-3 font-bold text-emerald-300">Built-in (Stiknex IDE + HTML/JS Sandbox)</td>
                         <td className="py-3 px-3 text-rose-300">Syntax Highlight Only</td>
                         <td className="py-3 px-3 text-rose-300">No Execution</td>
                         <td className="py-3 px-3 text-rose-300">No Execution</td>
