@@ -1,39 +1,79 @@
 import { io } from "socket.io-client";
 import { db } from "../db/localDb";
-import { getOrCreateDeviceId, getDeviceName, getSyncIdentity } from "../Pages/Notebook/notebookSyncManager";
 
 let socket = null;
 let broadcastChannel = null;
 const listeners = new Set();
+
+function getOrCreateDeviceId() {
+  try {
+    let deviceId = localStorage.getItem("stiknex_device_id");
+    if (!deviceId) {
+      deviceId = `dev_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+      localStorage.setItem("stiknex_device_id", deviceId);
+    }
+    return deviceId;
+  } catch {
+    return "unknown-device";
+  }
+}
+
+function getDeviceName() {
+  try {
+    const stored = localStorage.getItem("stiknex_device_name");
+    if (stored) return stored;
+  } catch {}
+
+  const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
+  if (/android/i.test(ua)) return "Android Device";
+  if (/iPhone|iPad|iPod/i.test(ua)) return "iPhone / iPad";
+  if (/Mac/i.test(ua)) return "Mac";
+  if (/Win/i.test(ua)) return "Windows PC";
+  if (/Linux/i.test(ua)) return "Linux Device";
+  return "Unknown Device";
+}
+
+function getSyncIdentity() {
+  try {
+    const raw = localStorage.getItem("stiknex_sync_identity");
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
 
 // Determine socket server target
 function getSocketUrl() {
   if (typeof window === "undefined") return null;
 
   const rawEnv = import.meta.env.VITE_SOCKET_URL;
-  if (
-    rawEnv &&
-    typeof rawEnv === "string" &&
-    !rawEnv.includes("5173") &&
-    (rawEnv.startsWith("http://") || rawEnv.startsWith("https://") || rawEnv.startsWith("ws://") || rawEnv.startsWith("wss://"))
-  ) {
-    return rawEnv;
-  }
+  const currentOrigin = window.location.origin;
+
+  const getSafeRelayUrl = (value) => {
+    if (typeof value !== "string") return null;
+    const candidate = value.trim();
+    if (!/^https?:\/\//i.test(candidate)) return null;
+    if (candidate.includes("5173")) return null;
+
+    try {
+      const relayUrl = new URL(candidate);
+      if (relayUrl.origin === currentOrigin) return null;
+      if (/^(.*\.)?vercel\.app$/i.test(relayUrl.hostname)) return null;
+      if (/^(localhost|127\.0\.0\.1)$/i.test(relayUrl.hostname)) return null;
+      return relayUrl.origin;
+    } catch {
+      return null;
+    }
+  };
+
+  const envRelay = getSafeRelayUrl(rawEnv);
+  if (envRelay) return envRelay;
 
   try {
-    const custom = localStorage.getItem("stiknex_custom_socket_url");
-    if (custom && !custom.includes("5173")) {
-      return custom;
-    } else if (custom) {
-      localStorage.removeItem("stiknex_custom_socket_url");
-    }
+    const custom = getSafeRelayUrl(localStorage.getItem("stiknex_custom_socket_url"));
+    if (custom) return custom;
+    localStorage.removeItem("stiknex_custom_socket_url");
   } catch {}
-
-  // Auto-connect to local socket server if running on localhost / 127.0.0.1 or local network
-  const hostname = window.location.hostname;
-  if (hostname === "localhost" || hostname === "127.0.0.1" || hostname.startsWith("192.168.") || hostname.startsWith("10.") || hostname.startsWith("172.")) {
-    return `http://${hostname}:5000`;
-  }
 
   // On production serverless hosting (Vercel) without an external socket relay,
   // return null so it falls back cleanly to native BroadcastChannel and adaptive cloud sync.

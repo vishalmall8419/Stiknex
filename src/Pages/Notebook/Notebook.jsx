@@ -430,6 +430,17 @@ const Notebook = () => {
     }
   }, [isNotepadEmpty]);
 
+  // Extract clean code snippet for Monaco before callbacks that depend on it.
+  // Keeping this memo before handleRunCode prevents TDZ/initialization crashes.
+  const monacoCode = useMemo(() => {
+    if (!text) return "";
+    if (!isExecutableCode(text)) return "";
+    if (isMonacoActive) {
+      return text;
+    }
+    return extractCleanCodeFromContent(text);
+  }, [text, isMonacoActive]);
+
   // Compile & execute HTML, CSS, or JS in a dedicated preview tab
   const handleRunCode = useCallback(
     (explicitCode = null) => {
@@ -559,30 +570,33 @@ const Notebook = () => {
     setWordCount(countWords(clean));
     editorRef.current.setAttribute("data-empty", clean === "" ? "true" : "false");
 
-    // Dynamic visibility for Run & Format Code options
+    // Dynamic visibility for Run, Format and Code Editor options
     const isCode = isExecutableCode(clean);
     setCodeExecutable(isCode);
 
-    // Auto-switch to Stiknex Editor when genuine code is written or pasted in paper notes
+    // Only switch modes for genuine executable code.
     if (isCode && editorMode !== "monaco") {
       setEditorMode("monaco");
+    } else if (!isCode && editorMode === "monaco") {
+      setEditorMode("richtext");
+      setIsCodePreserved(false);
     }
   }, [editorMode]);
-
-  // Extract clean code snippet for Monaco Editor (0ms overhead, avoids phantom HTML tags)
-  const monacoCode = useMemo(() => {
-    if (!text) return "";
-    // If user is currently editing inside Monaco Editor, ALWAYS preserve raw code untouched!
-    if (isMonacoActive) {
-      return text;
-    }
-    return extractCleanCodeFromContent(text);
-  }, [text, isMonacoActive]);
 
   const handleMonacoChange = useCallback(
     (newCode) => {
       lastUserEditTimestampRef.current = Date.now();
       setText(newCode);
+      if (!isExecutableCode(newCode)) {
+        setCodeExecutable(false);
+        setIsCodePreserved(false);
+        setEditorMode("richtext");
+        if (editorRef.current) {
+          editorRef.current.innerText = newCode;
+        }
+      } else {
+        setCodeExecutable(true);
+      }
 
       // Real-time live code preview synchronization to open Run Tab
       clearTimeout(livePreviewDebounceRef.current);

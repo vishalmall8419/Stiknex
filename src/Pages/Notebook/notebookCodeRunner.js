@@ -6,7 +6,7 @@
 
 // Natural language & prose indicators (Hindi/English words, conversational patterns, study questions)
 const NATURAL_LANGUAGE_REGEX =
-  /\b(?:hai|kya|kyon|karein|hoga|hota|hote|kaise|mein|aur|se|ko|par|ke|ki|this is|what is|how to|why does|in this article|exam-ready|definition|complete notes)\b/i;
+  /\b(?:hai|kya|kyon|karein|hoga|hota|hote|kaise|mein|maine|likha|likhi|note|notes|node(?:\.?js)?|javascript|aur|se|ko|par|ke|ki|me|this is|what is|how to|why does|in this article|exam-ready|definition|complete notes)\b/i;
 
 /**
  * Checks whether content contains genuine executable HTML, CSS, JavaScript or Python code,
