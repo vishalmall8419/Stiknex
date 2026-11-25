@@ -4,14 +4,13 @@
  * with full DOM rendering, error capturing, and an interactive on-screen console.
  */
 
-// Heuristics to detect whether text contains genuine HTML, CSS or JS executable code
-const HTML_STRUCTURE_REGEX = /<!DOCTYPE\b|<html\b|<body\b|<script[\s>]/i;
-const HTML_PAIR_REGEX = /<(section|article|header|footer|nav|form|button|canvas|svg)[\s>][\s\S]*<\/\1>/i;
-const JS_KEYWORD_REGEX = /(?:\b(?:const|let|var)\s+[a-zA-Z_$][\w$]*\s*=|\bfunction\s+[a-zA-Z_$][\w$]*\s*\(|console\.(?:log|error|warn|info|table)\s*\(|document\.(?:getElementById|querySelector|querySelectorAll|createElement)\s*\(|\.addEventListener\s*\(|\b(?:setTimeout|setInterval)\s*\(|\(?\s*[a-zA-Z0-9_$,\s]*\)?\s*=>\s*\{)/;
-const CSS_BLOCK_REGEX = /(?:[.#][a-zA-Z0-9_-]+|[a-zA-Z]+)\s*\{\s*[a-zA-Z-]+:\s*[^;{}]+;?\s*\}/;
+// Natural language & prose indicators (Hindi/English words, conversational patterns, study questions)
+const NATURAL_LANGUAGE_REGEX =
+  /\b(?:hai|kya|kyon|karein|hoga|hota|hote|kaise|mein|aur|se|ko|par|ke|ki|this is|what is|how to|why does|in this article|exam-ready|definition|complete notes)\b/i;
 
 /**
- * Checks whether content contains executable HTML, CSS, or JavaScript
+ * Checks whether content contains genuine executable HTML, CSS, JavaScript or Python code,
+ * while accurately filtering out study notes, prose, and empty rich-text paragraphs.
  */
 export function isExecutableCode(content) {
   if (!content || typeof content !== "string") return false;
@@ -19,12 +18,111 @@ export function isExecutableCode(content) {
   // Require at least 15 characters of substantial content to avoid false triggers
   if (trimmed.length < 15) return false;
 
-  return (
-    HTML_STRUCTURE_REGEX.test(trimmed) ||
-    HTML_PAIR_REGEX.test(trimmed) ||
-    JS_KEYWORD_REGEX.test(trimmed) ||
-    CSS_BLOCK_REGEX.test(trimmed)
-  );
+  // Empty rich-text wrapper (<p><br></p>, <p style="..."><br></p>, etc.) is NEVER code
+  if (/^<(?:p|div)[^>]*>(?:<br\s*\/?>|\s|&nbsp;)*<\/(?:p|div)>$/i.test(trimmed)) {
+    return false;
+  }
+
+  // 1. Full HTML document is always genuine code
+  const isFullHtml = /^\s*<!DOCTYPE\s+html/i.test(trimmed) || /^\s*<html\b/i.test(trimmed);
+  if (isFullHtml) return true;
+
+  // 2. Embedded executable script or style tags with content
+  const hasScriptTag = /<script\b[^>]*>[\s\S]*?<\/script>/i.test(trimmed);
+  const hasStyleTag = /<style\b[^>]*>[\s\S]*?<\/style>/i.test(trimmed);
+  if (hasScriptTag || hasStyleTag) return true;
+
+  // 3. If text contains predominantly natural language / study note prose, reject
+  if (NATURAL_LANGUAGE_REGEX.test(trimmed)) {
+    return false;
+  }
+
+  // 4. Pure HTML Structure (must have actual code elements and not just rich-text <p>, <h1>, etc.)
+  const hasHtmlPair =
+    /<(div|section|article|header|footer|nav|form|button|table|canvas|svg|pre|code)\b[^>]*>[\s\S]*<\/\1>/i.test(
+      trimmed
+    );
+  if (hasHtmlPair) {
+    // If it's just rich text paragraphs, headings or lists from contenteditable, it's not code
+    if (/^<(?:p|div|h[1-6]|span|strong|em|ul|ol|li)[^>]*>.*<\/(?:p|div|h[1-6]|span|strong|em|ul|ol|li)>$/is.test(trimmed)) {
+      return false;
+    }
+    return true;
+  }
+
+  // 5. Genuine JavaScript / TypeScript Program
+  const hasJsCode =
+    /(?:^|\n)\s*(?:const|let|var)\s+[a-zA-Z_$][\w$]*\s*=\s*[^;\n]+[;\n]/m.test(trimmed) ||
+    /(?:^|\n)\s*function\s+[a-zA-Z_$][\w$]*\s*\([^)]*\)\s*\{/m.test(trimmed) ||
+    /(?:^|\n)\s*(?:async\s+)?function\s*\([^)]*\)\s*\{/m.test(trimmed) ||
+    /console\.(?:log|error|warn|info|table)\s*\([^)]*\)/.test(trimmed) ||
+    /document\.(?:getElementById|querySelector|querySelectorAll|createElement)\s*\([^)]*\)/.test(trimmed) ||
+    /\.addEventListener\s*\(['"][a-zA-Z]+['"]\s*,\s*(?:function|\([^)]*\)\s*=>)/.test(trimmed) ||
+    /(?:^|\n)\s*(?:import\s+.*from\s+['"][^'"]+['"]|export\s+(?:default|const|function|class))/m.test(trimmed) ||
+    /(?:^|\n)\s*class\s+[a-zA-Z_$][\w$]*(?:\s+extends\s+[a-zA-Z_$][\w$]*)?\s*\{/m.test(trimmed);
+
+  if (hasJsCode) return true;
+
+  // 6. Genuine CSS Stylesheet
+  const hasCssRules =
+    /(?:^|\n)\s*(?:[.#][a-zA-Z0-9_-]+|[a-zA-Z]+)\s*\{\s*(?:[a-zA-Z-]+:\s*[^;{}]+;\s*){2,}\}/m.test(trimmed);
+  if (hasCssRules) return true;
+
+  // 7. Python / Backend
+  const hasPython =
+    /(?:^|\n)\s*def\s+[a-zA-Z_]\w*\s*\([^)]*\)\s*:/m.test(trimmed) ||
+    /(?:^|\n)\s*class\s+[a-zA-Z_]\w*(?:\([^)]*\))?\s*:/m.test(trimmed) ||
+    /(?:^|\n)\s*(?:import\s+[a-zA-Z_]\w*|from\s+[a-zA-Z_]\w*\s+import\s+)/m.test(trimmed);
+
+  if (hasPython) return true;
+
+  return false;
+}
+
+/**
+ * Extracts clean code or plain text from rich-text HTML content.
+ * Prevents phantom <p style="..."><br></p> tags from appearing in Monaco Editor.
+ */
+export function extractCleanCodeFromContent(content) {
+  if (!content || typeof content !== "string") return "";
+  const trimmed = content.trim();
+  if (!trimmed) return "";
+
+  // Completely empty rich-text wrapper -> return empty string
+  if (/^<(?:p|div)[^>]*>(?:<br\s*\/?>|\s|&nbsp;)*<\/(?:p|div)>$/i.test(trimmed)) {
+    return "";
+  }
+
+  // If user wrote a full standalone HTML document, keep it intact
+  if (/^\s*<!DOCTYPE\s+html/i.test(trimmed) || /^\s*<html\b/i.test(trimmed)) {
+    return content;
+  }
+
+  // If DOM is available, use innerText for cleanest conversion
+  if (typeof document !== "undefined") {
+    const temp = document.createElement("div");
+    temp.innerHTML = trimmed;
+    // If only empty elements or no text
+    const inner = (temp.innerText || temp.textContent || "").replace(/\u200B/g, "").trim();
+    if (!inner) return "";
+  }
+
+  // Strip rich text HTML wrappers (<p...>, <h1-6...>, <ul>, <ol>, <strong>, etc.)
+  let clean = trimmed
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/(?:p|div|h[1-6]|li|tr|blockquote)>/gi, "\n")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/gi, "'")
+    .replace(/\u200B/g, "")
+    .replace(/\r\n/g, "\n");
+
+  clean = clean.replace(/\n{3,}/g, "\n\n").trim();
+  return clean;
 }
 
 /**

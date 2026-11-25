@@ -15,7 +15,12 @@ import NotebookDrawingCanvas from "./NotebookDrawingCanvas";
 import PenControlsBar from "./PenControlsBar";
 import PageSEO from "../../Component/SEO/PageSEO";
 import Style from "./Notebook.module.css";
-import { isExecutableCode, runCodeInNewTab, broadcastLiveCodeUpdate } from "./notebookCodeRunner";
+import {
+  isExecutableCode,
+  extractCleanCodeFromContent,
+  runCodeInNewTab,
+  broadcastLiveCodeUpdate,
+} from "./notebookCodeRunner";
 import { useAppContext } from "../../context/AppContext";
 import { emitRealtimeNotebookChange } from "../../services/socketService";
 import { initNotebookYjs } from "../../services/notebookYjsSync";
@@ -263,6 +268,7 @@ const Notebook = () => {
   const [imageUrlModalOpen, setImageUrlModalOpen] = useState(false);
   const [shortcutsModalOpen, setShortcutsModalOpen] = useState(false);
   const [codeExecutable, setCodeExecutable] = useState(false);
+  const [isCodePreserved, setIsCodePreserved] = useState(false);
   const [editorMode, setEditorMode] = useState("richtext"); // "richtext" | "monaco"
   const isMonacoActive = editorMode === "monaco";
 
@@ -528,9 +534,6 @@ const Notebook = () => {
 
   const checkIsCodePresent = useCallback(() => {
     if (!editorRef.current) return false;
-    if (editorRef.current.querySelector("style, script")) {
-      return true;
-    }
     const plain = editorRef.current.innerText || "";
     return isExecutableCode(plain);
   }, []);
@@ -545,32 +548,23 @@ const Notebook = () => {
     editorRef.current.setAttribute("data-empty", clean === "" ? "true" : "false");
 
     // Dynamic visibility for Run & Format Code options
-    const isCode =
-      Boolean(editorRef.current.querySelector("style, script")) ||
-      isExecutableCode(clean);
+    const isCode = isExecutableCode(clean);
     setCodeExecutable(isCode);
-  }, []);
 
-  // Extract clean code snippet for Monaco Editor (0ms overhead, avoids DOM layout reflows)
+    // Auto-switch to Stiknex Editor when genuine code is written or pasted in paper notes
+    if (isCode && editorMode !== "monaco") {
+      setEditorMode("monaco");
+    }
+  }, [editorMode]);
+
+  // Extract clean code snippet for Monaco Editor (0ms overhead, avoids phantom HTML tags)
   const monacoCode = useMemo(() => {
     if (!text) return "";
     // If user is currently editing inside Monaco Editor, ALWAYS preserve raw code untouched!
     if (isMonacoActive) {
       return text;
     }
-    // Only strip HTML tags if text was created by rich-text paper editor (<p>...</p>)
-    if (
-      (text.startsWith("<p>") || text.startsWith("<div>") || text.startsWith("<h1>")) &&
-      !text.includes("<!DOCTYPE") &&
-      !text.includes("<html")
-    ) {
-      if (typeof document !== "undefined") {
-        const temp = document.createElement("div");
-        temp.innerHTML = text;
-        return temp.innerText || temp.textContent || text;
-      }
-    }
-    return text;
+    return extractCleanCodeFromContent(text);
   }, [text, isMonacoActive]);
 
   const handleMonacoChange = useCallback(
@@ -611,13 +605,20 @@ const Notebook = () => {
 
   const handleSwitchToRichText = useCallback(() => {
     // Smoothly scroll/slide Monaco Editor UP out of view without unmounting or erasing code
+    setIsCodePreserved(Boolean(codeExecutable && monacoCode && monacoCode.trim()));
     setEditorMode("richtext");
-  }, []);
+  }, [codeExecutable, monacoCode]);
 
   const handleToggleMonacoMode = useCallback(() => {
     // Smoothly toggle between full-page Code Editor and Paper Notes without wiping code
-    setEditorMode((prev) => (prev === "monaco" ? "richtext" : "monaco"));
-  }, []);
+    setEditorMode((prev) => {
+      const next = prev === "monaco" ? "richtext" : "monaco";
+      if (next === "richtext") {
+        setIsCodePreserved(Boolean(codeExecutable && monacoCode && monacoCode.trim()));
+      }
+      return next;
+    });
+  }, [codeExecutable, monacoCode]);
 
   // Push new snapshot to history
   const pushHistorySnapshot = useCallback((html) => {
@@ -1142,8 +1143,24 @@ const Notebook = () => {
           }
         });
 
+        const isCode = isExecutableCode(rawContent || cleanHtml);
+        setCodeExecutable(isCode);
+        if (isCode) {
+          setEditorMode("monaco");
+        } else {
+          setEditorMode("richtext");
+          setIsCodePreserved(false);
+        }
         updateStats();
       } else {
+        const isCode = isExecutableCode(rawContent || html);
+        setCodeExecutable(isCode);
+        if (isCode) {
+          setEditorMode("monaco");
+        } else {
+          setEditorMode("richtext");
+          setIsCodePreserved(false);
+        }
         setText(html);
         setSelectedImage(null);
         isInitialLoadRef.current = false;
@@ -1508,6 +1525,9 @@ const Notebook = () => {
     });
 
     setNotebooks((prev) => [newNotebook, ...prev.filter((n) => n.id !== newNotebook.id)]);
+    setIsCodePreserved(false);
+    setEditorMode("richtext");
+    setCodeExecutable(false);
     setActiveNotebookId(newNotebook.id);
     setTitle(newNotebook.title);
     setText(newNotebook.content);
@@ -1528,6 +1548,8 @@ const Notebook = () => {
     } catch {}
     activeNotebookIdRef.current = id;
     titleRef.current = target.title || DEFAULT_NOTEBOOK_TITLE;
+    setIsCodePreserved(false);
+    setEditorMode("richtext");
     setActiveNotebookId(id);
     setTitle(target.title || DEFAULT_NOTEBOOK_TITLE);
   };
@@ -2157,6 +2179,20 @@ const Notebook = () => {
 
   // Paste handler: handles rich tables (Excel, Word, Docs, Sheets), formatted text, and pure images
   const handleEditorPaste = async (e) => {
+    // 0. Auto-switch to Stiknex Editor if user pastes genuine executable code
+    const rawPasted = e.clipboardData?.getData("text/plain") || "";
+    if (rawPasted && isExecutableCode(rawPasted)) {
+      e.preventDefault();
+      setText(rawPasted);
+      if (editorRef.current) {
+        editorRef.current.innerText = rawPasted;
+      }
+      persistContent(rawPasted);
+      setCodeExecutable(true);
+      setEditorMode("monaco");
+      return;
+    }
+
     // 1. Try rich clipboard paste first (preserves Excel tables, Word docs, Google Docs, TSV, HTML)
     const handledRich = await handleRichClipboardPaste(
       e,
@@ -2498,7 +2534,7 @@ const Notebook = () => {
         {/* Paper Column: Always kept in DOM so notes are never lost */}
         <div className={Style.paperColumn} data-empty={isNotepadEmpty ? "true" : "false"}>
           {/* Quick Pill to bring back Code Editor if user scrolled it up */}
-          {!isMonacoActive && (codeExecutable || monacoCode) && (
+          {!isMonacoActive && isCodePreserved && codeExecutable && (
             <div className="flex justify-center w-full">
               <button
                 type="button"

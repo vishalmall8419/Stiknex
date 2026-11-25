@@ -11,15 +11,20 @@ const DETECTED_LANGUAGES = [
   { id: "json", label: "JSON" },
   { id: "markdown", label: "Markdown" },
   { id: "sql", label: "SQL" },
+  { id: "plaintext", label: "Plain Text" },
 ];
 
 /**
  * Automatically inspects source code snippet and infers Monaco language
  */
 function inferLanguage(code = "") {
-  if (!code) return "html";
+  if (!code || !code.trim()) return "html";
   const trimmed = code.trim();
-  if (trimmed.startsWith("<!DOCTYPE") || trimmed.startsWith("<html") || /<\/?[a-z][\s\S]*>/i.test(trimmed)) {
+  if (
+    trimmed.startsWith("<!DOCTYPE") ||
+    trimmed.startsWith("<html") ||
+    /^\s*<[a-z][\s\S]*>/i.test(trimmed)
+  ) {
     return "html";
   }
   if (/(?:[.#][\w-]+\s*\{[\s\S]*\}|@media\b)/i.test(trimmed)) {
@@ -34,7 +39,10 @@ function inferLanguage(code = "") {
       return "json";
     } catch {}
   }
-  return "javascript";
+  if (/(?:const|let|var|function|console\.log|document\.|=>)/.test(trimmed)) {
+    return "javascript";
+  }
+  return "plaintext";
 }
 
 const MonacoCodeEditor = ({
