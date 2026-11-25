@@ -104,7 +104,9 @@ const MonacoCodeEditor = ({
 
       // Shortcut: Ctrl+Enter / Cmd+Enter to Run Code in New Tab
       editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
-        if (onRunCode) onRunCode();
+        if (onRunCode) {
+          onRunCode(editor.getValue());
+        }
       });
 
       // Shortcut: Alt+Shift+F to Format Document
@@ -202,7 +204,11 @@ const MonacoCodeEditor = ({
           {onRunCode && (
             <button
               type="button"
-              onClick={onRunCode}
+              onClick={() => {
+                if (onRunCode) {
+                  onRunCode(editorRef.current ? editorRef.current.getValue() : value);
+                }
+              }}
               className={`${Style.actionBtn} ${Style.runBtn}`}
               title="Run HTML/CSS/JS in Live Preview Tab (Ctrl+Enter)"
               aria-label="Run Code"

@@ -431,32 +431,44 @@ const Notebook = () => {
   }, [isNotepadEmpty]);
 
   // Compile & execute HTML, CSS, or JS in a dedicated preview tab
-  const handleRunCode = useCallback(() => {
-    let sourceCode = "";
-    if (isMonacoActive) {
-      sourceCode = monacoCode;
-    } else {
-      const selection = window.getSelection()?.toString()?.trim();
-      // Only use selection if user intentionally highlighted a meaningful code snippet
-      if (selection && selection.length > 10 && isExecutableCode(selection)) {
-        sourceCode = selection;
-      } else {
-        sourceCode = editorRef.current?.innerText || text || "";
+  const handleRunCode = useCallback(
+    (explicitCode = null) => {
+      let sourceCode = typeof explicitCode === "string" ? explicitCode : "";
+      if (!sourceCode) {
+        if (isMonacoActive) {
+          sourceCode = monacoCode || text || "";
+        } else {
+          const selection = window.getSelection()?.toString()?.trim();
+          // Only use selection if user intentionally highlighted a meaningful code snippet
+          if (selection && selection.length > 10 && isExecutableCode(selection)) {
+            sourceCode = selection;
+          } else {
+            sourceCode = editorRef.current?.innerText || text || "";
+          }
+        }
       }
-    }
 
-    // Clean non-breaking spaces (\u00A0), zero-width characters and normalize line endings
-    sourceCode = (sourceCode || "")
-      .replace(/\u00A0/g, " ")
-      .replace(/\u200B/g, "")
-      .replace(/\r\n/g, "\n")
-      .trim();
+      // Clean non-breaking spaces (\u00A0), zero-width characters and normalize line endings
+      sourceCode = (sourceCode || "")
+        .replace(/\u00A0/g, " ")
+        .replace(/\u200B/g, "")
+        .replace(/\r\n/g, "\n")
+        .trim();
 
-    if (!sourceCode) {
-      return;
-    }
-    runCodeInNewTab(sourceCode, title || "Notebook Code");
-  }, [title, text]);
+      if (!sourceCode) {
+        swal({
+          title: "No Code to Run",
+          text: "Please write or paste HTML, CSS or JavaScript code in the editor.",
+          icon: "info",
+          timer: 1800,
+          buttons: false,
+        });
+        return;
+      }
+      runCodeInNewTab(sourceCode, title || "Notebook Code");
+    },
+    [title, text, isMonacoActive, monacoCode]
+  );
 
   const handleStatsMouseEnter = useCallback(() => {
     if (!statsPillRef.current || !statsContentRef.current) return;

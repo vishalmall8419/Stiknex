@@ -125,6 +125,11 @@ export function extractCleanCodeFromContent(content) {
   return clean;
 }
 
+const HTML_TAG_REGEX = /<[a-z][\s\S]*>/i;
+const JS_KEYWORD_REGEX =
+  /(?:\b(?:const|let|var|function|console|document|window|setTimeout|setInterval|fetch|return|class)\b|=>)/;
+const CSS_RULE_REGEX = /(?:[.#][a-zA-Z0-9_-]+|[a-zA-Z]+)\s*\{[^}]+\}/;
+
 /**
  * Compiles source code into a standalone HTML5 document
  */
@@ -458,39 +463,47 @@ export function runCodeInNewTab(sourceCode, title = "Notebook Code") {
     return false;
   }
 
-  // If a preview window is already open, focus it and broadcast the updated code immediately
-  if (activePreviewWindow && !activePreviewWindow.closed) {
-    try {
-      activePreviewWindow.focus();
-      broadcastLiveCodeUpdate(sourceCode, title);
-      return true;
-    } catch (e) {}
+  try {
+    const compiledHtml = compileHtmlDocument(sourceCode, title);
+    const blob = new Blob([compiledHtml], { type: "text/html;charset=utf-8" });
+    const previewUrl = URL.createObjectURL(blob);
+
+    // If a preview window is already open, refresh its location and focus it
+    if (activePreviewWindow && !activePreviewWindow.closed) {
+      try {
+        activePreviewWindow.location.href = previewUrl;
+        activePreviewWindow.focus();
+        broadcastLiveCodeUpdate(sourceCode, title);
+        return true;
+      } catch (e) {
+        activePreviewWindow = null;
+      }
+    }
+
+    const newWindow = window.open(previewUrl, "_blank");
+    activePreviewWindow = newWindow;
+
+    if (!newWindow || newWindow.closed || typeof newWindow.closed === "undefined") {
+      // Fallback if popup is blocked
+      const anchor = document.createElement("a");
+      anchor.href = previewUrl;
+      anchor.target = "_blank";
+      anchor.rel = "noopener noreferrer";
+      document.body.appendChild(anchor);
+      anchor.click();
+      setTimeout(() => {
+        anchor.remove();
+        URL.revokeObjectURL(previewUrl);
+      }, 15000);
+    } else {
+      setTimeout(() => {
+        URL.revokeObjectURL(previewUrl);
+      }, 15000);
+    }
+
+    return true;
+  } catch (err) {
+    console.error("Failed to run code:", err);
+    return false;
   }
-
-  const compiledHtml = compileHtmlDocument(sourceCode, title);
-  const blob = new Blob([compiledHtml], { type: "text/html;charset=utf-8" });
-  const previewUrl = URL.createObjectURL(blob);
-
-  const newWindow = window.open(previewUrl, "_blank");
-  activePreviewWindow = newWindow;
-
-  if (!newWindow || newWindow.closed || typeof newWindow.closed === "undefined") {
-    // Fallback if popup is blocked
-    const anchor = document.createElement("a");
-    anchor.href = previewUrl;
-    anchor.target = "_blank";
-    anchor.rel = "noopener noreferrer";
-    document.body.appendChild(anchor);
-    anchor.click();
-    setTimeout(() => {
-      anchor.remove();
-      URL.revokeObjectURL(previewUrl);
-    }, 15000);
-  } else {
-    setTimeout(() => {
-      URL.revokeObjectURL(previewUrl);
-    }, 15000);
-  }
-
-  return true;
 }
