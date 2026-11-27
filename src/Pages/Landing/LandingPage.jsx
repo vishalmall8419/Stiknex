@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { useAppContext } from "../../context/AppContext";
 import ExtensionModal from "../../Component/ExtensionModal";
+import AdBanner from "../../Component/Ad/AdBanner";
 
 const HomeBlogSection = lazy(() => import("./HomeBlogSection"));
 
@@ -1169,6 +1170,11 @@ export default function LandingPage() {
 
         </div>
       </section>
+
+      {/* ========================================================
+          9B. COMPACT SINGLE AD SLOT ABOVE FOOTER
+          ======================================================== */}
+      <AdBanner compact format="horizontal" />
 
       {/* ========================================================
           10. FOOTER (Matching Circle's Studio Footer with Sitemap)

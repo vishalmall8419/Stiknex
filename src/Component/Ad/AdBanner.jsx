@@ -14,6 +14,7 @@ export default function AdBanner({
   client = "ca-pub-8724450228854599",
   format = "auto",
   responsive = "true",
+  compact = false,
   className = "",
   label = "Advertisement"
 }) {
@@ -40,19 +41,19 @@ export default function AdBanner({
 
   return (
     <div
-      className={`w-full max-w-5xl mx-auto my-6 px-4 ${className}`}
+      className={`w-full ${compact ? "max-w-3xl my-4" : "max-w-5xl my-6"} mx-auto px-4 ${className}`}
       aria-label="Sponsored advertisement"
     >
-      <div className="relative rounded-2xl bg-slate-100/70 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800 p-2 sm:p-3 text-center overflow-hidden transition-all">
+      <div className={`relative rounded-2xl bg-slate-100/70 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800 ${compact ? "p-1.5 sm:p-2" : "p-2 sm:p-3"} text-center overflow-hidden transition-all`}>
         {/* Subtle top label */}
-        <div className="flex items-center justify-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5 select-none">
+        <div className="flex items-center justify-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1 select-none">
           <span className="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-700"></span>
           <span>{label}</span>
           <span className="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-700"></span>
         </div>
 
         {/* AdSense ins tag */}
-        <div className="min-h-[60px] sm:min-h-[90px] flex items-center justify-center overflow-hidden">
+        <div className={`${compact ? "min-h-[50px] max-h-[90px]" : "min-h-[60px] sm:min-h-[90px]"} flex items-center justify-center overflow-hidden`}>
           {slot ? (
             <ins
               ref={adRef}
