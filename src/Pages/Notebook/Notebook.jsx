@@ -2631,22 +2631,6 @@ const Notebook = () => {
 
         {/* Paper Column: Always kept in DOM so notes are never lost */}
         <div className={`${Style.paperColumn} ${isMonacoActive ? Style.paperColumnHidden : ""}`} data-empty={isNotepadEmpty ? "true" : "false"}>
-          {/* Quick Pill to bring back Code Editor if user scrolled it up */}
-          {!isMonacoActive && isCodePreserved && codeExecutable && (
-            <div className="flex justify-center w-full">
-              <button
-                type="button"
-                onClick={handleToggleMonacoMode}
-                className={Style.restoreCodePill}
-                title="Open Stiknex Code Editor (Scroll Down)"
-              >
-                <i className="fa-solid fa-code"></i>
-                <span>Stiknex Editor (Code Preserved)</span>
-                <i className="fa-solid fa-arrow-down" style={{ fontSize: "10px" }}></i>
-              </button>
-            </div>
-          )}
-
           <div className={Style.marginLine}></div>
           <div className={Style.editorWrap}>
             <div
@@ -2996,6 +2980,30 @@ const Notebook = () => {
         onToggleResolve={handleToggleResolveComment}
         darkMode={darkMode}
       />
+
+      {/* Floating Toast to reopen Stiknex Code Editor when Code is Preserved */}
+      {!isMonacoActive && isCodePreserved && codeExecutable && !isZenMode && (
+        <div className="fixed bottom-20 md:bottom-6 right-4 md:right-6 z-50 flex items-center gap-1.5 rounded-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-indigo-200 dark:border-indigo-500/30 shadow-lg shadow-indigo-500/10 pl-3.5 pr-2 py-1.5 animate-[fadeIn_0.25s_ease-out]">
+          <button
+            type="button"
+            onClick={handleToggleMonacoMode}
+            className="flex items-center gap-2 text-xs font-semibold text-indigo-600 dark:text-indigo-300 hover:text-indigo-700 dark:hover:text-indigo-200 transition-colors cursor-pointer"
+            title="Open Stiknex Code Editor"
+          >
+            <i className="fa-solid fa-code"></i>
+            <span>Stiknex Editor (Code Preserved)</span>
+            <i className="fa-solid fa-arrow-down text-[10px]"></i>
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsCodePreserved(false)}
+            aria-label="Dismiss code editor toast"
+            className="ml-1 flex h-5 w-5 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-200 transition-colors cursor-pointer"
+          >
+            <i className="fa-solid fa-xmark text-[11px]"></i>
+          </button>
+        </div>
+      )}
 
       {/* Translation Modal */}
       <TranslationModal

@@ -20,8 +20,13 @@ import {
   MapPin,
   MessageSquare,
   Quote,
+  Globe,
+  Smartphone,
+  Download,
+  Laptop,
 } from "lucide-react";
 import { useAppContext } from "../../context/AppContext";
+import ExtensionModal from "../../Component/ExtensionModal";
 
 const HomeBlogSection = lazy(() => import("./HomeBlogSection"));
 
@@ -101,6 +106,7 @@ export default function LandingPage() {
   const { darkMode, toggleDarkMode } = useAppContext();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [showExtensionModal, setShowExtensionModal] = useState(false);
   const [emailInput, setEmailInput] = useState("");
   const [subscribed, setSubscribed] = useState(false);
   const [publicReviews, setPublicReviews] = useState([]);
@@ -931,6 +937,151 @@ export default function LandingPage() {
       </section>
 
       {/* ========================================================
+          7C. MULTI-PLATFORM DOWNLOAD APP SECTION
+          ======================================================== */}
+      <section className={`py-20 border-t transition-colors ${
+        darkMode ? "bg-slate-950 border-slate-800" : "bg-[#FAF7F2] border-[#EADFD5]"
+      }`}>
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center max-w-3xl mx-auto mb-14">
+            <span className={`inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest px-3.5 py-1.5 rounded-full ${
+              darkMode ? "bg-teal-950 text-teal-300" : "bg-[#134E5E]/10 text-[#134E5E]"
+            }`}>
+              <Globe className="w-3.5 h-3.5" /> Multi-Platform Productivity
+            </span>
+            <h2 className={`text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight mt-3 ${
+              darkMode ? "text-white" : "text-[#0F3944]"
+            }`}>
+              Work Seamlessly On <span className={darkMode ? "text-teal-400" : "text-[#134E5E]"}>Every Screen</span>
+            </h2>
+            <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400 mt-3 leading-relaxed">
+              Whether you are capturing thoughts on your phone, writing inside Google Chrome, or running fully offline on your desktop, Stiknex delivers instantaneous speed and zero friction.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Card 1: Android Mobile App */}
+            <div className={`p-8 rounded-3xl border flex flex-col justify-between transition-all hover:-translate-y-1 hover:shadow-xl ${
+              darkMode ? "bg-slate-900 border-slate-800" : "bg-white border-[#EADFD5] shadow-sm"
+            }`}>
+              <div>
+                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-5 ${
+                  darkMode ? "bg-emerald-950/60 text-emerald-400" : "bg-emerald-50 text-emerald-700"
+                }`}>
+                  <Smartphone className="w-6 h-6" />
+                </div>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                  Mobile Edition
+                </span>
+                <h3 className={`text-xl font-bold mt-1 mb-2.5 ${darkMode ? "text-white" : "text-[#0F3944]"}`}>
+                  Android Mobile App
+                </h3>
+                <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-6">
+                  Native gesture navigation, touch-optimized canvas for{" "}
+                  <Link to="/sticky-notes" className="text-[#134E5E] dark:text-teal-400 hover:underline font-semibold">sticky notes</Link>,
+                  {" "}and instant offline access to your{" "}
+                  <Link to="/online-notepad" className="text-[#134E5E] dark:text-teal-400 hover:underline font-semibold">online notepad</Link>.
+                </p>
+              </div>
+              <div>
+                <a
+                  href="/Stiknex.apk"
+                  download
+                  className="w-full flex items-center justify-center gap-2.5 py-3.5 px-5 bg-[#0F3944] hover:bg-[#134E5E] dark:bg-teal-600 dark:hover:bg-teal-500 text-white rounded-2xl font-bold text-sm shadow-md transition"
+                >
+                  <Download className="w-4 h-4 text-emerald-300" />
+                  <span>Download Android APK</span>
+                </a>
+                <p className="text-[11px] text-slate-400 text-center mt-2.5">Direct APK download • Virus-free • No Play Store login</p>
+              </div>
+            </div>
+
+            {/* Card 2: Google Chrome Extension */}
+            <div className={`p-8 rounded-3xl border flex flex-col justify-between transition-all hover:-translate-y-1 hover:shadow-xl relative overflow-hidden ${
+              darkMode ? "bg-slate-900 border-teal-800/60" : "bg-white border-[#134E5E]/25 shadow-sm"
+            }`}>
+              <div className="absolute top-0 right-0 px-3 py-1 bg-[#134E5E] text-white text-[10px] font-black uppercase tracking-wider rounded-bl-xl">
+                Popular
+              </div>
+              <div>
+                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-5 ${
+                  darkMode ? "bg-teal-950/60 text-teal-400" : "bg-[#134E5E]/10 text-[#134E5E]"
+                }`}>
+                  <Globe className="w-6 h-6" />
+                </div>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#134E5E] dark:text-teal-400">
+                  Browser Toolbar
+                </span>
+                <h3 className={`text-xl font-bold mt-1 mb-2.5 ${darkMode ? "text-white" : "text-[#0F3944]"}`}>
+                  Google Chrome Extension
+                </h3>
+                <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-6">
+                  One-click scratchpad side panel on any webpage. Jot thoughts while browsing, calculate formulas, or open our{" "}
+                  <Link to="/tools" className="text-[#134E5E] dark:text-teal-400 hover:underline font-semibold">200+ browser tools</Link> instantly.
+                </p>
+              </div>
+              <div>
+                <button
+                  type="button"
+                  onClick={() => setShowExtensionModal(true)}
+                  className="w-full flex items-center justify-center gap-2.5 py-3.5 px-5 bg-[#134E5E] hover:bg-[#0F3944] text-white rounded-2xl font-bold text-sm shadow-md transition cursor-pointer"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>Add to Google Chrome</span>
+                </button>
+                <p className="text-[11px] text-slate-400 text-center mt-2.5">Lightweight manifest v3 • Works on Chrome &amp; Brave</p>
+              </div>
+            </div>
+
+            {/* Card 3: Desktop & Mobile PWA */}
+            <div className={`p-8 rounded-3xl border flex flex-col justify-between transition-all hover:-translate-y-1 hover:shadow-xl ${
+              darkMode ? "bg-slate-900 border-slate-800" : "bg-white border-[#EADFD5] shadow-sm"
+            }`}>
+              <div>
+                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-5 ${
+                  darkMode ? "bg-amber-950/60 text-amber-400" : "bg-amber-50 text-amber-700"
+                }`}>
+                  <Laptop className="w-6 h-6" />
+                </div>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
+                  Desktop &amp; Tablet
+                </span>
+                <h3 className={`text-xl font-bold mt-1 mb-2.5 ${darkMode ? "text-white" : "text-[#0F3944]"}`}>
+                  Offline Progressive Web App
+                </h3>
+                <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-6">
+                  Install Stiknex directly on Windows, macOS, iPad, or Linux. Launches in a standalone window with full offline access to our{" "}
+                  <Link to="/whiteboard" className="text-[#134E5E] dark:text-teal-400 hover:underline font-semibold">digital whiteboard</Link>.
+                </p>
+              </div>
+              <div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (window.deferredPWA) {
+                      window.deferredPWA.prompt();
+                      window.deferredPWA.userChoice.then(() => { window.deferredPWA = null; });
+                    } else {
+                      alert("To install the PWA, please use 'Add to Home Screen' or 'Install App' in your browser menu.");
+                    }
+                  }}
+                  className={`w-full flex items-center justify-center gap-2.5 py-3.5 px-5 rounded-2xl font-bold text-sm border transition cursor-pointer ${
+                    darkMode
+                      ? "bg-slate-800 hover:bg-slate-700 text-white border-slate-700"
+                      : "bg-[#FAF7F2] hover:bg-[#F3ECE2] text-[#0F3944] border-[#EADFD5]"
+                  }`}
+                >
+                  <Download className="w-4 h-4 text-[#134E5E] dark:text-teal-400" />
+                  <span>Install Web App (PWA)</span>
+                </button>
+                <p className="text-[11px] text-slate-400 text-center mt-2.5">No app store download • 100% offline capable</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ========================================================
           8. CLEAN SITEMAP PROMO BANNER (Replacing Heavy Index)
           ======================================================== */}
       <section className="py-12 max-w-7xl mx-auto px-6">
@@ -1084,6 +1235,8 @@ export default function LandingPage() {
 
         </div>
       </footer>
+
+      <ExtensionModal isOpen={showExtensionModal} onClose={() => setShowExtensionModal(false)} />
 
     </div>
   );
