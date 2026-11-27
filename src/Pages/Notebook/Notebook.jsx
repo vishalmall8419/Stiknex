@@ -14,6 +14,8 @@ import ImageResizeOverlay from "./ImageResizeOverlay";
 import NotebookDrawingCanvas from "./NotebookDrawingCanvas";
 import PenControlsBar from "./PenControlsBar";
 import PageSEO from "../../Component/SEO/PageSEO";
+import WorkspaceSeoSection from "../../Component/SEO/WorkspaceSeoSection";
+import { NOTEPAD_SEO_CONTENT } from "../../data/workspaceSeoContent";
 import Style from "./Notebook.module.css";
 import {
   isExecutableCode,
@@ -24,6 +26,7 @@ import {
 import { useAppContext } from "../../context/AppContext";
 import { emitRealtimeNotebookChange } from "../../services/socketService";
 import { initNotebookYjs } from "../../services/notebookYjsSync";
+import { useSyncedNote } from "../../hooks/useSyncedNote";
 import MonacoCodeEditor from "./MonacoCodeEditor";
 import NotebookSyncModal from "./NotebookSyncModal";
 import TranslationModal from "./TranslationModal";
@@ -229,6 +232,7 @@ const findMatches = (text, query) => {
 const Notebook = () => {
   // Shared audio, timer, snapshots and unicode tools
   const location = useLocation();
+  const { darkMode, toggleDarkMode, user, token } = useAppContext();
 
   const [notebooks, setNotebooks] = useState(
     () => resolveActiveNotebook(location.state?.quickSearchNotebookId).list,
@@ -253,6 +257,25 @@ const Notebook = () => {
   const [syncModalOpen, setSyncModalOpen] = useState(false);
   const [altKeyActive, setAltKeyActive] = useState(false);
   const [syncStatus, setSyncStatus] = useState(() => (getSyncIdentity() ? "synced" : "idle"));
+
+  const handleYjsRemoteContent = useCallback((remoteHtml) => {
+    const userRecentlyEdited = Date.now() - (lastUserEditTimestampRef.current || 0) < 4000;
+    const isEditorFocused = typeof document !== "undefined" && document.activeElement === editorRef.current;
+    if (!userRecentlyEdited && !isEditorFocused && editorModeRef.current !== "monaco" && editorRef.current && editorRef.current.innerHTML !== remoteHtml) {
+      editorRef.current.innerHTML = remoteHtml;
+      setText(remoteHtml);
+    }
+  }, []);
+
+  const { syncStatus: yjsWsStatus, applyLocalText: applyYjsLocalText } = useSyncedNote(
+    activeNotebookId,
+    user?._id || user?.id,
+    token,
+    text,
+    handleYjsRemoteContent
+  );
+
+  const effectiveSyncStatus = (user?._id || user?.id) && token ? yjsWsStatus : syncStatus;
   const cloudSyncTimeoutRef = useRef(null);
   const yjsSyncTimeoutRef = useRef(null);
   const lastUserEditTimestampRef = useRef(0);
@@ -271,6 +294,11 @@ const Notebook = () => {
   const [isCodePreserved, setIsCodePreserved] = useState(false);
   const [editorMode, setEditorMode] = useState("richtext"); // "richtext" | "monaco"
   const isMonacoActive = editorMode === "monaco";
+  const editorModeRef = useRef(editorMode);
+  const manualRichTextLockRef = useRef(false);
+  useEffect(() => {
+    editorModeRef.current = editorMode;
+  }, [editorMode]);
 
   // Context menu state
   const [contextMenu, setContextMenu] = useState({
@@ -412,6 +440,9 @@ const Notebook = () => {
   // Pure content detection to strictly prevent scrolling when notepad is empty
   const isNotepadEmpty = useMemo(() => {
     if (!text) return true;
+    if (isExecutableCode(text) || /<(?:!DOCTYPE|html|head|body|script|style)\b/i.test(text)) {
+      return false;
+    }
     const stripped = text
       .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
       .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
@@ -435,7 +466,7 @@ const Notebook = () => {
   const monacoCode = useMemo(() => {
     if (!text) return "";
     if (!isExecutableCode(text)) return "";
-    if (isMonacoActive) {
+    if (isMonacoActive && !/&lt;|&gt;/i.test(text)) {
       return text;
     }
     return extractCleanCodeFromContent(text);
@@ -570,33 +601,36 @@ const Notebook = () => {
     setWordCount(countWords(clean));
     editorRef.current.setAttribute("data-empty", clean === "" ? "true" : "false");
 
+    // Do not let rich-text DOM stats override Monaco mode while Monaco is active
+    if (editorModeRef.current === "monaco") return;
+
     // Dynamic visibility for Run, Format and Code Editor options
     const isCode = isExecutableCode(clean);
     setCodeExecutable(isCode);
 
-    // Only switch modes for genuine executable code.
-    if (isCode && editorMode !== "monaco") {
-      setEditorMode("monaco");
-    } else if (!isCode && editorMode === "monaco") {
-      setEditorMode("richtext");
-      setIsCodePreserved(false);
+    // If user explicitly clicked "Paper Notes", stay in Notepad until they click "Stiknex Editor"
+    if (manualRichTextLockRef.current) {
+      setIsCodePreserved(isCode);
+      return;
     }
-  }, [editorMode]);
+
+    // Only switch modes for genuine executable code.
+    if (isCode) {
+      const decodedCode = extractCleanCodeFromContent(editorRef.current.innerHTML || clean);
+      if (decodedCode) {
+        setText(decodedCode);
+      }
+      setEditorMode("monaco");
+    }
+  }, []);
 
   const handleMonacoChange = useCallback(
     (newCode) => {
       lastUserEditTimestampRef.current = Date.now();
       setText(newCode);
-      if (!isExecutableCode(newCode)) {
-        setCodeExecutable(false);
-        setIsCodePreserved(false);
-        setEditorMode("richtext");
-        if (editorRef.current) {
-          editorRef.current.innerText = newCode;
-        }
-      } else {
-        setCodeExecutable(true);
-      }
+      const executable = isExecutableCode(newCode);
+      setCodeExecutable(executable);
+      setIsCodePreserved(Boolean(executable && newCode && newCode.trim()));
 
       // Real-time live code preview synchronization to open Run Tab
       clearTimeout(livePreviewDebounceRef.current);
@@ -607,6 +641,7 @@ const Notebook = () => {
       // Debounce Yjs CRDT delta synchronization by 200ms to eliminate typing freezes
       clearTimeout(yjsSyncTimeoutRef.current);
       yjsSyncTimeoutRef.current = setTimeout(() => {
+        applyYjsLocalText(newCode);
         if (yjsSessionRef.current) {
           yjsSessionRef.current.syncLocalChange(newCode);
         }
@@ -631,20 +666,47 @@ const Notebook = () => {
 
   const handleSwitchToRichText = useCallback(() => {
     // Smoothly scroll/slide Monaco Editor UP out of view without unmounting or erasing code
-    setIsCodePreserved(Boolean(codeExecutable && monacoCode && monacoCode.trim()));
+    manualRichTextLockRef.current = true;
+    const currentCode = text || monacoCode || "";
+    if (editorRef.current) {
+      if (currentCode) {
+        editorRef.current.innerText = currentCode;
+        editorRef.current.setAttribute("data-empty", currentCode.trim() === "" ? "true" : "false");
+      } else {
+        editorRef.current.innerHTML = "<p><br></p>";
+        editorRef.current.setAttribute("data-empty", "true");
+      }
+    }
+    setIsCodePreserved(Boolean(codeExecutable && currentCode.trim()));
     setEditorMode("richtext");
-  }, [codeExecutable, monacoCode]);
+  }, [codeExecutable, monacoCode, text]);
 
   const handleToggleMonacoMode = useCallback(() => {
-    // Smoothly toggle between full-page Code Editor and Paper Notes without wiping code
-    setEditorMode((prev) => {
-      const next = prev === "monaco" ? "richtext" : "monaco";
-      if (next === "richtext") {
-        setIsCodePreserved(Boolean(codeExecutable && monacoCode && monacoCode.trim()));
+    // Smoothly toggle between full-page Code Editor and Paper Notes with full content sync
+    if (editorModeRef.current === "monaco") {
+      manualRichTextLockRef.current = true;
+      const currentCode = text || monacoCode || "";
+      if (editorRef.current) {
+        if (currentCode) {
+          editorRef.current.innerText = currentCode;
+          editorRef.current.setAttribute("data-empty", currentCode.trim() === "" ? "true" : "false");
+        } else {
+          editorRef.current.innerHTML = "<p><br></p>";
+          editorRef.current.setAttribute("data-empty", "true");
+        }
       }
-      return next;
-    });
-  }, [codeExecutable, monacoCode]);
+      setIsCodePreserved(Boolean(codeExecutable && currentCode.trim()));
+      setEditorMode("richtext");
+    } else {
+      manualRichTextLockRef.current = false;
+      if (editorRef.current) {
+        const decoded = extractCleanCodeFromContent(editorRef.current.innerHTML || "");
+        setText(decoded);
+        setCodeExecutable(isExecutableCode(decoded));
+      }
+      setEditorMode("monaco");
+    }
+  }, [codeExecutable, monacoCode, text]);
 
   // Push new snapshot to history
   const pushHistorySnapshot = useCallback((html) => {
@@ -773,6 +835,7 @@ const Notebook = () => {
     setText(currentHtml);
 
     // Instant CRDT sync (< 0.02s) to connected mobile/laptop via Yjs
+    applyYjsLocalText(currentHtml);
     if (yjsSessionRef.current) {
       yjsSessionRef.current.syncLocalChange(currentHtml);
     }
@@ -1162,8 +1225,9 @@ const Notebook = () => {
           yjsSessionRef.current = null;
         }
         yjsSessionRef.current = initNotebookYjs(activeNotebookId, cleanHtml, (remoteHtml) => {
-          const userRecentlyEdited = Date.now() - (lastUserEditTimestampRef.current || 0) < 1500;
-          if (!userRecentlyEdited && editorRef.current && editorRef.current.innerHTML !== remoteHtml) {
+          const userRecentlyEdited = Date.now() - (lastUserEditTimestampRef.current || 0) < 4000;
+          const isEditorFocused = typeof document !== "undefined" && document.activeElement === editorRef.current;
+          if (!userRecentlyEdited && !isEditorFocused && editorModeRef.current !== "monaco" && editorRef.current && editorRef.current.innerHTML !== remoteHtml) {
             editorRef.current.innerHTML = remoteHtml;
             updateStats();
           }
@@ -1239,7 +1303,7 @@ const Notebook = () => {
         yjsSessionRef.current = null;
       }
     };
-  }, [activeNotebookId, updateStats]);
+  }, [activeNotebookId]);
 
   // Handle QR Pairing deep link on Device B (e.g. /notebook?pair=...#...)
   useEffect(() => {
@@ -1315,9 +1379,10 @@ const Notebook = () => {
       const payload = e.detail?.remotePayload;
       if (!payload) return;
 
-      // CRITICAL: If user is actively typing on this device in the last 1.8s, delay to prevent typing race conditions
-      const isUserActivelyTypingOnThisDevice = Date.now() - (lastUserEditTimestampRef.current || 0) < 1800;
-      if (isUserActivelyTypingOnThisDevice) {
+      // CRITICAL: If user is actively typing or has a pending local push, skip remote overwrite to prevent undo/revert
+      const hasPendingLocalPush = Boolean(cloudSyncTimeoutRef.current);
+      const isUserActivelyTypingOnThisDevice = Date.now() - (lastUserEditTimestampRef.current || 0) < 4000;
+      if (hasPendingLocalPush || isUserActivelyTypingOnThisDevice) {
         return;
       }
 
@@ -1479,10 +1544,11 @@ const Notebook = () => {
       if (
         isSubscribed &&
         !document.hidden &&
+        !cloudSyncTimeoutRef.current &&
         getSyncIdentity() &&
         typeof navigator !== "undefined" &&
         navigator.onLine &&
-        Date.now() - (lastUserEditTimestampRef.current || 0) > 1800
+        Date.now() - (lastUserEditTimestampRef.current || 0) > 4000
       ) {
         pullFromCloud().catch(() => {});
       }
@@ -1525,6 +1591,7 @@ const Notebook = () => {
   }, [handleContentChange]);
 
   const handleNewNotebook = () => {
+    lastUserEditTimestampRef.current = Date.now();
     const newNotebook = {
       id: genId(),
       title: nextNotebookTitle(notebooksRef.current),
@@ -1551,6 +1618,7 @@ const Notebook = () => {
     });
 
     setNotebooks((prev) => [newNotebook, ...prev.filter((n) => n.id !== newNotebook.id)]);
+    manualRichTextLockRef.current = false;
     setIsCodePreserved(false);
     setEditorMode("richtext");
     setCodeExecutable(false);
@@ -1561,7 +1629,7 @@ const Notebook = () => {
       editorRef.current.innerHTML = newNotebook.content;
       updateStats();
     }
-    scheduleCloudSync();
+    scheduleCloudSync(true);
   };
 
   const handleSwitchNotebook = (id) => {
@@ -1574,6 +1642,7 @@ const Notebook = () => {
     } catch {}
     activeNotebookIdRef.current = id;
     titleRef.current = target.title || DEFAULT_NOTEBOOK_TITLE;
+    manualRichTextLockRef.current = false;
     setIsCodePreserved(false);
     setEditorMode("richtext");
     setActiveNotebookId(id);
@@ -1596,6 +1665,7 @@ const Notebook = () => {
       if (!willDelete) return;
 
       // 1. Immediately record tombstone to prevent deleted notebook from ever resurrecting across devices
+      lastUserEditTimestampRef.current = Date.now();
       recordDeletedNotebookId(id);
 
       const remaining = notebooksRef.current.filter((nb) => nb.id !== id);
@@ -1640,7 +1710,7 @@ const Notebook = () => {
           editorRef.current.innerHTML = fresh.content;
           updateStats();
         }
-        scheduleCloudSync();
+        scheduleCloudSync(true);
         return;
       }
 
@@ -1657,7 +1727,7 @@ const Notebook = () => {
         setTitle(next.title || DEFAULT_NOTEBOOK_TITLE);
       }
 
-      scheduleCloudSync();
+      scheduleCloudSync(true);
     });
   };
 
@@ -2385,20 +2455,22 @@ const Notebook = () => {
     [activeFontFamilyCss, fontSizePx, lineHeightPx, writingWidthPx],
   );
 
-  const { darkMode, toggleDarkMode } = useAppContext();
+  const isNotepadRoute = location.pathname === "/online-notepad";
 
   return (
+    <>
     <div
       className={`${Style.notebookPage} ${
         darkMode ? Style.darkNotebookPage : ""
       } ${isZenMode ? Style.zenMode : ""}`}
     >
       <PageSEO
-        title="Online Notepad & Code Editor – Free Digital Notebook & In-Browser IDE | Stiknex"
-        description="Stiknex is not just a notepad — it is a dual-engine workspace with a distraction-free lined paper notepad and an in-browser code editor. Write notes, code in HTML/CSS/JS/Python/SQL, run code live, format documents, and auto-save locally with zero sign-up."
-        path="/online-notebook"
+        title={isNotepadRoute ? NOTEPAD_SEO_CONTENT.title : "Online Notepad & Code Editor – Free Digital Notebook & In-Browser IDE | Stiknex"}
+        description={isNotepadRoute ? NOTEPAD_SEO_CONTENT.description : "Stiknex is not just a notepad — it is a dual-engine workspace with a distraction-free lined paper notepad and an in-browser code editor. Write notes, code in HTML/CSS/JS/Python/SQL, run code live, format documents, and auto-save locally with zero sign-up."}
+        path={isNotepadRoute ? "/online-notepad" : "/online-notebook"}
         type="webapp"
-        keywords="online notepad, code editor, online code editor, browser text editor, digital notepad, web ide, html editor online, javascript editor, python notepad, free online notebook, developer notepad, stiknex editor, run code online"
+        keywords={NOTEPAD_SEO_CONTENT.keywords}
+        faqs={NOTEPAD_SEO_CONTENT.faqs}
       />
 
       {darkMode && (
@@ -2432,7 +2504,7 @@ const Notebook = () => {
           onToggleZenMode={toggleZenMode}
           wordCount={wordCount}
           charCount={charCount}
-          saveState={saveState}
+          saveState={effectiveSyncStatus === "offline" ? "offline" : effectiveSyncStatus === "syncing" ? "saving" : saveState}
           text={text}
           setText={setText}
           textareaRef={editorRef}
@@ -2558,7 +2630,7 @@ const Notebook = () => {
         </div>
 
         {/* Paper Column: Always kept in DOM so notes are never lost */}
-        <div className={Style.paperColumn} data-empty={isNotepadEmpty ? "true" : "false"}>
+        <div className={`${Style.paperColumn} ${isMonacoActive ? Style.paperColumnHidden : ""}`} data-empty={isNotepadEmpty ? "true" : "false"}>
           {/* Quick Pill to bring back Code Editor if user scrolled it up */}
           {!isMonacoActive && isCodePreserved && codeExecutable && (
             <div className="flex justify-center w-full">
@@ -2588,7 +2660,6 @@ const Notebook = () => {
               onPaste={handleEditorPaste}
               onDrop={handleEditorDrop}
               onDragOver={(e) => e.preventDefault()}
-              data-placeholder="Start writing, pasting images, or make a to-do list…"
               data-empty={isNotepadEmpty ? "true" : "false"}
               spellCheck={true}
               style={{
@@ -2831,7 +2902,7 @@ const Notebook = () => {
           wordCount={wordCount}
           charCount={charCount}
           readingTime={readingTime}
-          saveState={saveState}
+          saveState={effectiveSyncStatus === "offline" ? "offline" : effectiveSyncStatus === "syncing" ? "saving" : saveState}
           editorRef={editorRef}
           text={text}
           setText={setText}
@@ -2960,6 +3031,13 @@ const Notebook = () => {
         darkMode={darkMode}
       />
     </div>
+    {!isZenMode && (
+      <WorkspaceSeoSection
+        content={NOTEPAD_SEO_CONTENT}
+        onScrollTop={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+      />
+    )}
+    </>
   );
 };
 

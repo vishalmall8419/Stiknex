@@ -15,15 +15,12 @@ const NATURAL_LANGUAGE_REGEX =
 export function isExecutableCode(content) {
   if (!content || typeof content !== "string") return false;
   const trimmed = content.trim();
-  // Require at least 15 characters of substantial content to avoid false triggers
-  if (trimmed.length < 15) return false;
-
   // Empty rich-text wrapper (<p><br></p>, <p style="..."><br></p>, etc.) is NEVER code
   if (/^<(?:p|div)[^>]*>(?:<br\s*\/?>|\s|&nbsp;)*<\/(?:p|div)>$/i.test(trimmed)) {
     return false;
   }
 
-  // 1. Full HTML document is always genuine code
+  // 1. Full HTML document is always genuine code (even if short like <html></html>)
   const isFullHtml = /^\s*<!DOCTYPE\s+html/i.test(trimmed) || /^\s*<html\b/i.test(trimmed);
   if (isFullHtml) return true;
 
@@ -31,6 +28,9 @@ export function isExecutableCode(content) {
   const hasScriptTag = /<script\b[^>]*>[\s\S]*?<\/script>/i.test(trimmed);
   const hasStyleTag = /<style\b[^>]*>[\s\S]*?<\/style>/i.test(trimmed);
   if (hasScriptTag || hasStyleTag) return true;
+
+  // Require at least 15 characters of substantial content to avoid false triggers for heuristics
+  if (trimmed.length < 15) return false;
 
   // 3. If text contains predominantly natural language / study note prose, reject
   if (NATURAL_LANGUAGE_REGEX.test(trimmed)) {

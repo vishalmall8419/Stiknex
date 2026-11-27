@@ -3,7 +3,9 @@ import http from "node:http";
 import express from "express";
 import cors from "cors";
 import { Server } from "socket.io";
+import mongoose from "mongoose";
 import paymentRoutes from "./routes/payment.js";
+import { attachYjsWebSocketServer } from "./wsServer.js";
 
 const app = express();
 
@@ -173,6 +175,16 @@ io.on("connection", (socket) => {
 });
 
 const PORT = process.env.PORT || 5000;
+
+if (process.env.MONGODB_URI) {
+  mongoose
+    .connect(process.env.MONGODB_URI)
+    .then(() => console.log("Connected to MongoDB for Yjs persistence"))
+    .catch((err) => console.warn("MongoDB connection warning (Yjs):", err.message));
+}
+
+attachYjsWebSocketServer(server);
+
 server.listen(PORT, () => {
-  console.log(`Stiknex real-time Socket.io server running on port ${PORT}`);
+  console.log(`Stiknex real-time Socket.io + Yjs WebSocket server running on port ${PORT}`);
 });

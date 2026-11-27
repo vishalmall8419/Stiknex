@@ -4,6 +4,16 @@ export const SITE_URL = "https://stiknex.site";
 export const BASE_URL = SITE_URL;
 
 export const seoConfig = {
+  "/online-notepad": {
+    "path": "/online-notepad",
+    "canonical": "https://stiknex.site/online-notepad",
+    "title": "Free Online Notepad — Offline-First Digital Notebook | Stiknex",
+    "h1": "Free Online Notepad with Offline Support",
+    "description": "Write, organize, and save notes instantly in your browser with Stiknex's free online notepad. Works offline with local-first storage, zero latency, and automatic cloud sync.",
+    "keywords": "free online notepad, offline digital notebook, browser notepad, local-first notes, auto-save online notepad, stiknex notepad",
+    "schemaType": "WebApplication",
+    "cluster": "Core Workspace"
+  },
   "/about": {
   "path": "/about",
   "canonical": "https://stiknex.site/about",

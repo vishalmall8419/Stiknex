@@ -45,6 +45,9 @@ export default async function handler(req, res) {
             xml += `  <url>\n`;
             xml += `    <loc>${fullUrl}</loc>\n`;
             xml += `    <lastmod>${lastmod}</lastmod>\n`;
+            if (routePath === '/online-notepad' || routePath === '/sticky-notes') {
+                xml += `    <priority>0.9</priority>\n`;
+            }
             xml += `  </url>\n`;
         }
 

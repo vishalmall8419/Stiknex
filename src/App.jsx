@@ -123,7 +123,8 @@ const App = () => {
 
   const isNotebookRoute =
     location.pathname === '/notebook' ||
-    location.pathname === '/online-notebook';
+    location.pathname === '/online-notebook' ||
+    location.pathname === '/online-notepad';
   const isStickyNotesRoute = location.pathname === '/sticky-notes' || location.pathname === '/notes';
   const isWhiteboardRoute = location.pathname === '/whiteboard';
   const isCalculatorRoute =
@@ -208,6 +209,7 @@ const App = () => {
           <Route path="/sticky-notes" element={<Home />} />
           <Route path="/stickynotes" element={<Navigate to="/sticky-notes" replace />} />
           <Route path="/online-notebook" element={<Notebook />} />
+          <Route path="/online-notepad" element={<Notebook />} />
           <Route path="/word-counter" element={<Tools directSlug="word-counter" />} />
           <Route path="/character-counter" element={<Tools directSlug="character-counter" />} />
           <Route path="/reading-time-calculator" element={<Tools directSlug="reading-time-calculator" />} />

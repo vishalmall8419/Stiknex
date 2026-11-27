@@ -5,6 +5,8 @@ import { Link, useLocation } from "react-router-dom";
 import AppShell from "../../Component/Layout/AppShell";
 import { useAppContext } from "../../context/AppContext";
 import PageSEO from "../../Component/SEO/PageSEO";
+import WorkspaceSeoSection from "../../Component/SEO/WorkspaceSeoSection";
+import { STICKY_NOTES_SEO_CONTENT } from "../../data/workspaceSeoContent";
 import { preloadRoute } from "../../utils/routePreloader";
 import Draggable from "react-draggable";
 import Xarrow, { Xwrapper, useXarrow } from "react-xarrows";
@@ -1536,24 +1538,18 @@ const Home = () => {
   return (
     <AppShell fullWidth hideFooter hideNav>
       <PageSEO
-        title="Free Online Sticky Notes & Infinite Canvas | Stiknex"
-        description="Create, organize, and color-code infinite digital sticky notes on an interactive canvas. Brainstorm ideas, track tasks, and drag notes freely."
-        path="/sticky-notes"
+        title={STICKY_NOTES_SEO_CONTENT.title}
+        description={STICKY_NOTES_SEO_CONTENT.description}
+        path={STICKY_NOTES_SEO_CONTENT.path}
         type="webapp"
+        keywords={STICKY_NOTES_SEO_CONTENT.keywords}
+        faqs={STICKY_NOTES_SEO_CONTENT.faqs}
       />
-      {/* Ensure full-viewport lock with zero scrollbars on mobile & desktop */}
+      {/* Keep interactive board 100dvh while allowing scroll to below-the-fold SEO section */}
       <style>{`
         html, body, #root {
-          overflow: hidden !important;
-          height: 100% !important;
-          max-height: 100dvh !important;
-          overscroll-behavior: none !important;
-          scrollbar-width: none !important;
-        }
-        html::-webkit-scrollbar, body::-webkit-scrollbar, #root::-webkit-scrollbar {
-          display: none !important;
-          width: 0 !important;
-          height: 0 !important;
+          overflow-x: hidden !important;
+          overscroll-behavior-x: none !important;
         }
       `}</style>
 
@@ -2054,6 +2050,10 @@ const Home = () => {
         </div>
       )}
       <NotebookSyncModal isOpen={syncModalOpen} onClose={closeSyncModal} darkMode={darkMode} />
+      <WorkspaceSeoSection
+        content={STICKY_NOTES_SEO_CONTENT}
+        onScrollTop={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+      />
     </AppShell>
   );
 };

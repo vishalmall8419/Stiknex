@@ -13,6 +13,7 @@ const AppShell = ({ children, hideNav = false, hideFooter = false, fullWidth = f
 
   const navItems = [
     { name: "Sticky Notes", path: "/sticky-notes", icon: "fa-solid fa-note-sticky" },
+    { name: "Online Notepad", path: "/online-notepad", icon: "fa-solid fa-file-lines" },
     { name: "Notebook", path: "/online-notebook", icon: "fa-solid fa-book" },
     { name: "Whiteboards", path: "/whiteboard", icon: "fa-solid fa-pen-nib" },
     { name: "Tools", path: "/tools", icon: "fa-solid fa-screwdriver-wrench" },

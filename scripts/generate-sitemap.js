@@ -38,6 +38,7 @@ const coreFileMap = {
   '/': 'src/Pages/Landing/LandingPage.jsx',
   '/sticky-notes': 'src/Pages/Home/Home.jsx',
   '/online-notebook': 'src/Pages/Notebook/Notebook.jsx',
+  '/online-notepad': 'src/Pages/Notebook/Notebook.jsx',
   '/whiteboard': 'src/Pages/Whiteboard/Whiteboard.jsx',
   '/about': 'src/Pages/About/About.jsx',
   '/blog': 'src/Pages/Blog/Blog.jsx',
@@ -142,6 +143,9 @@ async function run() {
     xml += `  <url>\n`;
     xml += `    <loc>${fullUrl}</loc>\n`;
     xml += `    <lastmod>${lastmod}</lastmod>\n`;
+    if (routePath === '/online-notepad' || routePath === '/sticky-notes') {
+      xml += `    <priority>0.9</priority>\n`;
+    }
     xml += `  </url>\n`;
     staticCount++;
   }

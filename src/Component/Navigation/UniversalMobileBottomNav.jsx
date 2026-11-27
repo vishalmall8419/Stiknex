@@ -92,6 +92,7 @@ export default function UniversalMobileBottomNav() {
   if (
     pathname === "/notebook" ||
     pathname === "/online-notebook" ||
+    pathname === "/online-notepad" ||
     pathname === "/sticky-notes" ||
     pathname === "/notes"
   ) {

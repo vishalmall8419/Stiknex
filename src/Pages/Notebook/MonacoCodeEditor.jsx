@@ -66,7 +66,7 @@ const MonacoCodeEditor = ({
 
   // Synchronize external value changes (e.g. note switch, cloud sync) without interfering with active typing
   useEffect(() => {
-    if (editorRef.current) {
+    if (editorRef.current && !editorRef.current.hasTextFocus()) {
       if (value !== lastEmittedValueRef.current) {
         lastEmittedValueRef.current = value;
         const currentModelVal = editorRef.current.getValue();

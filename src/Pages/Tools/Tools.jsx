@@ -495,6 +495,28 @@ const Tools = ({ directSlug = null }) => {
                 {renderToolEngine(activeToolData)}
               </div>
 
+              {/* Subtle Internal Link CTA to Core Productivity Workspaces */}
+              <div className="mt-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white/70 dark:bg-slate-900/60 px-5 py-3.5 text-sm">
+                <p className="text-slate-600 dark:text-slate-300 font-medium">
+                  Need to jot down results or organize ideas offline?
+                </p>
+                <div className="flex flex-wrap items-center gap-3 shrink-0">
+                  <Link
+                    to="/online-notepad"
+                    className="font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 underline underline-offset-4"
+                  >
+                    Save your calculations in our Free Online Notepad
+                  </Link>
+                  <span className="text-slate-300 dark:text-slate-700" aria-hidden="true">•</span>
+                  <Link
+                    to="/sticky-notes"
+                    className="font-semibold text-slate-700 hover:text-indigo-600 dark:text-slate-300 dark:hover:text-indigo-400 underline underline-offset-4"
+                  >
+                    Pin quick notes on Sticky Notes
+                  </Link>
+                </div>
+              </div>
+
               {/* Contextual Expandable Help, Features, Formulas & FAQs (Collapsed by default so Tool has 100% hero focus) */}
               <ToolHelpAccordion
                 tool={activeToolData}

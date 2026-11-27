@@ -6,6 +6,7 @@ const routeLoaders = {
   '/sticky-notes': () => import('../Pages/Home/Home'),
   '/notebook': () => import('../Pages/Notebook/Notebook'),
   '/online-notebook': () => import('../Pages/Notebook/Notebook'),
+  '/online-notepad': () => import('../Pages/Notebook/Notebook'),
   '/tools': () => import('../Pages/Tools/Tools'),
   '/about': () => import('../Pages/About/About'),
   '/about/tool-details': () => import('../Pages/About/ToolDetails'),
