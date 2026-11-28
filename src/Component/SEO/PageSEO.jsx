@@ -68,10 +68,10 @@ const buildBreadcrumbSchema = (path, title) => {
   };
 };
 
-const PageSEO = ({ title, description, path = "/", image, noIndex = false, type = "website", datePublished, keywords, faqs }) => {
+const PageSEO = ({ title, description, path = "/", canonicalPath, image, noIndex = false, type = "website", datePublished, keywords, faqs, featureList }) => {
   useEffect(() => {
     const fullTitle = title.includes(SITE_NAME) ? title : `${title} | ${SITE_NAME}`;
-    const url = `${SITE_URL}${path}`;
+    const url = `${SITE_URL}${canonicalPath || path}`;
     const ogImage = image || DEFAULT_IMAGE;
 
     document.title = fullTitle;
@@ -158,7 +158,8 @@ const PageSEO = ({ title, description, path = "/", image, noIndex = false, type 
         description: description,
         applicationCategory: "ProductivityApplication",
         operatingSystem: "All",
-        offers: { "@type": "Offer", price: "0" }
+        ...(Array.isArray(featureList) && featureList.length > 0 ? { featureList } : {}),
+        offers: { "@type": "Offer", price: "0", priceCurrency: "USD" }
       };
     } else {
       mainSchema = {
@@ -193,7 +194,7 @@ const PageSEO = ({ title, description, path = "/", image, noIndex = false, type 
       setJsonLd("page-main-schema", null);
       setJsonLd("page-faq-schema", null);
     };
-  }, [title, description, path, image, noIndex, type, datePublished, keywords, faqs]);
+  }, [title, description, path, canonicalPath, image, noIndex, type, datePublished, keywords, faqs, featureList]);
 
   return null;
 };

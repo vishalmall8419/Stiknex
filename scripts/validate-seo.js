@@ -76,8 +76,8 @@ for (const route of requiredRoutes) {
   }
 
   // 3. Canonical verification
-  // /online-notebook is a duplicate view of /online-notepad and intentionally canonicalizes to it.
-  const CANONICAL_EXCEPTIONS = { "/online-notebook": `${BASE_URL}/online-notepad` };
+  // /online-notepad is a duplicate view of /online-notebook and intentionally canonicalizes to it.
+  const CANONICAL_EXCEPTIONS = { "/online-notepad": `${BASE_URL}/online-notebook` };
   const expectedCanonical = CANONICAL_EXCEPTIONS[route] || (route === "/" ? `${BASE_URL}/` : `${BASE_URL}${route}`);
   if (CANONICAL_EXCEPTIONS[route] && config.canonical === expectedCanonical) {
     // intentional canonical to another route: skip duplicate-canonical check

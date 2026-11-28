@@ -21,12 +21,18 @@ const fitTitle = (rawName) => {
 export const seoConfig = {
   "/online-notepad": {
     "path": "/online-notepad",
-    "canonical": "https://stiknex.site/online-notepad",
-    "title": "Free Online Notepad & Notebook – Offline, No Login | Stiknex",
+    "canonical": "https://stiknex.site/online-notebook",
+    "title": "Free Online Notepad – Sync Devices by QR, No Login | Stiknex",
     "h1": "Free Online Notepad with Offline Support",
-    "description": "Free online notepad that saves automatically and works offline. Write notes, lists and code in your browser. No login, private by default.",
+    "description": "Free online notepad and notebook. Scan a QR code to sync across devices, end-to-end encrypted. No login, works offline.",
     "keywords": "free online notepad, offline digital notebook, browser notepad, local-first notes, auto-save online notepad, stiknex notepad",
     "schemaType": "WebApplication",
+    "featureList": [
+      "QR code device sync",
+      "Client-side AES-256-GCM end-to-end encryption",
+      "Works offline",
+      "No login or account required"
+    ],
     "cluster": "Core Workspace"
   },
   "/about": {
@@ -752,10 +758,16 @@ export const seoConfig = {
 
   "/online-notebook": {
   "path": "/online-notebook",
-  "canonical": "https://stiknex.site/online-notepad",
-  "title": "Online Notebook & Code Editor – Free, No Login | Stiknex",
+  "canonical": "https://stiknex.site/online-notebook",
+  "title": "Online Notepad & Notebook – Sync by QR, No Login | Stiknex",
   "h1": "Free Online Notepad & Professional Code Editor",
-  "description": "Free online notebook with a lined-paper notepad and an in-browser code editor. Run HTML/JS, auto-save locally, no sign-up.",
+  "description": "Free online notepad and notebook. Scan a QR code to sync across devices, end-to-end encrypted. No login, works offline.",
+  "featureList": [
+    "QR code device sync",
+    "Client-side AES-256-GCM end-to-end encryption",
+    "Works offline",
+    "No login or account required"
+  ],
   "primaryIntent": "online notepad / browser code editor / digital notebook / web ide",
   "secondaryIntents": [
     "online code editor free",
@@ -942,9 +954,15 @@ export const seoConfig = {
   "/sticky-notes": {
     path: "/sticky-notes",
     canonical: `${BASE_URL}/sticky-notes`,
-    title: "Free Online Sticky Notes – Digital Pinboard | Stiknex",
+    title: "Free Online Sticky Notes – No Login, Sync by QR | Stiknex",
     h1: "Free Online Sticky Notes Board",
-    description: "Create, color-code and organize digital sticky notes on an infinite canvas. Brainstorm ideas and track tasks, no sign-in needed.",
+    description: "Free online sticky notes board. Sync between phone and PC by QR code, encrypted, no login or account needed.",
+    featureList: [
+      "QR code device sync",
+      "Client-side AES-256-GCM end-to-end encryption",
+      "Works offline",
+      "No login or account required"
+    ],
     primaryIntent: "online sticky notes / sticky notes online / digital sticky notes",
     secondaryIntents: ["free sticky notes app", "virtual corkboard", "sticky note organizer"],
     keywords: "online sticky notes, sticky notes online, digital sticky notes, free sticky notes, virtual sticky notes, note board online",

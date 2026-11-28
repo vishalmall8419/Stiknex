@@ -2465,11 +2465,17 @@ const Notebook = () => {
       } ${isZenMode ? Style.zenMode : ""}`}
     >
       <PageSEO
-        title={isNotepadRoute ? NOTEPAD_SEO_CONTENT.title : "Online Notebook & Code Editor – Free, No Login | Stiknex"}
-        description={isNotepadRoute ? NOTEPAD_SEO_CONTENT.description : "Free online notebook with a lined-paper notepad and an in-browser code editor. Run HTML/JS, auto-save locally, no sign-up."}
-        path="/online-notepad"
+        title={isNotepadRoute ? NOTEPAD_SEO_CONTENT.title : "Online Notepad & Notebook – Sync by QR, No Login | Stiknex"}
+        description={isNotepadRoute ? NOTEPAD_SEO_CONTENT.description : "Free online notepad and notebook. Scan a QR code to sync across devices, end-to-end encrypted. No login, works offline."}
+        path="/online-notebook"
         type="webapp"
         keywords={NOTEPAD_SEO_CONTENT.keywords}
+        featureList={[
+          "QR code device sync",
+          "Client-side AES-256-GCM end-to-end encryption",
+          "Works offline",
+          "No login or account required",
+        ]}
         faqs={NOTEPAD_SEO_CONTENT.faqs}
       />
 
