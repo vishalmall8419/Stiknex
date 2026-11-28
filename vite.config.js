@@ -198,6 +198,20 @@ export default defineConfig(({ command }) => {
           navigateFallbackDenylist: [/^\/api\//, /^\/s\//, /^\/[^/]+\.[^/]+$/],
           runtimeCaching: [
             {
+              urlPattern: ({ sameOrigin, url }) => sameOrigin && url.pathname.startsWith('/assets/'),
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'app-chunks-cache',
+                expiration: {
+                  maxEntries: 120,
+                  maxAgeSeconds: 60 * 60 * 24 * 30
+                },
+                cacheableResponse: {
+                  statuses: [0, 200]
+                }
+              }
+            },
+            {
               urlPattern: /^https:\/\/fonts\.(?:googleapis|gstatic)\.com\/.*/i,
               handler: 'CacheFirst',
               options: {

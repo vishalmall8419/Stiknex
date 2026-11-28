@@ -1,4 +1,6 @@
 import { seoConfig, BASE_URL } from "../src/utils/seoConfig.js";
+import { TOOL_SLUGS } from "../src/data/toolSlugs.js";
+import { ALL_TOOLS } from "../src/data/toolsRegistry.js";
 
 console.log("🔍 Running Stiknex Comprehensive SEO & Indexing Validation...\n");
 
@@ -109,6 +111,31 @@ for (const route of requiredRoutes) {
     warnings++;
   }
 }
+
+// 7. TOOL_SLUGS <-> ALL_TOOLS <-> seoConfig parity check
+const registrySlugs = new Set(ALL_TOOLS.map((t) => t.slug));
+const inRegistryNotToolSlugs = [...registrySlugs].filter((s) => !TOOL_SLUGS.has(s));
+const inToolSlugsNotRegistry = [...TOOL_SLUGS].filter((s) => !registrySlugs.has(s));
+const inToolSlugsNotSeo = [...TOOL_SLUGS].filter((s) => !seoConfig[`/${s}`]);
+const inRegistryNotSeo = [...registrySlugs].filter((s) => !seoConfig[`/${s}`]);
+
+if (inRegistryNotToolSlugs.length > 0) {
+  console.error(`❌ Slugs in toolsRegistry.js missing from toolSlugs.js: ${inRegistryNotToolSlugs.join(", ")}`);
+  errors += inRegistryNotToolSlugs.length;
+}
+if (inToolSlugsNotRegistry.length > 0) {
+  console.error(`❌ Slugs in toolSlugs.js missing from toolsRegistry.js: ${inToolSlugsNotRegistry.join(", ")}`);
+  errors += inToolSlugsNotRegistry.length;
+}
+if (inToolSlugsNotSeo.length > 0) {
+  console.error(`❌ Slugs in toolSlugs.js missing from seoConfig.js: ${inToolSlugsNotSeo.join(", ")}`);
+  errors += inToolSlugsNotSeo.length;
+}
+if (inRegistryNotSeo.length > 0) {
+  console.error(`❌ Slugs in toolsRegistry.js missing from seoConfig.js: ${inRegistryNotSeo.join(", ")}`);
+  errors += inRegistryNotSeo.length;
+}
+console.log(`Checked TOOL_SLUGS (${TOOL_SLUGS.size}) <-> ALL_TOOLS (${registrySlugs.size}) <-> seoConfig (${Object.keys(seoConfig).length}) parity.`);
 
 console.log("\n==========================================");
 console.log(`Validation Complete: ${errors} Errors, ${warnings} Warnings`);
