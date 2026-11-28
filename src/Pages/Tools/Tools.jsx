@@ -994,6 +994,17 @@ const Tools = ({ directSlug = null }) => {
         </div>
       </div>
       )}
+      {!isToolFullscreen && directSlug && seoConfig[`/${directSlug}`] && (
+        <WorkspaceSeoSection
+          content={{
+            heading: seoConfig[`/${directSlug}`].h1 || seoConfig[`/${directSlug}`].title,
+            subheading: seoConfig[`/${directSlug}`].description,
+            ...(SCOPED_SEO_CONTENT[`/${directSlug}`] || {}),
+            faqs: seoConfig[`/${directSlug}`].faqs || [],
+            relatedTools: TIER1_RELATED_TOOLS[`/${directSlug}`] || []
+          }}
+        />
+      )}
     </AppShell>
   );
 };
