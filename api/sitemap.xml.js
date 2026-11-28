@@ -1,6 +1,7 @@
 import connectToDatabase from './_utils/db.js';
 import Blog from './_models/Blog.js';
 import { seoConfig, BASE_URL } from './_utils/seoConfig.js';
+import { getAllowedStaticRoutes, buildSitemapXml, SITE_URL } from './_utils/sitemapRules.js';
 import fs from 'fs';
 import path from 'path';
 
@@ -20,9 +21,8 @@ export default async function handler(req, res) {
             res.setHeader('Location', 'https://stiknex.site/sitemap.xml');
             return res.status(301).end();
         }
-        const baseUrl = BASE_URL || 'https://stiknex.site';
-        const defaultDate = '2026-10-30';
-        
+        const baseUrl = BASE_URL || SITE_URL;
+
         let blogs = [];
         try {
             await connectToDatabase();
@@ -34,47 +34,8 @@ export default async function handler(req, res) {
             console.warn('Sitemap DB fetch warning (using static routes):', dbErr.message);
         }
 
-        let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
-        xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
-
-        // Core Public Pages from seoConfig (Excludes private / admin routes)
-        for (const [routePath, config] of Object.entries(seoConfig)) {
-            const fullUrl = routePath === "/" ? `${baseUrl}/` : `${baseUrl}${routePath}`;
-            // Duplicate views that canonicalize to another URL (e.g. /online-notebook -> /online-notepad) stay out of the sitemap.
-            if (config.canonical && config.canonical !== fullUrl) continue;
-            const lastmod = routeDates[routePath] || defaultDate;
-
-            xml += `  <url>\n`;
-            xml += `    <loc>${fullUrl}</loc>\n`;
-            xml += `    <lastmod>${lastmod}</lastmod>\n`;
-            if (routePath === '/online-notepad' || routePath === '/sticky-notes') {
-                xml += `    <priority>0.9</priority>\n`;
-            }
-            xml += `  </url>\n`;
-        }
-
-        // Dynamic Published Blog Pages
-        if (Array.isArray(blogs) && blogs.length > 0) {
-            const seenSlugs = new Set();
-            blogs.forEach(blog => {
-                if (!blog.slug || seenSlugs.has(blog.slug)) return;
-                seenSlugs.add(blog.slug);
-                let modDate = defaultDate;
-                const dateVal = blog.updatedAt || blog.publishedAt;
-                if (dateVal) {
-                    try {
-                        modDate = new Date(dateVal).toISOString().split('T')[0];
-                    } catch (_) {}
-                }
-
-                xml += `  <url>\n`;
-                xml += `    <loc>${baseUrl}/blog/${encodeURIComponent(blog.slug)}</loc>\n`;
-                xml += `    <lastmod>${modDate}</lastmod>\n`;
-                xml += `  </url>\n`;
-            });
-        }
-
-        xml += `</urlset>`;
+        const staticRoutes = getAllowedStaticRoutes(seoConfig, baseUrl);
+        const xml = buildSitemapXml({ staticRoutes, routeDates, blogs, baseUrl });
 
         res.setHeader('Content-Type', 'application/xml; charset=utf-8');
         res.setHeader('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400');
