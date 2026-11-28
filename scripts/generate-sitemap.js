@@ -6,30 +6,47 @@ import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import { seoConfig, BASE_URL } from '../src/utils/seoConfig.js';
 import { ALL_TOOLS } from '../src/data/toolsRegistry.js';
+import { getAllowedStaticRoutes, buildSitemapXml, SITE_URL } from '../api/_utils/sitemapRules.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const rootDir = path.resolve(__dirname, '..');
 
 // Load .env
-dotenv.config({ path: path.join(__dirname, '..', '.env') });
-dotenv.config({ path: path.join(__dirname, '..', '.env.local') });
+dotenv.config({ path: path.join(rootDir, '.env') });
+dotenv.config({ path: path.join(rootDir, '.env.local') });
 
-const publicDir = path.join(__dirname, '..', 'public');
+const publicDir = path.join(rootDir, 'public');
 const sitemapPath = path.join(publicDir, 'sitemap.xml');
-const baseUrl = BASE_URL || 'https://stiknex.site';
+const baseUrl = BASE_URL || SITE_URL;
 
-// Helper to get git commit date
-function getGitDate(relPath, fallback = '2026-10-28') {
+// Check if repo is shallow (cannot trust git log -1 dates in shallow clones)
+function isShallowRepo() {
   try {
-    const fullPath = path.resolve(__dirname, '..', relPath);
-    if (!fs.existsSync(fullPath)) return fallback;
-    const stdout = execSync(`git log -1 --format="%as" -- "${relPath}"`, {
-      cwd: path.resolve(__dirname, '..'),
-      encoding: 'utf8'
+    const out = execSync('git rev-parse --is-shallow-repository', {
+      cwd: rootDir,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore']
     }).trim();
-    return stdout || fallback;
+    return out === 'true';
   } catch (_) {
-    return fallback;
+    return true;
+  }
+}
+
+// Helper to get genuine git commit date; returns null if unavailable (never a hard-coded fallback)
+function getGitDate(relPath) {
+  try {
+    const fullPath = path.resolve(rootDir, relPath);
+    if (!fs.existsSync(fullPath)) return null;
+    const stdout = execSync(`git log -1 --format="%as" -- "${relPath}"`, {
+      cwd: rootDir,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore']
+    }).trim();
+    return /^\d{4}-\d{2}-\d{2}$/.test(stdout) ? stdout : null;
+  } catch (_) {
+    return null;
   }
 }
 
@@ -52,47 +69,49 @@ const coreFileMap = {
   '/sitemap': 'src/Pages/Sitemap/Sitemap.jsx'
 };
 
-// Cache engine dates
+const catToEngine = {
+  'calculators': 'CalculatorsEngine.jsx',
+  'measurement': 'MeasurementEngine.jsx',
+  'writing': 'WritingEngine.jsx',
+  'text-analysis': 'TextAnalysisEngine.jsx',
+  'image': 'ImageEngine.jsx',
+  'pdf': 'PdfEngine.jsx',
+  'developer': 'DeveloperEngine.jsx',
+  'encoding': 'EncodingEngine.jsx',
+  'security': 'SecurityEngine.jsx',
+  'design': 'DesignEngine.jsx',
+  'time': 'TimeEngine.jsx',
+  'math': 'MathEngine.jsx',
+  'finance': 'FinanceEngine.jsx',
+  'typing': 'TypingEngine.jsx',
+  'productivity': 'ProductivityEngine.jsx',
+  'seo': 'SeoEngine.jsx',
+  'data': 'DataEngine.jsx',
+  'media': 'MediaEngine.jsx',
+  'generators': 'GeneratorsEngine.jsx',
+  'helpers': 'HelpersEngine.jsx'
+};
+
 const engineDateCache = {};
 function getEngineDate(category) {
-  if (engineDateCache[category]) return engineDateCache[category];
-  const catToEngine = {
-    'calculators': 'CalculatorsEngine.jsx',
-    'measurement': 'MeasurementEngine.jsx',
-    'writing': 'WritingEngine.jsx',
-    'text-analysis': 'TextAnalysisEngine.jsx',
-    'image': 'ImageEngine.jsx',
-    'pdf': 'PdfEngine.jsx',
-    'developer': 'DeveloperEngine.jsx',
-    'encoding': 'EncodingEngine.jsx',
-    'security': 'SecurityEngine.jsx',
-    'design': 'DesignEngine.jsx',
-    'time': 'TimeEngine.jsx',
-    'math': 'MathEngine.jsx',
-    'finance': 'FinanceEngine.jsx',
-    'typing': 'TypingEngine.jsx',
-    'productivity': 'ProductivityEngine.jsx',
-    'seo': 'SeoEngine.jsx',
-    'data': 'DataEngine.jsx',
-    'media': 'MediaEngine.jsx',
-    'generators': 'GeneratorsEngine.jsx',
-    'helpers': 'HelpersEngine.jsx'
-  };
+  if (category in engineDateCache) return engineDateCache[category];
   const engineFileName = catToEngine[category];
   const relPath = engineFileName ? `src/Pages/Tools/engines/${engineFileName}` : 'src/data/toolsRegistry.js';
-  const date = getGitDate(relPath, '2026-10-30');
+  const date = getGitDate(relPath);
   engineDateCache[category] = date;
   return date;
 }
 
-// Build map of tools to categories
 const toolCategoryMap = {};
 ALL_TOOLS.forEach(t => {
   toolCategoryMap[`/${t.slug}`] = t.category;
 });
 
+// Maximum number of static URLs allowed to share the same lastmod date
+const MAX_SHARED_DATE_COUNT = 5;
+
 async function run() {
-  console.log('Generating production sitemap with genuine lastmod dates...');
+  console.log('Generating production sitemap using shared sitemapRules...');
 
   // 1. Fetch blogs from MongoDB if connected
   let blogs = [];
@@ -120,61 +139,40 @@ async function run() {
     }
   }
 
-  let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
-  xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
+  // 2. Filter static routes via shared rules
+  const staticRoutes = getAllowedStaticRoutes(seoConfig, baseUrl);
 
-  let staticCount = 0;
-  const routeDates = {};
-
-  for (const [routePath, config] of Object.entries(seoConfig)) {
-    // Determine genuine lastmod
-    let lastmod = '2026-10-28';
-    if (coreFileMap[routePath]) {
-      lastmod = getGitDate(coreFileMap[routePath], '2026-10-28');
-    } else if (toolCategoryMap[routePath]) {
-      lastmod = getEngineDate(toolCategoryMap[routePath]);
-    } else {
-      lastmod = getGitDate('src/data/toolsRegistry.js', '2026-10-28');
-    }
-
-    const fullUrl = routePath === '/' ? `${baseUrl}/` : `${baseUrl}${routePath}`;
-    // Duplicate views that canonicalize to another URL stay out of the sitemap.
-    if (config.canonical && config.canonical !== fullUrl) continue;
-    routeDates[routePath] = lastmod;
-
-    xml += `  <url>\n`;
-    xml += `    <loc>${fullUrl}</loc>\n`;
-    xml += `    <lastmod>${lastmod}</lastmod>\n`;
-    if (routePath === '/online-notepad' || routePath === '/sticky-notes') {
-      xml += `    <priority>0.9</priority>\n`;
-    }
-    xml += `  </url>\n`;
-    staticCount++;
-  }
-
-  // 2. Add published blogs
-  let blogCount = 0;
-  if (blogs && blogs.length > 0) {
-    const seen = new Set();
-    for (const b of blogs) {
-      if (!b.slug || seen.has(b.slug)) continue;
-      seen.add(b.slug);
-      let blogDate = '2026-10-28';
-      const d = b.updatedAt || b.publishedAt;
-      if (d) {
-        try {
-          blogDate = new Date(d).toISOString().split('T')[0];
-        } catch (_) {}
+  // 3. Resolve genuine git lastmod dates (omit if shallow clone or shared across many URLs)
+  const rawDates = {};
+  const shallow = isShallowRepo();
+  if (!shallow) {
+    for (const { routePath } of staticRoutes) {
+      let lastmod = null;
+      if (coreFileMap[routePath]) {
+        lastmod = getGitDate(coreFileMap[routePath]);
+      } else if (toolCategoryMap[routePath]) {
+        lastmod = getEngineDate(toolCategoryMap[routePath]);
       }
-      xml += `  <url>\n`;
-      xml += `    <loc>${baseUrl}/blog/${encodeURIComponent(b.slug)}</loc>\n`;
-      xml += `    <lastmod>${blogDate}</lastmod>\n`;
-      xml += `  </url>\n`;
-      blogCount++;
+      if (lastmod) {
+        rawDates[routePath] = lastmod;
+      }
     }
   }
 
-  xml += `</urlset>`;
+  // Enforce: no more than a few URLs may share the same date
+  const dateCounts = {};
+  for (const d of Object.values(rawDates)) {
+    dateCounts[d] = (dateCounts[d] || 0) + 1;
+  }
+
+  const routeDates = {};
+  for (const [routePath, d] of Object.entries(rawDates)) {
+    if (dateCounts[d] <= MAX_SHARED_DATE_COUNT) {
+      routeDates[routePath] = d;
+    }
+  }
+
+  const xml = buildSitemapXml({ staticRoutes, routeDates, blogs, baseUrl });
 
   if (!fs.existsSync(publicDir)) {
     fs.mkdirSync(publicDir, { recursive: true });
@@ -182,12 +180,12 @@ async function run() {
 
   fs.writeFileSync(sitemapPath, xml, 'utf-8');
   console.log(`✅ Successfully generated sitemap.xml at ${sitemapPath}:`);
-  console.log(`   - Static & Tool Pages: ${staticCount}`);
-  console.log(`   - Published Blog Posts: ${blogCount}`);
-  console.log(`   - Total URLs in Sitemap: ${staticCount + blogCount}`);
+  console.log(`   - Static & Tool Pages: ${staticRoutes.length}`);
+  console.log(`   - Published Blog Posts: ${blogs.length}`);
+  console.log(`   - Total URLs in Sitemap: ${staticRoutes.length + blogs.length}`);
 
   // Save route dates map for api/sitemap.xml.js runtime use
-  const mapPath = path.join(__dirname, '..', 'api', '_utils', 'routeDates.json');
+  const mapPath = path.join(rootDir, 'api', '_utils', 'routeDates.json');
   fs.writeFileSync(mapPath, JSON.stringify(routeDates, null, 2), 'utf-8');
   console.log(`✅ Saved route lastmod mapping to ${mapPath}`);
 }
