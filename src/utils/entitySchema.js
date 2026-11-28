@@ -17,7 +17,9 @@ export const FOUNDER_PROFILE_LINKS = [
 export function buildPersonSchema() {
   return {
     "@type": "Person",
+    "@id": `${SITE_URL}/#person`,
     name: "Vishal Mall",
+    jobTitle: "Software Developer & Founder",
     url: `${SITE_URL}/about`,
     sameAs: FOUNDER_SAME_AS,
   };
@@ -26,13 +28,14 @@ export function buildPersonSchema() {
 export function buildOrganizationSchema() {
   return {
     "@type": "Organization",
+    "@id": `${SITE_URL}/#organization`,
     name: SITE_NAME,
     url: SITE_URL,
     logo: {
       "@type": "ImageObject",
       url: LOGO_URL,
     },
-    founder: buildPersonSchema(),
+    founder: { "@id": `${SITE_URL}/#person` },
     sameAs: FOUNDER_SAME_AS,
   };
 }
@@ -41,14 +44,15 @@ export function buildWebSiteSchema(description) {
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
+    "@id": `${SITE_URL}/#website`,
     name: SITE_NAME,
     url: SITE_URL,
     ...(description ? { description } : {}),
-    author: buildPersonSchema(),
-    publisher: buildOrganizationSchema(),
+    author: { "@id": `${SITE_URL}/#person` },
+    publisher: { "@id": `${SITE_URL}/#organization` },
     potentialAction: {
       "@type": "SearchAction",
-      target: `${SITE_URL}/search?q={search_term_string}`,
+      target: `${SITE_URL}/tools?q={search_term_string}`,
       "query-input": "required name=search_term_string",
     },
   };

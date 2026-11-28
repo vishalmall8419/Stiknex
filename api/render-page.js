@@ -1,6 +1,5 @@
 import { getSeoForPath, isKnownRoute, seoAliases, BASE_URL, SITE_URL } from './_utils/seoConfig.js';
 import { extractFaqFromContent } from './_utils/blogValidator.js';
-import { buildOrganizationSchema, buildPersonSchema, buildWebSiteSchema } from '../src/utils/entitySchema.js';
 
 const escAttr = (value) => String(value ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 import { ALL_TOOLS, TOOL_CATEGORIES, TOOL_HUBS } from '../src/data/toolsRegistry.js';
@@ -228,11 +227,10 @@ export default async function handler(req, res) {
                     ...(blog.category ? { "articleSection": blog.category } : {}),
                     "datePublished": blog.publishedAt || blog.createdAt || new Date().toISOString(),
                     "dateModified": blog.updatedAt || blog.publishedAt || new Date().toISOString(),
-                    "author": {
-                        ...buildPersonSchema(),
-                        "name": blog.author || "Vishal Mall"
-                    },
-                    "publisher": buildOrganizationSchema(),
+                    "author": (!blog.author || blog.author === "Vishal Mall")
+                        ? { "@id": `${primaryDomain}/#person` }
+                        : { "@type": "Person", "name": blog.author, "url": `${primaryDomain}/about` },
+                    "publisher": { "@id": `${primaryDomain}/#organization` },
                     "mainEntityOfPage": {
                         "@type": "WebPage",
                         "@id": blogUrl
@@ -467,7 +465,7 @@ export default async function handler(req, res) {
         ];
 
         if (cleanPath === '/') {
-            pageSchemas.push(buildWebSiteSchema(description));
+            // Base index.html @graph already provides WebSite, Organization, Person, WebApplication, and WebPage
         } else if (cleanPath === '/about') {
             pageSchemas.push({
                 "@context": "https://schema.org",
@@ -475,7 +473,7 @@ export default async function handler(req, res) {
                 "name": title,
                 "url": canonicalUrl,
                 "description": description,
-                "mainEntity": buildOrganizationSchema()
+                "mainEntity": { "@id": `${primaryDomain}/#organization` }
             });
         } else {
             pageSchemas.push({

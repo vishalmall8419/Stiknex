@@ -1,9 +1,6 @@
 import { useEffect } from "react";
 import { SITE_URL } from "../../utils/seoConfig";
 import {
-  buildOrganizationSchema,
-  buildPersonSchema,
-  buildWebSiteSchema,
   LOGO_URL,
   SITE_NAME,
 } from "../../utils/entitySchema";
@@ -142,7 +139,7 @@ const PageSEO = ({ title, description, path = "/", canonicalPath, image, noIndex
     // 1. Breadcrumb Schema
     setJsonLd("page-breadcrumb-schema", buildBreadcrumbSchema(path, title));
 
-    // 2. Article / WebApp / Website Schema
+    // 2. Article / WebApp Schema (index.html @graph already provides WebSite, Organization, Person)
     let mainSchema = null;
     if (type === "article") {
       mainSchema = {
@@ -151,8 +148,8 @@ const PageSEO = ({ title, description, path = "/", canonicalPath, image, noIndex
         headline: title,
         image: ogImage,
         datePublished: datePublished || new Date().toISOString(),
-        author: buildPersonSchema(),
-        publisher: buildOrganizationSchema(),
+        author: { "@id": `${SITE_URL}/#person` },
+        publisher: { "@id": `${SITE_URL}/#organization` },
         description: description
       };
     } else if (type === "webapp") {
@@ -167,8 +164,6 @@ const PageSEO = ({ title, description, path = "/", canonicalPath, image, noIndex
         ...(Array.isArray(featureList) && featureList.length > 0 ? { featureList } : {}),
         offers: { "@type": "Offer", price: "0", priceCurrency: "USD" }
       };
-    } else {
-      mainSchema = buildWebSiteSchema(description);
     }
     setJsonLd("page-main-schema", mainSchema);
 
