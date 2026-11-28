@@ -682,7 +682,7 @@ export default function ScientificCalculator({ tool, seoData }) {
   };
 
   return (
-    <div className="fixed inset-0 lg:relative lg:inset-auto w-full h-[100dvh] lg:min-h-screen pb-20 md:pb-0 flex flex-col justify-between overflow-hidden select-none font-sans bg-gradient-to-b from-[#EBF2F9] via-[#E2EDF7] to-[#D6E5F2] dark:from-[#0B1017] dark:via-[#080D14] dark:to-[#05090F] text-slate-800 dark:text-slate-100 transition-colors duration-300">
+    <div className="fixed inset-0 lg:relative lg:inset-auto w-full h-[100dvh] lg:min-h-screen pb-20 md:pb-0 flex flex-col justify-between overflow-y-auto no-scrollbar select-none font-sans bg-gradient-to-b from-[#EBF2F9] via-[#E2EDF7] to-[#D6E5F2] dark:from-[#0B1017] dark:via-[#080D14] dark:to-[#05090F] text-slate-800 dark:text-slate-100 transition-colors duration-300">
 
       {/* ═════════════════════════════════════════════════════════════════════
           DESKTOP VIEW (>= lg): DUAL STATION (Matching Reference Image)
@@ -1245,8 +1245,8 @@ export default function ScientificCalculator({ tool, seoData }) {
             MOBILE VIEW (< lg): MATCHING REFERENCE IMAGE media_1794498111620_c31d2b83.png
             Keypad anchored at bottom with pb-8 clearance, zero jumping UI!
         ══════════════════════════════════════════════════════════════════════ */
-        <main className="w-full flex-1 h-full flex flex-col justify-between p-0 overflow-hidden">
-          <div className="w-full max-w-md h-full flex flex-col justify-between px-3.5 pt-2 pb-[max(2.25rem,calc(env(safe-area-inset-bottom)+1.5rem))] sm:pb-10 mx-auto relative transition-all">
+        <main className="w-full flex-1 h-full flex flex-col justify-between p-0 overflow-y-auto no-scrollbar">
+          <div className="w-full max-w-md h-full flex flex-col justify-between px-3.5 pt-2 pb-2 sm:pb-3 mx-auto relative transition-all">
 
             {/* Top Bar: Menu, Badge, History & Theme */}
             <div className="shrink-0 flex items-center justify-between pt-1 pb-2 px-1 border-b border-black/5 dark:border-white/5">
@@ -1297,7 +1297,7 @@ export default function ScientificCalculator({ tool, seoData }) {
             </div>
 
             {/* Screen Display Area (Mobile) */}
-            <div className="flex-1 flex flex-col justify-between text-right px-2 py-2 min-h-0 overflow-hidden">
+            <div className="flex-1 flex flex-col justify-between text-right px-2 py-1 min-h-[84px] overflow-hidden">
               <div className="shrink-0 flex items-center justify-between pb-1">
                 <div className="flex items-center gap-1.5">
                   <button
@@ -1364,7 +1364,7 @@ export default function ScientificCalculator({ tool, seoData }) {
                 <button
                   type="button"
                   onClick={() => handlePress("SHIFT")}
-                  className={`h-8 sm:h-8.5 rounded-lg transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95 ${
+                  className={`h-7 sm:h-8 rounded-lg transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95 ${
                     isShift
                       ? "bg-amber-500 text-white font-black shadow-amber-500/30"
                       : "bg-[#1E2633] text-amber-400 hover:bg-[#253040] dark:bg-[#1E2633] dark:text-amber-400"
@@ -1375,7 +1375,7 @@ export default function ScientificCalculator({ tool, seoData }) {
                 <button
                   type="button"
                   onClick={() => handlePress("DEG")}
-                  className={`h-8 sm:h-8.5 rounded-lg transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95 ${
+                  className={`h-7 sm:h-8 rounded-lg transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95 ${
                     !isRad
                       ? "bg-[#1D8BF1] text-white font-black shadow-blue-500/30"
                       : "bg-[#161F2C] text-slate-300 hover:bg-[#1E2B3D] dark:bg-[#161F2C] dark:text-slate-300"
@@ -1386,7 +1386,7 @@ export default function ScientificCalculator({ tool, seoData }) {
                 <button
                   type="button"
                   onClick={() => handlePress("RAD")}
-                  className={`h-8 sm:h-8.5 rounded-lg transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95 ${
+                  className={`h-7 sm:h-8 rounded-lg transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95 ${
                     isRad
                       ? "bg-[#1D8BF1] text-white font-black shadow-blue-500/30"
                       : "bg-[#161F2C] text-slate-300 hover:bg-[#1E2B3D] dark:bg-[#161F2C] dark:text-slate-300"
@@ -1397,21 +1397,21 @@ export default function ScientificCalculator({ tool, seoData }) {
                 <button
                   type="button"
                   onClick={() => handlePress("sin\u207B\u00B9")}
-                  className="h-8 sm:h-8.5 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
+                  className="h-7 sm:h-8 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
                 >
                   sin⁻¹
                 </button>
                 <button
                   type="button"
                   onClick={() => handlePress("cos\u207B\u00B9")}
-                  className="h-8 sm:h-8.5 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
+                  className="h-7 sm:h-8 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
                 >
                   cos⁻¹
                 </button>
                 <button
                   type="button"
                   onClick={() => handlePress("tan\u207B\u00B9")}
-                  className="h-8 sm:h-8.5 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
+                  className="h-7 sm:h-8 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
                 >
                   tan⁻¹
                 </button>
@@ -1422,42 +1422,42 @@ export default function ScientificCalculator({ tool, seoData }) {
                 <button
                   type="button"
                   onClick={() => handlePress("sin")}
-                  className="h-8 sm:h-8.5 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
+                  className="h-7 sm:h-8 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
                 >
                   sin
                 </button>
                 <button
                   type="button"
                   onClick={() => handlePress("cos")}
-                  className="h-8 sm:h-8.5 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
+                  className="h-7 sm:h-8 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
                 >
                   cos
                 </button>
                 <button
                   type="button"
                   onClick={() => handlePress("tan")}
-                  className="h-8 sm:h-8.5 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
+                  className="h-7 sm:h-8 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
                 >
                   tan
                 </button>
                 <button
                   type="button"
                   onClick={() => handlePress("log")}
-                  className="h-8 sm:h-8.5 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
+                  className="h-7 sm:h-8 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
                 >
                   log
                 </button>
                 <button
                   type="button"
                   onClick={() => handlePress("ln")}
-                  className="h-8 sm:h-8.5 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
+                  className="h-7 sm:h-8 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
                 >
                   ln
                 </button>
                 <button
                   type="button"
                   onClick={() => handlePress("MODE")}
-                  className="h-8 sm:h-8.5 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95 text-[10px]"
+                  className="h-7 sm:h-8 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95 text-[10px]"
                 >
                   MODE
                 </button>
@@ -1468,42 +1468,42 @@ export default function ScientificCalculator({ tool, seoData }) {
                 <button
                   type="button"
                   onClick={() => handlePress("x!")}
-                  className="h-8 sm:h-8.5 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
+                  className="h-7 sm:h-8 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
                 >
                   x!
                 </button>
                 <button
                   type="button"
                   onClick={() => handlePress("\u221A")}
-                  className="h-8 sm:h-8.5 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
+                  className="h-7 sm:h-8 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
                 >
                   √
                 </button>
                 <button
                   type="button"
                   onClick={() => handlePress("\u221B")}
-                  className="h-8 sm:h-8.5 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
+                  className="h-7 sm:h-8 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
                 >
                   ∛
                 </button>
                 <button
                   type="button"
                   onClick={() => handlePress("x\u00B2")}
-                  className="h-8 sm:h-8.5 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
+                  className="h-7 sm:h-8 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
                 >
                   x²
                 </button>
                 <button
                   type="button"
                   onClick={() => handlePress("x\u00B3")}
-                  className="h-8 sm:h-8.5 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
+                  className="h-7 sm:h-8 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
                 >
                   x³
                 </button>
                 <button
                   type="button"
                   onClick={() => handlePress("x\u02B8")}
-                  className="h-8 sm:h-8.5 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
+                  className="h-7 sm:h-8 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
                 >
                   xʸ
                 </button>
@@ -1514,42 +1514,42 @@ export default function ScientificCalculator({ tool, seoData }) {
                 <button
                   type="button"
                   onClick={() => handlePress("10\u02E3")}
-                  className="h-8 sm:h-8.5 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
+                  className="h-7 sm:h-8 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
                 >
                   10ˣ
                 </button>
                 <button
                   type="button"
                   onClick={() => handlePress("e\u02E3")}
-                  className="h-8 sm:h-8.5 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
+                  className="h-7 sm:h-8 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
                 >
                   eˣ
                 </button>
                 <button
                   type="button"
                   onClick={() => handlePress("(")}
-                  className="h-8 sm:h-8.5 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95 text-xs"
+                  className="h-7 sm:h-8 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95 text-xs"
                 >
                   (
                 </button>
                 <button
                   type="button"
                   onClick={() => handlePress(")")}
-                  className="h-8 sm:h-8.5 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95 text-xs"
+                  className="h-7 sm:h-8 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95 text-xs"
                 >
                   )
                 </button>
                 <button
                   type="button"
                   onClick={() => handlePress("1/x")}
-                  className="h-8 sm:h-8.5 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
+                  className="h-7 sm:h-8 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
                 >
                   1/x
                 </button>
                 <button
                   type="button"
                   onClick={() => handlePress("|x|")}
-                  className="h-8 sm:h-8.5 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
+                  className="h-7 sm:h-8 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
                 >
                   |x|
                 </button>
@@ -1560,42 +1560,42 @@ export default function ScientificCalculator({ tool, seoData }) {
                 <button
                   type="button"
                   onClick={() => handlePress("MC")}
-                  className="h-8 sm:h-8.5 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
+                  className="h-7 sm:h-8 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
                 >
                   MC
                 </button>
                 <button
                   type="button"
                   onClick={() => handlePress("MR")}
-                  className="h-8 sm:h-8.5 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
+                  className="h-7 sm:h-8 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
                 >
                   MR
                 </button>
                 <button
                   type="button"
                   onClick={() => handlePress("M+")}
-                  className="h-8 sm:h-8.5 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
+                  className="h-7 sm:h-8 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
                 >
                   M+
                 </button>
                 <button
                   type="button"
                   onClick={() => handlePress("M-")}
-                  className="h-8 sm:h-8.5 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
+                  className="h-7 sm:h-8 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
                 >
                   M-
                 </button>
                 <button
                   type="button"
                   onClick={() => handlePress("\u03C0")}
-                  className="h-8 sm:h-8.5 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
+                  className="h-7 sm:h-8 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
                 >
                   π
                 </button>
                 <button
                   type="button"
                   onClick={() => handlePress("%")}
-                  className="h-8 sm:h-8.5 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
+                  className="h-7 sm:h-8 rounded-lg bg-[#161F2C] hover:bg-[#1E2B3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
                 >
                   %
                 </button>
@@ -1606,42 +1606,42 @@ export default function ScientificCalculator({ tool, seoData }) {
                 <button
                   type="button"
                   onClick={() => handlePress("7")}
-                  className="h-10 sm:h-11 rounded-xl bg-[#161F2C] hover:bg-[#202C3D] text-white dark:bg-[#161F2C] dark:text-white font-bold text-lg transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
+                  className="h-9 sm:h-11 rounded-xl bg-[#161F2C] hover:bg-[#202C3D] text-white dark:bg-[#161F2C] dark:text-white font-bold text-lg transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
                 >
                   7
                 </button>
                 <button
                   type="button"
                   onClick={() => handlePress("8")}
-                  className="h-10 sm:h-11 rounded-xl bg-[#161F2C] hover:bg-[#202C3D] text-white dark:bg-[#161F2C] dark:text-white font-bold text-lg transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
+                  className="h-9 sm:h-11 rounded-xl bg-[#161F2C] hover:bg-[#202C3D] text-white dark:bg-[#161F2C] dark:text-white font-bold text-lg transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
                 >
                   8
                 </button>
                 <button
                   type="button"
                   onClick={() => handlePress("9")}
-                  className="h-10 sm:h-11 rounded-xl bg-[#161F2C] hover:bg-[#202C3D] text-white dark:bg-[#161F2C] dark:text-white font-bold text-lg transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
+                  className="h-9 sm:h-11 rounded-xl bg-[#161F2C] hover:bg-[#202C3D] text-white dark:bg-[#161F2C] dark:text-white font-bold text-lg transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
                 >
                   9
                 </button>
                 <button
                   type="button"
                   onClick={() => handlePress("\u00F7")}
-                  className="h-10 sm:h-11 rounded-xl bg-[#161F2C] hover:bg-[#202C3D] text-slate-200 dark:bg-[#161F2C] dark:text-slate-200 font-black text-xl transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
+                  className="h-9 sm:h-11 rounded-xl bg-[#161F2C] hover:bg-[#202C3D] text-slate-200 dark:bg-[#161F2C] dark:text-slate-200 font-black text-xl transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
                 >
                   ÷
                 </button>
                 <button
                   type="button"
                   onClick={() => handlePress("C")}
-                  className="h-10 sm:h-11 rounded-xl bg-[#E84E65] hover:bg-[#D93F56] text-white font-bold text-sm transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
+                  className="h-9 sm:h-11 rounded-xl bg-[#E84E65] hover:bg-[#D93F56] text-white font-bold text-sm transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
                 >
                   C
                 </button>
                 <button
                   type="button"
                   onClick={() => handlePress("CE")}
-                  className="h-10 sm:h-11 rounded-xl bg-[#E84E65] hover:bg-[#D93F56] text-white font-bold text-sm transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
+                  className="h-9 sm:h-11 rounded-xl bg-[#E84E65] hover:bg-[#D93F56] text-white font-bold text-sm transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
                 >
                   CE
                 </button>
@@ -1652,42 +1652,42 @@ export default function ScientificCalculator({ tool, seoData }) {
                 <button
                   type="button"
                   onClick={() => handlePress("4")}
-                  className="h-10 sm:h-11 rounded-xl bg-[#161F2C] hover:bg-[#202C3D] text-white dark:bg-[#161F2C] dark:text-white font-bold text-lg transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
+                  className="h-9 sm:h-11 rounded-xl bg-[#161F2C] hover:bg-[#202C3D] text-white dark:bg-[#161F2C] dark:text-white font-bold text-lg transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
                 >
                   4
                 </button>
                 <button
                   type="button"
                   onClick={() => handlePress("5")}
-                  className="h-10 sm:h-11 rounded-xl bg-[#161F2C] hover:bg-[#202C3D] text-white dark:bg-[#161F2C] dark:text-white font-bold text-lg transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
+                  className="h-9 sm:h-11 rounded-xl bg-[#161F2C] hover:bg-[#202C3D] text-white dark:bg-[#161F2C] dark:text-white font-bold text-lg transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
                 >
                   5
                 </button>
                 <button
                   type="button"
                   onClick={() => handlePress("6")}
-                  className="h-10 sm:h-11 rounded-xl bg-[#161F2C] hover:bg-[#202C3D] text-white dark:bg-[#161F2C] dark:text-white font-bold text-lg transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
+                  className="h-9 sm:h-11 rounded-xl bg-[#161F2C] hover:bg-[#202C3D] text-white dark:bg-[#161F2C] dark:text-white font-bold text-lg transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
                 >
                   6
                 </button>
                 <button
                   type="button"
                   onClick={() => handlePress("\u00D7")}
-                  className="h-10 sm:h-11 rounded-xl bg-[#161F2C] hover:bg-[#202C3D] text-slate-200 dark:bg-[#161F2C] dark:text-slate-200 font-black text-xl transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
+                  className="h-9 sm:h-11 rounded-xl bg-[#161F2C] hover:bg-[#202C3D] text-slate-200 dark:bg-[#161F2C] dark:text-slate-200 font-black text-xl transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
                 >
                   ×
                 </button>
                 <button
                   type="button"
                   onClick={() => handlePress("AC")}
-                  className="h-10 sm:h-11 rounded-xl bg-[#E84E65] hover:bg-[#D93F56] text-white font-bold text-sm transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
+                  className="h-9 sm:h-11 rounded-xl bg-[#E84E65] hover:bg-[#D93F56] text-white font-bold text-sm transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
                 >
                   AC
                 </button>
                 <button
                   type="button"
                   onClick={() => handlePress("DEL")}
-                  className="h-10 sm:h-11 rounded-xl bg-[#161F2C] hover:bg-[#202C3D] text-white dark:bg-[#161F2C] dark:text-white transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
+                  className="h-9 sm:h-11 rounded-xl bg-[#161F2C] hover:bg-[#202C3D] text-white dark:bg-[#161F2C] dark:text-white transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
                 >
                   <Delete size={18} />
                 </button>
@@ -1698,42 +1698,42 @@ export default function ScientificCalculator({ tool, seoData }) {
                 <button
                   type="button"
                   onClick={() => handlePress("1")}
-                  className="h-10 sm:h-11 rounded-xl bg-[#161F2C] hover:bg-[#202C3D] text-white dark:bg-[#161F2C] dark:text-white font-bold text-lg transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
+                  className="h-9 sm:h-11 rounded-xl bg-[#161F2C] hover:bg-[#202C3D] text-white dark:bg-[#161F2C] dark:text-white font-bold text-lg transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
                 >
                   1
                 </button>
                 <button
                   type="button"
                   onClick={() => handlePress("2")}
-                  className="h-10 sm:h-11 rounded-xl bg-[#161F2C] hover:bg-[#202C3D] text-white dark:bg-[#161F2C] dark:text-white font-bold text-lg transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
+                  className="h-9 sm:h-11 rounded-xl bg-[#161F2C] hover:bg-[#202C3D] text-white dark:bg-[#161F2C] dark:text-white font-bold text-lg transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
                 >
                   2
                 </button>
                 <button
                   type="button"
                   onClick={() => handlePress("3")}
-                  className="h-10 sm:h-11 rounded-xl bg-[#161F2C] hover:bg-[#202C3D] text-white dark:bg-[#161F2C] dark:text-white font-bold text-lg transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
+                  className="h-9 sm:h-11 rounded-xl bg-[#161F2C] hover:bg-[#202C3D] text-white dark:bg-[#161F2C] dark:text-white font-bold text-lg transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
                 >
                   3
                 </button>
                 <button
                   type="button"
                   onClick={() => handlePress("\u2212")}
-                  className="h-10 sm:h-11 rounded-xl bg-[#161F2C] hover:bg-[#202C3D] text-slate-200 dark:bg-[#161F2C] dark:text-slate-200 font-black text-xl transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
+                  className="h-9 sm:h-11 rounded-xl bg-[#161F2C] hover:bg-[#202C3D] text-slate-200 dark:bg-[#161F2C] dark:text-slate-200 font-black text-xl transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
                 >
                   −
                 </button>
                 <button
                   type="button"
                   onClick={() => handlePress("+")}
-                  className="h-10 sm:h-11 rounded-xl bg-[#161F2C] hover:bg-[#202C3D] text-slate-200 dark:bg-[#161F2C] dark:text-slate-200 font-black text-xl transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
+                  className="h-9 sm:h-11 rounded-xl bg-[#161F2C] hover:bg-[#202C3D] text-slate-200 dark:bg-[#161F2C] dark:text-slate-200 font-black text-xl transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
                 >
                   +
                 </button>
                 <button
                   type="button"
                   onClick={() => handlePress("+/-")}
-                  className="h-10 sm:h-11 rounded-xl bg-[#161F2C] hover:bg-[#202C3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 font-bold text-xs transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
+                  className="h-9 sm:h-11 rounded-xl bg-[#161F2C] hover:bg-[#202C3D] text-slate-300 dark:bg-[#161F2C] dark:text-slate-300 font-bold text-xs transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
                 >
                   +/-
                 </button>
@@ -1744,21 +1744,21 @@ export default function ScientificCalculator({ tool, seoData }) {
                 <button
                   type="button"
                   onClick={() => handlePress("0")}
-                  className="col-span-2 h-10 sm:h-11 rounded-xl bg-[#161F2C] hover:bg-[#202C3D] text-white dark:bg-[#161F2C] dark:text-white font-bold text-lg transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
+                  className="col-span-2 h-9 sm:h-11 rounded-xl bg-[#161F2C] hover:bg-[#202C3D] text-white dark:bg-[#161F2C] dark:text-white font-bold text-lg transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
                 >
                   0
                 </button>
                 <button
                   type="button"
                   onClick={() => handlePress(".")}
-                  className="col-span-1 h-10 sm:h-11 rounded-xl bg-[#161F2C] hover:bg-[#202C3D] text-white dark:bg-[#161F2C] dark:text-white font-bold text-lg transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
+                  className="col-span-1 h-9 sm:h-11 rounded-xl bg-[#161F2C] hover:bg-[#202C3D] text-white dark:bg-[#161F2C] dark:text-white font-bold text-lg transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
                 >
                   .
                 </button>
                 <button
                   type="button"
                   onClick={() => handlePress("=")}
-                  className="col-span-3 h-10 sm:h-11 rounded-xl bg-[#0080FF] hover:bg-[#0070E0] active:bg-[#0060C0] text-white font-black text-2xl shadow-[0_6px_20px_rgba(0,128,255,0.45)] transition flex items-center justify-center cursor-pointer active:scale-98"
+                  className="col-span-3 h-9 sm:h-11 rounded-xl bg-[#0080FF] hover:bg-[#0070E0] active:bg-[#0060C0] text-white font-black text-2xl shadow-[0_6px_20px_rgba(0,128,255,0.45)] transition flex items-center justify-center cursor-pointer active:scale-98"
                 >
                   =
                 </button>

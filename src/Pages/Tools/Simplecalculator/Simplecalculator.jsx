@@ -552,7 +552,7 @@ export default function SimpleCalculator({ tool, seoData }) {
   };
 
   return (
-    <div className="fixed inset-0 lg:relative lg:inset-auto w-full h-[100dvh] lg:min-h-screen pb-20 md:pb-0 flex flex-col justify-between overflow-hidden select-none font-sans bg-gradient-to-b from-[#EBF2F9] via-[#E2EDF7] to-[#D6E5F2] dark:from-[#0E141D] dark:via-[#0A0E15] dark:to-[#070A0E] text-slate-800 dark:text-slate-100 transition-colors duration-300">
+    <div className="fixed inset-0 lg:relative lg:inset-auto w-full h-[100dvh] lg:min-h-screen pb-20 md:pb-0 flex flex-col justify-between overflow-y-auto no-scrollbar select-none font-sans bg-gradient-to-b from-[#EBF2F9] via-[#E2EDF7] to-[#D6E5F2] dark:from-[#0E141D] dark:via-[#0A0E15] dark:to-[#070A0E] text-slate-800 dark:text-slate-100 transition-colors duration-300">
 
       {/* ─── DESKTOP FULL-SCREEN WORKSTATION (>= lg) ─── */}
       {isDesktop ? (
@@ -913,8 +913,8 @@ export default function SimpleCalculator({ tool, seoData }) {
         </div>
       ) : (
         /* ─── MOBILE VIEW (< lg): HANDHELD CHASSIS ─── */
-        <main className="w-full flex-1 h-full flex flex-col justify-between p-0 overflow-hidden min-h-0">
-          <div className="w-full max-w-md h-full flex flex-col justify-between px-3.5 sm:px-5 pt-2 pb-[max(2.25rem,calc(env(safe-area-inset-bottom)+1.5rem))] sm:pb-10 mx-auto relative transition-all">
+        <main className="w-full flex-1 h-full flex flex-col justify-between p-0 overflow-y-auto no-scrollbar min-h-0">
+          <div className="w-full max-w-md h-full flex flex-col justify-between px-3.5 sm:px-5 pt-2 pb-2 sm:pb-3 mx-auto relative transition-all">
 
             {/* ─── Top Bar: Menu Button, Title Badge, History & Theme Toggle ─── */}
             <div className="shrink-0 flex items-center justify-between pt-1 pb-2 sm:pb-3 px-1 border-b border-black/5 dark:border-white/5">
@@ -979,7 +979,7 @@ export default function SimpleCalculator({ tool, seoData }) {
             </div>
 
             {/* ─── Screen Display Area (All space allocated here between Copy and Result, UI never shakes) ─── */}
-            <div className="flex-1 flex flex-col justify-between text-right px-2 py-2 sm:py-3 min-h-0 overflow-hidden">
+            <div className="flex-1 flex flex-col justify-between text-right px-2 py-1.5 sm:py-2 min-h-[84px] overflow-hidden">
               {/* Top Row: Copy Button & 16-digit Badge */}
               <div className="shrink-0 flex items-center justify-between pb-1">
                 <button
