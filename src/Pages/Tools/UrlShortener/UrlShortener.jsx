@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import QRCode from 'react-qr-code';
 import PageSEO from '../../../Component/SEO/PageSEO';
+import WorkspaceSeoSection from '../../../Component/SEO/WorkspaceSeoSection';
+import { seoConfig } from '../../../utils/seoConfig';
 import Style from './UrlShortener.module.css';
 import {
   createShortUrl,
@@ -606,6 +608,13 @@ const UrlShortener = () => {
           </div>
         )}
       </div>
+      <WorkspaceSeoSection
+        content={{
+          heading: seoConfig['/url-shortener']?.h1 || 'Free URL Shortener',
+          subheading: seoConfig['/url-shortener']?.description,
+          faqs: seoConfig['/url-shortener']?.faqs || [],
+        }}
+      />
     </div>
   );
 };

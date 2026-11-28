@@ -419,7 +419,22 @@ const Tools = ({ directSlug = null }) => {
   // Unknown slug → render 404 immediately (before any AppShell/SEO boilerplate)
   if (isUnknownSlug) {
     const requestedSlug = (paramSlug || toolSlug || location.pathname).replace(/^\/+|\/+$/g, "");
-    return <NotFound requestedSlug={requestedSlug} />;
+    const fallbackSeo = seoConfig[location.pathname];
+    return (
+      <>
+        <NotFound requestedSlug={requestedSlug} />
+        {fallbackSeo && (
+          <WorkspaceSeoSection
+            content={{
+              heading: fallbackSeo.h1 || fallbackSeo.title,
+              subheading: fallbackSeo.description,
+              faqs: fallbackSeo.faqs || [],
+              relatedTools: TIER1_RELATED_TOOLS[location.pathname] || []
+            }}
+          />
+        )}
+      </>
+    );
   }
 
   return (
