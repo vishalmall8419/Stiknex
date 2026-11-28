@@ -674,8 +674,8 @@ const WhiteboardDashboard = () => {
   return (
     <AppShell>
       <PageSEO
-        title="Free Online Whiteboard - Infinite Vector Sketchpad | Stiknex"
-        description="Infinite freeform drawing board powered by Excalidraw. Sketch wireframes, mind maps, system diagrams, and notes. 100% private, local-first IndexedDB storage."
+        title="Free Online Whiteboard – Infinite Sketchpad | Stiknex"
+        description="Free online whiteboard powered by Excalidraw. Sketch, diagram and brainstorm on an infinite canvas with shapes, arrows and freehand drawing."
         path="/whiteboard"
         type="webapp"
         keywords="free online whiteboard, excalidraw, vector sketchpad, digital whiteboard, online drawing board, whiteboard app, free sketch tool, mindmap"

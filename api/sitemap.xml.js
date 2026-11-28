@@ -40,6 +40,8 @@ export default async function handler(req, res) {
         // Core Public Pages from seoConfig (Excludes private / admin routes)
         for (const [routePath, config] of Object.entries(seoConfig)) {
             const fullUrl = routePath === "/" ? `${baseUrl}/` : `${baseUrl}${routePath}`;
+            // Duplicate views that canonicalize to another URL (e.g. /online-notebook -> /online-notepad) stay out of the sitemap.
+            if (config.canonical && config.canonical !== fullUrl) continue;
             const lastmod = routeDates[routePath] || defaultDate;
 
             xml += `  <url>\n`;

@@ -115,7 +115,7 @@ export default function About() {
   return (
     <AppShell fullWidth={true}>
       <PageSEO
-        title="About Stiknex — Comprehensive Platform Manifesto & Architecture"
+        title="About Stiknex – Free Local-First Productivity Platform"
         description="Discover the complete architecture, features, and privacy principles of Stiknex. Founded by Vishal Mall as a free, local-first productivity workspace."
         path="/about"
         type="website"

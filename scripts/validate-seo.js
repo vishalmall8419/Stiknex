@@ -76,8 +76,12 @@ for (const route of requiredRoutes) {
   }
 
   // 3. Canonical verification
-  const expectedCanonical = route === "/" ? `${BASE_URL}/` : `${BASE_URL}${route}`;
-  if (!config.canonical || config.canonical !== expectedCanonical) {
+  // /online-notebook is a duplicate view of /online-notepad and intentionally canonicalizes to it.
+  const CANONICAL_EXCEPTIONS = { "/online-notebook": `${BASE_URL}/online-notepad` };
+  const expectedCanonical = CANONICAL_EXCEPTIONS[route] || (route === "/" ? `${BASE_URL}/` : `${BASE_URL}${route}`);
+  if (CANONICAL_EXCEPTIONS[route] && config.canonical === expectedCanonical) {
+    // intentional canonical to another route: skip duplicate-canonical check
+  } else if (!config.canonical || config.canonical !== expectedCanonical) {
     console.error(`❌ [${route}] Invalid canonical: expected "${expectedCanonical}", got "${config.canonical}"`);
     errors++;
   } else if (seenCanonicals.has(config.canonical)) {

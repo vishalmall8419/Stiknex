@@ -2465,9 +2465,9 @@ const Notebook = () => {
       } ${isZenMode ? Style.zenMode : ""}`}
     >
       <PageSEO
-        title={isNotepadRoute ? NOTEPAD_SEO_CONTENT.title : "Online Notepad & Code Editor – Free Digital Notebook & In-Browser IDE | Stiknex"}
-        description={isNotepadRoute ? NOTEPAD_SEO_CONTENT.description : "Stiknex is not just a notepad — it is a dual-engine workspace with a distraction-free lined paper notepad and an in-browser code editor. Write notes, code in HTML/CSS/JS/Python/SQL, run code live, format documents, and auto-save locally with zero sign-up."}
-        path={isNotepadRoute ? "/online-notepad" : "/online-notebook"}
+        title={isNotepadRoute ? NOTEPAD_SEO_CONTENT.title : "Online Notebook & Code Editor – Free, No Login | Stiknex"}
+        description={isNotepadRoute ? NOTEPAD_SEO_CONTENT.description : "Free online notebook with a lined-paper notepad and an in-browser code editor. Run HTML/JS, auto-save locally, no sign-up."}
+        path="/online-notepad"
         type="webapp"
         keywords={NOTEPAD_SEO_CONTENT.keywords}
         faqs={NOTEPAD_SEO_CONTENT.faqs}

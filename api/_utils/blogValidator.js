@@ -326,3 +326,48 @@ export function validateBlogArticle(articleData) {
     };
 }
 
+/**
+ * Extracts Q&A pairs from a "Frequently Asked ..." / "FAQ" H2 section (H3 = question,
+ * following text = answer) so FAQPage JSON-LD always mirrors the visible article text.
+ */
+export function extractFaqFromContent(content) {
+    if (!content || typeof content !== 'string') return [];
+    const clean = (t) => t
+        .replace(/<[^>]*>/g, ' ')
+        .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+        .replace(/[*`]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+    const faqs = [];
+    let inFaq = false;
+    let question = null;
+    let buffer = [];
+    const flush = () => {
+        if (question) {
+            const answer = clean(buffer.join(' '));
+            const q = clean(question);
+            if (q && answer.length >= 20) faqs.push({ q, a: answer });
+        }
+        question = null;
+        buffer = [];
+    };
+    for (const raw of content.split(/\r?\n/)) {
+        const line = raw.trim();
+        const h2 = /^##\s+(?!#)(.+)$/.exec(line);
+        const h3 = /^###\s+(?!#)(.+)$/.exec(line);
+        if (h2) {
+            flush();
+            inFaq = /\b(frequently asked|faq)/i.test(h2[1]);
+            continue;
+        }
+        if (!inFaq) continue;
+        if (h3) {
+            flush();
+            question = h3[1];
+            continue;
+        }
+        if (question) buffer.push(line);
+    }
+    flush();
+    return faqs.slice(0, 10);
+}

@@ -1,8 +1,8 @@
 export const NOTEPAD_SEO_CONTENT = {
   path: "/online-notepad",
-  title: "Free Online Notepad — Offline-First Digital Notebook | Stiknex",
+  title: "Free Online Notepad & Notebook – Offline, No Login | Stiknex",
   description:
-    "Write, organize, and save notes instantly in your browser with Stiknex's free online notepad. Works offline with local-first storage, zero latency, and automatic cloud sync.",
+    "Free online notepad that saves automatically and works offline. Write notes, lists and code in your browser. No login, private by default.",
   keywords:
     "free online notepad, offline digital notebook, browser notepad, local-first notes, auto-save online notepad, stiknex notepad",
   heading: "Free Online Notepad with Offline Support",
@@ -76,9 +76,9 @@ export const NOTEPAD_SEO_CONTENT = {
 
 export const STICKY_NOTES_SEO_CONTENT = {
   path: "/sticky-notes",
-  title: "Free Online Sticky Notes — Digital Pinboard & Offline Notes | Stiknex",
+  title: "Free Online Sticky Notes – Digital Pinboard | Stiknex",
   description:
-    "Organize ideas visually with free online sticky notes on Stiknex. Fast, distraction-free, offline-ready, and synced across your devices.",
+    "Create, color-code and organize digital sticky notes on an infinite canvas. Brainstorm ideas and track tasks, no sign-in needed.",
   keywords:
     "free online sticky notes, digital pinboard, offline sticky notes, browser sticky notes, visual note board, stiknex sticky notes",
   heading: "Free Online Sticky Notes Board",

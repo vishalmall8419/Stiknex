@@ -138,7 +138,7 @@ const Blog = () => {
   return (
     <div ref={containerRef} className="relative min-h-screen overflow-x-clip text-slate-900 dark:text-slate-100 selection:bg-indigo-500/30 font-sans">
       <PageSEO
-        title="Blog – Productivity Tips, Notes & Tools Guides | Stiknex"
+        title="Productivity, Typing & Writing Guides | Stiknex Blog"
         description="Read the Stiknex blog for productivity tips, note-taking guides, digital workspace advice, and tutorials on sticky notes, notebooks, whiteboards and online tools."
         path="/blog"
         type="website"

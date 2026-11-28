@@ -79,6 +79,8 @@ const BlogDetail = () => {
             id: data.slug,
             title: data.title,
             briefDescription: data.excerpt,
+            metaTitle: data.metaTitle || data.title,
+            metaDescription: data.metaDescription || data.excerpt,
             fullContent: data.content,
             image: data.imageUrl,
             category: data.category || "Productivity",
@@ -123,7 +125,7 @@ const BlogDetail = () => {
 
   return (
     <div className="relative min-h-screen text-slate-900 dark:text-slate-100 selection:bg-indigo-500/30 font-sans pb-16 w-full max-w-full overflow-x-clip">
-      <PageSEO title={`${post.title} | Stiknex`} description={post.briefDescription} path={`/blog/${id}`} />
+      <PageSEO title={post.metaTitle || post.title} description={post.metaDescription || post.briefDescription} image={post.image || undefined} path={`/blog/${id}`} />
       <StudioBackground />
 
       {/* Desktop Navigation Pill */}

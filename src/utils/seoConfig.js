@@ -6,13 +6,25 @@ import { ALL_TOOLS } from "../data/toolsRegistry.js";
 export const SITE_URL = "https://stiknex.site";
 export const BASE_URL = SITE_URL;
 
+// Keeps generated tool titles within ~60 characters so Google does not truncate them.
+const fitTitle = (rawName) => {
+  const names = [rawName, rawName.replace(/\s*\([^)]*\)/g, "").trim()];
+  for (const name of names) {
+    for (const tail of [" – Free Online Tool | Stiknex", " – Free Online | Stiknex", " | Stiknex"]) {
+      const t = `${name}${tail}`;
+      if (t.length <= 60) return t;
+    }
+  }
+  return `${names[1]} | Stiknex`;
+};
+
 export const seoConfig = {
   "/online-notepad": {
     "path": "/online-notepad",
     "canonical": "https://stiknex.site/online-notepad",
-    "title": "Free Online Notepad — Offline-First Digital Notebook | Stiknex",
+    "title": "Free Online Notepad & Notebook – Offline, No Login | Stiknex",
     "h1": "Free Online Notepad with Offline Support",
-    "description": "Write, organize, and save notes instantly in your browser with Stiknex's free online notepad. Works offline with local-first storage, zero latency, and automatic cloud sync.",
+    "description": "Free online notepad that saves automatically and works offline. Write notes, lists and code in your browser. No login, private by default.",
     "keywords": "free online notepad, offline digital notebook, browser notepad, local-first notes, auto-save online notepad, stiknex notepad",
     "schemaType": "WebApplication",
     "cluster": "Core Workspace"
@@ -20,9 +32,9 @@ export const seoConfig = {
   "/about": {
   "path": "/about",
   "canonical": "https://stiknex.site/about",
-  "title": "About Stiknex – Free Local-First Productivity Platform | Stiknex",
+  "title": "About Stiknex – Free Local-First Productivity Platform",
   "h1": "About Stiknex & Creator Vishal Mall",
-  "description": "Learn about Stiknex, built by Vishal Mall. Our mission is to provide fast, privacy-first, ad-light productivity tools and infinite canvas editors for everyone.",
+  "description": "Stiknex is a free, privacy-focused suite of online productivity tools built by Vishal Mall to help you write, calculate and create.",
   "primaryIntent": "about stiknex / vishal mall",
   "secondaryIntents": [
     "who built stiknex",
@@ -51,7 +63,7 @@ export const seoConfig = {
   "/blog": {
   "path": "/blog",
   "canonical": "https://stiknex.site/blog",
-  "title": "Productivity & Tech Blog – Guides, Tutorials & Benchmarks | Stiknex",
+  "title": "Productivity, Typing & Writing Guides | Stiknex Blog",
   "h1": "Stiknex Productivity & Tech Blog",
   "description": "In-depth engineering tutorials, typing speed benchmarks, productivity workflows, and practical guides for developers, students, and writers.",
   "primaryIntent": "productivity blog / tech guides",
@@ -79,9 +91,9 @@ export const seoConfig = {
   "/tools": {
   "path": "/tools",
   "canonical": "https://stiknex.site/tools",
-  "title": "Free Online Tools Directory (200+ Utilities) – Stiknex",
+  "title": "Free Online Tools – Calculators, Converters & More | Stiknex",
   "h1": "200+ Free Online Browser Utilities",
-  "description": "Explore 200+ free online utility tools across 9 streamlined categories. Calculators, converters, developer tools, formatters, and typing master.",
+  "description": "Free online tools: calculators, unit converters, QR code and password generators, word counter and more. No sign-up, runs in your browser.",
   "primaryIntent": "free online tools / web utilities directory",
   "secondaryIntents": [
     "browser utilities online",
@@ -112,9 +124,9 @@ export const seoConfig = {
   "/whiteboard": {
   "path": "/whiteboard",
   "canonical": "https://stiknex.site/whiteboard",
-  "title": "Free Online Whiteboard – Infinite Drawing Canvas & Shapes | Stiknex",
+  "title": "Free Online Whiteboard – Infinite Sketchpad | Stiknex",
   "h1": "Free Online Interactive Whiteboard Canvas",
-  "description": "Collaborative infinite whiteboard powered by Excalidraw. Sketch diagrams, wireframes, flowcharts, and mind maps with vector shapes and image export.",
+  "description": "Free online whiteboard powered by Excalidraw. Sketch, diagram and brainstorm on an infinite canvas with shapes, arrows and freehand drawing.",
   "primaryIntent": "online whiteboard / free whiteboard canvas",
   "secondaryIntents": [
     "excalidraw whiteboard online",
@@ -145,7 +157,7 @@ export const seoConfig = {
   "/to-do-list": {
   "path": "/to-do-list",
   "canonical": "https://stiknex.site/to-do-list",
-  "title": "To-Do List Online – Daily Tasks, Checklists & Priorities | Stiknex",
+  "title": "Free Online To-Do List – Tasks & Priorities | Stiknex",
   "h1": "Free Online To-Do List & Task Manager",
   "description": "Organize your daily workflow with an intuitive task checklist. Drag-and-drop priorities, strike-through completion, and auto-saving local storage.",
   "primaryIntent": "to do list online / daily task checklist",
@@ -178,7 +190,7 @@ export const seoConfig = {
   "/typing-practice-lessons": {
   "path": "/typing-practice-lessons",
   "canonical": "https://stiknex.site/typing-practice-lessons",
-  "title": "Typing Practice Lessons – Master Touch Typing & Home Row | Stiknex",
+  "title": "Typing Practice Lessons – Learn Touch Typing | Stiknex",
   "h1": "Free Online Touch Typing Lessons & Practice",
   "description": "Learn touch typing step-by-step. Interactive home-row (ASDF JKL;), top-row, and bottom-row finger placement exercises to build speed without looking.",
   "primaryIntent": "typing practice lessons / learn touch typing",
@@ -210,7 +222,7 @@ export const seoConfig = {
   "/pomodoro-timer": {
   "path": "/pomodoro-timer",
   "canonical": "https://stiknex.site/pomodoro-timer",
-  "title": "Pomodoro Timer – 25/5 Focus & Study Productivity Timer | Stiknex",
+  "title": "Pomodoro Timer – 25/5 Online Focus Timer | Stiknex",
   "h1": "Free Online Pomodoro Focus Timer",
   "description": "Boost focus and prevent burnout with the Pomodoro technique. 25-minute work intervals, 5-minute short breaks, audio notifications, and task tracker.",
   "primaryIntent": "pomodoro timer / study timer online",
@@ -243,7 +255,7 @@ export const seoConfig = {
   "/json-formatter": {
   "path": "/json-formatter",
   "canonical": "https://stiknex.site/json-formatter",
-  "title": "JSON Formatter & Validator – Beautify, Minify & Fix JSON | Stiknex",
+  "title": "JSON Formatter & Validator – Beautify & Minify | Stiknex",
   "h1": "Free Online JSON Formatter & Validator",
   "description": "Format, beautify, validate, and minify JSON code online. Instant syntax error detection with line numbers, tree view, and 100% private browser parsing.",
   "primaryIntent": "json formatter / json validator",
@@ -276,7 +288,7 @@ export const seoConfig = {
   "/case-converter": {
   "path": "/case-converter",
   "canonical": "https://stiknex.site/case-converter",
-  "title": "Case Converter – Uppercase, Lowercase, Title Case, CamelCase | Stiknex",
+  "title": "Case Converter – Upper, Lower, Title & Camel | Stiknex",
   "h1": "Free Online Text Case Converter",
   "description": "Convert text case instantly: UPPERCASE, lowercase, Title Case, Sentence case, camelCase, PascalCase, snake_case, and kebab-case for writers and developers.",
   "primaryIntent": "case converter / text case converter",
@@ -309,7 +321,7 @@ export const seoConfig = {
   "/password-generator": {
   "path": "/password-generator",
   "canonical": "https://stiknex.site/password-generator",
-  "title": "Password Generator – Secure Random Passwords & Entropy | Stiknex",
+  "title": "Random Password Generator – Strong & Secure | Stiknex",
   "h1": "Free Secure Random Password Generator",
   "description": "Generate cryptographically secure random passwords using Web Crypto API. Customize length, uppercase, lowercase, numbers, symbols, and view entropy bits.",
   "primaryIntent": "password generator / secure password generator",
@@ -341,7 +353,7 @@ export const seoConfig = {
   "/qr-code-generator": {
   "path": "/qr-code-generator",
   "canonical": "https://stiknex.site/qr-code-generator",
-  "title": "QR Code Generator – Free Custom High-Res QR Codes | Stiknex",
+  "title": "Free QR Code Generator – Custom Colors | Stiknex",
   "h1": "Free Online QR Code Generator",
   "description": "Create custom high-resolution QR codes for websites, plain text, Wi-Fi networks, emails, and vCards. Instant client-side PNG and SVG downloads.",
   "primaryIntent": "qr code generator / create qr code",
@@ -374,7 +386,7 @@ export const seoConfig = {
   "/unit-converter": {
   "path": "/unit-converter",
   "canonical": "https://stiknex.site/unit-converter",
-  "title": "Unit Converter – Universal Metric & Imperial Conversions | Stiknex",
+  "title": "Unit Converter – Metric & Imperial, Free | Stiknex",
   "h1": "Free Universal Online Unit Converter",
   "description": "Universal converter for length, mass, volume, temperature, area, speed, pressure, and energy. Convert between Metric (SI) and US Imperial units accurately.",
   "primaryIntent": "unit converter / metric to imperial",
@@ -408,7 +420,7 @@ export const seoConfig = {
   "/currency-converter": {
   "path": "/currency-converter",
   "canonical": "https://stiknex.site/currency-converter",
-  "title": "Currency Converter – Live Forex Rates & Currency Exchange | Stiknex",
+  "title": "Currency Converter – Live Exchange Rates | Stiknex",
   "h1": "Free Live Currency Converter & Exchange Rates",
   "description": "Convert 150+ world currencies with up-to-date foreign exchange rates. Convert USD, EUR, INR, GBP, CAD, AUD, JPY and more with exact precision.",
   "primaryIntent": "currency converter / forex rates",
@@ -441,7 +453,7 @@ export const seoConfig = {
   "/sip-calculator": {
   "path": "/sip-calculator",
   "canonical": "https://stiknex.site/sip-calculator",
-  "title": "SIP Calculator – Calculate Mutual Fund Returns & Wealth | Stiknex",
+  "title": "SIP Calculator – Mutual Fund Returns | Stiknex",
   "h1": "Free Online SIP Calculator (Mutual Funds & Wealth)",
   "description": "Calculate future value of Systematic Investment Plans (SIP) in mutual funds. Compounded monthly investment returns, wealth gain, and growth visualizer.",
   "primaryIntent": "sip calculator / mutual fund sip returns",
@@ -473,7 +485,7 @@ export const seoConfig = {
   "/emi-calculator": {
   "path": "/emi-calculator",
   "canonical": "https://stiknex.site/emi-calculator",
-  "title": "EMI Calculator – Calculate Loan EMI, Interest & Total Payoff | Stiknex",
+  "title": "EMI Calculator – Loan EMI & Total Interest | Stiknex",
   "h1": "Free Online EMI Calculator (Loan & Interest)",
   "description": "Calculate Equated Monthly Installments (EMI) for home loans, car loans, and personal loans. Amortization schedule, total interest breakdown in ₹ / $.",
   "primaryIntent": "emi calculator / loan emi calculator",
@@ -538,7 +550,7 @@ export const seoConfig = {
   "/percentage-calculator": {
   "path": "/percentage-calculator",
   "canonical": "https://stiknex.site/percentage-calculator",
-  "title": "Percentage Calculator – Fast Percentage Increases & Diffs | Stiknex",
+  "title": "Percentage Calculator – Increase & Decrease | Stiknex",
   "h1": "Free Online Percentage Calculator",
   "description": "Calculate percentage increases, percentage decreases, differences, discounts, and fractions instantly. Step-by-step formulas and practical math examples.",
   "primaryIntent": "percentage calculator",
@@ -635,7 +647,7 @@ export const seoConfig = {
   "/character-counter": {
   "path": "/character-counter",
   "canonical": "https://stiknex.site/character-counter",
-  "title": "Character Counter – Letter, Space & Social Post Limits | Stiknex",
+  "title": "Character Counter – With & Without Spaces | Stiknex",
   "h1": "Free Online Character Counter & Limit Checker",
   "description": "Count characters with and without spaces, words, and verify social media limits for Twitter/X (280), LinkedIn, Instagram, and SEO meta descriptions.",
   "primaryIntent": "character counter / letter counter",
@@ -667,7 +679,7 @@ export const seoConfig = {
   "/word-counter": {
   "path": "/word-counter",
   "canonical": "https://stiknex.site/word-counter",
-  "title": "Word Counter Online – Real-Time Word & Character Count | Stiknex",
+  "title": "Free Word Counter – Words & Characters Live | Stiknex",
   "h1": "Free Online Word & Character Counter",
   "description": "Count words, characters, sentences, paragraphs, and calculate reading time in real time. Accurate text statistics, case conversion, and readability metrics.",
   "primaryIntent": "word counter / online word counter",
@@ -740,10 +752,10 @@ export const seoConfig = {
 
   "/online-notebook": {
   "path": "/online-notebook",
-  "canonical": "https://stiknex.site/online-notebook",
-  "title": "Online Notepad & Code Editor – Free Digital Notebook & In-Browser IDE | Stiknex",
+  "canonical": "https://stiknex.site/online-notepad",
+  "title": "Online Notebook & Code Editor – Free, No Login | Stiknex",
   "h1": "Free Online Notepad & Professional Code Editor",
-  "description": "Stiknex is not just a notepad — it is a dual-engine workspace with a distraction-free lined paper notepad and an in-browser code editor. Write notes, code in HTML/CSS/JS/Python/SQL, run code live, format documents, and auto-save locally with zero sign-up.",
+  "description": "Free online notebook with a lined-paper notepad and an in-browser code editor. Run HTML/JS, auto-save locally, no sign-up.",
   "primaryIntent": "online notepad / browser code editor / digital notebook / web ide",
   "secondaryIntents": [
     "online code editor free",
@@ -794,9 +806,9 @@ export const seoConfig = {
   "/sticky-notes": {
   "path": "/sticky-notes",
   "canonical": "https://stiknex.site/sticky-notes",
-  "title": "Online Sticky Notes – Free Infinite Idea Canvas | Stiknex",
+  "title": "Free Online Sticky Notes – Digital Pinboard | Stiknex",
   "h1": "Free Online Sticky Notes & Brainstorming Canvas",
-  "description": "Create, color-code, and organize infinite digital sticky notes in your browser. Markdown formatting, drag-and-drop, and private zero-knowledge encryption.",
+  "description": "Create, color-code and organize digital sticky notes on an infinite canvas. Brainstorm ideas and track tasks, no sign-in needed.",
   "primaryIntent": "online sticky notes / digital sticky notes",
   "secondaryIntents": [
     "sticky notes canvas",
@@ -865,7 +877,7 @@ export const seoConfig = {
     canonical: `${BASE_URL}/privacy-policy`,
     title: "Privacy Policy | Stiknex",
     h1: "Stiknex Privacy Policy",
-    description: "Read the Stiknex Privacy Policy. We prioritize user privacy with client-side processing, zero data sales, local storage retention, and encrypted multi-device sync.",
+    description: "Stiknex Privacy Policy: client-side processing, local storage by default, no data sales and optional encrypted multi-device sync.",
     keywords: "stiknex privacy policy, privacy, data protection, zero knowledge storage"
   },
   "/terms-of-service": {
@@ -887,9 +899,9 @@ export const seoConfig = {
   "/url-shortener": {
     path: "/url-shortener",
     canonical: `${BASE_URL}/url-shortener`,
-    title: "Free URL Shortener with Real-Time Click Analytics & QR Code | Stiknex",
+    title: "Free URL Shortener with Click Analytics & QR | Stiknex",
     h1: "Free URL Shortener & Live Click Tracking Analytics",
-    description: "Shorten links, track real-time clicks, unique visitors, countries, referrers, and UTM campaigns. Fast server-side redirects, privacy-friendly, zero signup required.",
+    description: "Shorten links and track real-time clicks, countries, referrers and UTM campaigns. Fast redirects, privacy-friendly, no sign-up.",
     primaryIntent: "free url shortener with analytics",
     secondaryIntents: ["link shortener click tracking", "custom url shortener", "utm link shortener", "qr code url shortener"],
     keywords: "url shortener, link shortener, click tracking, url analytics, utm campaign tracking, qr code generator, free link shortener with analytics",
@@ -909,9 +921,9 @@ export const seoConfig = {
   "/": {
     path: "/",
     canonical: `${BASE_URL}/`,
-    title: "Stiknex – Free Sticky Notes, Online Notebook & Productivity Tools",
+    title: "Stiknex – Free Online Sticky Notes, Notepad & 200+ Tools",
     h1: "Free Online Productivity & Utility Tools",
-    description: "Stiknex is a free online productivity platform featuring infinite sticky notes boards, a rich-text notebook, Excalidraw whiteboard, calculators, converters, QR code generator and more. No sign-up required.",
+    description: "Free online sticky notes, rich-text notebook, Excalidraw whiteboard, calculators, converters and more. No sign-up required.",
     primaryIntent: "free productivity tools, sticky notes, online notebook",
     secondaryIntents: ["digital sticky notes", "online notepad", "free utility tools"],
     keywords: "sticky notes, online sticky notes, free sticky notes app, online notebook, digital whiteboard, productivity tools, excalidraw, note taking app, free online tools",
@@ -930,9 +942,9 @@ export const seoConfig = {
   "/sticky-notes": {
     path: "/sticky-notes",
     canonical: `${BASE_URL}/sticky-notes`,
-    title: "Free Online Sticky Notes & Infinite Canvas | Stiknex",
+    title: "Free Online Sticky Notes – Digital Pinboard | Stiknex",
     h1: "Free Online Sticky Notes Board",
-    description: "Create, organize, and color-code infinite digital sticky notes on an interactive canvas. Brainstorm ideas, track tasks, and drag notes freely without signing in.",
+    description: "Create, color-code and organize digital sticky notes on an infinite canvas. Brainstorm ideas and track tasks, no sign-in needed.",
     primaryIntent: "online sticky notes / sticky notes online / digital sticky notes",
     secondaryIntents: ["free sticky notes app", "virtual corkboard", "sticky note organizer"],
     keywords: "online sticky notes, sticky notes online, digital sticky notes, free sticky notes, virtual sticky notes, note board online",
@@ -953,7 +965,7 @@ export const seoConfig = {
   "/word-counter": {
     path: "/word-counter",
     canonical: `${BASE_URL}/word-counter`,
-    title: "Free Online Word Counter – Real-Time Word & Character Count | Stiknex",
+    title: "Free Word Counter – Words & Characters Live | Stiknex",
     h1: "Free Online Word Counter",
     description: "Count words, characters, sentences, and paragraphs in real time. Accurately calculate reading time, speaking time, and convert text case instantly.",
     primaryIntent: "word counter / online word counter / count words",
@@ -976,7 +988,7 @@ export const seoConfig = {
   "/character-counter": {
     path: "/character-counter",
     canonical: `${BASE_URL}/character-counter`,
-    title: "Character Counter Online – Characters With & Without Spaces | Stiknex",
+    title: "Character Counter – With & Without Spaces | Stiknex",
     h1: "Free Online Character Counter",
     description: "Measure exact character count with and without spaces for social media, SEO meta tags, essays, and text limits. Fast, free, and private.",
     primaryIntent: "character counter / character count / online character counter",
@@ -998,7 +1010,7 @@ export const seoConfig = {
   "/reading-time-calculator": {
     path: "/reading-time-calculator",
     canonical: `${BASE_URL}/reading-time-calculator`,
-    title: "Reading Time Calculator – Estimate Article & Speech Duration | Stiknex",
+    title: "Reading Time Calculator – Article & Speech | Stiknex",
     h1: "Free Reading Time Calculator",
     description: "Estimate how long it will take to read or speak your text. Based on standard 200 words-per-minute silent reading and 130 wpm speech delivery.",
     primaryIntent: "reading time calculator / calculate reading time",
@@ -1064,7 +1076,7 @@ export const seoConfig = {
   "/date-calculator": {
     path: "/date-calculator",
     canonical: `${BASE_URL}/date-calculator`,
-    title: "Date Calculator – Calculate Days Between Dates & Age | Stiknex",
+    title: "Date Calculator – Days Between Dates & Age | Stiknex",
     h1: "Free Online Date & Time Calculator",
     description: "Calculate exact duration between two dates in days, weeks, and months. Add or subtract days, calculate age, or find target calendar milestones.",
     primaryIntent: "date calculator / calculate days between dates",
@@ -1086,7 +1098,7 @@ export const seoConfig = {
   "/currency-converter": {
     path: "/currency-converter",
     canonical: `${BASE_URL}/currency-converter`,
-    title: "Live Currency Converter – Real-Time Foreign Exchange Rates | Stiknex",
+    title: "Currency Converter – Live Exchange Rates | Stiknex",
     h1: "Free Live Currency Converter",
     description: "Convert 150+ world currencies with up-to-date foreign exchange rates. Convert USD, EUR, INR, GBP, CAD, AUD, JPY and more instantly.",
     primaryIntent: "currency converter / exchange rate calculator",
@@ -1108,7 +1120,7 @@ export const seoConfig = {
   "/unit-converter": {
     path: "/unit-converter",
     canonical: `${BASE_URL}/unit-converter`,
-    title: "Free Online Unit Converter – Metric & Imperial Conversion | Stiknex",
+    title: "Unit Converter – Metric & Imperial, Free | Stiknex",
     h1: "Free Universal Unit Converter",
     description: "Convert length, area, volume, mass, temperature, speed, pressure, and power between metric and imperial standards with exact precision.",
     primaryIntent: "unit converter",
@@ -1130,7 +1142,7 @@ export const seoConfig = {
   "/length-converter": {
     path: "/length-converter",
     canonical: `${BASE_URL}/length-converter`,
-    title: "Length Converter – Meters, Feet, Inches, Miles & Kilometers | Stiknex",
+    title: "Length Converter – Meters, Feet, Inches & Miles | Stiknex",
     h1: "Free Online Length Converter",
     description: "Convert length and distance units: millimeters, centimeters, meters, kilometers, inches, feet, yards, and miles accurately.",
     primaryIntent: "length converter",
@@ -1152,7 +1164,7 @@ export const seoConfig = {
   "/area-converter": {
     path: "/area-converter",
     canonical: `${BASE_URL}/area-converter`,
-    title: "Area Converter – Square Meters, Feet, Acres & Hectares | Stiknex",
+    title: "Area Converter – Sq Meters, Feet & Acres | Stiknex",
     h1: "Free Online Area Converter",
     description: "Convert area measurements: square meters, square feet, acres, hectares, square kilometers, and square miles with instant calculations.",
     primaryIntent: "area converter",
@@ -1174,7 +1186,7 @@ export const seoConfig = {
   "/volume-converter": {
     path: "/volume-converter",
     canonical: `${BASE_URL}/volume-converter`,
-    title: "Volume Converter – Liters, Gallons, Cups & Milliliters | Stiknex",
+    title: "Volume Converter – Liters, Gallons & Cups | Stiknex",
     h1: "Free Online Volume Converter",
     description: "Convert volume and liquid capacity: liters, milliliters, US gallons, fluid ounces, cups, tablespoons, and cubic meters.",
     primaryIntent: "volume converter",
@@ -1196,7 +1208,7 @@ export const seoConfig = {
   "/weight-converter": {
     path: "/weight-converter",
     canonical: `${BASE_URL}/weight-converter`,
-    title: "Weight Converter – Kilograms, Pounds, Ounces & Grams | Stiknex",
+    title: "Weight Converter – Kg, Pounds & Ounces | Stiknex",
     h1: "Free Online Weight & Mass Converter",
     description: "Convert weight and mass between kilograms, grams, pounds, ounces, stones, and metric tons with precise conversion formulas.",
     primaryIntent: "weight converter",
@@ -1218,7 +1230,7 @@ export const seoConfig = {
   "/temperature-converter": {
     path: "/temperature-converter",
     canonical: `${BASE_URL}/temperature-converter`,
-    title: "Temperature Converter – Celsius, Fahrenheit & Kelvin | Stiknex",
+    title: "Temperature Converter – °C, °F & Kelvin | Stiknex",
     h1: "Free Online Temperature Converter",
     description: "Convert temperatures between Celsius (°C), Fahrenheit (°F), and Kelvin (K) instantly with accurate thermodynamic formulas.",
     primaryIntent: "temperature converter",
@@ -1240,7 +1252,7 @@ export const seoConfig = {
   "/speed-converter": {
     path: "/speed-converter",
     canonical: `${BASE_URL}/speed-converter`,
-    title: "Speed Converter – MPH, KM/H, Knots & Meters per Second | Stiknex",
+    title: "Speed Converter – MPH, KM/H & Knots | Stiknex",
     h1: "Free Online Speed Converter",
     description: "Convert speed and velocity units: miles per hour (mph), kilometers per hour (km/h), knots, and meters per second (m/s).",
     primaryIntent: "speed converter",
@@ -1262,7 +1274,7 @@ export const seoConfig = {
   "/pressure-converter": {
     path: "/pressure-converter",
     canonical: `${BASE_URL}/pressure-converter`,
-    title: "Pressure Converter – PSI, Bar, Pascal & Atmospheres | Stiknex",
+    title: "Pressure Converter – PSI, Bar & Pascal | Stiknex",
     h1: "Free Online Pressure Converter",
     description: "Convert pressure units between Pascals, Kilopascals, Bar, PSI (Pounds per Square Inch), and standard Atmospheres (atm).",
     primaryIntent: "pressure converter",
@@ -1284,7 +1296,7 @@ export const seoConfig = {
   "/power-converter": {
     path: "/power-converter",
     canonical: `${BASE_URL}/power-converter`,
-    title: "Power Converter – Watts, Kilowatts, Horsepower & BTU | Stiknex",
+    title: "Power Converter – Watts, kW & Horsepower | Stiknex",
     h1: "Free Online Power Converter",
     description: "Convert electrical and mechanical power: Watts (W), Kilowatts (kW), Megawatts, metric Horsepower (hp), and BTU/hour.",
     primaryIntent: "power converter",
@@ -1306,7 +1318,7 @@ export const seoConfig = {
   "/qr-code-generator": {
     path: "/qr-code-generator",
     canonical: `${BASE_URL}/qr-code-generator`,
-    title: "Free QR Code Generator – Custom Colors & Instant Download | Stiknex",
+    title: "Free QR Code Generator – Custom Colors | Stiknex",
     h1: "Free Custom QR Code Generator",
     description: "Generate high-resolution QR codes for websites, WiFi networks, plain text, and contact links. Customize foreground colors and download as PNG free.",
     primaryIntent: "QR code generator",
@@ -1329,7 +1341,7 @@ export const seoConfig = {
   "/password-generator": {
     path: "/password-generator",
     canonical: `${BASE_URL}/password-generator`,
-    title: "Random Password Generator – Strong & Secure Password Maker | Stiknex",
+    title: "Random Password Generator – Strong & Secure | Stiknex",
     h1: "Free Strong Random Password Generator",
     description: "Generate cryptographically secure, random passwords with custom lengths, numbers, symbols, and uppercase characters. 100% client-side privacy.",
     primaryIntent: "password generator",
@@ -1351,7 +1363,7 @@ export const seoConfig = {
   "/color-picker": {
     path: "/color-picker",
     canonical: `${BASE_URL}/color-picker`,
-    title: "Free Color Picker & Palette Tool – HEX, RGB, HSL Converter | Stiknex",
+    title: "Color Picker – HEX, RGB & HSL Converter | Stiknex",
     h1: "Free Online Color Picker & Converter",
     description: "Inspect colors, convert between HEX, RGB, and HSL color spaces, and copy CSS color values instantly. Interactive palette and eyedropper support.",
     primaryIntent: "color picker",
@@ -1373,9 +1385,9 @@ export const seoConfig = {
   "/tools": {
     path: "/tools",
     canonical: `${BASE_URL}/tools`,
-    title: "Free Online Tools – Calculators, Converters & Generators | Stiknex",
+    title: "Free Online Tools – Calculators, Converters & More | Stiknex",
     h1: "Free Online Productivity & Utility Tools Directory",
-    description: "Explore Stiknex's full suite of 18+ free online productivity tools: scientific calculators, universal unit converters, QR code generator, password generator, word counter and more.",
+    description: "Free online tools: calculators, unit converters, QR code and password generators, word counter and more. No sign-up, runs in your browser.",
     primaryIntent: "free online tools directory",
     secondaryIntents: ["web productivity tools", "online utilities", "free calculators and converters"],
     keywords: "free online tools, productivity tools, calculators, unit converters, qr code generator, password generator, color picker, online utilities",
@@ -1393,7 +1405,7 @@ export const seoConfig = {
   "/blog": {
     path: "/blog",
     canonical: `${BASE_URL}/blog`,
-    title: "Blog – Productivity Guides, Writing Tips & Online Tools | Stiknex",
+    title: "Productivity, Typing & Writing Guides | Stiknex Blog",
     h1: "Stiknex Productivity & Technology Blog",
     description: "Read in-depth articles on productivity workflows, note-taking strategies, writing efficiency, math shortcuts, and modern digital utility guides.",
     primaryIntent: "productivity blog / note taking tips / online tools guides",
@@ -1410,9 +1422,9 @@ export const seoConfig = {
   "/about": {
     path: "/about",
     canonical: `${BASE_URL}/about`,
-    title: "About Stiknex – Free Productivity Platform by Vishal Mall",
+    title: "About Stiknex – Free Local-First Productivity Platform",
     h1: "About Stiknex",
-    description: "Learn about the mission behind Stiknex, a lightweight, privacy-focused suite of online productivity tools built by Vishal Mall to help people write, calculate, and create without friction.",
+    description: "Stiknex is a free, privacy-focused suite of online productivity tools built by Vishal Mall to help you write, calculate and create.",
     primaryIntent: "about stiknex / stiknex creator",
     secondaryIntents: ["vishal mall developer", "free productivity mission"],
     keywords: "about stiknex, stiknex developer, vishal mall, productivity app, free notes app story",
@@ -1427,9 +1439,9 @@ export const seoConfig = {
   "/whiteboard": {
     path: "/whiteboard",
     canonical: `${BASE_URL}/whiteboard`,
-    title: "Free Online Whiteboard – Draw, Sketch & Diagram | Stiknex",
+    title: "Free Online Whiteboard – Infinite Sketchpad | Stiknex",
     h1: "Free Online Digital Whiteboard",
-    description: "Sketch, diagram, brainstorm, and collaborate with Stiknex's free digital whiteboard powered by Excalidraw. Infinite canvas with shapes, arrows, and freehand drawing.",
+    description: "Free online whiteboard powered by Excalidraw. Sketch, diagram and brainstorm on an infinite canvas with shapes, arrows and freehand drawing.",
     primaryIntent: "free online whiteboard / excalidraw digital whiteboard",
     secondaryIntents: ["online sketch board", "collaborative drawing", "mind mapping whiteboard"],
     keywords: "free online whiteboard, excalidraw, digital whiteboard, online drawing board, whiteboard app, free sketch tool",
@@ -1462,9 +1474,9 @@ export const seoConfig = {
   "/stiknex-typing": {
     path: "/typing-lab",
     canonical: `${BASE_URL}/stiknex-typing`,
-    title: "Stiknex Typing Master – 50 Progressive Touch Typing Lessons & WPM Speed Lab",
+    title: "Stiknex Typing Master – Touch Typing & WPM Test",
     h1: "Stiknex Typing Master",
-    description: "All-in-one typing master: 50 progressive touch typing lessons with unlock progression, precision WPM speed arena, arcade games, developer code drills, and hardware diagnostics.",
+    description: "Learn touch typing with 50 progressive lessons, a WPM speed test, typing games and developer code drills. Free, no sign-up.",
     primaryIntent: "typing speed test / learn touch typing",
     secondaryIntents: ["wpm test", "typing games", "code typing practice"],
     keywords: "typing speed test, typing test online, wpm test, learn touch typing, typing practice, typing games, code typing challenge",
@@ -1488,7 +1500,7 @@ ALL_TOOLS.forEach((t) => {
     seoConfig[route] = {
       path: route,
       canonical: `${BASE_URL}${route}`,
-      title: `${t.title} – Free Online Utility | Stiknex`,
+      title: fitTitle(t.title),
       h1: t.h1 || `Free Online ${t.title}`,
       description: t.tagline,
       primaryIntent: `${t.title.toLowerCase()} online / free ${t.title.toLowerCase()}`,
@@ -1630,7 +1642,7 @@ export const getSeoForPath = (path) => {
     return {
       path: `/${tool.slug}`,
       canonical: `${SITE_URL}/${tool.slug}`,
-      title: `${tool.title} | Free Online Utility – Stiknex`,
+      title: fitTitle(tool.title),
       h1: tool.h1 || `Free Online ${tool.title}`,
       description: tool.tagline || `Use the free, private, and instant ${tool.title} on Stiknex. 100% client-side in your browser.`,
       keywords: Array.isArray(tool.keywords) ? tool.keywords.join(", ") : (tool.keywords || `${tool.title}, online utility`),

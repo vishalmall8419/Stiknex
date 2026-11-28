@@ -201,8 +201,8 @@ export default function LandingPage() {
       
       {/* Dynamic SEO Meta Tags */}
       <PageSEO
-        title="Stiknex — Free Online Sticky Notes, Digital Notebook & 200+ Browser Utility Tools"
-        description="Fast, 100% free, local-first productivity workspace by Vishal Mall. Infinite sticky notes canvas, distraction-free markdown notepad, whiteboard, and 200+ client-side utility tools — private with zero logins."
+        title="Stiknex – Free Online Sticky Notes, Notepad & 200+ Tools"
+        description="Free online sticky notes, rich-text notebook, Excalidraw whiteboard, calculators, converters and more. No sign-up required."
         path="/"
         type="website"
       />

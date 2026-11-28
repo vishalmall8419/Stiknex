@@ -73,7 +73,7 @@ export default function ToolDetails() {
   return (
     <AppShell fullWidth={true}>
       <PageSEO
-        title="Stiknex Tools Directory & Technical Specifications — 206 Browser Utilities"
+        title="All Stiknex Tools – Features & Technical Specs"
         description="Comprehensive functional dictionary and technical specifications for all 206 client-side tools on Stiknex. Learn how each tool operates 100% locally with zero server uploads."
         path="/about/tool-details"
         type="website"

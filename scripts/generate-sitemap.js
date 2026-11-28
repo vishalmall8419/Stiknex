@@ -137,8 +137,10 @@ async function run() {
       lastmod = getGitDate('src/data/toolsRegistry.js', '2026-10-28');
     }
 
-    routeDates[routePath] = lastmod;
     const fullUrl = routePath === '/' ? `${baseUrl}/` : `${baseUrl}${routePath}`;
+    // Duplicate views that canonicalize to another URL stay out of the sitemap.
+    if (config.canonical && config.canonical !== fullUrl) continue;
+    routeDates[routePath] = lastmod;
 
     xml += `  <url>\n`;
     xml += `    <loc>${fullUrl}</loc>\n`;

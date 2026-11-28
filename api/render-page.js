@@ -1,4 +1,7 @@
 import { getSeoForPath, isKnownRoute, BASE_URL, SITE_URL } from './_utils/seoConfig.js';
+import { extractFaqFromContent } from './_utils/blogValidator.js';
+
+const escAttr = (value) => String(value ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 import { ALL_TOOLS, TOOL_CATEGORIES, TOOL_HUBS } from '../src/data/toolsRegistry.js';
 import { getBespokeDataForSlug } from '../src/data/bespokeToolsData.js';
 import connectToDatabase from './_utils/db.js';
@@ -185,6 +188,9 @@ export default async function handler(req, res) {
             const keywords = blog.keywords || '';
             const imageUrl = blog.imageUrl || `${primaryDomain}/Stiknex.png`;
             const blogUrl = `${primaryDomain}/blog/${encodeURIComponent(slug)}`;
+            const safeTitle = escAttr(title);
+            const safeDesc = escAttr(description);
+            const safeImage = escAttr(imageUrl);
 
             // Convert raw markdown headings to HTML with IDs for TOC anchor navigation
             let formattedBody = (blog.content || `<p>${description}</p>`)
@@ -199,19 +205,19 @@ export default async function handler(req, res) {
                 .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" style="color: #4f46e5; font-weight: 600; text-decoration: underline;">$1</a>')
                 .replace(/\n\n+/g, '</p><p style="margin-bottom: 18px;">');
 
-            html = html.replace(/<title>[\s\S]*?<\/title>/, `<title>${title} | Stiknex</title>`);
-            html = html.replace(/<meta\s+name="description"\s+content="[^"]*"\s*\/>/, `<meta name="description" content="${description}" />`);
-            html = html.replace(/<meta\s+property="og:title"\s+content="[^"]*"\s*\/>/, `<meta property="og:title" content="${title} | Stiknex" />`);
-            html = html.replace(/<meta\s+property="og:description"\s+content="[^"]*"\s*\/>/, `<meta property="og:description" content="${description}" />`);
-            html = html.replace(/<meta\s+property="og:url"\s+content="[^"]*"\s*\/>/, `<meta property="og:url" content="${blogUrl}" />`);
-            html = html.replace(/<meta\s+property="og:image"\s+content="[^"]*"\s*\/>/, `<meta property="og:image" content="${imageUrl}" />`);
-            html = html.replace(/<meta\s+property="og:image:secure_url"\s+content="[^"]*"\s*\/>/, `<meta property="og:image:secure_url" content="${imageUrl}" />`);
-            html = html.replace(/<meta\s+name="twitter:title"\s+content="[^"]*"\s*\/>/, `<meta name="twitter:title" content="${title} | Stiknex" />`);
-            html = html.replace(/<meta\s+name="twitter:description"\s+content="[^"]*"\s*\/>/, `<meta name="twitter:description" content="${description}" />`);
-            html = html.replace(/<meta\s+name="twitter:image"\s+content="[^"]*"\s*\/>/, `<meta name="twitter:image" content="${imageUrl}" />`);
+            html = html.replace(/<title>[\s\S]*?<\/title>/, () => `<title>${safeTitle} | Stiknex</title>`);
+            html = html.replace(/<meta\s+name="description"\s+content="[^"]*"\s*\/>/, () => `<meta name="description" content="${safeDesc}" />`);
+            html = html.replace(/<meta\s+property="og:title"\s+content="[^"]*"\s*\/>/, () => `<meta property="og:title" content="${safeTitle} | Stiknex" />`);
+            html = html.replace(/<meta\s+property="og:description"\s+content="[^"]*"\s*\/>/, () => `<meta property="og:description" content="${safeDesc}" />`);
+            html = html.replace(/<meta\s+property="og:url"\s+content="[^"]*"\s*\/>/, () => `<meta property="og:url" content="${blogUrl}" />`);
+            html = html.replace(/<meta\s+property="og:image"\s+content="[^"]*"\s*\/>/, () => `<meta property="og:image" content="${safeImage}" />`);
+            html = html.replace(/<meta\s+property="og:image:secure_url"\s+content="[^"]*"\s*\/>/, () => `<meta property="og:image:secure_url" content="${safeImage}" />`);
+            html = html.replace(/<meta\s+name="twitter:title"\s+content="[^"]*"\s*\/>/, () => `<meta name="twitter:title" content="${safeTitle} | Stiknex" />`);
+            html = html.replace(/<meta\s+name="twitter:description"\s+content="[^"]*"\s*\/>/, () => `<meta name="twitter:description" content="${safeDesc}" />`);
+            html = html.replace(/<meta\s+name="twitter:image"\s+content="[^"]*"\s*\/>/, () => `<meta name="twitter:image" content="${safeImage}" />`);
 
             if (html.includes('<link rel="canonical"')) {
-                html = html.replace(/<link\s+rel="canonical"\s+href="[^"]*"\s*\/?>/, `<link rel="canonical" href="${blogUrl}" />`);
+                html = html.replace(/<link\s+rel="canonical"\s+href="[^"]*"\s*\/?>/, () => `<link rel="canonical" href="${blogUrl}" />`);
             } else {
                 html = html.replace('</head>', `<link rel="canonical" href="${blogUrl}" />\n</head>`);
             }
@@ -224,6 +230,10 @@ export default async function handler(req, res) {
                     "description": description,
                     "image": imageUrl,
                     "url": blogUrl,
+                    "inLanguage": "en",
+                    ...(keywords ? { "keywords": keywords } : {}),
+                    ...(blog.wordCount ? { "wordCount": blog.wordCount } : {}),
+                    ...(blog.category ? { "articleSection": blog.category } : {}),
                     "datePublished": blog.publishedAt || blog.createdAt || new Date().toISOString(),
                     "dateModified": blog.updatedAt || blog.publishedAt || new Date().toISOString(),
                     "author": {
@@ -255,7 +265,20 @@ export default async function handler(req, res) {
                     ]
                 }
             ];
-            html = html.replace('</head>', `<script type="application/ld+json">${JSON.stringify(blogSchemas)}</script>\n</head>`);
+            const faqItems = extractFaqFromContent(blog.content);
+            if (faqItems.length >= 2) {
+                blogSchemas.push({
+                    "@context": "https://schema.org",
+                    "@type": "FAQPage",
+                    "mainEntity": faqItems.map(f => ({
+                        "@type": "Question",
+                        "name": f.q,
+                        "acceptedAnswer": { "@type": "Answer", "text": f.a }
+                    }))
+                });
+            }
+            const blogSchemaJson = JSON.stringify(blogSchemas).replace(/</g, '\\u003c');
+            html = html.replace('</head>', () => `<script type="application/ld+json">${blogSchemaJson}</script>\n</head>`);
 
             const blogRoot = `
     <div id="root">
