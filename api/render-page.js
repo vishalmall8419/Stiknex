@@ -1,4 +1,4 @@
-import { getSeoForPath, isKnownRoute, BASE_URL, SITE_URL } from './_utils/seoConfig.js';
+import { getSeoForPath, isKnownRoute, seoAliases, BASE_URL, SITE_URL } from './_utils/seoConfig.js';
 import { extractFaqFromContent } from './_utils/blogValidator.js';
 
 const escAttr = (value) => String(value ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -42,16 +42,14 @@ export default async function handler(req, res) {
     const isVercelDomain = hostHeader === 'stiknex.vercel.app' || (hostHeader.endsWith('.vercel.app') && !hostHeader.includes('localhost'));
     const isWwwDomain = hostHeader === 'www.stiknex.site';
 
+    const normalizedPath = cleanPath.length > 1 && cleanPath.endsWith('/') ? cleanPath.slice(0, -1) : cleanPath;
+
     if (isVercelDomain || isWwwDomain) {
         let destPath = cleanPath;
         if (slug || type === 'blog') {
             destPath = `/blog/${slug}`;
-        } else if (destPath === '/notes') {
-            destPath = '/sticky-notes';
-        } else if (destPath === '/notebook') {
-            destPath = '/online-notebook';
-        } else if (destPath === '/dataconverter' || destPath === '/tools/dataconverter') {
-            destPath = '/data-converter';
+        } else if (seoAliases[normalizedPath]) {
+            destPath = seoAliases[normalizedPath];
         } else if (destPath.startsWith('/tools/') && destPath.length > 7) {
             const potentialSlug = destPath.slice(7);
             if (isKnownRoute(`/${potentialSlug}`)) {
@@ -63,16 +61,8 @@ export default async function handler(req, res) {
     }
 
     // 2. Path canonicalization on stiknex.site (1-hop permanent 301 redirects)
-    if (cleanPath === '/notes') {
-        res.setHeader('Location', `${primaryDomain}/sticky-notes${queryString}`);
-        return res.status(301).end();
-    }
-    if (cleanPath === '/notebook') {
-        res.setHeader('Location', `${primaryDomain}/online-notebook${queryString}`);
-        return res.status(301).end();
-    }
-    if (cleanPath === '/dataconverter' || cleanPath === '/tools/dataconverter') {
-        res.setHeader('Location', `${primaryDomain}/data-converter${queryString}`);
+    if (seoAliases[normalizedPath]) {
+        res.setHeader('Location', `${primaryDomain}${seoAliases[normalizedPath]}${queryString}`);
         return res.status(301).end();
     }
     if (cleanPath.startsWith('/tools/') && cleanPath.length > 7) {
@@ -438,8 +428,8 @@ export default async function handler(req, res) {
         const description = seo.description;
         const keywords = seo.keywords;
         const canonicalPath = seo.path || cleanPath;
-        const canonicalUrl = canonicalPath === '/' ? `${primaryDomain}/` : `${primaryDomain}${canonicalPath}`;
-        const pageUrl = cleanPath === '/' ? `${primaryDomain}/` : `${primaryDomain}${cleanPath}`;
+        const canonicalUrl = seo.canonical || (canonicalPath === '/' ? `${primaryDomain}/` : `${primaryDomain}${canonicalPath}`);
+        const pageUrl = canonicalUrl;
 
         html = html.replace(/<title>[\s\S]*?<\/title>/, `<title>${title}</title>`);
         html = html.replace(/<meta\s+name="description"\s+content="[^"]*"\s*\/>/, `<meta name="description" content="${description}" />`);
@@ -511,6 +501,7 @@ export default async function handler(req, res) {
                 "description": description,
                 "applicationCategory": "ProductivityApplication",
                 "operatingSystem": "All",
+                ...(Array.isArray(seo.featureList) && seo.featureList.length > 0 ? { "featureList": seo.featureList } : {}),
                 "browserRequirements": "Requires JavaScript and HTML5 support",
                 "offers": {
                     "@type": "Offer",

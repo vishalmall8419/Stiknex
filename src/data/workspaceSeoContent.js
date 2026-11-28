@@ -1,8 +1,8 @@
 export const NOTEPAD_SEO_CONTENT = {
-  path: "/online-notepad",
-  title: "Free Online Notepad & Notebook – Offline, No Login | Stiknex",
+  path: "/online-notebook",
+  title: "Free Online Notepad – Sync Devices by QR, No Login | Stiknex",
   description:
-    "Free online notepad that saves automatically and works offline. Write notes, lists and code in your browser. No login, private by default.",
+    "Free online notepad and notebook. Scan a QR code to sync across devices, end-to-end encrypted. No login, works offline.",
   keywords:
     "free online notepad, offline digital notebook, browser notepad, local-first notes, auto-save online notepad, stiknex notepad",
   heading: "Free Online Notepad with Offline Support",
@@ -76,9 +76,9 @@ export const NOTEPAD_SEO_CONTENT = {
 
 export const STICKY_NOTES_SEO_CONTENT = {
   path: "/sticky-notes",
-  title: "Free Online Sticky Notes – Digital Pinboard | Stiknex",
+  title: "Free Online Sticky Notes – No Login, Sync by QR | Stiknex",
   description:
-    "Create, color-code and organize digital sticky notes on an infinite canvas. Brainstorm ideas and track tasks, no sign-in needed.",
+    "Free online sticky notes board. Sync between phone and PC by QR code, encrypted, no login or account needed.",
   keywords:
     "free online sticky notes, digital pinboard, offline sticky notes, browser sticky notes, visual note board, stiknex sticky notes",
   heading: "Free Online Sticky Notes Board",

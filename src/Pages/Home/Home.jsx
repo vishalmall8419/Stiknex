@@ -1543,6 +1543,12 @@ const Home = () => {
         path={STICKY_NOTES_SEO_CONTENT.path}
         type="webapp"
         keywords={STICKY_NOTES_SEO_CONTENT.keywords}
+        featureList={[
+          "QR code device sync",
+          "Client-side AES-256-GCM end-to-end encryption",
+          "Works offline",
+          "No login or account required",
+        ]}
         faqs={STICKY_NOTES_SEO_CONTENT.faqs}
       />
       {/* Keep interactive board 100dvh while allowing scroll to below-the-fold SEO section */}
