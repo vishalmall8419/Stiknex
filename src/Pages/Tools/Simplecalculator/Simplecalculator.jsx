@@ -985,13 +985,13 @@ export default function SimpleCalculator({ tool, seoData }) {
                 <button
                   type="button"
                   onClick={copyResult}
-                  className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer
+                  aria-label={copied ? "Copied" : "Copy calculated result"}
+                  className="flex items-center justify-center w-7 h-7 rounded-full transition-all cursor-pointer
                     bg-white/80 hover:bg-white text-slate-600 hover:text-blue-600 shadow-xs
                     dark:bg-white/10 dark:hover:bg-white/15 dark:text-slate-300 dark:hover:text-blue-400"
-                  title="Copy calculated result"
+                  title={copied ? "Copied" : "Copy calculated result"}
                 >
                   {copied ? <Check size={13} className="text-emerald-500" /> : <Copy size={13} />}
-                  <span>{copied ? "Copied" : "Copy"}</span>
                 </button>
 
                 {currentSegmentDigits >= 14 && (
