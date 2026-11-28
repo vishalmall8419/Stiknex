@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { restoreAboutToolFab } from "../SEO/WorkspaceSeoSection";
 import { useAppContext } from "../../context/AppContext";
 import { motion, AnimatePresence } from "framer-motion";
 import ExtensionModal from "../ExtensionModal";
@@ -266,6 +267,13 @@ const AppShell = ({ children, hideNav = false, hideFooter = false, fullWidth = f
                 <Link to="/blog" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Blog</Link>
                 <Link to="/buy-me-a-coffee" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Support</Link>
                 <Link to="/sitemap" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Sitemap</Link>
+                <button
+                  type="button"
+                  onClick={restoreAboutToolFab}
+                  className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors cursor-pointer"
+                >
+                  Show tool info button
+                </button>
                 <button
                   type="button"
                   onClick={() => {

@@ -60,6 +60,7 @@ import { TIER_1_BESPOKE } from "../../data/bespokeToolsData";
 import WorkspaceSeoSection from "../../Component/SEO/WorkspaceSeoSection";
 import RelatedToolsBlock from "../../Component/SEO/RelatedToolsBlock";
 import { SCOPED_SEO_CONTENT } from "../../data/scopedSeoContent";
+import { TIER1_RELATED_TOOLS } from "../../data/tier1RelatedTools";
 
 
 // Bespoke editorial data & formulas for Tier 1 tools (Research Phase 1 Standards)
@@ -441,15 +442,31 @@ const Tools = ({ directSlug = null }) => {
             </Suspense>
           </div>
           <RelatedToolsBlock currentPath={location.pathname === "/unit-converter" ? "/unit-converter" : `/${activeToolData.slug}`} />
-          {(SCOPED_SEO_CONTENT[location.pathname] || SCOPED_SEO_CONTENT[`/${activeToolData.slug}`]) && (
-            <WorkspaceSeoSection
-              content={{
-                heading: seoData.h1 || activeToolData.h1,
-                subheading: activeToolData.tagline,
-                ...(SCOPED_SEO_CONTENT[location.pathname] || SCOPED_SEO_CONTENT[`/${activeToolData.slug}`])
-              }}
-            />
-          )}
+          <WorkspaceSeoSection
+            content={
+              (SCOPED_SEO_CONTENT[location.pathname] || SCOPED_SEO_CONTENT[`/${activeToolData.slug}`])
+                ? {
+                    heading: seoData.h1 || activeToolData.h1,
+                    subheading: activeToolData.tagline,
+                    ...(SCOPED_SEO_CONTENT[location.pathname] || SCOPED_SEO_CONTENT[`/${activeToolData.slug}`])
+                  }
+                : {
+                    heading: seoData.h1 || activeToolData.h1,
+                    subheading: activeToolData.tagline,
+                    answerHeading: `What is ${activeToolData.title}?`,
+                    answerFirst: activeToolData.guide,
+                    howTo: activeToolData.howTo,
+                    features: activeToolData.features,
+                    faqs: seoData.faqs || [],
+                    relatedTools:
+                      TIER1_RELATED_TOOLS[location.pathname === "/unit-converter" ? "/unit-converter" : `/${activeToolData.slug}`] ||
+                      (activeToolData.related || []).map((p) => ({
+                        path: p,
+                        label: p.replace(/^\//, "").replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
+                      }))
+                  }
+            }
+          />
         </>
       ) : (
         <div className="relative min-h-screen pb-32 overflow-x-clip font-sans">

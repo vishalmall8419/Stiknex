@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { restoreAboutToolFab } from "../../../Component/SEO/WorkspaceSeoSection";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X,
@@ -228,7 +229,17 @@ export default function ToolSidebarDrawer({
             </div>
 
             {/* Bottom Drawer Footer: Support Stiknex Amber CTA */}
-            <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 shrink-0">
+            <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 shrink-0 space-y-2">
+              <button
+                type="button"
+                onClick={() => {
+                  restoreAboutToolFab();
+                  onClose?.();
+                }}
+                className="w-full py-1.5 text-[11px] font-semibold text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 transition cursor-pointer"
+              >
+                Show tool info button
+              </button>
               <Link
                 to="/buy-me-a-coffee"
                 onClick={onClose}
