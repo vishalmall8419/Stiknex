@@ -682,7 +682,7 @@ export default function ScientificCalculator({ tool, seoData }) {
   };
 
   return (
-    <div className="fixed inset-0 lg:relative lg:inset-auto w-full h-[100dvh] lg:min-h-screen flex flex-col justify-between overflow-hidden select-none font-sans bg-gradient-to-b from-[#EBF2F9] via-[#E2EDF7] to-[#D6E5F2] dark:from-[#0B1017] dark:via-[#080D14] dark:to-[#05090F] text-slate-800 dark:text-slate-100 transition-colors duration-300">
+    <div className="fixed inset-0 lg:relative lg:inset-auto w-full h-[100dvh] lg:min-h-screen pb-20 md:pb-0 flex flex-col justify-between overflow-hidden select-none font-sans bg-gradient-to-b from-[#EBF2F9] via-[#E2EDF7] to-[#D6E5F2] dark:from-[#0B1017] dark:via-[#080D14] dark:to-[#05090F] text-slate-800 dark:text-slate-100 transition-colors duration-300">
 
       {/* ═════════════════════════════════════════════════════════════════════
           DESKTOP VIEW (>= lg): DUAL STATION (Matching Reference Image)
@@ -1861,40 +1861,6 @@ export default function ScientificCalculator({ tool, seoData }) {
           </div>
         )}
       </AnimatePresence>
-
-      {/* ─── Floatable / Draggable Help Button (?) Container ─── */}
-      <div
-        ref={constraintsRef}
-        className="fixed inset-0 pointer-events-none z-30 overflow-hidden"
-      >
-        <motion.button
-          type="button"
-          drag
-          dragConstraints={constraintsRef}
-          dragElastic={0.08}
-          dragMomentum={false}
-          onDragStart={() => {
-            isDraggingRef.current = true;
-          }}
-          onDragEnd={() => {
-            setTimeout(() => {
-              isDraggingRef.current = false;
-            }, 80);
-          }}
-          onClick={() => {
-            if (isDraggingRef.current) return;
-            setIsHelpOpen(true);
-          }}
-          whileDrag={{ scale: 1.15, cursor: "grabbing" }}
-          whileHover={{ scale: 1.08 }}
-          whileTap={{ scale: 0.94 }}
-          className="fixed top-20 right-4 pointer-events-auto touch-none w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center bg-white/95 dark:bg-slate-800/95 text-slate-700 dark:text-slate-200 border border-slate-200/90 dark:border-slate-700 shadow-xl shadow-slate-900/15 hover:shadow-indigo-500/25 transition-shadow cursor-grab active:cursor-grabbing backdrop-blur-md select-none"
-          title="Calculator Guide & Help (Drag anywhere to move)"
-          aria-label="Calculator Help (Draggable)"
-        >
-          <HelpCircle size={20} className="text-indigo-600 dark:text-indigo-400 pointer-events-none" />
-        </motion.button>
-      </div>
 
       {/* ─── Universal Stiknex Tool Sidebar Drawer ─── */}
       <ToolSidebarDrawer

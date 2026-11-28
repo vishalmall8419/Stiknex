@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import Lenis from "lenis";
 import AppShell from "../../Component/Layout/AppShell";
 import PageSEO from "../../Component/SEO/PageSEO";
+import { FOUNDER_PROFILE_LINKS } from "../../utils/entitySchema";
 import {
   Sparkles,
   Zap,
@@ -1555,6 +1556,19 @@ export default function About() {
                   >
                     vishal.mall02@outlook.com
                   </a>
+                  {FOUNDER_PROFILE_LINKS.map((item) => (
+                    <span key={item.label} className="inline-flex items-center gap-4">
+                      <span>•</span>
+                      <a
+                        href={item.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-slate-500 hover:text-[#134E5E] dark:hover:text-white"
+                      >
+                        {item.label}
+                      </a>
+                    </span>
+                  ))}
                 </div>
               </div>
             </div>

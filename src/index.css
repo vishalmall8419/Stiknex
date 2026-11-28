@@ -52,6 +52,45 @@ html {
   will-change: transform;
 }
 
+/* About Tool Floating Action Button */
+.stiknex-about-fab-label {
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: max-width 220ms ease, opacity 180ms ease, margin 220ms ease;
+}
+.stiknex-about-fab-hide-desktop {
+  display: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  .stiknex-about-fab-wrap:hover .stiknex-about-fab-label,
+  .stiknex-about-fab-wrap:focus-within .stiknex-about-fab-label {
+    max-width: 140px;
+    opacity: 1;
+    margin-left: 6px;
+    margin-right: 4px;
+  }
+  .stiknex-about-fab-wrap:hover .stiknex-about-fab-hide-desktop,
+  .stiknex-about-fab-wrap:focus-within .stiknex-about-fab-hide-desktop {
+    display: inline-flex;
+  }
+  .stiknex-about-fab-hide-touch {
+    display: none;
+  }
+}
+@media (hover: none), (pointer: coarse) {
+  .stiknex-about-fab-label,
+  .stiknex-about-fab-hide-desktop {
+    display: none !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .stiknex-about-fab-label {
+    transition: none !important;
+  }
+}
+
 body {
   font-family: "Inter", "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   margin: 0;

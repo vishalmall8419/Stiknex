@@ -177,10 +177,10 @@ ${signatureLoaderHtml}
           </div>
         </footer>
       </main>
-    </div>`;
+    </div><span id="stiknex-root-end" hidden></span>`;
 
 // Update index.html in project root
-const rootDivRegex = /(?:<!-- Initial Splash Overlay[\s\S]*?-->\s*)?(?:<style id="initial-splash-style">[\s\S]*?<\/style>\s*)?(?:<div id="initial-app-splash"[\s\S]*?<\/div>\s*)?(?:<!-- =========================================================\s*INITIAL SIGNATURE SVG HANDWRITING LOADER[\s\S]*?-->\s*)?(?:<div id="initial-signature-loader"[\s\S]*?<\/div>\s*)?<div id="root">[\s\S]*?<\/div>\s*(?=\s*<script)/;
+const rootDivRegex = /(?:<!-- Initial Splash Overlay[\s\S]*?-->\s*)?(?:<style id="initial-splash-style">[\s\S]*?<\/style>\s*)?(?:<div id="initial-app-splash"[\s\S]*?<\/div>\s*)?(?:<!-- =========================================================\s*INITIAL SIGNATURE SVG HANDWRITING LOADER[\s\S]*?-->\s*)?(?:<div id="initial-signature-loader"[\s\S]*?<\/div>\s*)?<div id="root">[\s\S]*?<\/div>(?:<span id="stiknex-root-end"[^>]*><\/span>)?\s*(?=\s*<script)/;
 
 const indexPath = path.join(rootDir, 'index.html');
 if (fs.existsSync(indexPath)) {

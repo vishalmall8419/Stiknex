@@ -5,6 +5,7 @@ import { ArrowLeft, Loader2, Calendar, Tag, Languages, Sparkles, Zap, BookOpen, 
 import LazyImage from '../../Component/LazyImage';
 import PageSEO from '../../Component/SEO/PageSEO';
 import { useAppContext } from '../../context/AppContext';
+import { FOUNDER_PROFILE_LINKS } from '../../utils/entitySchema';
 
 const StudioBackground = React.memo(() => (
   <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10 bg-[#f7f5ff] dark:bg-[#080a18] transition-colors duration-300">
@@ -125,7 +126,7 @@ const BlogDetail = () => {
 
   return (
     <div className="relative min-h-screen text-slate-900 dark:text-slate-100 selection:bg-indigo-500/30 font-sans pb-16 w-full max-w-full overflow-x-clip">
-      <PageSEO title={post.metaTitle || post.title} description={post.metaDescription || post.briefDescription} image={post.image || undefined} path={`/blog/${id}`} />
+      <PageSEO title={post.metaTitle || post.title} description={post.metaDescription || post.briefDescription} image={post.image || undefined} path={`/blog/${id}`} type="article" datePublished={post.publishedAt} />
       <StudioBackground />
 
       {/* Desktop Navigation Pill */}
@@ -286,6 +287,32 @@ const BlogDetail = () => {
               ))}
             </div>
           )}
+
+          {/* Author Box */}
+          <aside
+            aria-label="About the author"
+            className="mt-10 pt-6 border-t border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-4 not-prose"
+          >
+            <p className="text-sm font-bold text-slate-900 dark:text-white">
+              Written by Vishal Mall
+            </p>
+            <div className="flex flex-wrap items-center gap-4 text-xs font-semibold">
+              <Link to="/about" className="text-indigo-600 dark:text-indigo-400 hover:underline">
+                About Vishal Mall
+              </Link>
+              {FOUNDER_PROFILE_LINKS.map((item) => (
+                <a
+                  key={item.label}
+                  href={item.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:underline"
+                >
+                  {item.label}
+                </a>
+              ))}
+            </div>
+          </aside>
         </motion.article>
       </main>
 
