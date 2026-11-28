@@ -840,23 +840,6 @@ export default function PercentageCalculator({ tool, seoData }) {
         </p>
       </footer>
 
-      {/* FLOATABLE / DRAGGABLE HELP (?) BUTTON */}
-      <motion.button
-        drag
-        dragMomentum={false}
-        whileHover={{ scale: 1.08 }}
-        whileTap={{ scale: 0.94 }}
-        onClick={() => {
-          playClickSound();
-          setHelpOpen(true);
-        }}
-        className="fixed top-20 right-4 z-40 p-3 rounded-full bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 border border-slate-200 dark:border-slate-700 shadow-xl hover:shadow-indigo-500/20 cursor-grab active:cursor-grabbing transition-colors"
-        title="Percentage Formulas (Drag anywhere)"
-        aria-label="Help Guide"
-      >
-        <HelpCircle className="w-5 h-5" />
-      </motion.button>
-
       {/* UNIVERSAL STIKNEX TOOL SIDEBAR DRAWER */}
       <ToolSidebarDrawer
         isOpen={sidebarOpen}

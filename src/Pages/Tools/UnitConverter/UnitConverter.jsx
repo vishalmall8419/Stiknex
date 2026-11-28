@@ -258,7 +258,7 @@ export default function UnitConverter({ units = [], defaultUnit, tool, seoData, 
   }, [searchQuery]);
 
   return (
-    <div className="min-h-screen w-full bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col justify-between selection:bg-indigo-500 selection:text-white transition-colors duration-200">
+    <div className="min-h-screen w-full pb-20 md:pb-0 bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col justify-between selection:bg-indigo-500 selection:text-white transition-colors duration-200">
       
 
       {/* ══════════════════════════════════════════════════════════════════
@@ -775,23 +775,6 @@ export default function UnitConverter({ units = [], defaultUnit, tool, seoData, 
           Stiknex Measurement Engine • Precision Metric &amp; Imperial Conversions
         </p>
       </footer>
-
-      {/* FLOATABLE / DRAGGABLE HELP (?) BUTTON */}
-      <motion.button
-        drag
-        dragMomentum={false}
-        whileHover={{ scale: 1.08 }}
-        whileTap={{ scale: 0.94 }}
-        onClick={() => {
-          playClickSound();
-          setHelpOpen(true);
-        }}
-        className="fixed top-20 right-4 z-40 p-3 rounded-full bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 border border-slate-200 dark:border-slate-700 shadow-xl hover:shadow-indigo-500/20 cursor-grab active:cursor-grabbing transition-colors"
-        title="Unit Converter Guide & Formula (Drag anywhere)"
-        aria-label="Help Guide"
-      >
-        <HelpCircle className="w-5 h-5" />
-      </motion.button>
 
       {/* UNIVERSAL STIKNEX TOOL SIDEBAR DRAWER */}
       <ToolSidebarDrawer

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { restoreAboutToolFab } from "../SEO/WorkspaceSeoSection";
 import { useAppContext } from "../../context/AppContext";
 import { motion, AnimatePresence } from "framer-motion";
 import ExtensionModal from "../ExtensionModal";
@@ -13,7 +14,7 @@ const AppShell = ({ children, hideNav = false, hideFooter = false, fullWidth = f
 
   const navItems = [
     { name: "Sticky Notes", path: "/sticky-notes", icon: "fa-solid fa-note-sticky" },
-    { name: "Online Notepad", path: "/online-notepad", icon: "fa-solid fa-file-lines" },
+    { name: "Online Notepad", path: "/online-notebook", icon: "fa-solid fa-file-lines" },
     { name: "Notebook", path: "/online-notebook", icon: "fa-solid fa-book" },
     { name: "Whiteboards", path: "/whiteboard", icon: "fa-solid fa-pen-nib" },
     { name: "Tools", path: "/tools", icon: "fa-solid fa-screwdriver-wrench" },
@@ -266,6 +267,13 @@ const AppShell = ({ children, hideNav = false, hideFooter = false, fullWidth = f
                 <Link to="/blog" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Blog</Link>
                 <Link to="/buy-me-a-coffee" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Support</Link>
                 <Link to="/sitemap" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Sitemap</Link>
+                <button
+                  type="button"
+                  onClick={restoreAboutToolFab}
+                  className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors cursor-pointer"
+                >
+                  Show tool info button
+                </button>
                 <button
                   type="button"
                   onClick={() => {

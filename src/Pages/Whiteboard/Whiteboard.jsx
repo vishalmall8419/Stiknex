@@ -3,6 +3,9 @@ import { useSearchParams, Link } from "react-router-dom";
 import AppShell from "../../Component/Layout/AppShell";
 import { useAppContext } from "../../context/AppContext";
 import PageSEO from "../../Component/SEO/PageSEO";
+import WorkspaceSeoSection from "../../Component/SEO/WorkspaceSeoSection";
+import { seoConfig } from "../../utils/seoConfig";
+import { TIER1_RELATED_TOOLS } from "../../data/tier1RelatedTools";
 import {
   Plus,
   Search,
@@ -1323,6 +1326,14 @@ const WhiteboardDashboard = () => {
           </div>
         </div>
       </div>
+      <WorkspaceSeoSection
+        content={{
+          heading: seoConfig["/whiteboard"]?.h1 || "Free Online Whiteboard",
+          subheading: seoConfig["/whiteboard"]?.description,
+          faqs: seoConfig["/whiteboard"]?.faqs || [],
+          relatedTools: TIER1_RELATED_TOOLS["/whiteboard"] || []
+        }}
+      />
     </AppShell>
   );
 };

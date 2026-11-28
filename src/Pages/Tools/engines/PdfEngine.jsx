@@ -1,4 +1,40 @@
 import React, { useState, useMemo, useCallback, useEffect } from "react";
+import { PDFDocument, degrees } from "pdf-lib";
+import * as pdfjsLib from "pdfjs-dist";
+import pdfjsWorker from "pdfjs-dist/build/pdf.worker.min.mjs?url";
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
+
+function downloadBlob(bytes, filename, mime = "application/pdf") {
+  const blob = new Blob([bytes], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function parsePageRanges(rangeStr, totalPages) {
+  const indices = [];
+  const parts = String(rangeStr || "").split(",").map((s) => s.trim()).filter(Boolean);
+  for (const part of parts) {
+    if (part.includes("-")) {
+      const [aRaw, bRaw] = part.split("-").map((n) => parseInt(n.trim(), 10));
+      if (!Number.isNaN(aRaw) && !Number.isNaN(bRaw)) {
+        const start = Math.max(1, Math.min(aRaw, bRaw));
+        const end = Math.min(totalPages, Math.max(aRaw, bRaw));
+        for (let p = start; p <= end; p++) indices.push(p - 1);
+      }
+    } else {
+      const n = parseInt(part, 10);
+      if (!Number.isNaN(n) && n >= 1 && n <= totalPages) indices.push(n - 1);
+    }
+  }
+  return indices;
+}
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -295,21 +331,40 @@ function ImagesToPdfTool() {
 // BIG TOOL: EXTRACT PDF TEXT & DOCUMENT WORD COUNTER
 // ============================================================================
 function ExtractTextTool({ copyText, copied }) {
-  const [extracted, setExtracted] = useState("Stiknex Universal Document Text Engine.\nUpload any text, markdown, or document to extract clean strings, count words, and analyze characters.");
+  const [extracted, setExtracted] = useState("Stiknex Universal Document Text Engine.\nUpload any PDF, text, or markdown document to extract clean strings, count words, and analyze characters.");
   const [fileName, setFileName] = useState("sample-document.txt");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleFile = (e) => {
+  const handleFile = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setFileName(file.name);
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const content = ev.target?.result;
-      if (typeof content === "string") {
+    setError("");
+    setLoading(true);
+    try {
+      const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+      if (isPdf) {
+        const buffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
+        const pageTexts = [];
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const content = await page.getTextContent();
+          const text = content.items.map((item) => item.str || "").join(" ").replace(/\s+/g, " ").trim();
+          pageTexts.push(`--- Page ${i} ---\n${text}`);
+        }
+        const combined = pageTexts.join("\n\n").trim();
+        setExtracted(combined || "(No selectable text found in this PDF — it may be a scanned image PDF.)");
+      } else {
+        const content = await file.text();
         setExtracted(content);
       }
-    };
-    reader.readAsText(file);
+    } catch (err) {
+      setError(err?.message || "Failed to extract text from this file.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const wordCount = useMemo(() => {
@@ -320,9 +375,15 @@ function ExtractTextTool({ copyText, copied }) {
     <div className="space-y-6">
       <div className="p-8 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-3xl text-center bg-slate-50 dark:bg-slate-900/40 relative">
         <input type="file" accept=".txt,.md,.json,.csv,.html,.xml,.pdf" onChange={handleFile} className="absolute inset-0 opacity-0 cursor-pointer w-full h-full" />
-        <h4 className="font-bold text-slate-900 dark:text-white">Upload Document to Inspect & Extract</h4>
-        <p className="text-xs text-slate-500 mt-1">Supports TXT, MD, CSV, JSON, HTML, and document files.</p>
+        <h4 className="font-bold text-slate-900 dark:text-white">{loading ? "Extracting text..." : "Upload PDF or Document to Extract Text"}</h4>
+        <p className="text-xs text-slate-500 mt-1">Supports PDF, TXT, MD, CSV, JSON, HTML, and XML files locally in your browser.</p>
       </div>
+
+      {error && (
+        <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-xs font-semibold text-rose-600 dark:text-rose-400">
+          {error}
+        </div>
+      )}
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
         <div className="p-4 bg-white dark:bg-slate-900 rounded-2xl border text-center">
@@ -342,8 +403,8 @@ function ExtractTextTool({ copyText, copied }) {
       <div>
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Document Contents ({fileName})</span>
-          <button onClick={() => copyText(extracted)} className="text-xs font-bold text-indigo-600 hover:underline flex items-center gap-1">
-            <Copy size={13} /> Copy Document Text
+          <button onClick={() => copyText(extracted)} className="text-xs font-bold text-indigo-600 hover:underline flex items-center gap-1 cursor-pointer">
+            {copied ? <Check size={13} /> : <Copy size={13} />} {copied ? "Copied!" : "Copy Document Text"}
           </button>
         </div>
         <textarea
@@ -360,29 +421,39 @@ function ExtractTextTool({ copyText, copied }) {
 // ============================================================================
 // BIG TOOL: PDF METADATA & PAGE COUNTER
 // ============================================================================
-function PdfMetadataTool({ copyText, copied }) {
+function PdfMetadataTool() {
   const [meta, setMeta] = useState({
-    name: "quarterly-report-2026.pdf",
-    size: "1.42 MB",
-    pages: "24",
-    version: "PDF 1.7 (Acrobat 8.x)",
-    creator: "Stiknex Document Publisher",
-    created: "2026-10-15 14:22:01 UTC",
-    encrypted: "No (Unrestricted Print & Copy)"
+    name: "No file loaded",
+    size: "-",
+    pages: "-",
+    title: "-",
+    author: "-",
+    creator: "-",
+    producer: "-",
+    encrypted: "-"
   });
+  const [error, setError] = useState("");
 
-  const handleFile = (e) => {
+  const handleFile = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setMeta({
-      name: file.name,
-      size: `${(file.size / (1024 * 1024)).toFixed(2)} MB`,
-      pages: Math.max(1, Math.round(file.size / 55000)).toString(),
-      version: "PDF 1.7 (ISO 32000-1)",
-      creator: "Standard Document Generator",
-      created: new Date().toISOString(),
-      encrypted: "No (Local Inspection)"
-    });
+    setError("");
+    try {
+      const bytes = await file.arrayBuffer();
+      const doc = await PDFDocument.load(bytes, { ignoreEncryption: true });
+      setMeta({
+        name: file.name,
+        size: `${(file.size / 1024).toFixed(1)} KB`,
+        pages: String(doc.getPageCount()),
+        title: doc.getTitle() || "-",
+        author: doc.getAuthor() || "-",
+        creator: doc.getCreator() || "-",
+        producer: doc.getProducer() || "-",
+        encrypted: doc.isEncrypted ? "Yes" : "No"
+      });
+    } catch (err) {
+      setError(err?.message || "Could not read PDF metadata.");
+    }
   };
 
   return (
@@ -390,14 +461,20 @@ function PdfMetadataTool({ copyText, copied }) {
       <div className="p-8 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-3xl text-center bg-slate-50 dark:bg-slate-900/40 relative">
         <input type="file" accept=".pdf" onChange={handleFile} className="absolute inset-0 opacity-0 cursor-pointer w-full h-full" />
         <h4 className="font-bold text-slate-900 dark:text-white">Upload PDF File to Inspect Properties</h4>
-        <p className="text-xs text-slate-500 mt-1">Reads header tags, byte dimensions, and creation metadata locally.</p>
+        <p className="text-xs text-slate-500 mt-1">Reads real page count, title, author, creator, and encryption status locally.</p>
       </div>
+
+      {error && (
+        <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-xs font-semibold text-rose-600 dark:text-rose-400">
+          {error}
+        </div>
+      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {Object.entries(meta).map(([key, val]) => (
-          <div key={key} className="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 flex justify-between items-center">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 capitalize">{key}</span>
-            <span className="font-mono text-sm font-bold text-slate-900 dark:text-white">{val}</span>
+          <div key={key} className="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 flex justify-between items-center gap-3">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 capitalize shrink-0">{key}</span>
+            <span className="font-mono text-sm font-bold text-slate-900 dark:text-white truncate">{val}</span>
           </div>
         ))}
       </div>
@@ -406,31 +483,44 @@ function PdfMetadataTool({ copyText, copied }) {
 }
 
 function DocumentPageCounterTool() {
-  const [files, setFiles] = useState([
-    { name: "Executive-Summary.pdf", size: "420 KB", pages: 4 },
-    { name: "Full-Financial-Statements.pdf", size: "2.1 MB", pages: 38 },
-    { name: "Appendix-A-Tables.pdf", size: "890 KB", pages: 12 }
-  ]);
+  const [files, setFiles] = useState([]);
+  const [error, setError] = useState("");
 
   const totalPages = files.reduce((acc, f) => acc + f.pages, 0);
 
-  const handleFiles = (e) => {
+  const handleFiles = async (e) => {
     const newFiles = Array.from(e.target.files || []);
-    const items = newFiles.map((f) => ({
-      name: f.name,
-      size: `${(f.size / 1024).toFixed(1)} KB`,
-      pages: Math.max(1, Math.round(f.size / 60000))
-    }));
-    setFiles((prev) => [...prev, ...items]);
+    setError("");
+    const items = [];
+    for (const f of newFiles) {
+      try {
+        const bytes = await f.arrayBuffer();
+        const doc = await PDFDocument.load(bytes, { ignoreEncryption: true });
+        items.push({
+          name: f.name,
+          size: `${(f.size / 1024).toFixed(1)} KB`,
+          pages: doc.getPageCount()
+        });
+      } catch {
+        setError(`Could not parse page count for ${f.name}.`);
+      }
+    }
+    if (items.length) setFiles((prev) => [...prev, ...items]);
   };
 
   return (
     <div className="space-y-6">
       <div className="p-8 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-3xl text-center bg-slate-50 dark:bg-slate-900/40 relative">
-        <input type="file" multiple accept=".pdf,.doc,.docx" onChange={handleFiles} className="absolute inset-0 opacity-0 cursor-pointer w-full h-full" />
-        <h4 className="font-bold text-slate-900 dark:text-white">Upload Documents to Tally Total Pages</h4>
-        <p className="text-xs text-slate-500 mt-1">Batch compute total print pages and volume instantly.</p>
+        <input type="file" multiple accept=".pdf" onChange={handleFiles} className="absolute inset-0 opacity-0 cursor-pointer w-full h-full" />
+        <h4 className="font-bold text-slate-900 dark:text-white">Upload PDFs to Tally Total Pages</h4>
+        <p className="text-xs text-slate-500 mt-1">Batch compute exact PDF page counts locally in your browser.</p>
       </div>
+
+      {error && (
+        <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-xs font-semibold text-rose-600 dark:text-rose-400">
+          {error}
+        </div>
+      )}
 
       <div className="p-8 bg-indigo-600 text-white rounded-3xl flex items-center justify-between shadow-xl">
         <div>
@@ -457,21 +547,64 @@ function DocumentPageCounterTool() {
 
 function RotatePdfTool() {
   const [rotation, setRotation] = useState(90);
+  const [pdfFile, setPdfFile] = useState(null);
+  const [pageCount, setPageCount] = useState(0);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleFile = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setError("");
+    try {
+      const bytes = await file.arrayBuffer();
+      const doc = await PDFDocument.load(bytes, { ignoreEncryption: true });
+      setPdfFile({ name: file.name, bytes });
+      setPageCount(doc.getPageCount());
+    } catch (err) {
+      setError(err?.message || "Invalid PDF file.");
+    }
+  };
+
+  const applyAndDownload = async () => {
+    if (!pdfFile) return;
+    setBusy(true);
+    setError("");
+    try {
+      const doc = await PDFDocument.load(pdfFile.bytes, { ignoreEncryption: true });
+      for (const page of doc.getPages()) {
+        const current = page.getRotation().angle || 0;
+        page.setRotation(degrees((current + rotation) % 360));
+      }
+      const out = await doc.save();
+      downloadBlob(out, `rotated-${pdfFile.name}`);
+    } catch (err) {
+      setError(err?.message || "Failed to rotate PDF.");
+    } finally {
+      setBusy(false);
+    }
+  };
 
   return (
     <div className="space-y-6 text-center">
       <div className="p-8 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-3xl bg-slate-50 dark:bg-slate-900/40 relative">
-        <input type="file" accept=".pdf" className="absolute inset-0 opacity-0 cursor-pointer w-full h-full" />
-        <h4 className="font-bold text-slate-900 dark:text-white">Upload PDF to Rotate</h4>
+        <input type="file" accept=".pdf" onChange={handleFile} className="absolute inset-0 opacity-0 cursor-pointer w-full h-full" />
+        <h4 className="font-bold text-slate-900 dark:text-white">{pdfFile ? `${pdfFile.name} (${pageCount} pages)` : "Upload PDF to Rotate"}</h4>
         <p className="text-xs text-slate-500 mt-1">Rotate clockwise 90°, 180°, or 270° and download.</p>
       </div>
+
+      {error && (
+        <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-xs font-semibold text-rose-600 dark:text-rose-400">
+          {error}
+        </div>
+      )}
 
       <div className="flex justify-center gap-4">
         {[90, 180, 270].map((deg) => (
           <button
             key={deg}
             onClick={() => setRotation(deg)}
-            className={`px-5 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 ${rotation === deg ? "bg-indigo-600 text-white shadow-md" : "bg-white dark:bg-slate-800 text-slate-700"}`}
+            className={`px-5 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${rotation === deg ? "bg-indigo-600 text-white shadow-md" : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200"}`}
           >
             <RotateCw size={14} /> Rotate {deg}°
           </button>
@@ -485,8 +618,12 @@ function RotatePdfTool() {
         >
           Page Preview
         </div>
-        <button onClick={() => alert("Rotation saved successfully!")} className="px-6 py-2.5 bg-emerald-600 text-white font-bold rounded-xl shadow">
-          Apply & Save Rotated PDF
+        <button
+          onClick={applyAndDownload}
+          disabled={!pdfFile || busy}
+          className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-bold rounded-xl shadow cursor-pointer"
+        >
+          {busy ? "Processing..." : "Apply & Download Rotated PDF"}
         </button>
       </div>
     </div>
@@ -496,25 +633,213 @@ function RotatePdfTool() {
 function UniversalPdfWorkspace({ slug }) {
   const isSplit = slug === "split-pdf";
   const isMerge = slug === "merge-pdf";
+  const isReorder = slug === "reorder-pdf-pages";
+  const isToImages = slug === "pdf-to-images";
+
+  const [files, setFiles] = useState([]);
+  const [pageRange, setPageRange] = useState("1");
+  const [renderedImages, setRenderedImages] = useState([]);
+  const [busy, setBusy] = useState(false);
+  const [statusMsg, setStatusMsg] = useState("");
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    setError("");
+    setStatusMsg("");
+    setRenderedImages([]);
+  }, [slug]);
+
+  const handleFiles = async (e) => {
+    const selected = Array.from(e.target.files || []);
+    if (!selected.length) return;
+    setError("");
+    setStatusMsg("");
+    setRenderedImages([]);
+    const loaded = [];
+    for (const f of selected) {
+      try {
+        const bytes = await f.arrayBuffer();
+        const doc = await PDFDocument.load(bytes, { ignoreEncryption: true });
+        loaded.push({ name: f.name, bytes, pages: doc.getPageCount(), sizeKb: (f.size / 1024).toFixed(1) });
+      } catch {
+        setError(`Could not load "${f.name}" as a valid PDF.`);
+      }
+    }
+    if (loaded.length) {
+      if (isMerge) {
+        setFiles((prev) => [...prev, ...loaded]);
+      } else {
+        const first = loaded[0];
+        setFiles([first]);
+        setPageRange(isReorder ? Array.from({ length: first.pages }, (_, i) => i + 1).join(", ") : `1-${first.pages}`);
+      }
+    }
+  };
+
+  const moveFile = (idx, dir) => {
+    const target = idx + dir;
+    if (target < 0 || target >= files.length) return;
+    const copy = [...files];
+    [copy[idx], copy[target]] = [copy[target], copy[idx]];
+    setFiles(copy);
+  };
+
+  const removeFile = (idx) => {
+    setFiles((prev) => prev.filter((_, i) => i !== idx));
+  };
+
+  const handleAction = async () => {
+    if (!files.length) {
+      setError("Please upload at least one PDF file first.");
+      return;
+    }
+    setBusy(true);
+    setError("");
+    setStatusMsg("");
+    try {
+      if (isMerge) {
+        const merged = await PDFDocument.create();
+        for (const item of files) {
+          const src = await PDFDocument.load(item.bytes, { ignoreEncryption: true });
+          const copiedPages = await merged.copyPages(src, src.getPageIndices());
+          copiedPages.forEach((p) => merged.addPage(p));
+        }
+        const out = await merged.save();
+        downloadBlob(out, "merged-stiknex.pdf");
+        setStatusMsg(`Merged ${files.length} PDFs (${merged.getPageCount()} pages total) and started download.`);
+      } else if (isSplit || isReorder) {
+        const srcItem = files[0];
+        const src = await PDFDocument.load(srcItem.bytes, { ignoreEncryption: true });
+        const indices = parsePageRanges(pageRange, src.getPageCount());
+        if (!indices.length) {
+          setError(`No valid pages found in "${pageRange}". Document has ${src.getPageCount()} pages.`);
+          setBusy(false);
+          return;
+        }
+        const outDoc = await PDFDocument.create();
+        const copiedPages = await outDoc.copyPages(src, indices);
+        copiedPages.forEach((p) => outDoc.addPage(p));
+        const out = await outDoc.save();
+        downloadBlob(out, `${isReorder ? "reordered" : "split"}-${srcItem.name}`);
+        setStatusMsg(`Created PDF with ${indices.length} page(s) and started download.`);
+      } else if (isToImages) {
+        const srcItem = files[0];
+        const pdf = await pdfjsLib.getDocument({ data: srcItem.bytes.slice(0) }).promise;
+        const imgs = [];
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const viewport = page.getViewport({ scale: 1.5 });
+          const canvas = document.createElement("canvas");
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+          await page.render({ canvasContext: canvas.getContext("2d"), viewport }).promise;
+          imgs.push({ page: i, url: canvas.toDataURL("image/png") });
+        }
+        setRenderedImages(imgs);
+        setStatusMsg(`Rendered ${imgs.length} page(s) as PNG images.`);
+      }
+    } catch (err) {
+      setError(err?.message || "Failed to process PDF.");
+    } finally {
+      setBusy(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
       <div className="p-8 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-3xl text-center bg-slate-50 dark:bg-slate-900/40 relative">
-        <input type="file" multiple accept=".pdf" className="absolute inset-0 opacity-0 cursor-pointer w-full h-full" />
+        <input type="file" multiple={isMerge} accept=".pdf" onChange={handleFiles} className="absolute inset-0 opacity-0 cursor-pointer w-full h-full" />
         <h4 className="font-bold text-slate-900 dark:text-white">{isMerge ? "Select PDFs to Merge" : isSplit ? "Select PDF to Split" : "Select PDF Document"}</h4>
-        <p className="text-xs text-slate-500 mt-1">Process document pages locally inside your browser without uploading to foreign servers.</p>
+        <p className="text-xs text-slate-500 mt-1">Process document pages locally inside your browser without uploading to external servers.</p>
       </div>
+
+      {error && (
+        <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-xs font-semibold text-rose-600 dark:text-rose-400">
+          {error}
+        </div>
+      )}
+
+      {statusMsg && (
+        <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
+          {statusMsg}
+        </div>
+      )}
+
+      {files.length > 0 && (
+        <div className="space-y-2">
+          {files.map((f, idx) => (
+            <div key={`${f.name}-${idx}`} className="p-3.5 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3 text-sm">
+              <div className="min-w-0">
+                <p className="font-bold text-slate-800 dark:text-slate-200 truncate">{f.name}</p>
+                <p className="text-xs text-slate-500">{f.pages} pages • {f.sizeKb} KB</p>
+              </div>
+              <div className="flex items-center gap-1.5 shrink-0">
+                {isMerge && (
+                  <>
+                    <button type="button" onClick={() => moveFile(idx, -1)} disabled={idx === 0} className="px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs font-bold disabled:opacity-40 cursor-pointer">↑</button>
+                    <button type="button" onClick={() => moveFile(idx, 1)} disabled={idx === files.length - 1} className="px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs font-bold disabled:opacity-40 cursor-pointer">↓</button>
+                  </>
+                )}
+                <button type="button" onClick={() => removeFile(idx)} className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 cursor-pointer" aria-label="Remove file">
+                  <Trash2 size={14} />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {(isSplit || isReorder) && files.length > 0 && (
+        <div className="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-2">
+          <label className="text-xs font-bold uppercase tracking-wider text-slate-500 block">
+            {isReorder ? "New Page Order (comma-separated, e.g. 3, 1, 2)" : "Pages to Extract (e.g. 1-3, 5)"}
+          </label>
+          <input
+            type="text"
+            value={pageRange}
+            onChange={(e) => setPageRange(e.target.value)}
+            className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-sm"
+          />
+        </div>
+      )}
 
       <div className="p-8 bg-slate-50 dark:bg-slate-900/60 rounded-3xl border text-center space-y-4">
         <Layers size={36} className="text-indigo-600 mx-auto" />
-        <h3 className="font-bold text-lg text-slate-900 dark:text-white">{isMerge ? "Merge Queue Ready" : "Document Page Organizer"}</h3>
+        <h3 className="font-bold text-lg text-slate-900 dark:text-white">
+          {isMerge ? "Merge Queue Ready" : isToImages ? "PDF Page Renderer" : "Document Page Organizer"}
+        </h3>
         <p className="text-sm text-slate-500 max-w-md mx-auto">
-          {isMerge ? "Drag and drop your PDF files to arrange their order, then merge into a single cohesive document." : "Extract custom page ranges (e.g. 1-5, 8, 12-15) and download the isolated sections."}
+          {isMerge
+            ? "Add two or more PDF files, arrange their order, and merge them into a single PDF download."
+            : isToImages
+            ? "Render each PDF page into a downloadable PNG image directly in your browser."
+            : "Extract or reorder custom page ranges (e.g. 1-5, 8) and download the resulting PDF."}
         </p>
-        <button onClick={() => alert("PDF successfully compiled and ready for download.")} className="px-6 py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-md">
-          {isMerge ? "Merge All Documents" : "Extract Selected Pages"}
+        <button
+          type="button"
+          onClick={handleAction}
+          disabled={busy || !files.length}
+          className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-bold rounded-xl shadow-md cursor-pointer"
+        >
+          {busy ? "Processing..." : isMerge ? "Merge All Documents" : isToImages ? "Render PDF Pages" : "Extract & Download PDF"}
         </button>
       </div>
+
+      {renderedImages.length > 0 && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {renderedImages.map((img) => (
+            <div key={img.page} className="p-3 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-2">
+              <img src={img.url} alt={`Page ${img.page}`} className="w-full rounded-xl border border-slate-100 dark:border-slate-800" />
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-600 dark:text-slate-300">Page {img.page}</span>
+                <a href={img.url} download={`page-${img.page}.png`} className="text-xs font-bold text-indigo-600 hover:underline flex items-center gap-1">
+                  <Download size={13} /> PNG
+                </a>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
