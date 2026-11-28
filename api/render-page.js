@@ -13,12 +13,12 @@ import path from 'path';
 
 function replaceRootHtml(templateHtml, newRoot) {
     if (templateHtml.includes('<!-- stiknex-root-end -->')) {
-        return templateHtml.replace(/<div id="root">[\s\S]*?<\/div><!-- stiknex-root-end -->/, newRoot);
+        return templateHtml.replace(/<div id="root">[\s\S]*?<\/div><!-- stiknex-root-end -->/, () => newRoot);
     }
     if (/<div id="root">[\s\S]*?<\/div>\s*<script type="module"/.test(templateHtml)) {
-        return templateHtml.replace(/<div id="root">[\s\S]*?<\/div>\s*<script type="module"/, `${newRoot}\n    <script type="module"`);
+        return templateHtml.replace(/<div id="root">[\s\S]*?<\/div>\s*<script type="module"/, () => `${newRoot}\n    <script type="module"`);
     }
-    return templateHtml.replace(/<div id="root">[\s\S]*?<\/div>/, newRoot);
+    return templateHtml.replace(/<div id="root">[\s\S]*?<\/div>/, () => newRoot);
 }
 
 export default async function handler(req, res) {
@@ -211,7 +211,7 @@ export default async function handler(req, res) {
             if (html.includes('<link rel="canonical"')) {
                 html = html.replace(/<link\s+rel="canonical"\s+href="[^"]*"\s*\/?>/, () => `<link rel="canonical" href="${blogUrl}" />`);
             } else {
-                html = html.replace('</head>', `<link rel="canonical" href="${blogUrl}" />\n</head>`);
+                html = html.replace('</head>', () => `<link rel="canonical" href="${blogUrl}" />\n</head>`);
             }
 
             const blogSchemas = [
@@ -308,18 +308,24 @@ export default async function handler(req, res) {
 
         // Dedicated instant SSR shell for /blog listing page
         if (cleanPath === '/blog') {
-            const blogTitle = "Stiknex Blog — Insights on Productivity, AI & Engineering";
-            const blogDesc = "Explore deep-dive technical articles, guides, and thoughts on building scalable apps, full-stack productivity tools, and modern software architectures.";
-            html = html.replace(/<title>[\s\S]*?<\/title>/, `<title>${blogTitle}</title>`);
-            html = html.replace(/<meta\s+name="description"\s+content="[^"]*"\s*\/>/, `<meta name="description" content="${blogDesc}" />`);
-            html = html.replace(/<meta\s+property="og:title"\s+content="[^"]*"\s*\/>/, `<meta property="og:title" content="${blogTitle}" />`);
-            html = html.replace(/<meta\s+property="og:description"\s+content="[^"]*"\s*\/>/, `<meta property="og:description" content="${blogDesc}" />`);
-            html = html.replace(/<meta\s+property="og:url"\s+content="[^"]*"\s*\/>/, `<meta property="og:url" content="${primaryDomain}/blog" />`);
+            const blogSeo = getSeoForPath('/blog');
+            const blogTitle = blogSeo.title;
+            const blogDesc = blogSeo.description;
+            const safeBlogTitle = escAttr(blogTitle);
+            const safeBlogDesc = escAttr(blogDesc);
+            const safeBlogUrl = escAttr(`${primaryDomain}/blog`);
+            html = html.replace(/<title>[\s\S]*?<\/title>/, () => `<title>${safeBlogTitle}</title>`);
+            html = html.replace(/<meta\s+name="description"\s+content="[^"]*"\s*\/>/, () => `<meta name="description" content="${safeBlogDesc}" />`);
+            html = html.replace(/<meta\s+property="og:title"\s+content="[^"]*"\s*\/>/, () => `<meta property="og:title" content="${safeBlogTitle}" />`);
+            html = html.replace(/<meta\s+property="og:description"\s+content="[^"]*"\s*\/>/, () => `<meta property="og:description" content="${safeBlogDesc}" />`);
+            html = html.replace(/<meta\s+property="og:url"\s+content="[^"]*"\s*\/>/, () => `<meta property="og:url" content="${safeBlogUrl}" />`);
+            html = html.replace(/<meta\s+name="twitter:title"\s+content="[^"]*"\s*\/>/, () => `<meta name="twitter:title" content="${safeBlogTitle}" />`);
+            html = html.replace(/<meta\s+name="twitter:description"\s+content="[^"]*"\s*\/>/, () => `<meta name="twitter:description" content="${safeBlogDesc}" />`);
 
             if (html.includes('<link rel="canonical"')) {
-                html = html.replace(/<link\s+rel="canonical"\s+href="[^"]*"\s*\/?>/, `<link rel="canonical" href="${primaryDomain}/blog" />`);
+                html = html.replace(/<link\s+rel="canonical"\s+href="[^"]*"\s*\/?>/, () => `<link rel="canonical" href="${safeBlogUrl}" />`);
             } else {
-                html = html.replace('</head>', `<link rel="canonical" href="${primaryDomain}/blog" />\n</head>`);
+                html = html.replace('</head>', () => `<link rel="canonical" href="${safeBlogUrl}" />\n</head>`);
             }
 
             const blogListRoot = `
@@ -424,18 +430,23 @@ export default async function handler(req, res) {
         const canonicalUrl = seo.canonical || (canonicalPath === '/' ? `${primaryDomain}/` : `${primaryDomain}${canonicalPath}`);
         const pageUrl = canonicalUrl;
 
-        html = html.replace(/<title>[\s\S]*?<\/title>/, `<title>${title}</title>`);
-        html = html.replace(/<meta\s+name="description"\s+content="[^"]*"\s*\/>/, `<meta name="description" content="${description}" />`);
-        html = html.replace(/<meta\s+property="og:title"\s+content="[^"]*"\s*\/>/, `<meta property="og:title" content="${title}" />`);
-        html = html.replace(/<meta\s+property="og:description"\s+content="[^"]*"\s*\/>/, `<meta property="og:description" content="${description}" />`);
-        html = html.replace(/<meta\s+property="og:url"\s+content="[^"]*"\s*\/>/, `<meta property="og:url" content="${pageUrl}" />`);
-        html = html.replace(/<meta\s+name="twitter:title"\s+content="[^"]*"\s*\/>/, `<meta name="twitter:title" content="${title}" />`);
-        html = html.replace(/<meta\s+name="twitter:description"\s+content="[^"]*"\s*\/>/, `<meta name="twitter:description" content="${description}" />`);
+        const safeTitle = escAttr(title);
+        const safeDescription = escAttr(description);
+        const safePageUrl = escAttr(pageUrl);
+        const safeCanonicalUrl = escAttr(canonicalUrl);
+
+        html = html.replace(/<title>[\s\S]*?<\/title>/, () => `<title>${safeTitle}</title>`);
+        html = html.replace(/<meta\s+name="description"\s+content="[^"]*"\s*\/>/, () => `<meta name="description" content="${safeDescription}" />`);
+        html = html.replace(/<meta\s+property="og:title"\s+content="[^"]*"\s*\/>/, () => `<meta property="og:title" content="${safeTitle}" />`);
+        html = html.replace(/<meta\s+property="og:description"\s+content="[^"]*"\s*\/>/, () => `<meta property="og:description" content="${safeDescription}" />`);
+        html = html.replace(/<meta\s+property="og:url"\s+content="[^"]*"\s*\/>/, () => `<meta property="og:url" content="${safePageUrl}" />`);
+        html = html.replace(/<meta\s+name="twitter:title"\s+content="[^"]*"\s*\/>/, () => `<meta name="twitter:title" content="${safeTitle}" />`);
+        html = html.replace(/<meta\s+name="twitter:description"\s+content="[^"]*"\s*\/>/, () => `<meta name="twitter:description" content="${safeDescription}" />`);
 
         if (html.includes('<link rel="canonical"')) {
-            html = html.replace(/<link\s+rel="canonical"\s+href="[^"]*"\s*\/?>/, `<link rel="canonical" href="${canonicalUrl}" />`);
+            html = html.replace(/<link\s+rel="canonical"\s+href="[^"]*"\s*\/?>/, () => `<link rel="canonical" href="${safeCanonicalUrl}" />`);
         } else {
-            html = html.replace('</head>', `<link rel="canonical" href="${canonicalUrl}" />\n</head>`);
+            html = html.replace('</head>', () => `<link rel="canonical" href="${safeCanonicalUrl}" />\n</head>`);
         }
 
         // Schema.org structured data injection for SEO, AEO & Google AI search
@@ -500,7 +511,8 @@ export default async function handler(req, res) {
             });
         }
 
-        html = html.replace('</head>', `<script type="application/ld+json">${JSON.stringify(pageSchemas)}</script>\n</head>`);
+        const pageSchemasJson = JSON.stringify(pageSchemas).replace(/</g, '\\u003c');
+        html = html.replace('</head>', () => `<script type="application/ld+json">${pageSchemasJson}</script>\n</head>`);
 
         const scopedContent = SCOPED_SEO_CONTENT[cleanPath] || null;
         let scopedHtml = '';
