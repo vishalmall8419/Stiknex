@@ -808,10 +808,11 @@ export default function ScientificCalculator({ tool, seoData }) {
                     <button
                       type="button"
                       onClick={copyResult}
-                      className="flex items-center gap-1 text-[11px] font-semibold text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400 transition cursor-pointer px-2 py-0.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800"
+                      aria-label={copied ? "Copied" : "Copy calculated result"}
+                      title={copied ? "Copied" : "Copy calculated result"}
+                      className="flex items-center justify-center w-6 h-6 text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400 transition cursor-pointer rounded-md hover:bg-slate-100 dark:hover:bg-slate-800"
                     >
-                      {copied ? <Check size={11} className="text-emerald-500" /> : <Copy size={11} />}
-                      <span>{copied ? "Copied" : ""}</span>
+                      {copied ? <Check size={12} className="text-emerald-500" /> : <Copy size={12} />}
                     </button>
                   </div>
 
