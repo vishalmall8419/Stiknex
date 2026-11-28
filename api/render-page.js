@@ -1,0 +1,709 @@
+import { getSeoForPath, isKnownRoute, BASE_URL, SITE_URL } from './_utils/seoConfig.js';
+import { extractFaqFromContent } from './_utils/blogValidator.js';
+
+const escAttr = (value) => String(value ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+import { ALL_TOOLS, TOOL_CATEGORIES, TOOL_HUBS } from '../src/data/toolsRegistry.js';
+import { getBespokeDataForSlug } from '../src/data/bespokeToolsData.js';
+import connectToDatabase from './_utils/db.js';
+import Blog from './_models/Blog.js';
+import fs from 'fs';
+import path from 'path';
+
+function replaceRootHtml(templateHtml, newRoot) {
+    if (templateHtml.includes('<!-- stiknex-root-end -->')) {
+        return templateHtml.replace(/<div id="root">[\s\S]*?<\/div><!-- stiknex-root-end -->/, newRoot);
+    }
+    if (/<div id="root">[\s\S]*?<\/div>\s*<script type="module"/.test(templateHtml)) {
+        return templateHtml.replace(/<div id="root">[\s\S]*?<\/div>\s*<script type="module"/, `${newRoot}\n    <script type="module"`);
+    }
+    return templateHtml.replace(/<div id="root">[\s\S]*?<\/div>/, newRoot);
+}
+
+export default async function handler(req, res) {
+    const { slug, type } = req.query;
+    const rawPath = req.query.path || '/';
+    const cleanPath = rawPath.startsWith('/') ? rawPath : '/' + rawPath;
+
+    // Always use authoritative primary production domain for SEO metadata & canonicals
+    const primaryDomain = SITE_URL || BASE_URL || 'https://stiknex.site';
+
+    // Extract query string to preserve all tracking / external query parameters, filtering internal rewrites
+    let queryString = '';
+    try {
+        const parsed = new URL(req.url || cleanPath, 'https://stiknex.site');
+        parsed.searchParams.delete('slug');
+        parsed.searchParams.delete('type');
+        parsed.searchParams.delete('path');
+        queryString = parsed.search;
+    } catch (_) {}
+
+    // 1. Host canonicalization fallback (stiknex.vercel.app / www.stiknex.site -> stiknex.site)
+    const hostHeader = (req.headers['x-forwarded-host'] || req.headers.host || '').toLowerCase().split(':')[0];
+    const isVercelDomain = hostHeader === 'stiknex.vercel.app' || (hostHeader.endsWith('.vercel.app') && !hostHeader.includes('localhost'));
+    const isWwwDomain = hostHeader === 'www.stiknex.site';
+
+    if (isVercelDomain || isWwwDomain) {
+        let destPath = cleanPath;
+        if (slug || type === 'blog') {
+            destPath = `/blog/${slug}`;
+        } else if (destPath === '/notes') {
+            destPath = '/sticky-notes';
+        } else if (destPath === '/notebook') {
+            destPath = '/online-notebook';
+        } else if (destPath === '/dataconverter' || destPath === '/tools/dataconverter') {
+            destPath = '/data-converter';
+        } else if (destPath.startsWith('/tools/') && destPath.length > 7) {
+            const potentialSlug = destPath.slice(7);
+            if (isKnownRoute(`/${potentialSlug}`)) {
+                destPath = `/${potentialSlug}`;
+            }
+        }
+        res.setHeader('Location', `${primaryDomain}${destPath}${queryString}`);
+        return res.status(301).end();
+    }
+
+    // 2. Path canonicalization on stiknex.site (1-hop permanent 301 redirects)
+    if (cleanPath === '/notes') {
+        res.setHeader('Location', `${primaryDomain}/sticky-notes${queryString}`);
+        return res.status(301).end();
+    }
+    if (cleanPath === '/notebook') {
+        res.setHeader('Location', `${primaryDomain}/online-notebook${queryString}`);
+        return res.status(301).end();
+    }
+    if (cleanPath === '/dataconverter' || cleanPath === '/tools/dataconverter') {
+        res.setHeader('Location', `${primaryDomain}/data-converter${queryString}`);
+        return res.status(301).end();
+    }
+    if (cleanPath.startsWith('/tools/') && cleanPath.length > 7) {
+        const potentialSlug = cleanPath.slice(7);
+        if (isKnownRoute(`/${potentialSlug}`)) {
+            res.setHeader('Location', `${primaryDomain}/${potentialSlug}${queryString}`);
+            return res.status(301).end();
+        }
+    }
+
+    // Direct static crawler & SEO assets protection (robots.txt, sitemap.xml)
+    if (cleanPath === '/robots.txt') {
+        res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+        res.setHeader('Cache-Control', 'public, max-age=86400');
+        try {
+            const robotsPath = path.join(process.cwd(), 'public', 'robots.txt');
+            if (fs.existsSync(robotsPath)) {
+                const content = await fs.promises.readFile(robotsPath, 'utf-8');
+                return res.status(200).send(content);
+            }
+        } catch (_) {}
+        return res.status(200).send("User-agent: *\nAllow: /\nSitemap: https://stiknex.site/sitemap.xml\n");
+    }
+    if (cleanPath === '/sitemap.xml') {
+        res.setHeader('Content-Type', 'application/xml; charset=utf-8');
+        res.setHeader('Cache-Control', 'public, max-age=86400');
+        try {
+            const sitemapPath = path.join(process.cwd(), 'public', 'sitemap.xml');
+            if (fs.existsSync(sitemapPath)) {
+                const content = await fs.promises.readFile(sitemapPath, 'utf-8');
+                return res.status(200).send(content);
+            }
+        } catch (_) {}
+        try {
+            const sitemapHandler = (await import('./sitemap.xml.js')).default;
+            return sitemapHandler(req, res);
+        } catch (_) {}
+    }
+
+
+    try {
+        // Load index.html: try local dist first, then fetch fallback
+        let html = '';
+        try {
+            const indexPath = path.join(process.cwd(), 'dist', 'index.html');
+            if (fs.existsSync(indexPath)) {
+                html = await fs.promises.readFile(indexPath, 'utf-8');
+            }
+        } catch (_) {}
+
+        if (!html) {
+            const host = req.headers.host || 'stiknex.site';
+            const protocol = req.headers['x-forwarded-proto'] || 'https';
+            const htmlRes = await fetch(`${protocol}://${host}/index.html`);
+            html = await htmlRes.text();
+        }
+
+        // Global safety: replace any legacy domain references in base template with primary domain
+        html = html.replace(/https:\/\/stiknex\.vercel\.app/g, primaryDomain);
+
+        // Protected Admin / Dashboard / Auth routes: do NOT inject public marketing tools or FAQs
+        const isAdminRoute = cleanPath.startsWith('/dashboard') ||
+                             cleanPath.startsWith('/stiknex-secure-login-portal') ||
+                             cleanPath.startsWith('/setup-2fa') ||
+                             cleanPath === '/login';
+
+        if (isAdminRoute) {
+            html = html
+                .replace(/<title>[\s\S]*?<\/title>/, `<title>Admin Portal | Stiknex</title>`)
+                .replace(/<meta\s+name="robots"[\s\S]*?>/i, `<meta name="robots" content="noindex, nofollow" />`);
+            html = replaceRootHtml(html, `
+    <div id="root">
+      <div style="min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #0f172a; color: #94a3b8; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+        <div style="width: 32px; height: 32px; border: 3px solid #6366f1; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 12px;"></div>
+        <p style="font-size: 13px; font-weight: 500;">Loading Stiknex Workspace...</p>
+        <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
+      </div>
+    </div>`);
+
+            if (!html.includes('content="noindex, nofollow"')) {
+                html = html.replace('</head>', `<meta name="robots" content="noindex, nofollow" />\n</head>`);
+            }
+            res.setHeader('Content-Type', 'text/html; charset=utf-8');
+            res.setHeader('Cache-Control', 'no-store, max-age=0');
+            return res.status(200).send(html);
+        }
+
+        // If requesting a dynamic blog post
+        if (slug || type === 'blog') {
+            await connectToDatabase();
+            const blog = await Blog.findOne({ slug, published: true });
+
+            if (!blog) {
+                let notFoundHtml = html
+                    .replace(/<title>[\s\S]*?<\/title>/, `<title>404 Blog Post Not Found | Stiknex</title>`);
+                notFoundHtml = replaceRootHtml(notFoundHtml, `
+    <div id="root">
+      <header style="padding: 24px 16px; text-align: center; border-bottom: 1px solid #e2e8f0;">
+        <a href="${primaryDomain}/" style="font-size: 24px; font-weight: 800; color: #4f46e5; text-decoration: none;">Stiknex</a>
+      </header>
+      <main style="max-width: 800px; margin: 0 auto; padding: 48px 16px; text-align: center;">
+        <h1 style="font-size: 32px; font-weight: 800; color: #0f172a;">Article Not Found</h1>
+        <p style="color: #64748b; margin-top: 12px; font-size: 16px;">The requested article may have been removed or moved to another address.</p>
+        <p style="margin-top: 24px;"><a href="${primaryDomain}/blog" style="display: inline-block; padding: 10px 20px; background: #4f46e5; color: #fff; text-decoration: none; border-radius: 8px; font-weight: 600;">Browse All Blog Articles</a></p>
+      </main>
+    </div>`);
+                res.setHeader('Content-Type', 'text/html; charset=utf-8');
+                return res.status(404).send(notFoundHtml);
+            }
+
+            const title = blog.metaTitle || blog.title;
+            const description = blog.metaDescription || blog.excerpt || '';
+            const keywords = blog.keywords || '';
+            const imageUrl = blog.imageUrl || `${primaryDomain}/Stiknex.png`;
+            const blogUrl = `${primaryDomain}/blog/${encodeURIComponent(slug)}`;
+            const safeTitle = escAttr(title);
+            const safeDesc = escAttr(description);
+            const safeImage = escAttr(imageUrl);
+
+            // Convert raw markdown headings to HTML with IDs for TOC anchor navigation
+            let formattedBody = (blog.content || `<p>${description}</p>`)
+                .replace(/^##\s+(.+)$/gm, (m, h) => {
+                    const id = h.toLowerCase().replace(/^[\d.]+\s*/, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+                    return `<h2 id="${id}" style="font-size: 24px; font-weight: 700; color: #0f172a; margin-top: 36px; margin-bottom: 12px;">${h}</h2>`;
+                })
+                .replace(/^###\s+(.+)$/gm, (m, h) => {
+                    const id = h.toLowerCase().replace(/^[\d.]+\s*/, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+                    return `<h3 id="${id}" style="font-size: 20px; font-weight: 600; color: #1e293b; margin-top: 24px; margin-bottom: 8px;">${h}</h3>`;
+                })
+                .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" style="color: #4f46e5; font-weight: 600; text-decoration: underline;">$1</a>')
+                .replace(/\n\n+/g, '</p><p style="margin-bottom: 18px;">');
+
+            html = html.replace(/<title>[\s\S]*?<\/title>/, () => `<title>${safeTitle} | Stiknex</title>`);
+            html = html.replace(/<meta\s+name="description"\s+content="[^"]*"\s*\/>/, () => `<meta name="description" content="${safeDesc}" />`);
+            html = html.replace(/<meta\s+property="og:title"\s+content="[^"]*"\s*\/>/, () => `<meta property="og:title" content="${safeTitle} | Stiknex" />`);
+            html = html.replace(/<meta\s+property="og:description"\s+content="[^"]*"\s*\/>/, () => `<meta property="og:description" content="${safeDesc}" />`);
+            html = html.replace(/<meta\s+property="og:url"\s+content="[^"]*"\s*\/>/, () => `<meta property="og:url" content="${blogUrl}" />`);
+            html = html.replace(/<meta\s+property="og:image"\s+content="[^"]*"\s*\/>/, () => `<meta property="og:image" content="${safeImage}" />`);
+            html = html.replace(/<meta\s+property="og:image:secure_url"\s+content="[^"]*"\s*\/>/, () => `<meta property="og:image:secure_url" content="${safeImage}" />`);
+            html = html.replace(/<meta\s+name="twitter:title"\s+content="[^"]*"\s*\/>/, () => `<meta name="twitter:title" content="${safeTitle} | Stiknex" />`);
+            html = html.replace(/<meta\s+name="twitter:description"\s+content="[^"]*"\s*\/>/, () => `<meta name="twitter:description" content="${safeDesc}" />`);
+            html = html.replace(/<meta\s+name="twitter:image"\s+content="[^"]*"\s*\/>/, () => `<meta name="twitter:image" content="${safeImage}" />`);
+
+            if (html.includes('<link rel="canonical"')) {
+                html = html.replace(/<link\s+rel="canonical"\s+href="[^"]*"\s*\/?>/, () => `<link rel="canonical" href="${blogUrl}" />`);
+            } else {
+                html = html.replace('</head>', `<link rel="canonical" href="${blogUrl}" />\n</head>`);
+            }
+
+            const blogSchemas = [
+                {
+                    "@context": "https://schema.org",
+                    "@type": "BlogPosting",
+                    "headline": title,
+                    "description": description,
+                    "image": imageUrl,
+                    "url": blogUrl,
+                    "inLanguage": "en",
+                    ...(keywords ? { "keywords": keywords } : {}),
+                    ...(blog.wordCount ? { "wordCount": blog.wordCount } : {}),
+                    ...(blog.category ? { "articleSection": blog.category } : {}),
+                    "datePublished": blog.publishedAt || blog.createdAt || new Date().toISOString(),
+                    "dateModified": blog.updatedAt || blog.publishedAt || new Date().toISOString(),
+                    "author": {
+                        "@type": "Person",
+                        "name": blog.author || "Vishal Mall",
+                        "url": `${primaryDomain}/about`
+                    },
+                    "publisher": {
+                        "@type": "Organization",
+                        "name": "Stiknex",
+                        "url": primaryDomain,
+                        "logo": {
+                            "@type": "ImageObject",
+                            "url": `${primaryDomain}/Stiknex.png`
+                        }
+                    },
+                    "mainEntityOfPage": {
+                        "@type": "WebPage",
+                        "@id": blogUrl
+                    }
+                },
+                {
+                    "@context": "https://schema.org",
+                    "@type": "BreadcrumbList",
+                    "itemListElement": [
+                        { "@type": "ListItem", "position": 1, "name": "Home", "item": `${primaryDomain}/` },
+                        { "@type": "ListItem", "position": 2, "name": "Blog", "item": `${primaryDomain}/blog` },
+                        { "@type": "ListItem", "position": 3, "name": title, "item": blogUrl }
+                    ]
+                }
+            ];
+            const faqItems = extractFaqFromContent(blog.content);
+            if (faqItems.length >= 2) {
+                blogSchemas.push({
+                    "@context": "https://schema.org",
+                    "@type": "FAQPage",
+                    "mainEntity": faqItems.map(f => ({
+                        "@type": "Question",
+                        "name": f.q,
+                        "acceptedAnswer": { "@type": "Answer", "text": f.a }
+                    }))
+                });
+            }
+            const blogSchemaJson = JSON.stringify(blogSchemas).replace(/</g, '\\u003c');
+            html = html.replace('</head>', () => `<script type="application/ld+json">${blogSchemaJson}</script>\n</head>`);
+
+            const blogRoot = `
+    <div id="root">
+      <header style="padding: 20px 16px; border-bottom: 1px solid #e2e8f0; text-align: center;">
+        <a href="${primaryDomain}/" style="font-size: 24px; font-weight: 800; color: #4f46e5; text-decoration: none;">Stiknex</a>
+        <nav style="margin-top: 8px; font-size: 14px;">
+          <a href="${primaryDomain}/" style="color: #64748b; margin: 0 8px; text-decoration: none;">Home</a> &gt;
+          <a href="${primaryDomain}/blog" style="color: #64748b; margin: 0 8px; text-decoration: none;">Blog</a> &gt;
+          <span style="color: #0f172a; font-weight: 600;">${title}</span>
+        </nav>
+      </header>
+      <main style="max-width: 800px; margin: 0 auto; padding: 40px 16px;">
+        <article>
+          <header style="margin-bottom: 24px;">
+            <h1 style="font-size: 32px; font-weight: 800; color: #0f172a; line-height: 1.3;">${title}</h1>
+            <p style="color: #64748b; font-size: 14px; margin-top: 8px;">Published on ${new Date(blog.publishedAt || Date.now()).toLocaleDateString()}</p>
+          </header>
+          <div style="font-size: 18px; line-height: 1.7; color: #334155; margin-bottom: 32px;">
+            ${formattedBody}
+          </div>
+        </article>
+        <footer style="margin-top: 48px; padding-top: 24px; border-top: 1px solid #e2e8f0;">
+          <p style="font-weight: 700; color: #0f172a; margin-bottom: 12px;">Explore Stiknex Productivity Tools:</p>
+          <nav aria-label="Explore Stiknex Tools">
+            <ul style="display: flex; flex-wrap: wrap; gap: 12px; list-style: none; padding: 0;">
+              <li><a href="${primaryDomain}/sticky-notes" style="color: #4f46e5; text-decoration: none; font-weight: 600;">Sticky Notes</a></li>
+              <li><a href="${primaryDomain}/online-notebook" style="color: #4f46e5; text-decoration: none; font-weight: 600;">Online Notebook</a></li>
+              <li><a href="${primaryDomain}/whiteboard" style="color: #4f46e5; text-decoration: none; font-weight: 600;">Whiteboard</a></li>
+              <li><a href="${primaryDomain}/word-counter" style="color: #4f46e5; text-decoration: none; font-weight: 600;">Word Counter</a></li>
+              <li><a href="${primaryDomain}/character-counter" style="color: #4f46e5; text-decoration: none; font-weight: 600;">Character Counter</a></li>
+              <li><a href="${primaryDomain}/tools" style="color: #4f46e5; text-decoration: none; font-weight: 600;">All Tools</a></li>
+            </ul>
+          </nav>
+        </footer>
+      </main>
+    </div>`;
+
+            html = replaceRootHtml(html, blogRoot);
+
+            res.setHeader('Content-Type', 'text/html; charset=utf-8');
+            res.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate');
+            return res.status(200).send(html);
+        }
+
+        // Dedicated instant SSR shell for /blog listing page
+        if (cleanPath === '/blog') {
+            const blogTitle = "Stiknex Blog — Insights on Productivity, AI & Engineering";
+            const blogDesc = "Explore deep-dive technical articles, guides, and thoughts on building scalable apps, full-stack productivity tools, and modern software architectures.";
+            html = html.replace(/<title>[\s\S]*?<\/title>/, `<title>${blogTitle}</title>`);
+            html = html.replace(/<meta\s+name="description"\s+content="[^"]*"\s*\/>/, `<meta name="description" content="${blogDesc}" />`);
+            html = html.replace(/<meta\s+property="og:title"\s+content="[^"]*"\s*\/>/, `<meta property="og:title" content="${blogTitle}" />`);
+            html = html.replace(/<meta\s+property="og:description"\s+content="[^"]*"\s*\/>/, `<meta property="og:description" content="${blogDesc}" />`);
+            html = html.replace(/<meta\s+property="og:url"\s+content="[^"]*"\s*\/>/, `<meta property="og:url" content="${primaryDomain}/blog" />`);
+
+            if (html.includes('<link rel="canonical"')) {
+                html = html.replace(/<link\s+rel="canonical"\s+href="[^"]*"\s*\/?>/, `<link rel="canonical" href="${primaryDomain}/blog" />`);
+            } else {
+                html = html.replace('</head>', `<link rel="canonical" href="${primaryDomain}/blog" />\n</head>`);
+            }
+
+            const blogListRoot = `
+    <div id="root">
+      <nav style="position: fixed; top: 16px; left: 50%; transform: translateX(-50%); z-index: 50; padding: 10px 24px; background: rgba(255,255,255,0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(226,232,240,0.8); border-radius: 9999px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 16px; max-width: 96vw; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, sans-serif;">
+        <a href="${primaryDomain}/" style="display: flex; align-items: center; gap: 8px; text-decoration: none; font-weight: 900; font-size: 18px; color: #4f46e5;">
+          <img src="${primaryDomain}/logo.png" alt="Stiknex" width="24" height="24" style="object-fit: contain;" />
+          <span style="background: linear-gradient(to right, #6366f1, #9333ea); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Stiknex</span>
+        </a>
+        <div style="display: flex; align-items: center; gap: 12px; font-size: 13px; font-weight: 500; color: #475569;">
+          <a href="${primaryDomain}/sticky-notes" style="color: #475569; text-decoration: none; padding: 4px 8px;">Sticky Notes</a>
+          <a href="${primaryDomain}/online-notebook" style="color: #475569; text-decoration: none; padding: 4px 8px;">Notepad</a>
+          <a href="${primaryDomain}/whiteboard" style="color: #475569; text-decoration: none; padding: 4px 8px;">Whiteboard</a>
+          <a href="${primaryDomain}/tools" style="color: #475569; text-decoration: none; padding: 4px 8px;">Tools</a>
+          <a href="${primaryDomain}/blog" style="color: #4f46e5; text-decoration: none; font-weight: 700; padding: 4px 8px;">Blog</a>
+        </div>
+      </nav>
+
+      <main style="padding-top: 130px; padding-bottom: 60px; padding-left: 20px; padding-right: 20px; max-width: 1200px; margin: 0 auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, sans-serif;">
+        <div style="text-align: center; margin-bottom: 40px;">
+          <div style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 16px; border-radius: 9999px; background: #eef2ff; color: #4f46e5; font-size: 13px; font-weight: 600; margin-bottom: 16px; border: 1px solid #e0e7ff;">
+            ✨ Stiknex Productivity &amp; Engineering Blog
+          </div>
+          <h1 style="font-size: clamp(2.2rem, 5vw, 3.8rem); font-weight: 900; line-height: 1.15; margin: 0 auto 16px; color: #0f172a; letter-spacing: -0.03em;">
+            Insights on Modern <span style="background: linear-gradient(to right, #6366f1, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Productivity &amp; AI</span>
+          </h1>
+          <p style="font-size: clamp(1rem, 2vw, 1.2rem); color: #64748b; max-width: 650px; margin: 0 auto 24px; line-height: 1.6;">
+            Deep-dive articles, architectural breakthroughs, and high-impact workflows for engineers, creators, and teams.
+          </p>
+        </div>
+      </main>
+    </div>`;
+
+            html = replaceRootHtml(html, blogListRoot);
+            res.setHeader('Content-Type', 'text/html; charset=utf-8');
+            res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=1800');
+            return res.status(200).send(html);
+        }
+
+        // Otherwise handle standard route SEO
+        let matchPath = cleanPath;
+        if (matchPath.length > 1 && matchPath.endsWith('/')) {
+            matchPath = matchPath.slice(0, -1);
+        }
+        
+        // Check if route is known. If unknown, return true HTTP 404
+        const isAnalyticsRoute = cleanPath.startsWith('/url-shortener/analytics/');
+        const isKnown = isKnownRoute(matchPath) || isAnalyticsRoute;
+
+        if (!isKnown && cleanPath !== '/') {
+            let notFoundHtml = html
+                .replace(/<title>[\s\S]*?<\/title>/, `<title>404 Page Not Found | Stiknex</title>`)
+                .replace(/<meta\s+name="robots"[\s\S]*?>/i, `<meta name="robots" content="noindex, nofollow" />`);
+
+            if (!notFoundHtml.includes('content="noindex, nofollow"')) {
+                notFoundHtml = notFoundHtml.replace('</head>', `<meta name="robots" content="noindex, nofollow" />\n</head>`);
+            }
+
+            const notFoundRoot = `
+    <div id="root">
+      <header style="padding: 24px 16px; text-align: center; border-bottom: 1px solid #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+        <a href="${primaryDomain}/" style="font-size: 24px; font-weight: 800; color: #4f46e5; text-decoration: none;">Stiknex</a>
+        <p style="margin-top: 6px; color: #64748b; font-size: 14px;">Free Online Sticky Notes, Digital Notebook &amp; Productivity Tools</p>
+      </header>
+      <main style="max-width: 800px; margin: 0 auto; padding: 48px 16px; text-align: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+        <div style="display: inline-block; padding: 6px 14px; background: #fee2e2; color: #b91c1c; border-radius: 9999px; font-size: 13px; font-weight: 700; margin-bottom: 20px;">
+          HTTP 404 — Page Not Found
+        </div>
+        <h1 style="font-size: 36px; font-weight: 900; color: #0f172a; margin-bottom: 12px;">Oops! That page doesn't exist.</h1>
+        <p style="color: #64748b; font-size: 16px; margin-bottom: 32px; max-width: 600px; margin-left: auto; margin-right: auto; line-height: 1.6;">
+          The requested URL path <code style="padding: 2px 6px; background: #f1f5f9; border-radius: 4px; color: #e11d48; font-family: monospace;">${cleanPath}</code> could not be found or has been moved.
+        </p>
+        <div style="display: flex; justify-content: center; gap: 14px; margin-bottom: 40px; flex-wrap: wrap;">
+          <a href="${primaryDomain}/" style="padding: 12px 24px; background: #0f172a; color: #fff; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px;">Return to Homepage</a>
+          <a href="${primaryDomain}/tools" style="padding: 12px 24px; background: #4f46e5; color: #fff; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px;">Browse 200+ Free Tools</a>
+        </div>
+        <div style="text-align: left; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px;">
+          <h2 style="font-size: 16px; font-weight: 700; color: #0f172a; margin-bottom: 12px;">Popular Stiknex Applications:</h2>
+          <ul style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; list-style: none; padding: 0; margin: 0;">
+            <li><a href="${primaryDomain}/sticky-notes" style="color: #4f46e5; text-decoration: none; font-weight: 600; font-size: 14px;">Sticky Notes Canvas</a></li>
+            <li><a href="${primaryDomain}/online-notebook" style="color: #4f46e5; text-decoration: none; font-weight: 600; font-size: 14px;">Online Notebook &amp; Notepad</a></li>
+            <li><a href="${primaryDomain}/whiteboard" style="color: #4f46e5; text-decoration: none; font-weight: 600; font-size: 14px;">Interactive Whiteboard</a></li>
+            <li><a href="${primaryDomain}/data-converter" style="color: #4f46e5; text-decoration: none; font-weight: 600; font-size: 14px;">Data Storage Converter</a></li>
+            <li><a href="${primaryDomain}/url-shortener" style="color: #4f46e5; text-decoration: none; font-weight: 600; font-size: 14px;">URL Shortener &amp; Analytics</a></li>
+            <li><a href="${primaryDomain}/blog" style="color: #4f46e5; text-decoration: none; font-weight: 600; font-size: 14px;">Productivity &amp; Tech Blog</a></li>
+          </ul>
+        </div>
+      </main>
+    </div>`;
+
+            notFoundHtml = replaceRootHtml(notFoundHtml, notFoundRoot);
+            res.setHeader('Content-Type', 'text/html; charset=utf-8');
+            return res.status(404).send(notFoundHtml);
+        }
+
+        const seo = getSeoForPath(matchPath);
+
+        const title = seo.title;
+        const description = seo.description;
+        const keywords = seo.keywords;
+        const canonicalPath = seo.path || cleanPath;
+        const canonicalUrl = canonicalPath === '/' ? `${primaryDomain}/` : `${primaryDomain}${canonicalPath}`;
+        const pageUrl = cleanPath === '/' ? `${primaryDomain}/` : `${primaryDomain}${cleanPath}`;
+
+        html = html.replace(/<title>[\s\S]*?<\/title>/, `<title>${title}</title>`);
+        html = html.replace(/<meta\s+name="description"\s+content="[^"]*"\s*\/>/, `<meta name="description" content="${description}" />`);
+        html = html.replace(/<meta\s+property="og:title"\s+content="[^"]*"\s*\/>/, `<meta property="og:title" content="${title}" />`);
+        html = html.replace(/<meta\s+property="og:description"\s+content="[^"]*"\s*\/>/, `<meta property="og:description" content="${description}" />`);
+        html = html.replace(/<meta\s+property="og:url"\s+content="[^"]*"\s*\/>/, `<meta property="og:url" content="${pageUrl}" />`);
+        html = html.replace(/<meta\s+name="twitter:title"\s+content="[^"]*"\s*\/>/, `<meta name="twitter:title" content="${title}" />`);
+        html = html.replace(/<meta\s+name="twitter:description"\s+content="[^"]*"\s*\/>/, `<meta name="twitter:description" content="${description}" />`);
+
+        if (html.includes('<link rel="canonical"')) {
+            html = html.replace(/<link\s+rel="canonical"\s+href="[^"]*"\s*\/?>/, `<link rel="canonical" href="${canonicalUrl}" />`);
+        } else {
+            html = html.replace('</head>', `<link rel="canonical" href="${canonicalUrl}" />\n</head>`);
+        }
+
+        // Schema.org structured data injection for SEO, AEO & Google AI search
+        const pageSchemas = [
+            {
+                "@context": "https://schema.org",
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    { "@type": "ListItem", "position": 1, "name": "Home", "item": `${primaryDomain}/` },
+                    ...(cleanPath !== '/' ? [{
+                        "@type": "ListItem",
+                        "position": 2,
+                        "name": seo.h1 || title.split('–')[0].split('-')[0].trim(),
+                        "item": canonicalUrl
+                    }] : [])
+                ]
+            }
+        ];
+
+        if (cleanPath === '/') {
+            pageSchemas.push({
+                "@context": "https://schema.org",
+                "@type": "WebSite",
+                "name": "Stiknex",
+                "url": primaryDomain,
+                "description": description,
+                "potentialAction": {
+                    "@type": "SearchAction",
+                    "target": `${primaryDomain}/search?q={search_term_string}`,
+                    "query-input": "required name=search_term_string"
+                }
+            });
+        } else if (cleanPath === '/about') {
+            pageSchemas.push({
+                "@context": "https://schema.org",
+                "@type": "AboutPage",
+                "name": title,
+                "url": canonicalUrl,
+                "description": description,
+                "mainEntity": {
+                    "@type": "Organization",
+                    "name": "Stiknex",
+                    "url": primaryDomain,
+                    "founder": {
+                        "@type": "Person",
+                        "name": "Vishal Mall"
+                    }
+                }
+            });
+        } else {
+            pageSchemas.push({
+                "@context": "https://schema.org",
+                "@type": "WebApplication",
+                "name": title.split('–')[0].split('-')[0].trim(),
+                "url": canonicalUrl,
+                "description": description,
+                "applicationCategory": "ProductivityApplication",
+                "operatingSystem": "All",
+                "browserRequirements": "Requires JavaScript and HTML5 support",
+                "offers": {
+                    "@type": "Offer",
+                    "price": "0",
+                    "priceCurrency": "USD"
+                }
+            });
+        }
+
+        if (seo.faqs && seo.faqs.length > 0) {
+            pageSchemas.push({
+                "@context": "https://schema.org",
+                "@type": "FAQPage",
+                "mainEntity": seo.faqs.map(f => ({
+                    "@type": "Question",
+                    "name": f.q,
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": f.a
+                    }
+                }))
+            });
+        }
+
+        html = html.replace('</head>', `<script type="application/ld+json">${JSON.stringify(pageSchemas)}</script>\n</head>`);
+
+        // Fetch bespoke howTo, guide and features for AI search / GEO / AEO
+        const toolSlug = cleanPath.replace(/^\//, '');
+        const bespoke = getBespokeDataForSlug(toolSlug);
+        let bespokeHtml = '';
+        if (bespoke) {
+            if (bespoke.howTo && bespoke.howTo.length > 0) {
+                bespokeHtml += `
+        <section style="margin: 28px 0;">
+            <h2 style="font-size: 18px; font-weight: 700; color: #0f172a; margin-bottom: 12px;">Step-by-Step Instructions</h2>
+            <ol style="padding-left: 20px; color: #334155; font-size: 14px; line-height: 1.8;">
+                ${bespoke.howTo.map(step => `<li style="margin-bottom: 6px;">${step}</li>`).join('')}
+            </ol>
+        </section>`;
+            }
+            if (bespoke.features && bespoke.features.length > 0) {
+                bespokeHtml += `
+        <section style="margin: 28px 0;">
+            <h2 style="font-size: 18px; font-weight: 700; color: #0f172a; margin-bottom: 12px;">Specifications &amp; Calculation Rules</h2>
+            <ul style="padding-left: 20px; color: #334155; font-size: 14px; line-height: 1.8;">
+                ${bespoke.features.map(feat => `<li style="margin-bottom: 6px;">${feat}</li>`).join('')}
+            </ul>
+        </section>`;
+            }
+        }
+
+        let faqsHtml = '';
+        if (seo.faqs && seo.faqs.length > 0) {
+            faqsHtml = `
+        <section style="margin: 32px 0;">
+            <h2 style="font-size: 20px; font-weight: 700; color: #0f172a; margin-bottom: 16px;">Frequently Asked Questions</h2>
+            ${seo.faqs.map(f => `
+            <div style="margin-bottom: 16px; padding: 16px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+                <h3 style="font-size: 16px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">${f.q}</h3>
+                <p style="font-size: 14px; color: #475569; line-height: 1.6; margin: 0;">${f.a}</p>
+            </div>
+            `).join('')}
+        </section>`;
+        }
+
+        
+        // Generate categorized tools directory across the 9 primary hubs for comprehensive static HTML internal linking
+        const categorizedToolsHtml = TOOL_HUBS.map(hub => {
+            const hubTools = ALL_TOOLS.filter(t => hub.subcategories.includes(t.category));
+            if (!hubTools.length) return '';
+            return `
+            <div style="margin-bottom: 24px;">
+              <h3 style="font-size: 16px; font-weight: 700; color: #1e293b; margin-bottom: 6px; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px;">${hub.name} (${hubTools.length} Utilities)</h3>
+              <p style="font-size: 13px; color: #64748b; margin-bottom: 10px;">${hub.description}</p>
+              <ul style="display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; list-style: none; padding: 0; margin: 0;">
+                ${hubTools.map(t => `<li><a href="${primaryDomain}/${t.slug}" style="color: #4f46e5; text-decoration: none; font-size: 13px; font-weight: 500;">${t.title}</a></li>`).join('')}
+              </ul>
+            </div>`;
+        }).join('');
+
+        let relatedHtml = '';
+        if (seo.relatedTools && seo.relatedTools.length > 0) {
+            relatedHtml = `
+        <section style="margin: 28px 0;">
+            <h2 style="font-size: 18px; font-weight: 700; color: #0f172a; margin-bottom: 12px;">Related Productivity Tools</h2>
+            <ul style="display: flex; flex-wrap: wrap; gap: 10px; list-style: none; padding: 0;">
+                ${seo.relatedTools.map(rt => {
+                    const relSeo = getSeoForPath(rt);
+                    const relTitle = relSeo?.title ? relSeo.title.split('–')[0].split('-')[0].split('|')[0].trim() : rt.replace('/', '');
+                    return `<li><a href="${primaryDomain}${rt}" style="display: inline-block; padding: 8px 14px; background: #eef2ff; color: #4f46e5; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 13px;">${relTitle}</a></li>`;
+                }).join('')}
+            </ul>
+        </section>`;
+        }
+
+        const homeRoot = `
+    <div id="root">
+      <nav style="position: fixed; top: 16px; left: 50%; transform: translateX(-50%); z-index: 50; padding: 10px 24px; background: rgba(255,255,255,0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(226,232,240,0.8); border-radius: 9999px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 16px; max-width: 96vw; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, sans-serif;">
+        <a href="${primaryDomain}/" style="display: flex; align-items: center; gap: 8px; text-decoration: none; font-weight: 900; font-size: 18px; color: #4f46e5; letter-spacing: -0.02em;">
+          <img src="${primaryDomain}/logo.png" alt="Stiknex" width="24" height="24" style="object-fit: contain;" />
+          <span style="background: linear-gradient(to right, #6366f1, #9333ea); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Stiknex</span>
+        </a>
+        <div style="display: flex; align-items: center; gap: 12px; font-size: 13px; font-weight: 500; color: #475569;">
+          <a href="${primaryDomain}/sticky-notes" style="color: #475569; text-decoration: none; padding: 4px 8px;">Sticky Notes</a>
+          <a href="${primaryDomain}/online-notebook" style="color: #475569; text-decoration: none; padding: 4px 8px;">Notepad</a>
+          <a href="${primaryDomain}/whiteboard" style="color: #475569; text-decoration: none; padding: 4px 8px;">Whiteboard</a>
+          <a href="${primaryDomain}/tools" style="color: #475569; text-decoration: none; padding: 4px 8px;">Tools</a>
+          <a href="${primaryDomain}/blog" style="color: #475569; text-decoration: none; padding: 4px 8px;">Blog</a>
+        </div>
+      </nav>
+
+      <main style="padding-top: 140px; padding-bottom: 60px; padding-left: 20px; padding-right: 20px; max-width: 1100px; margin: 0 auto; text-align: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, sans-serif;">
+        <div style="display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; border-radius: 9999px; background: #eef2ff; color: #4f46e5; font-size: 13px; font-weight: 500; margin-bottom: 24px; border: 1px solid #e0e7ff;">
+          ✨ Welcome to the new standard of ideation
+        </div>
+        
+        <h1 style="font-size: clamp(2.4rem, 5.5vw, 4.5rem); font-weight: 900; line-height: 1.1; margin: 0 auto 20px; color: #0f172a; letter-spacing: -0.03em; max-width: 900px;">
+          Think Freely. <span style="background: linear-gradient(to right, #6366f1, #a855f7, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Create Boundlessly.</span>
+        </h1>
+
+        <p style="font-size: clamp(1rem, 2vw, 1.25rem); color: #475569; max-width: 680px; margin: 0 auto 36px; line-height: 1.6; font-weight: 300;">
+          An infinite canvas for your sticky notes, integrated whiteboards, and structured notebooks. All in one place.
+        </p>
+
+        <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; margin-bottom: 48px;">
+          <a href="${primaryDomain}/sticky-notes" style="padding: 14px 32px; background: #4f46e5; color: #ffffff; border-radius: 9999px; font-size: 16px; font-weight: 600; text-decoration: none; box-shadow: 0 10px 20px -5px rgba(79, 70, 229, 0.4);">Start Brainstorming &rarr;</a>
+          <a href="${primaryDomain}/tools" style="padding: 14px 32px; background: #ffffff; color: #0f172a; border: 1px solid #e2e8f0; border-radius: 9999px; font-size: 16px; font-weight: 600; text-decoration: none;">Explore 200+ Tools</a>
+        </div>
+
+        <!-- Brand Entity & Disambiguation Section -->
+        <section style="margin: 40px auto 48px; max-width: 850px; text-align: left; padding: 24px; background: #f8fafc; border-radius: 16px; border: 1px solid #e2e8f0;">
+          <h2 style="font-size: 18px; font-weight: 800; color: #0f172a; margin-bottom: 8px;">About Stiknex &amp; Entity Clarification</h2>
+          <p style="font-size: 14px; color: #475569; line-height: 1.6; margin: 0 0 10px;">
+            <strong>Stiknex</strong> (pronounced <em>Stick-Nex</em>, created by <strong>Vishal Mall</strong>) is an independent, privacy-first productivity platform featuring interactive sticky notes, digital notebook, whiteboard, and 200+ browser tools.
+          </p>
+          <p style="font-size: 13px; color: #64748b; line-height: 1.5; margin: 0;">
+            <em>Note on Brand Identity:</em> Stiknex has no connection, affiliation, or association with financial broker StoneX Group Inc. (NASDAQ: SNEX). Stiknex is a purely digital workspace and software utility site.
+          </p>
+        </section>
+
+        <section style="margin-top: 48px; text-align: left; border-top: 1px solid #e2e8f0; padding-top: 36px;">
+          <h2 style="font-size: 22px; font-weight: 800; color: #0f172a; margin-bottom: 8px; text-align: center;">Stiknex 200+ Free Online Tools Directory</h2>
+          <p style="font-size: 14px; color: #64748b; text-align: center; margin-bottom: 24px;">Explore 200+ free browser-based utilities across 20 categories. Instant calculation, zero installation, and 100% private.</p>
+          <nav aria-label="Categorized Tools Directory">
+            ${categorizedToolsHtml}
+          </nav>
+        </section>
+      </main>
+    </div>`;
+
+        const standardRoot = `
+    <div id="root">
+      <header style="padding: 24px 16px; text-align: center; border-bottom: 1px solid #e2e8f0;">
+        <a href="${primaryDomain}/" style="font-size: 24px; font-weight: 800; text-decoration: none; color: #4f46e5;">Stiknex</a>
+        <p style="margin-top: 6px; color: #64748b; font-size: 14px;">Free Online Sticky Notes, Digital Notebook &amp; Productivity Tools</p>
+        <nav style="margin-top: 8px; font-size: 14px;">
+          <a href="${primaryDomain}/" style="color: #64748b; margin: 0 8px; text-decoration: none;">Home</a>
+          ${cleanPath !== '/' ? `&gt; <span style="color: #0f172a; font-weight: 600;">${seo.h1 || title}</span>` : ''}
+        </nav>
+      </header>
+      <main style="max-width: 960px; margin: 0 auto; padding: 32px 16px;">
+        <h1 style="font-size: 30px; font-weight: 800; color: #0f172a; margin-bottom: 12px; line-height: 1.3;">${seo.h1 || title}</h1>
+        <p style="color: #475569; font-size: 16px; line-height: 1.6; margin-bottom: 24px;">${description}</p>
+        ${bespokeHtml}
+        ${faqsHtml}
+        ${relatedHtml}
+        <section style="margin-top: 36px; padding-top: 24px; border-top: 1px solid #e2e8f0;">
+          <h2 style="font-size: 18px; font-weight: 700; color: #0f172a; margin-bottom: 14px;">Stiknex 200+ Free Online Tools Directory</h2>
+          <nav aria-label="Categorized Tools Directory">
+            ${categorizedToolsHtml}
+          </nav>
+          <div style="margin-top: 32px; padding-top: 16px; border-top: 1px solid #e2e8f0; display: flex; flex-wrap: wrap; gap: 16px; font-size: 13px; color: #64748b;">
+            <a href="${primaryDomain}/" style="color: #64748b; text-decoration: none;">Home</a>
+            <a href="${primaryDomain}/about" style="color: #64748b; text-decoration: none;">About</a>
+            <a href="${primaryDomain}/contact" style="color: #64748b; text-decoration: none;">Contact Us</a>
+            <a href="${primaryDomain}/privacy-policy" style="color: #64748b; text-decoration: none;">Privacy Policy</a>
+            <a href="${primaryDomain}/terms-of-service" style="color: #64748b; text-decoration: none;">Terms of Service</a>
+            <a href="${primaryDomain}/blog" style="color: #64748b; text-decoration: none;">Blog</a>
+            <a href="${primaryDomain}/buy-me-a-coffee" style="color: #64748b; text-decoration: none;">Support</a>
+          </div>
+        </section>
+      </main>
+    </div>`;
+
+        const rootToInject = cleanPath === '/' ? homeRoot : standardRoot;
+        html = replaceRootHtml(html, rootToInject);
+
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        res.setHeader('Cache-Control', 's-maxage=86400, stale-while-revalidate=43200');
+        return res.status(200).send(html);
+
+    } catch (error) {
+        console.error('Error in render-page:', error);
+        res.redirect(302, '/');
+    }
+}

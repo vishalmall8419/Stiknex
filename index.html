@@ -1,0 +1,623 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- =========================================================
+         BASIC HTML CONFIGURATION
+    ========================================================== -->
+
+    <meta charset="UTF-8" />
+
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/Stiknex.png" />
+
+    <!-- Apple Touch Icon -->
+    <link rel="apple-touch-icon" href="/Stiknex.png" />
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- =========================================================
+         GOOGLE SITE VERIFICATION
+    ========================================================== -->
+
+    <meta
+      name="google-site-verification"
+      content="LDEwXJMsI7-nOyTSYSdHWiVsLuxudBbJm3V5BBuvrsk"
+    />
+
+    <!-- =========================================================
+         GOOGLE ADSENSE (ca-pub-8724450228854599)
+    ========================================================== -->
+    <meta
+      name="google-adsense-account"
+      content="ca-pub-8724450228854599"
+    />
+
+    <!-- =========================================================
+         GOOGLE TAG MANAGER & ANALYTICS (GTM-KZJ54QBW & GTM-MQ7WP9JV)
+    ========================================================== -->
+    <script async src="https://www.googletagmanager.com/gtm.js?id=GTM-KZJ54QBW"></script>
+    <script async src="https://www.googletagmanager.com/gtm.js?id=GTM-MQ7WP9JV"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() { dataLayer.push(arguments); }
+      gtag("js", new Date());
+      gtag("config", "G-NQDW0GE2E3");
+
+      window.addEventListener('load', function() {
+        // Defer GA4 script
+        var gtagScript = document.createElement('script');
+        gtagScript.src = "https://www.googletagmanager.com/gtag/js?id=G-NQDW0GE2E3";
+        gtagScript.async = true;
+        document.head.appendChild(gtagScript);
+      });
+    </script>
+
+    <!-- =========================================================
+         GOOGLE FONTS (High-Performance Zero-Latency Loading)
+    ========================================================== -->
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    
+    <!-- Primary UI Font: Inter (fast, instant display swap) -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    
+    <!-- Non-Blocking Secondary Fonts for Sticky Notes Custom Styling -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bubblegum+Sans&family=Caveat:wght@400..700&family=Fira+Code:wght@400;500&family=Kalam:wght@300;400;700&family=Merriweather:wght@300;400;700&family=Nunito:wght@300;400;500;600;700;800&family=Oswald:wght@300;400;500&family=Patrick+Hand&family=Playfair+Display:wght@400;600&family=Poppins:wght@300;400;500;600;700;800&family=Roboto:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+      media="print"
+      onload="this.media = 'all'"
+    />
+    <!-- Non-Blocking Deferred Analytics (Loaded after page load to preserve performance) -->
+    <script>
+      window.addEventListener('load', function() {
+        var ahrefs = document.createElement('script');
+        ahrefs.src = 'https://analytics.ahrefs.com/analytics.js';
+        ahrefs.setAttribute('data-key', 'IEHiuBH1/JDP856Q71eNHg');
+        ahrefs.async = true;
+        document.head.appendChild(ahrefs);
+
+        var shown = document.createElement('script');
+        shown.src = 'https://shown.io/metrics/5M0ZDpyy8P';
+        shown.defer = true;
+        document.body.appendChild(shown);
+      });
+    </script>
+
+    <!-- =========================================================
+         STIKNEX - SEO & META CONFIGURATION
+    ========================================================== -->
+
+    <!-- Page Title -->
+
+    <title>
+      Stiknex – Free Online Sticky Notes, Notepad &amp; 200+ Tools
+    </title>
+
+    <!-- Meta Description -->
+
+    <meta
+      name="description"
+      content="Free online sticky notes, rich-text notebook, Excalidraw whiteboard, calculators, converters and more. No sign-up required."
+    />
+
+    <!-- =========================================================
+         GEOTARGETING & REGIONAL METADATA (GEO SEO)
+    ========================================================== -->
+
+
+    <!-- Author -->
+
+    <meta name="author" content="Vishal Mall" />
+
+    <meta name="creator" content="Vishal Mall" />
+
+    <meta name="publisher" content="Stiknex" />
+
+    <meta name="application-name" content="Stiknex" />
+
+    <!-- =========================================================
+         SEARCH ENGINE CONFIGURATION
+    ========================================================== -->
+
+    <meta
+      name="robots"
+      content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    />
+
+    <meta
+      name="googlebot"
+      content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    />
+
+    <meta name="bingbot" content="index, follow" />
+
+    <!-- Canonical URL -->
+
+    <link rel="canonical" href="https://stiknex.site/" />
+
+    <!-- =========================================================
+         BRAND / APPLICATION
+    ========================================================== -->
+
+    <meta name="category" content="Productivity" />
+
+    <meta
+      name="classification"
+      content="Productivity, Notes, Utilities, Online Tools"
+    />
+
+    <!-- =========================================================
+         THEME / BROWSER
+    ========================================================== -->
+
+    <meta
+      name="theme-color"
+      content="#4F5CFF"
+      media="(prefers-color-scheme: light)"
+    />
+
+    <meta
+      name="theme-color"
+      content="#18181b"
+      media="(prefers-color-scheme: dark)"
+    />
+
+    <meta name="color-scheme" content="light dark" />
+
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+
+    <meta name="format-detection" content="telephone=no" />
+
+    <!-- =========================================================
+         PWA / MOBILE
+    ========================================================== -->
+
+    <meta name="mobile-web-app-capable" content="yes" />
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+
+    <meta name="apple-mobile-web-app-title" content="Stiknex" />
+
+    <!-- =========================================================
+         ICONS
+    ========================================================== -->
+
+    <link rel="icon" type="image/png" href="/Stiknex.png" />
+
+    <link rel="apple-touch-icon" href="/Stiknex.png" />
+
+    <!-- =========================================================
+         FONT AWESOME
+    ========================================================== -->
+
+    <link
+      rel="preconnect"
+      href="https://cdnjs.cloudflare.com"
+      crossorigin="anonymous"
+    />
+    <!-- FontAwesome 6 Icons (All styles: solid, regular, brands) -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+
+    <!-- =========================================================
+         OPEN GRAPH / FACEBOOK / WHATSAPP / LINK SHARING
+    ========================================================== -->
+
+    <meta property="og:type" content="website" />
+
+    <meta
+      property="og:title"
+      content="Stiknex – Free Online Sticky Notes, Notepad &amp; 200+ Tools"
+    />
+    <meta
+      property="og:description"
+      content="Free online sticky notes, rich-text notebook, Excalidraw whiteboard, calculators, converters and more. No sign-up required."
+    />
+
+    <meta property="og:url" content="https://stiknex.site/" />
+
+    <meta property="og:site_name" content="Stiknex" />
+
+    <meta property="og:locale" content="en_US" />
+
+    <meta
+      property="og:image"
+      content="https://stiknex.site/Stiknex.png"
+    />
+
+    <meta
+      property="og:image:secure_url"
+      content="https://stiknex.site/Stiknex.png"
+    />
+
+    <meta property="og:image:type" content="image/png" />
+
+    <meta property="og:image:width" content="512" />
+
+    <meta property="og:image:height" content="512" />
+
+    <meta
+      property="og:image:alt"
+      content="Stiknex - Free Sticky Notes and Productivity Tools"
+    />
+
+    <!-- =========================================================
+         TWITTER / X
+    ========================================================== -->
+
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <meta
+      name="twitter:title"
+      content="Stiknex – Free Online Sticky Notes, Notepad &amp; 200+ Tools"
+    />
+
+    <meta
+      name="twitter:description"
+      content="Free online sticky notes, rich-text notebook, Excalidraw whiteboard, calculators, converters and more. No sign-up required."
+    />
+
+    <meta
+      name="twitter:image"
+      content="https://stiknex.site/Stiknex.png"
+    />
+
+    <meta name="twitter:image:alt" content="Stiknex - Productivity Tools" />
+
+    <!-- =========================================================
+         STRUCTURED DATA / JSON-LD
+    ========================================================== -->
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "https://stiknex.site/#website",
+            "url": "https://stiknex.site/",
+            "name": "Stiknex",
+            "alternateName": [
+              "Stiknex Productivity Tools",
+              "Stiknex Notes",
+              "Stiknex Sticky Notes"
+            ],
+            "description": "Free online sticky notes, notebook and 200+ productivity tools.",
+            "disambiguatingDescription": "Official website of Stiknex (stiknex.site), an independent digital workspace and client-side utilities platform created by Vishal Mall.",
+            "inLanguage": "en",
+            "publisher": {
+              "@id": "https://stiknex.site/#organization"
+            },
+            "potentialAction": {
+              "@type": "SearchAction",
+              "target": "https://stiknex.site/tools?q={search_term_string}",
+              "query-input": "required name=search_term_string"
+            }
+          },
+          {
+            "@type": "Brand",
+            "@id": "https://stiknex.site/#brand",
+            "name": "Stiknex",
+            "alternateName": ["Stiknex Tools", "Stiknex Workspace"],
+            "url": "https://stiknex.site/",
+            "logo": "https://stiknex.site/Stiknex.png",
+            "disambiguatingDescription": "Stiknex (pronounced Stick-Nex) is an independent digital productivity brand and web utility platform founded by Vishal Mall, distinct and unrelated to StoneX Group Inc."
+          },
+          {
+            "@type": "Organization",
+            "@id": "https://stiknex.site/#organization",
+            "name": "Stiknex",
+            "url": "https://stiknex.site/",
+            "logo": {
+              "@type": "ImageObject",
+              "url": "https://stiknex.site/Stiknex.png",
+              "width": 512,
+              "height": 512
+            },
+            "brand": {
+              "@id": "https://stiknex.site/#brand"
+            },
+            "disambiguatingDescription": "Stiknex is an independent digital productivity suite, online notepad, and collection of 200+ browser utility tools founded by software developer Vishal Mall, distinct from financial services firm StoneX Group Inc.",
+            "knowsAbout": [
+              "Productivity Software",
+              "Sticky Notes",
+              "Online Notebook",
+              "Web Utilities",
+              "Client-Side Calculators",
+              "Unit Converters"
+            ],
+            "founder": {
+              "@type": "Person",
+              "name": "Vishal Mall",
+              "jobTitle": "Software Developer & Founder",
+              "url": "https://stiknex.site/about"
+            }
+          },
+          {
+            "@type": "WebApplication",
+            "@id": "https://stiknex.site/#application",
+            "name": "Stiknex",
+            "url": "https://stiknex.site/",
+            "description": "A free online dual-engine productivity studio with sticky notes, in-browser code editor with live execution, distraction-free paper notebook, and 206+ client-side web tools with real-time sync.",
+            "applicationCategory": "ProductivityApplication",
+            "applicationSubCategory": "Notes and Productivity Tools",
+            "operatingSystem": "Windows, macOS, Linux, Android, iOS",
+            "browserRequirements": "Requires a modern web browser",
+            "isAccessibleForFree": true,
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD"
+            },
+            "publisher": {
+              "@id": "https://stiknex.site/#organization"
+            }
+          },
+          {
+            "@type": "WebPage",
+            "@id": "https://stiknex.site/#webpage",
+            "url": "https://stiknex.site/",
+            "name": "Stiknex - Free Sticky Notes, Online Notebook & Productivity Tools",
+            "description": "Free online sticky notes, notebook and productivity tools from Stiknex.",
+            "isPartOf": {
+              "@id": "https://stiknex.site/#website"
+            },
+            "about": {
+              "@id": "https://stiknex.site/#application"
+            },
+            "inLanguage": "en"
+          }
+        ]
+      }
+    </script>
+  </head>
+
+  <body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KZJ54QBW"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MQ7WP9JV"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
+    <!-- =========================================================
+         INITIAL SIGNATURE SVG HANDWRITING LOADER
+         Displays immediately, hiding raw SEO content until React hydrates.
+    ========================================================== -->
+    <div id="initial-signature-loader" style="position: fixed; inset: 0; z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #FAF7F2; transition: opacity 0.25s ease-out;">
+      <style>
+        @media (prefers-color-scheme: dark) {
+          #initial-signature-loader { background: #0B0F17 !important; }
+          #initial-signature-loader .sig-text { color: #94a3b8 !important; }
+        }
+        .init-sig-stroke {
+          stroke-dasharray: 180;
+          stroke-dashoffset: 180;
+          animation: initSigDraw 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        }
+        .init-sig-s { animation-delay: 0s; }
+        .init-sig-t { animation-delay: 0.15s; }
+        .init-sig-t-bar { animation-delay: 0.28s; }
+        .init-sig-i { animation-delay: 0.38s; }
+        .init-sig-k { animation-delay: 0.5s; }
+        .init-sig-n { animation-delay: 0.68s; }
+        .init-sig-e { animation-delay: 0.82s; }
+        .init-sig-x { animation-delay: 0.96s; }
+        .init-sig-flourish {
+          stroke-dasharray: 240;
+          stroke-dashoffset: 240;
+          animation: initSigDraw 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+          animation-delay: 1.1s;
+        }
+        .init-sig-dot {
+          animation: initSigDot 1.8s ease-out infinite;
+          animation-delay: 0.45s;
+          transform-origin: 45px 14px;
+        }
+        .init-sig-end-dot {
+          animation: initSigDot 1.8s ease-out infinite;
+          animation-delay: 1.35s;
+          transform-origin: 132px 33px;
+        }
+        @keyframes initSigDraw {
+          0% { stroke-dashoffset: 180; opacity: 0.2; }
+          15% { opacity: 1; }
+          65% { stroke-dashoffset: 0; opacity: 1; }
+          88% { stroke-dashoffset: 0; opacity: 1; }
+          100% { stroke-dashoffset: 0; opacity: 0; }
+        }
+        @keyframes initSigDot {
+          0%, 30% { transform: scale(0); opacity: 0; }
+          35% { transform: scale(1.3); opacity: 1; }
+          45% { transform: scale(1); opacity: 1; }
+          88% { opacity: 1; }
+          100% { opacity: 0; }
+        }
+      </style>
+      <div style="position: relative; display: flex; flex-direction: column; align-items: center;">
+        <svg viewBox="0 0 210 56" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 210px; height: auto;">
+          <defs>
+            <linearGradient id="initSigGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#134E5E" />
+              <stop offset="55%" stop-color="#1D6A7D" />
+              <stop offset="100%" stop-color="#FFA07A" />
+            </linearGradient>
+            <linearGradient id="initFlourishGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#134E5E" stop-opacity="0.2" />
+              <stop offset="65%" stop-color="#FFA07A" stop-opacity="0.95" />
+              <stop offset="100%" stop-color="#FFA07A" stop-opacity="0" />
+            </linearGradient>
+          </defs>
+          <g stroke="url(#initSigGrad)" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M 18 34 C 13 36, 6 34, 6 27 C 6 18, 19 15, 23 9 C 26 4, 21 2, 17 3 C 12 4, 9 8, 9 12" stroke-width="3.2" class="init-sig-stroke init-sig-s" />
+            <path d="M 17 34 C 23 34, 30 25, 33 16 L 33 34" stroke-width="3" class="init-sig-stroke init-sig-t" />
+            <path d="M 27 22 Q 35 21, 41 20" stroke-width="2.6" class="init-sig-stroke init-sig-t-bar" />
+            <path d="M 43 23 L 45 34 C 46 35, 48 35, 51 33" stroke-width="3" class="init-sig-stroke init-sig-i" />
+            <circle cx="45" cy="14" r="2.2" fill="#FFA07A" class="init-sig-dot" />
+            <path d="M 57 11 L 56 34 M 68 22 L 59 28 L 68 35" stroke-width="3" class="init-sig-stroke init-sig-k" />
+            <path d="M 76 24 L 75 34 M 76 26 C 79 22, 85 22, 88 26 L 87 34" stroke-width="2.8" class="init-sig-stroke init-sig-n" />
+            <path d="M 94 29 C 94 24, 103 23, 103 27 C 103 33, 95 35, 105 34" stroke-width="2.8" class="init-sig-stroke init-sig-e" />
+            <path d="M 112 24 L 124 34 M 123 24 L 112 34" stroke-width="3" class="init-sig-stroke init-sig-x" />
+          </g>
+          <path d="M 14 44 C 45 42, 95 40, 150 37 C 175 35, 195 34, 205 31" stroke="url(#initFlourishGrad)" stroke-width="3" stroke-linecap="round" class="init-sig-flourish" />
+          <circle cx="132" cy="33" r="2" fill="#FFA07A" class="init-sig-end-dot" />
+        </svg>
+        <p class="sig-text" style="margin-top: 14px; font-family: system-ui, -apple-system, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #64748b; animation: initSigDot 1.8s ease-in-out infinite;">Loading Stiknex...</p>
+      </div>
+    </div>
+    <div id="root">
+      <!-- Semantic High-Performance Pre-Rendered HTML for Crawlers & Instant FCP/LCP -->
+      <header style="padding: 16px 24px; border-bottom: 1px solid #EADFD5; background: #FAF7F2; text-align: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+        <div style="max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+          <a href="https://stiknex.site/" style="display: flex; align-items: center; gap: 10px; text-decoration: none;">
+            <img src="/logo.png" alt="Stiknex Logo" width="36" height="36" style="width: 36px; height: 36px; object-contain;" />
+            <span style="font-size: 22px; font-weight: 900; color: #134E5E; letter-spacing: -0.02em;">Stiknex</span>
+          </a>
+          <nav style="display: flex; gap: 20px; font-size: 13px; font-weight: 600;">
+            <a href="https://stiknex.site/sticky-notes" style="color: #1E293B; text-decoration: none;">Sticky Notes</a>
+            <a href="https://stiknex.site/online-notebook" style="color: #1E293B; text-decoration: none;">Notepad</a>
+            <a href="https://stiknex.site/whiteboard" style="color: #1E293B; text-decoration: none;">Whiteboard</a>
+            <a href="https://stiknex.site/tools" style="color: #1E293B; text-decoration: none;">200+ Tools</a>
+            <a href="https://stiknex.site/blog" style="color: #1E293B; text-decoration: none;">Blog</a>
+            <a href="https://stiknex.site/about" style="color: #1E293B; text-decoration: none;">About</a>
+          </nav>
+        </div>
+      </header>
+
+      <main style="max-width: 1100px; margin: 0 auto; padding: 48px 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #FAF7F2; color: #1E293B;">
+        <div style="text-align: center; margin-bottom: 40px;">
+          <span style="display: inline-block; padding: 6px 16px; border-radius: 9999px; background: rgba(19, 78, 94, 0.1); color: #134E5E; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 20px;">
+            100% Free &amp; Local-First Workspace
+          </span>
+          <h1 style="font-size: clamp(2.2rem, 4.5vw, 3.6rem); font-weight: 900; color: #0F3944; line-height: 1.15; margin-bottom: 20px; letter-spacing: -0.02em;">
+            All-in-one canvas for thinking, writing &amp; 200+ browser tools.
+          </h1>
+          <p style="font-size: 17px; color: #475569; max-width: 780px; margin: 0 auto 32px; line-height: 1.6;">
+            <strong>Stiknex</strong> (founded by software developer <strong>Vishal Mall</strong>) is a fast, 100% free, local-first productivity workspace. Featuring infinite zoomable sticky notes, distraction-free markdown notebook, interactive Excalidraw whiteboard, and 200+ client-side utility calculators, converters, and formatters — private in your browser with zero logins.
+          </p>
+          <div style="display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; margin-bottom: 36px;">
+            <a href="https://stiknex.site/sticky-notes" style="padding: 14px 32px; background: #134E5E; color: #ffffff; border-radius: 9999px; text-decoration: none; font-weight: 700; font-size: 14px; box-shadow: 0 4px 14px rgba(19, 78, 94, 0.25);">Launch Sticky Notes &rarr;</a>
+            <a href="https://stiknex.site/online-notebook" style="padding: 14px 28px; background: #ffffff; color: #0F3944; border: 1.5px solid #EADFD5; border-radius: 9999px; text-decoration: none; font-weight: 700; font-size: 14px;">Open Notepad</a>
+            <a href="https://stiknex.site/tools" style="padding: 14px 28px; background: #0F3944; color: #ffffff; border-radius: 9999px; text-decoration: none; font-weight: 700; font-size: 14px;">Explore 200+ Tools</a>
+          </div>
+        </div>
+
+        <!-- 200+ Categorized Browser Utilities Directory for Search Engine Crawlers -->
+        <section style="margin-top: 48px; border-top: 1px solid #EADFD5; padding-top: 36px;">
+          <h2 style="font-size: 22px; font-weight: 800; color: #0F3944; margin-bottom: 16px;">Explore Stiknex 200+ Free Online Tools Directory</h2>
+          
+        <div style="margin-bottom: 24px;">
+          <h3 style="font-size: 15px; font-weight: 700; color: #134E5E; margin-bottom: 8px; border-bottom: 1px solid #EADFD5; padding-bottom: 4px;">Notes & Planning (20 Utilities)</h3>
+          <p style="font-size: 13px; color: #64748b; margin-bottom: 10px;">Digital notebooks, sticky notes boards, infinite whiteboards, to-do lists, and productivity planners.</p>
+          <ul style="display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; list-style: none; padding: 0; margin: 0;">
+            <li><a href="https://stiknex.site/sticky-notes" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Sticky Notes Board</a></li><li><a href="https://stiknex.site/online-notebook" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Online Notebook</a></li><li><a href="https://stiknex.site/checklist-maker" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Checklist Maker</a></li><li><a href="https://stiknex.site/to-do-list" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">To-Do List</a></li><li><a href="https://stiknex.site/habit-tracker" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Habit Tracker</a></li><li><a href="https://stiknex.site/daily-journal" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Daily Journal</a></li><li><a href="https://stiknex.site/meeting-notes-template" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Meeting Notes Template</a></li><li><a href="https://stiknex.site/decision-matrix" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Decision Matrix</a></li><li><a href="https://stiknex.site/focus-session-planner" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Focus Session Planner</a></li><li><a href="https://stiknex.site/personal-task-planner" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Personal Task Planner</a></li><li><a href="https://stiknex.site/stopwatch-with-laps" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Stopwatch with Laps</a></li><li><a href="https://stiknex.site/screen-resolution-checker" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Screen Resolution Checker</a></li><li><a href="https://stiknex.site/aspect-ratio-calculator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Aspect Ratio Calculator</a></li><li><a href="https://stiknex.site/typographic-scale-generator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Typographic Scale Generator</a></li><li><a href="https://stiknex.site/invoice-generator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Invoice Generator</a></li><li><a href="https://stiknex.site/receipt-generator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Receipt Generator</a></li><li><a href="https://stiknex.site/name-generator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Baby Name Generator (Vedic, Islamic, Sikh, Christian & Modern)</a></li><li><a href="https://stiknex.site/flashcard-maker" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Flashcard Maker</a></li><li><a href="https://stiknex.site/random-quiz-generator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Random Quiz Generator</a></li><li><a href="https://stiknex.site/decision-helper" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Decision Helper & Coin Flipper</a></li>
+          </ul>
+        </div>
+
+        <div style="margin-bottom: 24px;">
+          <h3 style="font-size: 15px; font-weight: 700; color: #134E5E; margin-bottom: 8px; border-bottom: 1px solid #EADFD5; padding-bottom: 4px;">Typing & Keyboard (1 Utilities)</h3>
+          <p style="font-size: 13px; color: #64748b; margin-bottom: 10px;">WPM typing speed tests, interactive touch typing lessons, developer code challenges, and accuracy benchmarks.</p>
+          <ul style="display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; list-style: none; padding: 0; margin: 0;">
+            <li><a href="https://stiknex.site/stiknex-typing" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Stiknex Typing Master</a></li>
+          </ul>
+        </div>
+
+        <div style="margin-bottom: 24px;">
+          <h3 style="font-size: 15px; font-weight: 700; color: #134E5E; margin-bottom: 8px; border-bottom: 1px solid #EADFD5; padding-bottom: 4px;">Writing & Text (20 Utilities)</h3>
+          <p style="font-size: 13px; color: #64748b; margin-bottom: 10px;">Real-time word & character counters, text diff comparators, case transformers, and markdown editors.</p>
+          <ul style="display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; list-style: none; padding: 0; margin: 0;">
+            <li><a href="https://stiknex.site/word-counter" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Word Counter</a></li><li><a href="https://stiknex.site/character-counter" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Character Counter</a></li><li><a href="https://stiknex.site/case-converter" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Case Converter</a></li><li><a href="https://stiknex.site/remove-extra-spaces" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Remove Extra Spaces</a></li><li><a href="https://stiknex.site/remove-duplicate-lines" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Remove Duplicate Lines</a></li><li><a href="https://stiknex.site/sort-lines" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Sort Lines</a></li><li><a href="https://stiknex.site/find-and-replace" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Find and Replace</a></li><li><a href="https://stiknex.site/text-reverser" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Text Reverser</a></li><li><a href="https://stiknex.site/slug-generator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">URL Slug Generator</a></li><li><a href="https://stiknex.site/lorem-ipsum-generator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Lorem Ipsum Generator</a></li><li><a href="https://stiknex.site/text-diff-checker" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Text Diff Checker</a></li><li><a href="https://stiknex.site/markdown-editor" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Markdown Editor</a></li><li><a href="https://stiknex.site/markdown-to-html" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Markdown to HTML Converter</a></li><li><a href="https://stiknex.site/html-to-markdown" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">HTML to Markdown Converter</a></li><li><a href="https://stiknex.site/text-to-binary" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Text to Binary Converter</a></li><li><a href="https://stiknex.site/binary-to-text" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Binary to Text Converter</a></li><li><a href="https://stiknex.site/morse-code-translator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Morse Code Translator</a></li><li><a href="https://stiknex.site/nato-phonetic-converter" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">NATO Phonetic Alphabet Converter</a></li><li><a href="https://stiknex.site/reading-time-calculator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Reading Time Calculator</a></li><li><a href="https://stiknex.site/text-cleaner" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Text Cleaner & Sanitizer</a></li>
+          </ul>
+        </div>
+
+        <div style="margin-bottom: 24px;">
+          <h3 style="font-size: 15px; font-weight: 700; color: #134E5E; margin-bottom: 8px; border-bottom: 1px solid #EADFD5; padding-bottom: 4px;">Calculators (41 Utilities)</h3>
+          <p style="font-size: 13px; color: #64748b; margin-bottom: 10px;">Scientific computation, age, percentage, date differences, EMI, compound interest, and financial calculators.</p>
+          <ul style="display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; list-style: none; padding: 0; margin: 0;">
+            <li><a href="https://stiknex.site/basic-calculator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Basic Calculator</a></li><li><a href="https://stiknex.site/scientific-calculator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Scientific Calculator</a></li><li><a href="https://stiknex.site/percentage-calculator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Percentage Calculator</a></li><li><a href="https://stiknex.site/age-calculator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Age Calculator</a></li><li><a href="https://stiknex.site/date-calculator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Date Calculator</a></li><li><a href="https://stiknex.site/time-calculator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Time Calculator</a></li><li><a href="https://stiknex.site/unit-converter" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Unit Converter</a></li><li><a href="https://stiknex.site/length-converter" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Length Converter</a></li><li><a href="https://stiknex.site/weight-converter" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Weight Converter</a></li><li><a href="https://stiknex.site/temperature-converter" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Temperature Converter</a></li><li><a href="https://stiknex.site/fraction-calculator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Fraction Calculator</a></li><li><a href="https://stiknex.site/world-clock" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">World Clock</a></li><li><a href="https://stiknex.site/time-zone-converter" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Time Zone Converter</a></li><li><a href="https://stiknex.site/meeting-time-planner" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Meeting Time Planner</a></li><li><a href="https://stiknex.site/countdown-timer" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Countdown Timer</a></li><li><a href="https://stiknex.site/pomodoro-timer" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Pomodoro Timer</a></li><li><a href="https://stiknex.site/calendar-generator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Calendar Generator</a></li><li><a href="https://stiknex.site/week-number-calculator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Week Number Calculator</a></li><li><a href="https://stiknex.site/business-days-calculator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Business Days Calculator</a></li><li><a href="https://stiknex.site/birthday-countdown" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Birthday Countdown</a></li><li><a href="https://stiknex.site/live-clock" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Live Precision Clock</a></li><li><a href="https://stiknex.site/algebra-calculator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Algebra Calculator</a></li><li><a href="https://stiknex.site/quadratic-equation-solver" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Quadratic Equation Solver</a></li><li><a href="https://stiknex.site/prime-number-checker" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Prime Number Checker</a></li><li><a href="https://stiknex.site/gcd-lcm-calculator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">GCD & LCM Calculator</a></li><li><a href="https://stiknex.site/statistics-calculator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Statistics Calculator</a></li><li><a href="https://stiknex.site/mean-median-mode-calculator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Mean, Median & Mode Calculator</a></li><li><a href="https://stiknex.site/probability-calculator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Probability Calculator</a></li><li><a href="https://stiknex.site/scientific-notation-converter" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Scientific Notation Converter</a></li><li><a href="https://stiknex.site/matrix-calculator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Matrix Calculator</a></li><li><a href="https://stiknex.site/geometry-calculator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Geometry Calculator</a></li><li><a href="https://stiknex.site/emi-calculator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">EMI Calculator</a></li><li><a href="https://stiknex.site/simple-interest-calculator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Simple Interest Calculator</a></li><li><a href="https://stiknex.site/compound-interest-calculator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Compound Interest Calculator</a></li><li><a href="https://stiknex.site/sip-calculator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">SIP Calculator</a></li><li><a href="https://stiknex.site/loan-payoff-calculator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Loan Payoff Calculator</a></li><li><a href="https://stiknex.site/discount-calculator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Discount Calculator</a></li><li><a href="https://stiknex.site/gst-calculator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">GST & Sales Tax Calculator</a></li><li><a href="https://stiknex.site/tip-calculator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Tip Calculator</a></li><li><a href="https://stiknex.site/budget-planner" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Budget Planner Calculator</a></li><li><a href="https://stiknex.site/savings-goal-calculator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Savings Goal Calculator</a></li>
+          </ul>
+        </div>
+
+        <div style="margin-bottom: 24px;">
+          <h3 style="font-size: 15px; font-weight: 700; color: #134E5E; margin-bottom: 8px; border-bottom: 1px solid #EADFD5; padding-bottom: 4px;">Converters (9 Utilities)</h3>
+          <p style="font-size: 13px; color: #64748b; margin-bottom: 10px;">Universal unit, live currency, metric to imperial, length, area, volume, and binary data storage converters.</p>
+          <ul style="display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; list-style: none; padding: 0; margin: 0;">
+            <li><a href="https://stiknex.site/area-converter" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Area Converter</a></li><li><a href="https://stiknex.site/volume-converter" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Volume Converter</a></li><li><a href="https://stiknex.site/speed-converter" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Speed Converter</a></li><li><a href="https://stiknex.site/pressure-converter" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Pressure Converter</a></li><li><a href="https://stiknex.site/data-converter" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Data Storage Converter</a></li><li><a href="https://stiknex.site/fuel-economy-converter" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Fuel Economy Converter</a></li><li><a href="https://stiknex.site/number-base-converter" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Number Base Converter</a></li><li><a href="https://stiknex.site/roman-numeral-converter" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Roman Numeral Converter</a></li><li><a href="https://stiknex.site/ratio-calculator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Ratio & Proportion Calculator</a></li>
+          </ul>
+        </div>
+
+        <div style="margin-bottom: 24px;">
+          <h3 style="font-size: 15px; font-weight: 700; color: #134E5E; margin-bottom: 8px; border-bottom: 1px solid #EADFD5; padding-bottom: 4px;">Developer Tools (31 Utilities)</h3>
+          <p style="font-size: 13px; color: #64748b; margin-bottom: 10px;">JSON formatters & validators, regex testers, CSV converters, code minifiers, Base64, and URL encoders.</p>
+          <ul style="display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; list-style: none; padding: 0; margin: 0;">
+            <li><a href="https://stiknex.site/json-formatter" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">JSON Formatter & Beautifier</a></li><li><a href="https://stiknex.site/json-validator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">JSON Validator</a></li><li><a href="https://stiknex.site/json-to-csv" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">JSON to CSV Converter</a></li><li><a href="https://stiknex.site/csv-to-json" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">CSV to JSON Converter</a></li><li><a href="https://stiknex.site/xml-formatter" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">XML Formatter</a></li><li><a href="https://stiknex.site/html-formatter" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">HTML Formatter</a></li><li><a href="https://stiknex.site/css-formatter" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">CSS Formatter</a></li><li><a href="https://stiknex.site/javascript-formatter" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">JavaScript Formatter</a></li><li><a href="https://stiknex.site/regex-tester" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Regex Tester & Matcher</a></li><li><a href="https://stiknex.site/uuid-generator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">UUID / GUID Generator</a></li><li><a href="https://stiknex.site/url-encoder-decoder" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">URL Encoder / Decoder</a></li><li><a href="https://stiknex.site/html-entity-encoder-decoder" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">HTML Entity Encoder / Decoder</a></li><li><a href="https://stiknex.site/base64-encoder-decoder" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Base64 Encoder / Decoder</a></li><li><a href="https://stiknex.site/jwt-decoder" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">JWT Decoder</a></li><li><a href="https://stiknex.site/unix-timestamp-converter" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Unix Timestamp Converter</a></li><li><a href="https://stiknex.site/cron-expression-explainer" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Cron Expression Explainer</a></li><li><a href="https://stiknex.site/query-string-parser" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Query String Parser</a></li><li><a href="https://stiknex.site/http-status-code-reference" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">HTTP Status Code Reference</a></li><li><a href="https://stiknex.site/mime-type-lookup" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">MIME Type Lookup</a></li><li><a href="https://stiknex.site/meta-tag-preview-generator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Meta Tag Preview Generator</a></li><li><a href="https://stiknex.site/url-shortener" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">URL Shortener</a></li><li><a href="https://stiknex.site/csv-viewer" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">CSV Viewer & Table Explorer</a></li><li><a href="https://stiknex.site/csv-merger" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">CSV Merger</a></li><li><a href="https://stiknex.site/csv-deduplicator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">CSV Deduplicator</a></li><li><a href="https://stiknex.site/csv-column-extractor" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">CSV Column Extractor</a></li><li><a href="https://stiknex.site/json-to-xml" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">JSON to XML Converter</a></li><li><a href="https://stiknex.site/xml-to-json" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">XML to JSON Converter</a></li><li><a href="https://stiknex.site/tsv-to-csv" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">TSV to CSV Converter</a></li><li><a href="https://stiknex.site/delimited-text-converter" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Delimited Text Converter</a></li><li><a href="https://stiknex.site/table-to-markdown" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Table to Markdown Converter</a></li><li><a href="https://stiknex.site/data-sampling-tool" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Data Sampling Tool</a></li>
+          </ul>
+        </div>
+
+        <div style="margin-bottom: 24px;">
+          <h3 style="font-size: 15px; font-weight: 700; color: #134E5E; margin-bottom: 8px; border-bottom: 1px solid #EADFD5; padding-bottom: 4px;">Security & Generators (20 Utilities)</h3>
+          <p style="font-size: 13px; color: #64748b; margin-bottom: 10px;">Cryptographic password generators, SHA/HMAC hash utilities, QR code generators, and randomizers.</p>
+          <ul style="display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; list-style: none; padding: 0; margin: 0;">
+            <li><a href="https://stiknex.site/password-generator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Password Generator</a></li><li><a href="https://stiknex.site/password-strength-checker" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Password Strength Checker</a></li><li><a href="https://stiknex.site/passphrase-generator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Passphrase Generator</a></li><li><a href="https://stiknex.site/random-number-generator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Random Number Generator</a></li><li><a href="https://stiknex.site/random-string-generator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Random String Generator</a></li><li><a href="https://stiknex.site/sha-hash-calculator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">SHA Hash Calculator</a></li><li><a href="https://stiknex.site/hmac-calculator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">HMAC Calculator</a></li><li><a href="https://stiknex.site/file-hash-checker" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">File Hash & Checksum Checker</a></li><li><a href="https://stiknex.site/secret-free-redaction-tool" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Secret-Free Redaction Tool</a></li><li><a href="https://stiknex.site/entropy-estimator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Entropy Estimator</a></li><li><a href="https://stiknex.site/qr-code-generator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">QR Code Generator</a></li><li><a href="https://stiknex.site/qr-code-reader" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">QR Code Reader & Scanner</a></li><li><a href="https://stiknex.site/barcode-generator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Barcode Generator</a></li><li><a href="https://stiknex.site/wifi-qr-generator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Wi-Fi QR Code Generator</a></li><li><a href="https://stiknex.site/vcard-qr-generator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">vCard QR Generator</a></li><li><a href="https://stiknex.site/link-in-bio-page-builder" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Link-in-Bio Page Builder</a></li><li><a href="https://stiknex.site/random-name-picker" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Random Name Picker</a></li><li><a href="https://stiknex.site/team-randomizer" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Team Randomizer & Group Generator</a></li><li><a href="https://stiknex.site/decision-wheel" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Decision Wheel (Spin the Wheel)</a></li><li><a href="https://stiknex.site/poll-generator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Poll Generator</a></li>
+          </ul>
+        </div>
+
+        <div style="margin-bottom: 24px;">
+          <h3 style="font-size: 15px; font-weight: 700; color: #134E5E; margin-bottom: 8px; border-bottom: 1px solid #EADFD5; padding-bottom: 4px;">SEO Tools (10 Utilities)</h3>
+          <p style="font-size: 13px; color: #64748b; margin-bottom: 10px;">Free URL shortener with live click analytics, SERP preview simulator, meta tag counters, and slug checkers.</p>
+          <ul style="display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; list-style: none; padding: 0; margin: 0;">
+            <li><a href="https://stiknex.site/serp-snippet-preview" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">SERP Snippet Preview</a></li><li><a href="https://stiknex.site/meta-description-counter" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Meta Description Counter</a></li><li><a href="https://stiknex.site/keyword-density-checker" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Keyword Density Checker</a></li><li><a href="https://stiknex.site/robots-txt-generator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Robots.txt Generator</a></li><li><a href="https://stiknex.site/sitemap-xml-generator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Sitemap XML Generator</a></li><li><a href="https://stiknex.site/open-graph-preview" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Open Graph Preview</a></li><li><a href="https://stiknex.site/schema-markup-generator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Schema Markup Generator</a></li><li><a href="https://stiknex.site/utm-link-builder" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">UTM Link Builder</a></li><li><a href="https://stiknex.site/url-slug-checker" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">URL Slug Checker</a></li><li><a href="https://stiknex.site/readability-checker" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Readability Checker</a></li>
+          </ul>
+        </div>
+
+        <div style="margin-bottom: 24px;">
+          <h3 style="font-size: 15px; font-weight: 700; color: #134E5E; margin-bottom: 8px; border-bottom: 1px solid #EADFD5; padding-bottom: 4px;">Image, PDF & Media (40 Utilities)</h3>
+          <p style="font-size: 13px; color: #64748b; margin-bottom: 10px;">Client-side image compressors, resizers, color pickers, PDF document tools, and audio/video utilities.</p>
+          <ul style="display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; list-style: none; padding: 0; margin: 0;">
+            <li><a href="https://stiknex.site/image-compressor" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Image Compressor</a></li><li><a href="https://stiknex.site/image-resizer" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Image Resizer</a></li><li><a href="https://stiknex.site/image-cropper" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Image Cropper</a></li><li><a href="https://stiknex.site/jpg-to-png" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">JPG to PNG Converter</a></li><li><a href="https://stiknex.site/png-to-jpg" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">PNG to JPG Converter</a></li><li><a href="https://stiknex.site/webp-converter" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">WebP Converter</a></li><li><a href="https://stiknex.site/image-to-base64" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Image to Base64 Converter</a></li><li><a href="https://stiknex.site/base64-to-image" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Base64 to Image Decoder</a></li><li><a href="https://stiknex.site/favicon-generator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Favicon Generator</a></li><li><a href="https://stiknex.site/color-palette-extractor" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Color Palette Extractor</a></li><li><a href="https://stiknex.site/merge-pdf" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Merge PDF</a></li><li><a href="https://stiknex.site/split-pdf" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Split PDF</a></li><li><a href="https://stiknex.site/rotate-pdf" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Rotate PDF</a></li><li><a href="https://stiknex.site/reorder-pdf-pages" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Reorder PDF Pages</a></li><li><a href="https://stiknex.site/images-to-pdf" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Images to PDF Converter</a></li><li><a href="https://stiknex.site/pdf-to-images" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">PDF to Images Converter</a></li><li><a href="https://stiknex.site/pdf-metadata-viewer" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">PDF Metadata Viewer</a></li><li><a href="https://stiknex.site/extract-pdf-text" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Extract PDF Text</a></li><li><a href="https://stiknex.site/word-counter-for-documents" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Word Counter for Documents</a></li><li><a href="https://stiknex.site/document-page-counter" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Document Page Counter</a></li><li><a href="https://stiknex.site/color-picker" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Color Picker & Inspector</a></li><li><a href="https://stiknex.site/hex-to-rgb" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">HEX to RGB Converter</a></li><li><a href="https://stiknex.site/rgb-to-hex" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">RGB to HEX Converter</a></li><li><a href="https://stiknex.site/hsl-converter" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">HSL Color Converter</a></li><li><a href="https://stiknex.site/contrast-checker" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">WCAG Color Contrast Checker</a></li><li><a href="https://stiknex.site/gradient-generator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">CSS Gradient Generator</a></li><li><a href="https://stiknex.site/box-shadow-generator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Box Shadow Generator</a></li><li><a href="https://stiknex.site/border-radius-generator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Border Radius Generator</a></li><li><a href="https://stiknex.site/css-clamp-generator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">CSS Clamp Generator</a></li><li><a href="https://stiknex.site/css-animation-previewer" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">CSS Animation Previewer</a></li><li><a href="https://stiknex.site/audio-trimmer" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Audio Trimmer</a></li><li><a href="https://stiknex.site/audio-format-converter" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Audio Format Converter</a></li><li><a href="https://stiknex.site/audio-volume-normalizer" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Audio Volume Normalizer</a></li><li><a href="https://stiknex.site/video-to-gif" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Video to GIF Converter</a></li><li><a href="https://stiknex.site/video-metadata-viewer" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Video Metadata Viewer</a></li><li><a href="https://stiknex.site/video-aspect-ratio-calculator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Video Aspect Ratio Calculator</a></li><li><a href="https://stiknex.site/subtitle-time-calculator" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Subtitle Time Shift Calculator</a></li><li><a href="https://stiknex.site/audio-waveform-viewer" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Audio Waveform Viewer</a></li><li><a href="https://stiknex.site/microphone-test" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Microphone Test</a></li><li><a href="https://stiknex.site/webcam-test" style="color: #134E5E; text-decoration: none; font-size: 13px; font-weight: 500;">Webcam Test</a></li>
+          </ul>
+        </div>
+        </section>
+
+        <!-- Brand Entity & Disambiguation Section -->
+        <section style="margin-top: 40px; padding: 28px; background: #ffffff; border-radius: 20px; border: 1px solid #EADFD5;">
+          <h2 style="font-size: 20px; font-weight: 800; color: #0F3944; margin-bottom: 12px;">About Stiknex &amp; Entity Information</h2>
+          <p style="font-size: 14px; color: #475569; line-height: 1.7; margin-bottom: 14px;">
+            <strong>What is Stiknex?</strong> Stiknex is an independent, non-commercial productivity and web utility suite created by <strong>Vishal Mall</strong>. The name <em>Stiknex</em> fuses "Sticky Notes" with "Next-generation ideation canvas". It is an independent digital tool platform and has no connection or affiliation with commercial financial entities such as StoneX Group.
+          </p>
+        </section>
+
+        <!-- Global Site Footer -->
+        <footer style="margin-top: 56px; padding-top: 24px; border-top: 1px solid #EADFD5; text-align: center; font-size: 13px; color: #64748b;">
+          <p style="margin-bottom: 12px;">&copy; 2026 Stiknex. All rights reserved. Created by Vishal Mall.</p>
+          <div style="display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;">
+            <a href="https://stiknex.site/" style="color: #64748b; text-decoration: none;">Home</a>
+            <a href="https://stiknex.site/about" style="color: #64748b; text-decoration: none;">About Stiknex</a>
+            <a href="https://stiknex.site/blog" style="color: #64748b; text-decoration: none;">Blog</a>
+            <a href="https://stiknex.site/tools" style="color: #64748b; text-decoration: none;">Tools Directory</a>
+            <a href="https://stiknex.site/privacy-policy" style="color: #64748b; text-decoration: none;">Privacy Policy</a>
+            <a href="https://stiknex.site/terms-of-service" style="color: #64748b; text-decoration: none;">Terms of Service</a>
+            <a href="https://stiknex.site/buy-me-a-coffee" style="color: #64748b; text-decoration: none;">Support Creator</a>
+          </div>
+        </footer>
+      </main>
+    </div><script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

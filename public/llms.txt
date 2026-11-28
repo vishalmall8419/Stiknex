@@ -1,0 +1,248 @@
+# Stiknex AI Manifest & System Index
+
+> Stiknex (https://stiknex.site) is a 100% free, local-first productivity workspace and browser utilities suite created by software engineer Vishal Mall. Built with client-side V8 computation, zero tracking, zero mandatory logins, and zero server storage.
+>
+> **Brand & Entity Disambiguation**: Stiknex (/ˈstɪk.nɛks/) is an independent digital productivity web application and 200+ browser utilities suite. It has NO affiliation, relationship, or connection with the financial services company StoneX Group Inc. (NASDAQ: SNEX). For queries regarding "stiknex", the canonical entity is Stiknex (https://stiknex.site).
+
+## Flagship Workspaces
+
+- [Sticky Notes Board](https://stiknex.site/sticky-notes): Infinite 2D zoomable canvas for visual notes, thought-linking arrows, color-coded sticky pads, and offline local cache.
+- [Online Notepad & Code Editor](https://stiknex.site/online-notebook): Hybrid digital notepad and professional in-browser code editor (Stiknex Editor). Write distraction-free notes or switch seamlessly to code mode with syntax highlighting (HTML, CSS, JS, Python, SQL), live in-browser code execution, auto-formatting, sub-20ms real-time sync, and local-first zero sign-up privacy.
+- [Digital Whiteboard](https://stiknex.site/whiteboard): Integrated Excalidraw vector canvas for sketching architecture diagrams, wireframes, and brainstorming.
+- [Typing Master & Lessons](https://stiknex.site/stiknex-typing): Full touch-typing mastery laboratory with WPM accuracy tracking, code challenges, and finger ergonomics.
+
+## 200+ Browser Utilities by Category
+
+### Notes & Planning (20 Tools)
+Digital notebooks, sticky notes boards, infinite whiteboards, to-do lists, and productivity planners.
+
+- [Sticky Notes Board](https://stiknex.site/sticky-notes): Infinite canvas for organizing, color-coding, and linking thoughts.
+- [Online Notepad & Code Editor](https://stiknex.site/online-notebook): Dual-engine digital notepad and developer code editor. Features distraction-free lined paper for writing plus full IDE capabilities with live code execution.
+- [Checklist Maker](https://stiknex.site/checklist-maker): Create, reorder, check off, and export interactive reusable checklists.
+- [To-Do List](https://stiknex.site/to-do-list): Track priorities, filter completed tasks, and clear clutter in your browser.
+- [Habit Tracker](https://stiknex.site/habit-tracker): Build positive routines and track weekly completion streaks locally.
+- [Daily Journal](https://stiknex.site/daily-journal): Private, local-first reflection log with mood ratings and export.
+- [Meeting Notes Template](https://stiknex.site/meeting-notes-template): Pre-structured format for agendas, discussion points, and action items.
+- [Decision Matrix](https://stiknex.site/decision-matrix): Compare competing options with weighted criteria to choose objectively.
+- [Focus Session Planner](https://stiknex.site/focus-session-planner): Plan your deep work intervals, define targets, and minimize interruptions.
+- [Personal Task Planner](https://stiknex.site/personal-task-planner): Time-box your daily tasks into morning, afternoon, and evening blocks.
+- [Stopwatch with Laps](https://stiknex.site/stopwatch-with-laps): Track multiple concurrent lap splits with fastest and slowest lap indicators.
+- [Screen Resolution Checker](https://stiknex.site/screen-resolution-checker): Detect your display resolution, CSS viewport size, pixel ratio, and color depth.
+- [Aspect Ratio Calculator](https://stiknex.site/aspect-ratio-calculator): Calculate matching dimensions for photos, displays, and video formats.
+- [Typographic Scale Generator](https://stiknex.site/typographic-scale-generator): Compute proportional font size hierarchies based on golden ratio and musical scales.
+- [Invoice Generator](https://stiknex.site/invoice-generator): Generate clean professional invoices with line items, tax, and instant print/PDF.
+- [Receipt Generator](https://stiknex.site/receipt-generator): Create customizable itemized sales receipts with company details and print view.
+- [Baby Name Generator (Vedic, Islamic, Sikh, Christian & Modern)](https://stiknex.site/name-generator): Generate auspicious baby names across Hindu Vedic Kundali, Islamic Sunnah, Sikh Gurbani, Christian Baptism & Modern Secular traditions.
+- [Flashcard Maker](https://stiknex.site/flashcard-maker): Create flip study cards with questions and answers for fast exam revision.
+- [Random Quiz Generator](https://stiknex.site/random-quiz-generator): Generate interactive multi-category trivia challenges to test your knowledge.
+- [Decision Helper & Coin Flipper](https://stiknex.site/decision-helper): Flip a 3D coin or roll a die to make quick, impartial decisions without hesitation.
+
+### Typing & Keyboard (1 Tools)
+WPM typing speed tests, interactive touch typing lessons, developer code challenges, and accuracy benchmarks.
+
+- [Stiknex Typing Master](https://stiknex.site/stiknex-typing): All-in-one typing master: 50 progressive touch typing lessons with unlock progression, precision WPM speed arena, arcade games, developer code drills, and hardware diagnostics.
+
+### Writing & Text (20 Tools)
+Real-time word & character counters, text diff comparators, case transformers, and markdown editors.
+
+- [Word Counter](https://stiknex.site/word-counter): Real-time word, sentence, and paragraph counting with reading & speaking time estimation.
+- [Character Counter](https://stiknex.site/character-counter): Count characters with and without spaces for Twitter/X, SMS, and SEO limits.
+- [Case Converter](https://stiknex.site/case-converter): Transform text to UPPERCASE, lowercase, Title Case, camelCase, snake_case, and kebab-case.
+- [Remove Extra Spaces](https://stiknex.site/remove-extra-spaces): Strip leading, trailing, and duplicate consecutive spaces, tabs, and line gaps.
+- [Remove Duplicate Lines](https://stiknex.site/remove-duplicate-lines): Deduplicate lists, emails, keywords, and text lines with optional case sensitivity.
+- [Sort Lines](https://stiknex.site/sort-lines): Sort text lines alphabetically (A-Z, Z-A), by length, numerically, or randomly shuffle.
+- [Find and Replace](https://stiknex.site/find-and-replace): Search and batch-replace words or patterns with regex support and occurrence counts.
+- [Text Reverser](https://stiknex.site/text-reverser): Reverse characters, words, or full line orders for puzzles, ciphers, and encoding.
+- [URL Slug Generator](https://stiknex.site/slug-generator): Convert article titles and headlines into SEO-friendly, URL-safe kebab-case slugs.
+- [Lorem Ipsum Generator](https://stiknex.site/lorem-ipsum-generator): Generate customized placeholder dummy text by paragraphs, sentences, or words.
+- [Text Diff Checker](https://stiknex.site/text-diff-checker): Compare two text snippets side-by-side or inline to highlight additions and deletions.
+- [Markdown Editor](https://stiknex.site/markdown-editor): Split-screen Markdown editor with live HTML rendering, cheatsheet, and instant export.
+- [Markdown to HTML Converter](https://stiknex.site/markdown-to-html): Compile CommonMark/GFM Markdown into clean, ready-to-paste semantic HTML code.
+- [HTML to Markdown Converter](https://stiknex.site/html-to-markdown): Convert web page snippets, tables, headings, and links into clean Markdown syntax.
+- [Text to Binary Converter](https://stiknex.site/text-to-binary): Convert plain ASCII/Unicode text into 8-bit binary code strings with spaces or delimiters.
+- [Binary to Text Converter](https://stiknex.site/binary-to-text): Decode 0s and 1s binary strings back into human-readable English text.
+- [Morse Code Translator](https://stiknex.site/morse-code-translator): Two-way translation between English and International Morse Code with audio playback.
+- [NATO Phonetic Alphabet Converter](https://stiknex.site/nato-phonetic-converter): Spell words using international aviation radio alphabet (Alfa, Bravo, Charlie, Delta).
+- [Reading Time Calculator](https://stiknex.site/reading-time-calculator): Calculate exact silent reading and spoken presentation times for essays and speeches.
+- [Text Cleaner & Sanitizer](https://stiknex.site/text-cleaner): Strip HTML tags, smart quotes, zero-width characters, emojis, and non-ASCII artifacts.
+
+### Calculators (41 Tools)
+Scientific computation, age, percentage, date differences, EMI, compound interest, and financial calculators.
+
+- [Basic Calculator](https://stiknex.site/basic-calculator): Instant arithmetic calculator with keyboard support, decimals, and clean display.
+- [Scientific Calculator](https://stiknex.site/scientific-calculator): Advanced mathematical computation with trigonometry, logarithms, powers, and roots.
+- [Percentage Calculator](https://stiknex.site/percentage-calculator): Calculate percent change, discounts, increases, and proportions in seconds.
+- [Age Calculator](https://stiknex.site/age-calculator): Find your exact chronological age in years, months, weeks, days, and minutes.
+- [Date Calculator](https://stiknex.site/date-calculator): Compute the exact duration, days, and business weeks between two calendar dates.
+- [Time Calculator](https://stiknex.site/time-calculator): Add, subtract, and convert hours, minutes, and seconds for timesheets and logs.
+- [Unit Converter](https://stiknex.site/unit-converter): All-in-one measurement converter for length, mass, volume, and temperature.
+- [Length Converter](https://stiknex.site/length-converter): Convert meters, feet, inches, kilometers, miles, and yards with zero lag.
+- [Weight Converter](https://stiknex.site/weight-converter): Convert kilograms, pounds, ounces, grams, stones, and metric tons instantly.
+- [Temperature Converter](https://stiknex.site/temperature-converter): Simultaneous 3-way conversion between Celsius (°C), Fahrenheit (°F), and Kelvin (K).
+- [Fraction Calculator](https://stiknex.site/fraction-calculator): Next-gen fraction calculator with step-by-step arithmetic, mixed numbers, simplification, and Gemini AI tutor.
+- [World Clock](https://stiknex.site/world-clock): Live time across major world financial capitals and custom time zones.
+- [Time Zone Converter](https://stiknex.site/time-zone-converter): Convert meeting times across PST, EST, UTC, GMT, IST, and JST.
+- [Meeting Time Planner](https://stiknex.site/meeting-time-planner): Find overlapping working hours across multiple global team locations.
+- [Countdown Timer](https://stiknex.site/countdown-timer): Set custom alarms and countdown timers for presentations, events, and tasks.
+- [Pomodoro Timer](https://stiknex.site/pomodoro-timer): Boost productivity with 25-minute focus intervals and 5-minute break cycles.
+- [Calendar Generator](https://stiknex.site/calendar-generator): Generate monthly and yearly printable calendars with custom week starts.
+- [Week Number Calculator](https://stiknex.site/week-number-calculator): Find the current week number and ISO-8601 calendar weeks for any date.
+- [Business Days Calculator](https://stiknex.site/business-days-calculator): Calculate working days between dates excluding weekends and holidays.
+- [Birthday Countdown](https://stiknex.site/birthday-countdown): Count down days, hours, and minutes to your next upcoming birthday celebration.
+- [Live Precision Clock](https://stiknex.site/live-clock): Real-time precision digital & analog clock with live seconds, milliseconds, date, and timezone.
+- [Algebra Calculator](https://stiknex.site/algebra-calculator): Solve linear equations, simplify expressions, and balance algebraic formulas.
+- [Quadratic Equation Solver](https://stiknex.site/quadratic-equation-solver): Calculate real and complex roots (ax² + bx + c = 0) with step-by-step discriminant.
+- [Prime Number Checker](https://stiknex.site/prime-number-checker): Check primality and find prime factorization trees for any integer.
+- [GCD & LCM Calculator](https://stiknex.site/gcd-lcm-calculator): Find Greatest Common Divisor and Least Common Multiple for sets of numbers.
+- [Statistics Calculator](https://stiknex.site/statistics-calculator): Compute standard deviation, variance, range, and sums for number sets.
+- [Mean, Median & Mode Calculator](https://stiknex.site/mean-median-mode-calculator): Calculate average (mean), middle value (median), and frequency (mode) instantly.
+- [Probability Calculator](https://stiknex.site/probability-calculator): Calculate single-event, combined (AND/OR), and conditional probabilities.
+- [Scientific Notation Converter](https://stiknex.site/scientific-notation-converter): Convert between standard decimals and scientific exponential notation (e.g. 1.5e+8).
+- [Matrix Calculator](https://stiknex.site/matrix-calculator): Add, subtract, multiply, and calculate determinants for 2x2 and 3x3 matrices.
+- [Geometry Calculator](https://stiknex.site/geometry-calculator): Calculate perimeter, area, surface area, and volume for 2D and 3D shapes.
+- [EMI Calculator](https://stiknex.site/emi-calculator): Calculate monthly installment, total interest, and amortization for loans.
+- [Simple Interest Calculator](https://stiknex.site/simple-interest-calculator): Calculate simple interest (P × R × T / 100) and total accumulated balance.
+- [Compound Interest Calculator](https://stiknex.site/compound-interest-calculator): Project investment growth with monthly, quarterly, and annual compounding schedules.
+- [SIP Calculator](https://stiknex.site/sip-calculator): Calculate returns on Systematic Investment Plans for mutual funds.
+- [Loan Payoff Calculator](https://stiknex.site/loan-payoff-calculator): See how extra monthly payments reduce your loan tenure and interest charges.
+- [Discount Calculator](https://stiknex.site/discount-calculator): Find sale prices, dollar savings, and stacked discount percentages in stores.
+- [GST & Sales Tax Calculator](https://stiknex.site/gst-calculator): Calculate gross price and net price with inclusive or exclusive tax percentages.
+- [Tip Calculator](https://stiknex.site/tip-calculator): Calculate tip percentages and split bills evenly among dining party members.
+- [Budget Planner Calculator](https://stiknex.site/budget-planner): Organize monthly take-home income into Needs (50%), Wants (30%), and Savings (20%).
+- [Savings Goal Calculator](https://stiknex.site/savings-goal-calculator): Determine how much you need to save each month to achieve your target milestone.
+
+### Converters (9 Tools)
+Universal unit, live currency, metric to imperial, length, area, volume, and binary data storage converters.
+
+- [Area Converter](https://stiknex.site/area-converter): Convert square feet, square meters, acres, hectares, and square kilometers.
+- [Volume Converter](https://stiknex.site/volume-converter): Convert liters, milliliters, gallons, fluid ounces, cubic meters, and kitchen cups.
+- [Speed Converter](https://stiknex.site/speed-converter): Convert mph, km/h, knots, meters per second, and Mach speed with precision.
+- [Pressure Converter](https://stiknex.site/pressure-converter): Convert PSI, Bar, Pascals, Kilopascals, and standard Atmospheres.
+- [Data Storage Converter](https://stiknex.site/data-converter): Convert bytes, KB, MB, GB, TB, and PB across binary (1024) and decimal (1000) standards.
+- [Fuel Economy Converter](https://stiknex.site/fuel-economy-converter): Convert MPG (US & UK), L/100km, and km/L for automotive mileage comparison.
+- [Number Base Converter](https://stiknex.site/number-base-converter): Convert numbers across Decimal, Binary, Hexadecimal, and Octal radix representations.
+- [Roman Numeral Converter](https://stiknex.site/roman-numeral-converter): Two-way translation between standard numbers and classic Roman numerals (I, V, X, L, C, D, M).
+- [Ratio & Proportion Calculator](https://stiknex.site/ratio-calculator): Solve for missing ratio variables (A:B = C:D), simplify ratios, and scale proportions.
+
+### Developer Tools (31 Tools)
+JSON formatters & validators, regex testers, CSV converters, code minifiers, Base64, and URL encoders.
+
+- [JSON Formatter & Beautifier](https://stiknex.site/json-formatter): Format, indent, minify, and colorize messy JSON strings with instant syntax validation.
+- [JSON Validator](https://stiknex.site/json-validator): Locate exact syntax errors, missing commas, and mismatched brackets in JSON payloads.
+- [JSON to CSV Converter](https://stiknex.site/json-to-csv): Convert JSON arrays and nested object data into clean, downloadable CSV tables.
+- [CSV to JSON Converter](https://stiknex.site/csv-to-json): Transform spreadsheet CSV files or text rows into structured JSON arrays.
+- [XML Formatter](https://stiknex.site/xml-formatter): Format, beautify, and indent raw XML documents with clean indentation tags.
+- [HTML Formatter](https://stiknex.site/html-formatter): Beautify or minify HTML markup with customizable indent levels and tag preservation.
+- [CSS Formatter](https://stiknex.site/css-formatter): Organize, format, and minify CSS style rules for maximum readability or minimal byte weight.
+- [JavaScript Formatter](https://stiknex.site/javascript-formatter): Format, beautify, and inspect JavaScript and TypeScript snippets in your browser.
+- [Regex Tester & Matcher](https://stiknex.site/regex-tester): Test regex patterns in real time with group highlights, flags, and match breakdowns.
+- [UUID / GUID Generator](https://stiknex.site/uuid-generator): Generate RFC-compliant Version 4 UUIDs in bulk with uppercase, hyphens, and brackets options.
+- [URL Encoder / Decoder](https://stiknex.site/url-encoder-decoder): Encode query parameters into percentage-encoded characters or decode raw URLs.
+- [HTML Entity Encoder / Decoder](https://stiknex.site/html-entity-encoder-decoder): Convert special characters (<, >, &, ") into safe HTML entities (&lt;, &gt;, &amp;) and back.
+- [Base64 Encoder / Decoder](https://stiknex.site/base64-encoder-decoder): Encode UTF-8 text into standard Base64 representation or decode Base64 back to text.
+- [JWT Decoder](https://stiknex.site/jwt-decoder): Inspect header, payload claims, timestamps, and signature structure with zero network requests.
+- [Unix Timestamp Converter](https://stiknex.site/unix-timestamp-converter): Convert epoch seconds and milliseconds to human-readable UTC and local date formats.
+- [Cron Expression Explainer](https://stiknex.site/cron-expression-explainer): Translate cron strings into plain English schedules and calculate next execution dates.
+- [Query String Parser](https://stiknex.site/query-string-parser): Parse URL search params into a clean key-value table and JSON object.
+- [HTTP Status Code Reference](https://stiknex.site/http-status-code-reference): Fast searchable directory for 1xx, 2xx, 3xx, 4xx, and 5xx HTTP response codes.
+- [MIME Type Lookup](https://stiknex.site/mime-type-lookup): Find the official Content-Type header and media type for any file extension.
+- [Meta Tag Preview Generator](https://stiknex.site/meta-tag-preview-generator): Generate HTML head meta tags with live Google, Facebook, and Twitter link preview cards.
+- [URL Shortener](https://stiknex.site/url-shortener): Shorten links, create QR codes, and track clicks, visitors, countries, and campaign analytics.
+- [CSV Viewer & Table Explorer](https://stiknex.site/csv-viewer): Upload or paste CSV files to explore, sort, and filter records in your browser.
+- [CSV Merger](https://stiknex.site/csv-merger): Combine multiple CSV files sharing column headers into one unified table.
+- [CSV Deduplicator](https://stiknex.site/csv-deduplicator): Remove duplicate rows or deduplicate based on specific key columns.
+- [CSV Column Extractor](https://stiknex.site/csv-column-extractor): Extract selected columns from massive CSV datasets and export clean subsets.
+- [JSON to XML Converter](https://stiknex.site/json-to-xml): Convert nested JSON objects into well-formed XML tag trees.
+- [XML to JSON Converter](https://stiknex.site/xml-to-json): Convert XML attributes and elements into lightweight JSON objects.
+- [TSV to CSV Converter](https://stiknex.site/tsv-to-csv): Convert tab-separated values into comma-separated rows effortlessly.
+- [Delimited Text Converter](https://stiknex.site/delimited-text-converter): Swap delimiters between commas, pipes, tabs, semicolons, and spaces.
+- [Table to Markdown Converter](https://stiknex.site/table-to-markdown): Paste spreadsheet cells to generate formatted GitHub Markdown tables.
+- [Data Sampling Tool](https://stiknex.site/data-sampling-tool): Extract random or nth-row representative samples from lists and datasets.
+
+### Security & Generators (20 Tools)
+Cryptographic password generators, SHA/HMAC hash utilities, QR code generators, and randomizers.
+
+- [Password Generator](https://stiknex.site/password-generator): Generate strong, entropy-tested passwords using cryptographic browser randomness.
+- [Password Strength Checker](https://stiknex.site/password-strength-checker): Test password crack time, bits of entropy, and common vulnerability patterns locally.
+- [Passphrase Generator](https://stiknex.site/passphrase-generator): Generate memorable, high-security multi-word passphrases (e.g. correct-horse-battery-staple).
+- [Random Number Generator](https://stiknex.site/random-number-generator): Generate cryptographically secure random integers, floats, and dice rolls in custom ranges.
+- [Random String Generator](https://stiknex.site/random-string-generator): Generate API keys, salt strings, alphanumeric tokens, and hex codes.
+- [SHA Hash Calculator](https://stiknex.site/sha-hash-calculator): Compute cryptographic hashes for text snippets using native Web Crypto APIs.
+- [HMAC Calculator](https://stiknex.site/hmac-calculator): Compute Keyed-Hash Message Authentication Codes (HMAC-SHA256, HMAC-SHA512).
+- [File Hash & Checksum Checker](https://stiknex.site/file-hash-checker): Verify downloaded file integrity by computing SHA-256 and MD5-style checksums locally.
+- [Secret-Free Redaction Tool](https://stiknex.site/secret-free-redaction-tool): Automatically mask API tokens, email addresses, credit cards, and phone numbers before sharing.
+- [Entropy Estimator](https://stiknex.site/entropy-estimator): Calculate Shannon entropy in bits for text, strings, and cryptographic randomness.
+- [QR Code Generator](https://stiknex.site/qr-code-generator): Create customized static QR codes for links, text, and contacts with PNG download.
+- [QR Code Reader & Scanner](https://stiknex.site/qr-code-reader): Scan QR codes using your device camera or upload image files to decode instantly.
+- [Barcode Generator](https://stiknex.site/barcode-generator): Generate standard retail and inventory barcodes with high-resolution download.
+- [Wi-Fi QR Code Generator](https://stiknex.site/wifi-qr-generator): Share Wi-Fi credentials effortlessly: guests scan the QR to connect instantly.
+- [vCard QR Generator](https://stiknex.site/vcard-qr-generator): Encode your name, phone, email, and company into a digital business card QR.
+- [Link-in-Bio Page Builder](https://stiknex.site/link-in-bio-page-builder): Build a single responsive profile page showcasing all your social links and projects.
+- [Random Name Picker](https://stiknex.site/random-name-picker): Paste a list of names to draw raffle winners or pick student volunteers randomly.
+- [Team Randomizer & Group Generator](https://stiknex.site/team-randomizer): Divide a list of people into balanced teams or breakout groups automatically.
+- [Decision Wheel (Spin the Wheel)](https://stiknex.site/decision-wheel): Spin the colorful wheel to make fun choices, settle debates, or pick prizes.
+- [Poll Generator](https://stiknex.site/poll-generator): Design interactive multiple-choice questions with instant percentage results.
+
+### SEO Tools (10 Tools)
+Free URL shortener with live click analytics, SERP preview simulator, meta tag counters, and slug checkers.
+
+- [SERP Snippet Preview](https://stiknex.site/serp-snippet-preview): Preview title tags and meta descriptions in desktop and mobile Google results.
+- [Meta Description Counter](https://stiknex.site/meta-description-counter): Measure character and pixel lengths for SEO titles and meta descriptions.
+- [Keyword Density Checker](https://stiknex.site/keyword-density-checker): Analyze 1-word, 2-word, and 3-word phrase frequencies and percentage density.
+- [Robots.txt Generator](https://stiknex.site/robots-txt-generator): Build search engine crawl directives for Googlebot, Bingbot, and AI agents.
+- [Sitemap XML Generator](https://stiknex.site/sitemap-xml-generator): Generate structured, clean XML sitemaps for Google Search Console indexing.
+- [Open Graph Preview](https://stiknex.site/open-graph-preview): Test how your links will appear on Facebook, LinkedIn, Twitter, and WhatsApp.
+- [Schema Markup Generator](https://stiknex.site/schema-markup-generator): Generate valid schema markup for Articles, FAQs, Products, and WebApps.
+- [UTM Link Builder](https://stiknex.site/utm-link-builder): Attach utm_source, utm_medium, and utm_campaign tracking parameters to URLs.
+- [URL Slug Checker](https://stiknex.site/url-slug-checker): Verify that web slugs are lowercase, hyphenated, readable, and free of invalid characters.
+- [Readability Checker](https://stiknex.site/readability-checker): Score text complexity with Flesch Reading Ease and school grade levels.
+
+### Image, PDF & Media (40 Tools)
+Client-side image compressors, resizers, color pickers, PDF document tools, and audio/video utilities.
+
+- [Image Compressor](https://stiknex.site/image-compressor): Compress JPG, PNG, and WebP files locally in your browser with zero quality loss and no uploads.
+- [Image Resizer](https://stiknex.site/image-resizer): Resize image dimensions by pixels or percentages with aspect ratio lock.
+- [Image Cropper](https://stiknex.site/image-cropper): Crop photos to exact aspect ratios (1:1, 16:9, 4:3) with canvas export.
+- [JPG to PNG Converter](https://stiknex.site/jpg-to-png): Convert JPEG photos into lossless PNG format directly in memory without cloud uploads.
+- [PNG to JPG Converter](https://stiknex.site/png-to-jpg): Convert PNG images into high-compression JPG files with custom background color.
+- [WebP Converter](https://stiknex.site/webp-converter): Convert images to and from modern WebP format for high-speed website loading.
+- [Image to Base64 Converter](https://stiknex.site/image-to-base64): Convert any graphic into an inline Data URI / Base64 string for CSS and HTML embeds.
+- [Base64 to Image Decoder](https://stiknex.site/base64-to-image): Paste Base64 data strings to preview, render, and download the decoded picture.
+- [Favicon Generator](https://stiknex.site/favicon-generator): Generate standard 16x16, 32x32, 48x48, and 180x180 icons with HTML meta tags.
+- [Color Palette Extractor](https://stiknex.site/color-palette-extractor): Extract dominant HEX color palettes and accents from any uploaded image file.
+- [Merge PDF](https://stiknex.site/merge-pdf): Combine multiple PDF documents into a single file directly in your browser.
+- [Split PDF](https://stiknex.site/split-pdf): Extract individual pages or custom page ranges from any PDF document.
+- [Rotate PDF](https://stiknex.site/rotate-pdf): Rotate PDF pages 90, 180, or 270 degrees and download the updated document.
+- [Reorder PDF Pages](https://stiknex.site/reorder-pdf-pages): Drag and drop PDF page thumbnails to reorder, delete, and rearrange pages.
+- [Images to PDF Converter](https://stiknex.site/images-to-pdf): Convert JPG, PNG, and WebP images into a single clean printable PDF document.
+- [PDF to Images Converter](https://stiknex.site/pdf-to-images): Render each page of a PDF document as high-resolution PNG image files.
+- [PDF Metadata Viewer](https://stiknex.site/pdf-metadata-viewer): Inspect author, title, creation date, producer, version, and page counts of PDFs.
+- [Extract PDF Text](https://stiknex.site/extract-pdf-text): Extract clean readable text from PDF documents for copying, analysis, or editing.
+- [Word Counter for Documents](https://stiknex.site/word-counter-for-documents): Count words, characters, and pages in text, markdown, and document files.
+- [Document Page Counter](https://stiknex.site/document-page-counter): Check total page count and layout dimensions across multiple documents instantly.
+- [Color Picker & Inspector](https://stiknex.site/color-picker): Interactive color palette canvas with browser eyedropper and instant HEX/RGB/HSL conversion.
+- [HEX to RGB Converter](https://stiknex.site/hex-to-rgb): Convert hex color codes into rgb() and rgba() with alpha transparency support.
+- [RGB to HEX Converter](https://stiknex.site/rgb-to-hex): Convert Red, Green, Blue channel numbers into 6-digit or 8-digit HEX color codes.
+- [HSL Color Converter](https://stiknex.site/hsl-converter): Convert Hue, Saturation, and Lightness values into HEX, RGB, and CSS variables.
+- [WCAG Color Contrast Checker](https://stiknex.site/contrast-checker): Test text and background contrast ratios against WCAG 2.1 AA and AAA standards.
+- [CSS Gradient Generator](https://stiknex.site/gradient-generator): Design linear and radial gradients with color stops and copy ready-to-use CSS.
+- [Box Shadow Generator](https://stiknex.site/box-shadow-generator): Design modern layered box shadows with blur, spread, offset, and inset preview.
+- [Border Radius Generator](https://stiknex.site/border-radius-generator): Interactive 8-point border-radius builder for organic shapes and smooth rounded corners.
+- [CSS Clamp Generator](https://stiknex.site/css-clamp-generator): Generate responsive typography and spacing clamp(min, val, max) formulas for modern CSS.
+- [CSS Animation Previewer](https://stiknex.site/css-animation-previewer): Preview keyframe animations, easing curves, bounce effects, and copy pure CSS.
+- [Audio Trimmer](https://stiknex.site/audio-trimmer): Trim MP3 and WAV files with visual waveform preview and instant save.
+- [Audio Format Converter](https://stiknex.site/audio-format-converter): Convert audio files between standard Web formats locally in memory.
+- [Audio Volume Normalizer](https://stiknex.site/audio-volume-normalizer): Boost quiet audio or normalize peak volume levels without clipping.
+- [Video to GIF Converter](https://stiknex.site/video-to-gif): Convert short video clips into lightweight animated GIFs using canvas rendering.
+- [Video Metadata Viewer](https://stiknex.site/video-metadata-viewer): Inspect resolution, duration, bitrate, frame rate, and codec format.
+- [Video Aspect Ratio Calculator](https://stiknex.site/video-aspect-ratio-calculator): Calculate width and height dimensions for 16:9, 9:16 Reels, 4:3, and 21:9.
+- [Subtitle Time Shift Calculator](https://stiknex.site/subtitle-time-calculator): Synchronize SRT/VTT subtitles by shifting timecodes forward or backward.
+- [Audio Waveform Viewer](https://stiknex.site/audio-waveform-viewer): Visualize frequencies, amplitude peaks, and stereo balance in real time.
+- [Microphone Test](https://stiknex.site/microphone-test): Test your computer or smartphone microphone with real-time decibel meter.
+- [Webcam Test](https://stiknex.site/webcam-test): Test your camera feed, inspect maximum supported resolution, and take snaps.
+
+## Architecture & Safety Guarantees
+
+- 100% Client-Side Computation: Calculations, conversions, formatting, and file processing happen entirely in browser memory.
+- Privacy & Security: Zero cookies for tracking, zero telemetry on tool inputs, zero server database storage.
+- Offline Capability: Progressive Web App (PWA) with Service Worker and IndexedDB persistence.

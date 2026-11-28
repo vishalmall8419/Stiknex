@@ -1,0 +1,93 @@
+.menu {
+  position: fixed;
+  z-index: 10000;
+  min-width: 230px;
+  max-height: calc(100vh - 24px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15), 0 2px 6px rgba(0, 0, 0, 0.05);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  /* opacity starts 0; JS useLayoutEffect sets real position then sets opacity:1 */
+  transition: opacity 0.1s ease;
+}
+
+.darkMenu {
+  background: rgba(30, 30, 35, 0.97);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.45);
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: #1f2937;
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.darkMenu .item {
+  color: #f3f4f6;
+}
+
+.item:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.darkMenu .item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.item i {
+  font-size: 14px;
+  width: 16px;
+  text-align: center;
+  opacity: 0.85;
+}
+
+.shortcut {
+  margin-left: auto;
+  font-size: 11px;
+  color: #9ca3af;
+  font-weight: 400;
+}
+
+.divider {
+  height: 1px;
+  background: rgba(0, 0, 0, 0.08);
+  margin: 4px 6px;
+}
+
+.darkMenu .divider {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.sectionTitle {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 4px 10px 2px;
+  color: #64748b;
+}
+
+.darkMenu .sectionTitle {
+  color: #94a3b8;
+}

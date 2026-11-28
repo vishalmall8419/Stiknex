@@ -1,0 +1,256 @@
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
+import { VitePWA } from 'vite-plugin-pwa'
+import path from 'path'
+import fs from 'fs'
+import os from 'os'
+import dotenv from 'dotenv'
+
+dotenv.config();
+
+function getLanIPv4() {
+  const candidates = Object.values(os.networkInterfaces())
+    .flatMap((interfaces) => interfaces || [])
+    .filter((address) => {
+      if (address.internal || (address.family !== 'IPv4' && address.family !== 4)) return false;
+      const octets = address.address.split('.').map(Number);
+      return octets[0] === 10 ||
+        (octets[0] === 172 && octets[1] >= 16 && octets[1] <= 31) ||
+        (octets[0] === 192 && octets[1] === 168);
+    });
+
+  return candidates.find((address) => address.address.startsWith('192.168.'))?.address ||
+    candidates[0]?.address ||
+    '';
+}
+
+function localApiPlugin() {
+  return {
+    name: 'local-api-handler',
+    configureServer(server) {
+      server.middlewares.use(async (req, res, next) => {
+        // Intercept /s/:code short redirects in local Vite dev server
+        if (req.url.startsWith('/s/')) {
+          const code = req.url.split('/')[2]?.split('?')[0];
+          req.url = `/api/analytics?action=redirect&code=${code}`;
+        }
+
+        if (!req.url.startsWith('/api/')) return next();
+
+        const urlObj = new URL(req.url, 'http://localhost:5173');
+        let scriptName = urlObj.pathname.replace(/^\/api\//, '').split('/')[0];
+        const extraQuery = {};
+
+        // Mirror vercel.json rewrites for local dev
+        if (scriptName === 'admin-blogs') { scriptName = 'blogs'; extraQuery.admin = 'true'; }
+        else if (scriptName === 'dashboard-trends') { scriptName = 'trends'; extraQuery.view = 'dashboard'; }
+        else if (scriptName === 'trends-admin') { scriptName = 'trends'; extraQuery.view = 'admin'; }
+        else if (scriptName === 'latest-keywords') { scriptName = 'trends'; extraQuery.view = 'keywords'; }
+        else if (scriptName === 'external-services' || scriptName === 'monitor-external') { scriptName = 'seo-stats'; extraQuery.action = 'monitor-external'; }
+        else if (scriptName === 'create-order') { scriptName = 'supporters'; extraQuery.action = 'create-order'; }
+        else if (scriptName === 'verify-payment') { scriptName = 'supporters'; extraQuery.action = 'verify-payment'; }
+        else if (scriptName === 'notebook-pair') {
+          const parts = urlObj.pathname.split('/');
+          const subAction = parts[3] || '';
+          scriptName = 'auth';
+          extraQuery.action = `notebook-pair-${subAction}`;
+        }
+        else if (scriptName === 'notebook-sync') {
+          const parts = urlObj.pathname.split('/');
+          const subAction = parts[3] || '';
+          scriptName = 'auth';
+          extraQuery.action = subAction ? `notebook-sync-${subAction}` : 'notebook-sync-push';
+        }
+        else if (scriptName === 'google-calendar') {
+          const parts = urlObj.pathname.split('/');
+          const subAction = parts[3] || '';
+          const nestedAction = parts[4] || '';
+          scriptName = 'auth';
+          if (subAction === 'events' && nestedAction === 'create') {
+            extraQuery.action = 'google-calendar-events-create';
+          } else if (subAction === 'timeline') {
+            extraQuery.action = 'google-calendar-timeline';
+          } else {
+            extraQuery.action = `google-calendar-${subAction}`;
+          }
+        }
+        else if (scriptName === 'shortener') {
+          const parts = urlObj.pathname.split('/');
+          const subAction = parts[3] || '';
+          scriptName = 'analytics';
+          extraQuery.action = `shortener-${subAction}`;
+        }
+        else if (scriptName === 'sync') {
+          scriptName = 'auth';
+          extraQuery.action = 'sync';
+        }
+
+        const filePath = path.resolve(process.cwd(), 'api', `${scriptName}.js`);
+
+        if (fs.existsSync(filePath)) {
+          try {
+            const executeHandler = async (parsedBody) => {
+              req.body = parsedBody || {};
+              req.query = { ...Object.fromEntries(urlObj.searchParams), ...extraQuery };
+
+              if (!res.status) {
+                res.status = (code) => { res.statusCode = code; return res; };
+              }
+              if (!res.json) {
+                res.json = (data) => {
+                  res.setHeader('Content-Type', 'application/json');
+                  res.end(JSON.stringify(data));
+                  return res;
+                };
+              }
+
+              const mod = await import(`file://${filePath}?t=${Date.now()}`);
+              const handler = mod.default || mod;
+              await handler(req, res);
+            };
+
+            if (req.method === 'GET' || req.method === 'HEAD') {
+              await executeHandler({});
+              return;
+            }
+
+            let body = '';
+            req.on('data', chunk => { body += chunk; });
+            req.on('end', async () => {
+              let parsed = {};
+              try { parsed = body ? JSON.parse(body) : {}; } catch { parsed = body; }
+              await executeHandler(parsed);
+            });
+            return;
+          } catch (err) {
+            console.error('Local API execution error:', err);
+            res.statusCode = 500;
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({ error: err.message }));
+            return;
+          }
+        }
+        next();
+      });
+    }
+  }
+}
+
+export default defineConfig(({ command }) => {
+  if (command === 'serve') {
+    const lanHost = getLanIPv4();
+    if (lanHost) process.env.VITE_DEV_LAN_HOST = lanHost;
+  }
+
+  return {
+    plugins: [
+      react(),
+      tailwindcss(),
+      localApiPlugin(),
+      VitePWA({
+        registerType: 'autoUpdate',
+        injectRegister: 'auto',
+        includeAssets: ['Stiknex.png', 'favicon.ico', 'robots.txt'],
+        manifest: {
+          name: 'Stiknex - Free Sticky Notes, Online Notebook & Productivity Tools',
+          short_name: 'Stiknex',
+          description: 'A free, fast, and privacy-friendly digital workspace for sticky notes, distraction-free writing, and everyday productivity tools.',
+          theme_color: '#4F5CFF',
+          background_color: '#ffffff',
+          display: 'standalone',
+          orientation: 'portrait-primary',
+          start_url: '/',
+          id: '/',
+          scope: '/',
+          icons: [
+            {
+              src: '/Stiknex.png',
+              sizes: '192x192',
+              type: 'image/png',
+              purpose: 'any maskable'
+            },
+            {
+              src: '/Stiknex.png',
+              sizes: '512x512',
+              type: 'image/png',
+              purpose: 'any maskable'
+            }
+          ]
+        },
+        workbox: {
+          globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2,ttf,json}'],
+          maximumFileSizeToCacheInBytes: 5000000,
+          navigateFallback: '/index.html',
+          navigateFallbackDenylist: [/^\/api\//, /^\/s\//, /^\/[^/]+\.[^/]+$/],
+          runtimeCaching: [
+            {
+              urlPattern: /^https:\/\/fonts\.(?:googleapis|gstatic)\.com\/.*/i,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'google-fonts-cache',
+                expiration: {
+                  maxEntries: 30,
+                  maxAgeSeconds: 60 * 60 * 24 * 365
+                },
+                cacheableResponse: {
+                  statuses: [0, 200]
+                }
+              }
+            },
+            {
+              urlPattern: /^https:\/\/cdnjs\.cloudflare\.com\/.*/i,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'cdn-assets-cache',
+                expiration: {
+                  maxEntries: 20,
+                  maxAgeSeconds: 60 * 60 * 24 * 30
+                },
+                cacheableResponse: {
+                  statuses: [0, 200]
+                }
+              }
+            }
+          ]
+        }
+      })
+    ],
+    ...(command === 'serve'
+      ? {
+          server: {
+            host: true,
+          },
+        }
+      : {}),
+  build: {
+    target: 'es2022',
+    cssCodeSplit: true,
+    modulePreload: { polyfill: true },
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            const clean = id.replace(/\\/g, '/');
+            if (
+              clean.includes('/node_modules/react/') ||
+              clean.includes('/node_modules/react-dom/') ||
+              clean.includes('/node_modules/react-router/') ||
+              clean.includes('/node_modules/react-router-dom/') ||
+              clean.includes('/node_modules/scheduler/')
+            ) {
+              return 'vendor-core';
+            }
+            if (clean.includes('/node_modules/framer-motion/')) {
+              return 'vendor-motion';
+            }
+            if (clean.includes('/node_modules/lucide-react/')) {
+              return 'vendor-icons';
+            }
+          }
+        }
+      }
+    }
+  }
+  };
+})

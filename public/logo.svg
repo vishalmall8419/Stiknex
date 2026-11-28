@@ -1,0 +1,38 @@
+<svg viewBox="0 0 210 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="stiknexSigGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F3944" />
+      <stop offset="50%" stop-color="#134E5E" />
+      <stop offset="100%" stop-color="#FFA07A" />
+    </linearGradient>
+    <linearGradient id="flourishGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#134E5E" stop-opacity="0.2" />
+      <stop offset="60%" stop-color="#FFA07A" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#FFA07A" stop-opacity="0" />
+    </linearGradient>
+  </defs>
+
+  <g stroke="url(#stiknexSigGrad)" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Flourished 'S' -->
+    <path d="M 18 34 C 13 36, 6 34, 6 27 C 6 18, 19 15, 23 9 C 26 4, 21 2, 17 3 C 12 4, 9 8, 9 12" stroke-width="3.2" />
+    <!-- S to t link -->
+    <path d="M 17 34 C 23 34, 30 25, 33 16 L 33 34" stroke-width="3" />
+    <!-- t-crossbar -->
+    <path d="M 27 22 Q 35 21, 41 20" stroke-width="2.6" />
+    <!-- i -->
+    <path d="M 43 23 L 45 34 C 46 35, 48 35, 51 33" stroke-width="3" />
+    <circle cx="45" cy="14" r="2.2" fill="#FFA07A" stroke="none" />
+    <!-- k -->
+    <path d="M 57 11 L 56 34 M 68 22 L 59 28 L 68 35" stroke-width="3" />
+    <!-- n -->
+    <path d="M 76 24 L 75 34 M 76 26 C 79 22, 85 22, 88 26 L 87 34" stroke-width="2.8" />
+    <!-- e -->
+    <path d="M 94 29 C 94 24, 103 23, 103 27 C 103 33, 95 35, 105 34" stroke-width="2.8" />
+    <!-- x -->
+    <path d="M 112 24 L 124 34 M 123 24 L 112 34" stroke-width="3" />
+  </g>
+
+  <!-- Signature Underline Flourish -->
+  <path d="M 14 44 C 45 42, 95 40, 150 37 C 175 35, 195 34, 205 31" stroke="url(#flourishGrad)" stroke-width="3" stroke-linecap="round" />
+  <circle cx="132" cy="33" r="2" fill="#FFA07A" />
+</svg>

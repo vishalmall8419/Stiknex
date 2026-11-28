@@ -1,0 +1,66 @@
+# ==========================================
+# STIKNEX ROBOTS.TXT
+# Production: https://stiknex.site
+# ==========================================
+
+User-agent: *
+Allow: /
+Allow: /sitemap.xml
+Allow: /robots.txt
+Allow: /sitemap
+Allow: /tools
+Allow: /tools/
+Allow: /blog
+Allow: /blog/
+Allow: /assets/
+Allow: /Stiknex.png
+Allow: /logo.svg
+Allow: /logo.png
+Allow: /manifest.json
+Allow: /manifest.webmanifest
+Allow: /llms.txt
+Allow: /llms-full.txt
+Allow: /ai-catalog.json
+
+# Explicit AI Agent & Web Crawler Ingestion (GEO / AEO Discovery)
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+Allow: /ai-catalog.json
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+Allow: /ai-catalog.json
+
+User-agent: PerplexityBot
+Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+Allow: /ai-catalog.json
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+# Prevent search crawling of internal APIs and admin interfaces
+Disallow: /api/
+Disallow: /dashboard/
+Disallow: /stiknex-secure-login-portal
+Disallow: /setup-2fa-admin
+
+# Sitemap Location
+Sitemap: https://stiknex.site/sitemap.xml

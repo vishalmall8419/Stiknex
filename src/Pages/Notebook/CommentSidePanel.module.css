@@ -1,0 +1,362 @@
+.panel {
+  position: fixed;
+  top: 60px;
+  right: 0;
+  bottom: 0;
+  width: 320px;
+  max-width: 90vw;
+  background: #ffffff;
+  border-left: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: -8px 0 25px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  z-index: 9998;
+  animation: slideInRight 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.darkPanel {
+  background: #1c1c22;
+  border-left-color: rgba(255, 255, 255, 0.1);
+  box-shadow: -8px 0 30px rgba(0, 0, 0, 0.45);
+  color: #f3f4f6;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.darkPanel .header {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+.headerTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.closeBtn {
+  background: transparent;
+  border: none;
+  font-size: 15px;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+.closeBtn:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: #334155;
+}
+
+.darkPanel .closeBtn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.filterTabs {
+  display: flex;
+  padding: 8px 12px;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.02);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.darkPanel .filterTabs {
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+.filterBtn {
+  flex: 1;
+  padding: 5px 8px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.darkPanel .filterBtn {
+  color: #94a3b8;
+}
+
+.activeFilter {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #6366f1;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.darkPanel .activeFilter {
+  background: #2b2b35;
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #818cf8;
+}
+
+.addCommentBox {
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.darkPanel .addCommentBox {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+.selectedSnippet {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 11px;
+  color: #b45309;
+  background: #fef3c7;
+  padding: 6px 10px;
+  border-radius: 6px;
+  line-height: 1.4;
+  font-style: italic;
+}
+
+.darkPanel .selectedSnippet {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fcd34d;
+}
+
+.noSelectionTip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #94a3b8;
+  padding: 4px 6px;
+}
+
+.input {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: #fafafa;
+  color: #1e293b;
+  font-size: 13px;
+  font-family: inherit;
+  resize: none;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.darkPanel .input {
+  background: #25252e;
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #f1f5f9;
+}
+
+.input:focus {
+  border-color: #6366f1;
+}
+
+.addBtnRow {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.submitBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: none;
+  background: #6366f1;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.submitBtn:hover:not(:disabled) {
+  background: #4f46e5;
+}
+
+.submitBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.commentsList {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 16px;
+  color: #94a3b8;
+  gap: 6px;
+}
+
+.emptyState i {
+  font-size: 32px;
+  margin-bottom: 6px;
+  opacity: 0.6;
+}
+
+.emptyState p {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+  color: #64748b;
+}
+
+.darkPanel .emptyState p {
+  color: #cbd5e1;
+}
+
+.emptyState span {
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.commentCard {
+  background: #f8fafc;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 10px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.darkPanel .commentCard {
+  background: #24242d;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.commentCard:hover {
+  border-color: #c7d2fe;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.08);
+}
+
+.darkPanel .commentCard:hover {
+  border-color: #6366f1;
+}
+
+.resolvedCard {
+  opacity: 0.65;
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.darkPanel .resolvedCard {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.cardSnippet {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #b45309;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.darkPanel .cardSnippet {
+  color: #fcd34d;
+}
+
+.cardText {
+  font-size: 13px;
+  line-height: 1.4;
+  margin: 0;
+  color: #1e293b;
+}
+
+.darkPanel .cardText {
+  color: #f1f5f9;
+}
+
+.cardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.cardActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.actionBtn {
+  background: transparent;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  color: #64748b;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.12s ease;
+}
+
+.darkPanel .actionBtn {
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #94a3b8;
+}
+
+.actionBtn:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.activeResolve {
+  color: #16a34a !important;
+  border-color: #86efac !important;
+  background: rgba(34, 197, 94, 0.1) !important;
+}
+
+.deleteBtn:hover {
+  color: #ef4444;
+  border-color: #fca5a5;
+  background: rgba(239, 68, 68, 0.08);
+}
+

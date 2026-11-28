@@ -1,0 +1,241 @@
+.monacoContainer {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  flex: 1;
+  background-color: var(--nb-paper-bg, #ffffff);
+  border-radius: 0;
+  box-shadow: none;
+  overflow: hidden;
+  border: none;
+  position: relative;
+}
+
+.darkContainer {
+  background-color: #1e1e1e !important;
+  border-color: #334155 !important;
+}
+
+.fullscreenContainer {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 999999 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+}
+
+.monacoHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background-color: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  gap: 12px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.darkHeader {
+  background-color: #252526;
+  border-bottom-color: #333333;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background-color: #0284c7;
+  color: #ffffff;
+}
+
+.languageSelect {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  background-color: #ffffff;
+  color: #1e293b;
+  cursor: pointer;
+  outline: none;
+}
+
+.darkSelect {
+  background-color: #333333;
+  color: #f1f5f9;
+  border-color: #475569;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.actionBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid #cbd5e1;
+  background-color: #ffffff;
+  color: #334155;
+  transition: all 0.15s ease;
+}
+
+.actionBtn:hover {
+  background-color: #f1f5f9;
+}
+
+.runBtn {
+  background-color: #10b981;
+  color: #ffffff;
+  border-color: #059669;
+}
+
+.runBtn:hover {
+  background-color: #059669;
+}
+
+.fullscreenBtn {
+  background-color: #f8fafc;
+  color: #475569;
+  border-color: #cbd5e1;
+}
+
+.fullscreenBtnActive {
+  background-color: #0284c7;
+  color: #ffffff;
+  border-color: #0284c7;
+}
+
+.switchBtn {
+  background-color: #f8fafc;
+  color: #475569;
+  border-color: #cbd5e1;
+}
+
+.switchBtn:hover {
+  background-color: #e2e8f0;
+  color: #0f172a;
+}
+
+.darkActionBtn {
+  background-color: #2d2d2d;
+  color: #e2e8f0;
+  border-color: #3e3e42;
+}
+
+.darkActionBtn:hover {
+  background-color: #3e3e42;
+}
+
+.editorArea {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.loadingSkeleton {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  min-height: 300px;
+  color: #64748b;
+  font-size: 14px;
+  gap: 12px;
+}
+
+/* ==========================================================================
+   Mobile Responsive Rules (<= 640px)
+   Replaces text labels with sleek, touch-friendly icon buttons so that all
+   controls fit neatly on a single horizontal row on smartphone screens.
+   ========================================================================== */
+@media (max-width: 640px) {
+  .monacoHeader {
+    padding: 6px 10px;
+    gap: 6px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .monacoHeader::-webkit-scrollbar {
+    display: none;
+  }
+
+  .headerLeft {
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .badge {
+    padding: 6px 8px;
+    font-size: 12px;
+    min-width: 32px;
+    justify-content: center;
+  }
+
+  .badgeText {
+    display: none;
+  }
+
+  .languageSelect {
+    font-size: 11px;
+    padding: 4px 6px;
+    max-width: 78px;
+    height: 30px;
+  }
+
+  .headerRight {
+    gap: 5px;
+    flex-shrink: 0;
+  }
+
+  .actionBtn {
+    padding: 6px 9px;
+    font-size: 12px;
+    min-width: 32px;
+    height: 30px;
+    justify-content: center;
+  }
+
+  .btnText {
+    display: none;
+  }
+
+  .upArrow {
+    display: none;
+  }
+}

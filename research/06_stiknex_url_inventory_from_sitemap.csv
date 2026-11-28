@@ -1,0 +1,213 @@
+url,slug,category,verification,in_static_site_directory_nav,possible_overlap_group
+https://stiknex.site/,(home),Site pages,fetched: head metadata + H1 + 26-link directory,True,
+https://stiknex.site/url-shortener,url-shortener,SEO tools,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/sticky-notes,sticky-notes,Core notes/whiteboard,listed in sitemap.xml only; not individually fetched,True,Notes overlap
+https://stiknex.site/online-notebook,online-notebook,Core notes/whiteboard,fetched,True,Notes overlap
+https://stiknex.site/word-counter,word-counter,Text tools,listed in sitemap.xml only; not individually fetched,True,Word/char count overlap
+https://stiknex.site/character-counter,character-counter,Text tools,listed in sitemap.xml only; not individually fetched,True,Word/char count overlap
+https://stiknex.site/reading-time-calculator,reading-time-calculator,Text tools,listed in sitemap.xml only; not individually fetched,True,Word/char count overlap
+https://stiknex.site/simple-calculator,simple-calculator,Calculators (math/finance/date),listed in sitemap.xml only; not individually fetched,True,Calculator duplicates
+https://stiknex.site/scientific-calculator,scientific-calculator,Calculators (math/finance/date),listed in sitemap.xml only; not individually fetched,True,
+https://stiknex.site/date-calculator,date-calculator,Calculators (math/finance/date),listed in sitemap.xml only; not individually fetched,True,Date calc overlap
+https://stiknex.site/currency-converter,currency-converter,Unit/format converters,listed in sitemap.xml only; not individually fetched,True,
+https://stiknex.site/unit-converter,unit-converter,Unit/format converters,listed in sitemap.xml only; not individually fetched,True,Converter hub vs spokes
+https://stiknex.site/length-converter,length-converter,Unit/format converters,listed in sitemap.xml only; not individually fetched,True,Converter hub vs spokes
+https://stiknex.site/area-converter,area-converter,Unit/format converters,listed in sitemap.xml only; not individually fetched,True,Converter hub vs spokes
+https://stiknex.site/volume-converter,volume-converter,Unit/format converters,listed in sitemap.xml only; not individually fetched,True,Converter hub vs spokes
+https://stiknex.site/weight-converter,weight-converter,Unit/format converters,listed in sitemap.xml only; not individually fetched,True,Converter hub vs spokes
+https://stiknex.site/temperature-converter,temperature-converter,Unit/format converters,listed in sitemap.xml only; not individually fetched,True,Converter hub vs spokes
+https://stiknex.site/speed-converter,speed-converter,Unit/format converters,listed in sitemap.xml only; not individually fetched,True,Converter hub vs spokes
+https://stiknex.site/pressure-converter,pressure-converter,Unit/format converters,listed in sitemap.xml only; not individually fetched,True,Converter hub vs spokes
+https://stiknex.site/power-converter,power-converter,Unit/format converters,listed in sitemap.xml only; not individually fetched,True,Converter hub vs spokes
+https://stiknex.site/qr-code-generator,qr-code-generator,Security/generators,listed in sitemap.xml only; not individually fetched,True,QR overlap
+https://stiknex.site/password-generator,password-generator,Security/generators,listed in sitemap.xml only; not individually fetched,True,Password overlap
+https://stiknex.site/color-picker,color-picker,Productivity/time,listed in sitemap.xml only; not individually fetched,True,Hex/RGB/HSL overlap
+https://stiknex.site/tools,tools,Site pages,fetched,True,
+https://stiknex.site/blog,blog,Site pages,fetched,True,
+https://stiknex.site/about,about,Site pages,listed in sitemap.xml only; not individually fetched,True,
+https://stiknex.site/whiteboard,whiteboard,Core notes/whiteboard,listed in sitemap.xml only; not individually fetched,True,
+https://stiknex.site/buy-me-a-coffee,buy-me-a-coffee,Site pages,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/typing-lab,typing-lab,Typing & keyboard,listed in sitemap.xml only; not individually fetched,False,Typing intent overlap
+https://stiknex.site/basic-calculator,basic-calculator,Calculators (math/finance/date),listed in sitemap.xml only; not individually fetched,False,Calculator duplicates
+https://stiknex.site/percentage-calculator,percentage-calculator,Calculators (math/finance/date),listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/age-calculator,age-calculator,Calculators (math/finance/date),listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/date-difference-calculator,date-difference-calculator,Calculators (math/finance/date),listed in sitemap.xml only; not individually fetched,False,Date calc overlap
+https://stiknex.site/time-calculator,time-calculator,Calculators (math/finance/date),listed in sitemap.xml only; not individually fetched,False,Date calc overlap
+https://stiknex.site/data-converter,data-converter,Unit/format converters,fetched,False,Converter hub vs spokes
+https://stiknex.site/fuel-economy-converter,fuel-economy-converter,Unit/format converters,listed in sitemap.xml only; not individually fetched,False,Converter hub vs spokes
+https://stiknex.site/number-base-converter,number-base-converter,Unit/format converters,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/roman-numeral-converter,roman-numeral-converter,Unit/format converters,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/fraction-calculator,fraction-calculator,Calculators (math/finance/date),listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/ratio-calculator,ratio-calculator,Calculators (math/finance/date),listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/case-converter,case-converter,Text tools,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/remove-extra-spaces,remove-extra-spaces,Text tools,listed in sitemap.xml only; not individually fetched,False,Text cleanup overlap
+https://stiknex.site/remove-duplicate-lines,remove-duplicate-lines,Text tools,listed in sitemap.xml only; not individually fetched,False,Text cleanup overlap
+https://stiknex.site/sort-lines,sort-lines,Text tools,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/find-and-replace,find-and-replace,Text tools,listed in sitemap.xml only; not individually fetched,False,Text cleanup overlap
+https://stiknex.site/text-reverser,text-reverser,Text tools,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/slug-generator,slug-generator,Text tools,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/lorem-ipsum-generator,lorem-ipsum-generator,Text tools,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/text-diff-checker,text-diff-checker,Text tools,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/markdown-editor,markdown-editor,Text tools,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/markdown-to-html,markdown-to-html,Text tools,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/html-to-markdown,html-to-markdown,Text tools,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/text-to-binary,text-to-binary,Text tools,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/binary-to-text,binary-to-text,Text tools,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/morse-code-translator,morse-code-translator,Text tools,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/nato-phonetic-converter,nato-phonetic-converter,Text tools,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/text-cleaner,text-cleaner,Text tools,listed in sitemap.xml only; not individually fetched,False,Text cleanup overlap
+https://stiknex.site/image-compressor,image-compressor,Image/PDF/media,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/image-resizer,image-resizer,Image/PDF/media,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/image-cropper,image-cropper,Image/PDF/media,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/jpg-to-png,jpg-to-png,Image/PDF/media,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/png-to-jpg,png-to-jpg,Image/PDF/media,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/webp-converter,webp-converter,Unit/format converters,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/image-to-base64,image-to-base64,Image/PDF/media,listed in sitemap.xml only; not individually fetched,False,Base64 overlap
+https://stiknex.site/base64-to-image,base64-to-image,Image/PDF/media,listed in sitemap.xml only; not individually fetched,False,Base64 overlap
+https://stiknex.site/favicon-generator,favicon-generator,Image/PDF/media,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/color-palette-extractor,color-palette-extractor,Image/PDF/media,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/merge-pdf,merge-pdf,Image/PDF/media,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/split-pdf,split-pdf,Image/PDF/media,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/rotate-pdf,rotate-pdf,Image/PDF/media,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/reorder-pdf-pages,reorder-pdf-pages,Image/PDF/media,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/images-to-pdf,images-to-pdf,Image/PDF/media,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/pdf-to-images,pdf-to-images,Image/PDF/media,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/pdf-metadata-viewer,pdf-metadata-viewer,Image/PDF/media,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/extract-pdf-text,extract-pdf-text,Image/PDF/media,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/word-counter-for-documents,word-counter-for-documents,Text tools,listed in sitemap.xml only; not individually fetched,False,Word/char count overlap
+https://stiknex.site/document-page-counter,document-page-counter,Text tools,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/json-formatter,json-formatter,Developer tools,fetched,False,JSON overlap
+https://stiknex.site/json-validator,json-validator,Developer tools,listed in sitemap.xml only; not individually fetched,False,JSON overlap
+https://stiknex.site/json-to-csv,json-to-csv,Developer tools,listed in sitemap.xml only; not individually fetched,False,Format converters overlap
+https://stiknex.site/csv-to-json,csv-to-json,Developer tools,listed in sitemap.xml only; not individually fetched,False,Format converters overlap
+https://stiknex.site/xml-formatter,xml-formatter,Developer tools,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/html-formatter,html-formatter,Developer tools,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/css-formatter,css-formatter,Developer tools,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/javascript-formatter,javascript-formatter,Developer tools,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/regex-tester,regex-tester,Developer tools,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/uuid-generator,uuid-generator,Developer tools,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/url-encoder-decoder,url-encoder-decoder,Developer tools,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/html-entity-encoder-decoder,html-entity-encoder-decoder,Developer tools,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/base64-encoder-decoder,base64-encoder-decoder,Developer tools,listed in sitemap.xml only; not individually fetched,False,Base64 overlap
+https://stiknex.site/jwt-decoder,jwt-decoder,Developer tools,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/unix-timestamp-converter,unix-timestamp-converter,Unit/format converters,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/cron-expression-explainer,cron-expression-explainer,Developer tools,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/query-string-parser,query-string-parser,Developer tools,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/http-status-code-reference,http-status-code-reference,Developer tools,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/mime-type-lookup,mime-type-lookup,Developer tools,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/meta-tag-preview-generator,meta-tag-preview-generator,SEO tools,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/password-strength-checker,password-strength-checker,Security/generators,listed in sitemap.xml only; not individually fetched,False,Password overlap
+https://stiknex.site/passphrase-generator,passphrase-generator,Security/generators,listed in sitemap.xml only; not individually fetched,False,Password overlap
+https://stiknex.site/random-number-generator,random-number-generator,Security/generators,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/random-string-generator,random-string-generator,Security/generators,listed in sitemap.xml only; not individually fetched,False,Password overlap
+https://stiknex.site/sha-hash-calculator,sha-hash-calculator,Calculators (math/finance/date),listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/hmac-calculator,hmac-calculator,Calculators (math/finance/date),listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/file-hash-checker,file-hash-checker,Developer tools,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/secret-free-redaction-tool,secret-free-redaction-tool,Security/generators,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/entropy-estimator,entropy-estimator,Security/generators,listed in sitemap.xml only; not individually fetched,False,Password overlap
+https://stiknex.site/hex-to-rgb,hex-to-rgb,Unit/format converters,listed in sitemap.xml only; not individually fetched,False,Hex/RGB/HSL overlap
+https://stiknex.site/rgb-to-hex,rgb-to-hex,Unit/format converters,listed in sitemap.xml only; not individually fetched,False,Hex/RGB/HSL overlap
+https://stiknex.site/hsl-converter,hsl-converter,Unit/format converters,listed in sitemap.xml only; not individually fetched,False,Hex/RGB/HSL overlap
+https://stiknex.site/contrast-checker,contrast-checker,Productivity/time,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/gradient-generator,gradient-generator,Productivity/time,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/box-shadow-generator,box-shadow-generator,Developer tools,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/border-radius-generator,border-radius-generator,Productivity/time,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/css-clamp-generator,css-clamp-generator,Developer tools,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/css-animation-previewer,css-animation-previewer,Developer tools,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/world-clock,world-clock,Productivity/time,listed in sitemap.xml only; not individually fetched,False,Time zone overlap
+https://stiknex.site/time-zone-converter,time-zone-converter,Unit/format converters,listed in sitemap.xml only; not individually fetched,False,Time zone overlap
+https://stiknex.site/meeting-time-planner,meeting-time-planner,Productivity/time,listed in sitemap.xml only; not individually fetched,False,Time zone overlap
+https://stiknex.site/countdown-timer,countdown-timer,Productivity/time,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/stopwatch,stopwatch,Productivity/time,listed in sitemap.xml only; not individually fetched,False,Stopwatch overlap
+https://stiknex.site/pomodoro-timer,pomodoro-timer,Productivity/time,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/calendar-generator,calendar-generator,Productivity/time,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/week-number-calculator,week-number-calculator,Calculators (math/finance/date),listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/business-days-calculator,business-days-calculator,Calculators (math/finance/date),listed in sitemap.xml only; not individually fetched,False,Date calc overlap
+https://stiknex.site/birthday-countdown,birthday-countdown,Calculators (math/finance/date),listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/algebra-calculator,algebra-calculator,Calculators (math/finance/date),listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/quadratic-equation-solver,quadratic-equation-solver,Calculators (math/finance/date),listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/prime-number-checker,prime-number-checker,Calculators (math/finance/date),listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/gcd-lcm-calculator,gcd-lcm-calculator,Calculators (math/finance/date),listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/statistics-calculator,statistics-calculator,Calculators (math/finance/date),listed in sitemap.xml only; not individually fetched,False,Stats overlap
+https://stiknex.site/mean-median-mode-calculator,mean-median-mode-calculator,Calculators (math/finance/date),listed in sitemap.xml only; not individually fetched,False,Stats overlap
+https://stiknex.site/probability-calculator,probability-calculator,Calculators (math/finance/date),listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/scientific-notation-converter,scientific-notation-converter,Unit/format converters,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/matrix-calculator,matrix-calculator,Calculators (math/finance/date),listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/geometry-calculator,geometry-calculator,Calculators (math/finance/date),listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/emi-calculator,emi-calculator,Calculators (math/finance/date),listed in sitemap.xml only; not individually fetched,False,Interest calcs overlap
+https://stiknex.site/simple-interest-calculator,simple-interest-calculator,Calculators (math/finance/date),listed in sitemap.xml only; not individually fetched,False,Interest calcs overlap
+https://stiknex.site/compound-interest-calculator,compound-interest-calculator,Calculators (math/finance/date),listed in sitemap.xml only; not individually fetched,False,Interest calcs overlap
+https://stiknex.site/sip-calculator,sip-calculator,Calculators (math/finance/date),listed in sitemap.xml only; not individually fetched,False,Interest calcs overlap
+https://stiknex.site/loan-payoff-calculator,loan-payoff-calculator,Calculators (math/finance/date),listed in sitemap.xml only; not individually fetched,False,Interest calcs overlap
+https://stiknex.site/discount-calculator,discount-calculator,Calculators (math/finance/date),listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/gst-calculator,gst-calculator,Calculators (math/finance/date),listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/tip-calculator,tip-calculator,Calculators (math/finance/date),listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/budget-planner,budget-planner,Calculators (math/finance/date),listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/savings-goal-calculator,savings-goal-calculator,Calculators (math/finance/date),listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/typing-speed-test,typing-speed-test,Typing & keyboard,listed in sitemap.xml only; not individually fetched,False,Typing intent overlap
+https://stiknex.site/typing-practice-lessons,typing-practice-lessons,Typing & keyboard,listed in sitemap.xml only; not individually fetched,False,Typing intent overlap
+https://stiknex.site/typing-accuracy-test,typing-accuracy-test,Typing & keyboard,listed in sitemap.xml only; not individually fetched,False,Typing intent overlap
+https://stiknex.site/falling-words-game,falling-words-game,Typing & keyboard,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/word-rush-game,word-rush-game,Typing & keyboard,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/code-typing-challenge,code-typing-challenge,Typing & keyboard,listed in sitemap.xml only; not individually fetched,False,Typing intent overlap
+https://stiknex.site/keyboard-shortcut-finder,keyboard-shortcut-finder,Typing & keyboard,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/keyboard-key-tester,keyboard-key-tester,Typing & keyboard,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/typing-error-analyzer,typing-error-analyzer,Typing & keyboard,listed in sitemap.xml only; not individually fetched,False,Typing intent overlap
+https://stiknex.site/daily-typing-challenge,daily-typing-challenge,Typing & keyboard,listed in sitemap.xml only; not individually fetched,False,Typing intent overlap
+https://stiknex.site/checklist-maker,checklist-maker,Productivity/time,listed in sitemap.xml only; not individually fetched,False,Task tools overlap
+https://stiknex.site/to-do-list,to-do-list,Productivity/time,listed in sitemap.xml only; not individually fetched,False,Task tools overlap
+https://stiknex.site/habit-tracker,habit-tracker,Productivity/time,listed in sitemap.xml only; not individually fetched,False,Task tools overlap
+https://stiknex.site/daily-journal,daily-journal,Productivity/time,listed in sitemap.xml only; not individually fetched,False,Notes overlap
+https://stiknex.site/meeting-notes-template,meeting-notes-template,Productivity/time,listed in sitemap.xml only; not individually fetched,False,Notes overlap
+https://stiknex.site/decision-matrix,decision-matrix,Calculators (math/finance/date),listed in sitemap.xml only; not individually fetched,False,Decision tools overlap
+https://stiknex.site/focus-session-planner,focus-session-planner,Productivity/time,listed in sitemap.xml only; not individually fetched,False,Task tools overlap
+https://stiknex.site/personal-task-planner,personal-task-planner,Productivity/time,listed in sitemap.xml only; not individually fetched,False,Task tools overlap
+https://stiknex.site/serp-snippet-preview,serp-snippet-preview,SEO tools,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/meta-description-counter,meta-description-counter,SEO tools,listed in sitemap.xml only; not individually fetched,False,Word/char count overlap
+https://stiknex.site/keyword-density-checker,keyword-density-checker,SEO tools,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/robots-txt-generator,robots-txt-generator,SEO tools,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/sitemap-xml-generator,sitemap-xml-generator,Developer tools,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/open-graph-preview,open-graph-preview,SEO tools,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/schema-markup-generator,schema-markup-generator,Developer tools,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/utm-link-builder,utm-link-builder,SEO tools,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/url-slug-checker,url-slug-checker,Text tools,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/readability-checker,readability-checker,Text tools,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/csv-viewer,csv-viewer,Developer tools,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/csv-merger,csv-merger,Developer tools,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/csv-deduplicator,csv-deduplicator,Developer tools,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/csv-column-extractor,csv-column-extractor,Developer tools,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/json-to-xml,json-to-xml,Developer tools,listed in sitemap.xml only; not individually fetched,False,Format converters overlap
+https://stiknex.site/xml-to-json,xml-to-json,Developer tools,listed in sitemap.xml only; not individually fetched,False,Format converters overlap
+https://stiknex.site/tsv-to-csv,tsv-to-csv,Developer tools,listed in sitemap.xml only; not individually fetched,False,Format converters overlap
+https://stiknex.site/delimited-text-converter,delimited-text-converter,Text tools,listed in sitemap.xml only; not individually fetched,False,Format converters overlap
+https://stiknex.site/table-to-markdown,table-to-markdown,Text tools,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/data-sampling-tool,data-sampling-tool,Developer tools,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/audio-trimmer,audio-trimmer,Image/PDF/media,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/audio-format-converter,audio-format-converter,Unit/format converters,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/audio-volume-normalizer,audio-volume-normalizer,Unit/format converters,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/video-to-gif,video-to-gif,Image/PDF/media,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/video-metadata-viewer,video-metadata-viewer,Image/PDF/media,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/video-aspect-ratio-calculator,video-aspect-ratio-calculator,Calculators (math/finance/date),listed in sitemap.xml only; not individually fetched,False,Aspect ratio overlap
+https://stiknex.site/subtitle-time-calculator,subtitle-time-calculator,Calculators (math/finance/date),listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/audio-waveform-viewer,audio-waveform-viewer,Image/PDF/media,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/microphone-test,microphone-test,Image/PDF/media,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/webcam-test,webcam-test,Image/PDF/media,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/qr-code-reader,qr-code-reader,Security/generators,listed in sitemap.xml only; not individually fetched,False,QR overlap
+https://stiknex.site/barcode-generator,barcode-generator,Security/generators,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/wifi-qr-generator,wifi-qr-generator,Security/generators,listed in sitemap.xml only; not individually fetched,False,QR overlap
+https://stiknex.site/vcard-qr-generator,vcard-qr-generator,Security/generators,listed in sitemap.xml only; not individually fetched,False,QR overlap
+https://stiknex.site/link-in-bio-page-builder,link-in-bio-page-builder,Productivity/time,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/random-name-picker,random-name-picker,Security/generators,listed in sitemap.xml only; not individually fetched,False,Decision tools overlap
+https://stiknex.site/team-randomizer,team-randomizer,Productivity/time,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/decision-wheel,decision-wheel,Productivity/time,listed in sitemap.xml only; not individually fetched,False,Decision tools overlap
+https://stiknex.site/poll-generator,poll-generator,Productivity/time,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/stopwatch-with-laps,stopwatch-with-laps,Productivity/time,listed in sitemap.xml only; not individually fetched,False,Stopwatch overlap
+https://stiknex.site/screen-resolution-checker,screen-resolution-checker,Productivity/time,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/aspect-ratio-calculator,aspect-ratio-calculator,Calculators (math/finance/date),listed in sitemap.xml only; not individually fetched,False,Aspect ratio overlap
+https://stiknex.site/typographic-scale-generator,typographic-scale-generator,Productivity/time,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/invoice-generator,invoice-generator,Productivity/time,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/receipt-generator,receipt-generator,Productivity/time,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/name-generator,name-generator,Text tools,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/flashcard-maker,flashcard-maker,Productivity/time,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/random-quiz-generator,random-quiz-generator,Security/generators,listed in sitemap.xml only; not individually fetched,False,
+https://stiknex.site/decision-helper,decision-helper,Productivity/time,listed in sitemap.xml only; not individually fetched,False,Decision tools overlap

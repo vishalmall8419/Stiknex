@@ -1,0 +1,220 @@
+{
+  "redirects": [
+    {
+      "source": "/tools/dataconverter",
+      "destination": "https://stiknex.site/data-converter",
+      "permanent": true
+    },
+    {
+      "source": "/dataconverter",
+      "destination": "https://stiknex.site/data-converter",
+      "permanent": true
+    },
+    {
+      "source": "/notes",
+      "destination": "https://stiknex.site/sticky-notes",
+      "permanent": true
+    },
+    {
+      "source": "/notebook",
+      "destination": "https://stiknex.site/online-notebook",
+      "permanent": true
+    },
+    {
+      "source": "/tools/:tool",
+      "destination": "https://stiknex.site/:tool",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.stiknex.site"
+        }
+      ],
+      "destination": "https://stiknex.site/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "stiknex.vercel.app"
+        }
+      ],
+      "destination": "https://stiknex.site/:path*",
+      "permanent": true
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/s/:code",
+      "destination": "/api/analytics?action=redirect&code=:code"
+    },
+    {
+      "source": "/api/shortener/:subAction",
+      "destination": "/api/analytics?action=shortener-$1"
+    },
+    {
+      "source": "/api/sync",
+      "destination": "/api/auth?action=sync"
+    },
+    {
+      "source": "/api/notebook-sync",
+      "destination": "/api/auth?action=notebook-sync-push"
+    },
+    {
+      "source": "/api/notebook-sync/pull",
+      "destination": "/api/auth?action=notebook-sync-pull"
+    },
+    {
+      "source": "/api/notebook-sync/revoke",
+      "destination": "/api/auth?action=notebook-sync-revoke-device"
+    },
+    {
+      "source": "/api/notebook-pair/:subAction",
+      "destination": "/api/auth?action=notebook-pair-$1"
+    },
+    {
+      "source": "/api/auth/login",
+      "destination": "/api/auth?action=login"
+    },
+    {
+      "source": "/api/auth/setup-2fa",
+      "destination": "/api/auth?action=setup-2fa"
+    },
+    {
+      "source": "/api/user/register",
+      "destination": "/api/auth?action=user-register"
+    },
+    {
+      "source": "/api/user/login",
+      "destination": "/api/auth?action=user-login"
+    },
+    {
+      "source": "/api/user/me",
+      "destination": "/api/auth?action=user-me"
+    },
+    {
+      "source": "/api/user/dashboard",
+      "destination": "/api/auth?action=user-dashboard"
+    },
+    {
+      "source": "/api/typing/score",
+      "destination": "/api/auth?action=save-typing-score"
+    },
+    {
+      "source": "/api/typing/leaderboard",
+      "destination": "/api/auth?action=typing-leaderboard"
+    },
+    {
+      "source": "/api/math/solve",
+      "destination": "/api/auth?action=ai-math-solve"
+    },
+    {
+      "source": "/api/fraction/solve",
+      "destination": "/api/auth?action=ai-fraction-solve"
+    },
+    {
+      "source": "/api/google-calendar/connect",
+      "destination": "/api/auth?action=google-calendar-connect"
+    },
+    {
+      "source": "/api/google-calendar/callback",
+      "destination": "/api/auth?action=google-calendar-callback"
+    },
+    {
+      "source": "/api/google-calendar/events",
+      "destination": "/api/auth?action=google-calendar-events"
+    },
+    {
+      "source": "/api/google-calendar/events/create",
+      "destination": "/api/auth?action=google-calendar-events-create"
+    },
+    {
+      "source": "/api/google-calendar/timeline",
+      "destination": "/api/auth?action=google-calendar-timeline"
+    },
+    {
+      "source": "/api/admin-blogs",
+      "destination": "/api/blogs?admin=true"
+    },
+    {
+      "source": "/api/dashboard-trends",
+      "destination": "/api/trends?view=dashboard"
+    },
+    {
+      "source": "/api/trends-admin",
+      "destination": "/api/trends?view=admin"
+    },
+    {
+      "source": "/api/latest-keywords",
+      "destination": "/api/trends?view=keywords"
+    },
+    {
+      "source": "/api/external-services",
+      "destination": "/api/seo-stats?action=monitor-external"
+    },
+    {
+      "source": "/api/monitor-external",
+      "destination": "/api/seo-stats?action=monitor-external"
+    },
+    {
+      "source": "/api/create-order",
+      "destination": "/api/supporters?action=create-order"
+    },
+    {
+      "source": "/api/verify-payment",
+      "destination": "/api/supporters?action=verify-payment"
+    },
+    {
+      "source": "/sitemap.xml",
+      "destination": "/api/sitemap.xml"
+    },
+    {
+      "source": "/blog/:slug",
+      "destination": "/api/render-page?slug=$1&type=blog"
+    },
+    {
+      "source": "/((?!api/)(?!.*\\.).*)",
+      "destination": "/api/render-page?path=$1"
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/fetch-trends",
+      "schedule": "0 7 * * *"
+    },
+    {
+      "path": "/api/generate-blog",
+      "schedule": "30 7 * * *"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/(.*\\.(?:png|jpg|jpeg|gif|webp|svg|ico|woff2|woff|ttf))",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=2592000, stale-while-revalidate=86400"
+        }
+      ]
+    }
+  ],
+  "functions": {
+    "api/**/*.js": {
+      "maxDuration": 15
+    }
+  }
+}
