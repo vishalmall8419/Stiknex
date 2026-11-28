@@ -218,12 +218,12 @@ const WorkspaceSeoSection = ({ content }) => {
               <CheckCircle2 className="w-3 h-3" />
               Free Browser Tool
             </span>
-            <h1
+            <h2
               id={headingId}
               className="text-lg sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white"
             >
               {content.heading}
-            </h1>
+            </h2>
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <button

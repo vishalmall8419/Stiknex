@@ -12,11 +12,14 @@ import fs from 'fs';
 import path from 'path';
 
 function replaceRootHtml(templateHtml, newRoot) {
+    if (templateHtml.includes('id="stiknex-root-end"')) {
+        return templateHtml.replace(/<div id="root">[\s\S]*?<span id="stiknex-root-end" hidden(?:="")?><\/span>/, () => newRoot);
+    }
     if (templateHtml.includes('<!-- stiknex-root-end -->')) {
         return templateHtml.replace(/<div id="root">[\s\S]*?<\/div><!-- stiknex-root-end -->/, () => newRoot);
     }
-    if (/<div id="root">[\s\S]*?<\/div>\s*<script type="module"/.test(templateHtml)) {
-        return templateHtml.replace(/<div id="root">[\s\S]*?<\/div>\s*<script type="module"/, () => `${newRoot}\n    <script type="module"`);
+    if (/<div id="root">[\s\S]*<\/div>(?=\s*<(?:script|link|\/body))/.test(templateHtml)) {
+        return templateHtml.replace(/<div id="root">[\s\S]*<\/div>(?=\s*<(?:script|link|\/body))/, () => newRoot);
     }
     return templateHtml.replace(/<div id="root">[\s\S]*?<\/div>/, () => newRoot);
 }
