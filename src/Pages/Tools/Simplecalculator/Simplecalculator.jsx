@@ -552,7 +552,7 @@ export default function SimpleCalculator({ tool, seoData }) {
   };
 
   return (
-    <div className="fixed inset-0 lg:relative lg:inset-auto w-full h-[100dvh] lg:min-h-screen pb-20 md:pb-0 flex flex-col justify-between overflow-y-auto no-scrollbar select-none font-sans bg-gradient-to-b from-[#EBF2F9] via-[#E2EDF7] to-[#D6E5F2] dark:from-[#0E141D] dark:via-[#0A0E15] dark:to-[#070A0E] text-slate-800 dark:text-slate-100 transition-colors duration-300">
+    <div className="fixed inset-0 lg:relative lg:inset-auto w-full h-[100dvh] lg:min-h-screen pb-14 md:pb-0 flex flex-col justify-between overflow-y-auto no-scrollbar select-none font-sans bg-gradient-to-b from-[#EBF2F9] via-[#E2EDF7] to-[#D6E5F2] dark:from-[#0E141D] dark:via-[#0A0E15] dark:to-[#070A0E] text-slate-800 dark:text-slate-100 transition-colors duration-300">
 
       {/* ─── DESKTOP FULL-SCREEN WORKSTATION (>= lg) ─── */}
       {isDesktop ? (
@@ -667,7 +667,7 @@ export default function SimpleCalculator({ tool, seoData }) {
                   </div>
 
                   {/* Expression Tape */}
-                  <div className="flex-1 flex flex-col justify-end text-right overflow-y-auto no-scrollbar py-2 my-auto">
+                  <div className="flex-1 min-h-[26px] flex flex-col justify-end text-right overflow-y-auto no-scrollbar py-0.5">
                     <div className="text-xl sm:text-2xl font-mono font-medium text-slate-500 dark:text-slate-400 tracking-wider break-all leading-relaxed text-right select-text">
                       {expr || (lastCalculated !== null ? String(lastCalculated) : " ")}
                     </div>
@@ -914,7 +914,7 @@ export default function SimpleCalculator({ tool, seoData }) {
       ) : (
         /* ─── MOBILE VIEW (< lg): HANDHELD CHASSIS ─── */
         <main className="w-full flex-1 h-full flex flex-col justify-between p-0 overflow-y-auto no-scrollbar min-h-0">
-          <div className="w-full max-w-md h-full flex flex-col justify-between px-3.5 sm:px-5 pt-2 pb-2 sm:pb-3 mx-auto relative transition-all">
+          <div className="w-full max-w-md h-full flex flex-col justify-between px-3.5 sm:px-5 pt-2 pb-1 sm:pb-2 mx-auto relative transition-all">
 
             {/* ─── Top Bar: Menu Button, Title Badge, History & Theme Toggle ─── */}
             <div className="shrink-0 flex items-center justify-between pt-1 pb-2 sm:pb-3 px-1 border-b border-black/5 dark:border-white/5">
@@ -979,7 +979,7 @@ export default function SimpleCalculator({ tool, seoData }) {
             </div>
 
             {/* ─── Screen Display Area (All space allocated here between Copy and Result, UI never shakes) ─── */}
-            <div className="flex-1 flex flex-col justify-between text-right px-2 py-1.5 sm:py-2 min-h-[84px] overflow-hidden">
+            <div className="flex-1 flex flex-col justify-between text-right px-2 py-0.5 min-h-[80px] overflow-hidden">
               {/* Top Row: Copy Button & 16-digit Badge */}
               <div className="shrink-0 flex items-center justify-between pb-1">
                 <button
@@ -1002,16 +1002,16 @@ export default function SimpleCalculator({ tool, seoData }) {
               </div>
 
               {/* Middle Expression Tape: Fills all the vertical space where typing happens! Keypad stays still! */}
-              <div className="flex-1 flex flex-col justify-end text-right overflow-y-auto no-scrollbar py-2 my-auto">
-                <div className="text-lg sm:text-xl font-medium text-slate-500 dark:text-slate-400 tracking-wider break-all leading-relaxed text-right select-text font-mono">
+              <div className="flex-1 min-h-[20px] flex flex-col justify-end text-right overflow-y-auto no-scrollbar py-0">
+                <div className="text-base sm:text-lg font-medium text-slate-500 dark:text-slate-400 tracking-wider break-all leading-snug text-right select-text font-mono">
                   {expr || (lastCalculated !== null ? String(lastCalculated) : " ")}
                 </div>
               </div>
 
               {/* Large Bold Result Display (= 12,454) right above the keypad */}
               <div className="shrink-0 text-right py-1 overflow-x-auto no-scrollbar">
-                <div className="text-4xl sm:text-5xl font-black text-slate-900 dark:text-white tracking-tight break-all select-all font-mono inline-flex items-baseline justify-end flex-wrap">
-                  <span className="text-slate-400 dark:text-slate-500 font-light mr-1.5 text-3xl sm:text-4xl">=</span>
+                <div className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight whitespace-nowrap select-all font-mono inline-flex items-baseline justify-end">
+                  <span className="text-slate-400 dark:text-slate-500 font-light mr-1.5 text-2xl sm:text-3xl">=</span>
                   <span>{formattedResult}</span>
                 </div>
               </div>
