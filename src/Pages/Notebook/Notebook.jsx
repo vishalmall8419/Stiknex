@@ -1,5 +1,5 @@
 import { uploadImageToCloud } from '../../utils/imageUpload';
-import { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback, lazy, Suspense } from "react";
 import { useLocation } from "react-router-dom";
 import swal from "sweetalert";
 import gsap from "gsap";
@@ -27,7 +27,7 @@ import { useAppContext } from "../../context/AppContext";
 import { emitRealtimeNotebookChange } from "../../services/socketService";
 import { initNotebookYjs } from "../../services/notebookYjsSync";
 import { useSyncedNote } from "../../hooks/useSyncedNote";
-import MonacoCodeEditor from "./MonacoCodeEditor";
+const MonacoCodeEditor = lazy(() => import("./MonacoCodeEditor"));
 import NotebookSyncModal from "./NotebookSyncModal";
 import TranslationModal from "./TranslationModal";
 import CommentSidePanel from "./CommentSidePanel";
@@ -2624,15 +2624,19 @@ const Notebook = () => {
             isMonacoActive ? Style.monacoVisible : Style.monacoScrolledUp
           }`}
         >
-          <MonacoCodeEditor
-            value={monacoCode}
-            onChange={handleMonacoChange}
-            darkMode={darkMode}
-            onRunCode={handleRunCode}
-            onSwitchToRichText={handleSwitchToRichText}
-            fontSize={typeof settings.fontSize === "number" ? settings.fontSize : 14}
-            readOnly={readMode}
-          />
+          {isMonacoActive && (
+            <Suspense fallback={null}>
+              <MonacoCodeEditor
+                value={monacoCode}
+                onChange={handleMonacoChange}
+                darkMode={darkMode}
+                onRunCode={handleRunCode}
+                onSwitchToRichText={handleSwitchToRichText}
+                fontSize={typeof settings.fontSize === "number" ? settings.fontSize : 14}
+                readOnly={readMode}
+              />
+            </Suspense>
+          )}
         </div>
 
         {/* Paper Column: Always kept in DOM so notes are never lost */}

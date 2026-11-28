@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { ChevronDown, CheckCircle2, WifiOff, Zap, ShieldCheck, Cloud } from "lucide-react";
 
 const FEATURE_ICONS = [WifiOff, Zap, ShieldCheck, Cloud];
@@ -43,7 +44,53 @@ const WorkspaceSeoSection = ({ content, onScrollTop }) => {
           </p>
         </header>
 
+        {/* Answer-First AEO/GEO Section */}
+        {content.answerFirst && (
+          <div className="max-w-3xl space-y-4">
+            {content.answerHeading && (
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+                {content.answerHeading}
+              </h2>
+            )}
+            {content.answerFirst.split(/\n\n+/).map((para, i) => (
+              <p key={i} className="text-sm sm:text-base leading-relaxed text-slate-600 dark:text-slate-300">
+                {para}
+              </p>
+            ))}
+          </div>
+        )}
+
+        {/* Common Conversions Table (Converters Only) */}
+        {content.conversionTable && (
+          <div>
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">
+              {content.conversionTable.caption}
+            </h2>
+            <div className="overflow-x-auto rounded-2xl bg-white dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800">
+              <table className="w-full text-left text-sm">
+                <thead className="border-b border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-semibold">
+                  <tr>
+                    {content.conversionTable.columns.map((col) => (
+                      <th key={col} className="px-4 py-3">{col}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200 dark:divide-slate-800 text-slate-600 dark:text-slate-300">
+                  {content.conversionTable.rows.map((row, rIdx) => (
+                    <tr key={rIdx}>
+                      {row.map((cell, cIdx) => (
+                        <td key={cIdx} className="px-4 py-2.5">{cell}</td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
         {/* Key Features Grid */}
+        {content.features && content.features.length > 0 && (
         <div>
           <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-5">
             Key Features
@@ -74,8 +121,10 @@ const WorkspaceSeoSection = ({ content, onScrollTop }) => {
             })}
           </div>
         </div>
+        )}
 
         {/* How It Works */}
+        {content.steps && content.steps.length > 0 && (
         <div>
           <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-5">
             How It Works
@@ -99,6 +148,7 @@ const WorkspaceSeoSection = ({ content, onScrollTop }) => {
             ))}
           </div>
         </div>
+        )}
 
         {/* FAQ Accordion */}
         <div>
@@ -135,6 +185,26 @@ const WorkspaceSeoSection = ({ content, onScrollTop }) => {
             })}
           </div>
         </div>
+
+        {/* Related Tools */}
+        {content.relatedTools && content.relatedTools.length > 0 && (
+          <div>
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">
+              Related Tools
+            </h2>
+            <div className="flex flex-wrap gap-3">
+              {content.relatedTools.map((rt) => (
+                <Link
+                  key={rt.path}
+                  to={rt.path}
+                  className="px-4 py-2 rounded-xl bg-white dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800 text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-800 transition-colors"
+                >
+                  {rt.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );

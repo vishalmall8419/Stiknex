@@ -1,4 +1,5 @@
 import { ALL_TOOLS } from "../data/toolsRegistry.js";
+import { SCOPED_SEO_CONTENT } from "../data/scopedSeoContent.js";
 
 // Centralized SEO Configuration for Stiknex
 // Supports Phase 2, Phase 3, Phase 4, Phase 6, Phase 10, Phase 12
@@ -1558,6 +1559,14 @@ ALL_TOOLS.forEach((t) => {
     }
   }
 });
+
+// Apply unique AEO/GEO FAQs & related tools for the 15 scoped routes only
+for (const [route, content] of Object.entries(SCOPED_SEO_CONTENT)) {
+  if (seoConfig[route]) {
+    seoConfig[route].faqs = content.faqs;
+    seoConfig[route].relatedTools = content.relatedTools.map(r => r.path);
+  }
+}
 
 // Aliases for legacy and sub-path links
 export const seoAliases = {

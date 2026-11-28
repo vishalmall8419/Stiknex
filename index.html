@@ -65,11 +65,19 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     
-    <!-- Primary UI Font: Inter (fast, instant display swap) -->
+    <!-- Primary UI Font: Inter (non-blocking load with display=swap) -->
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
+      media="print"
+      onload="this.media = 'all'"
     />
+    <noscript>
+      <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+      />
+    </noscript>
     
     <!-- Non-Blocking Secondary Fonts for Sticky Notes Custom Styling -->
     <link
