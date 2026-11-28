@@ -1,8 +1,14 @@
 import { useEffect } from "react";
 import { SITE_URL } from "../../utils/seoConfig";
+import {
+  buildOrganizationSchema,
+  buildPersonSchema,
+  buildWebSiteSchema,
+  LOGO_URL,
+  SITE_NAME,
+} from "../../utils/entitySchema";
 
-const SITE_NAME = "Stiknex";
-const DEFAULT_IMAGE = `${SITE_URL}/Stiknex.png`;
+const DEFAULT_IMAGE = LOGO_URL;
 
 const setMetaByName = (name, content) => {
   if (!content) return;
@@ -141,12 +147,12 @@ const PageSEO = ({ title, description, path = "/", canonicalPath, image, noIndex
     if (type === "article") {
       mainSchema = {
         "@context": "https://schema.org",
-        "@type": "Article",
+        "@type": "BlogPosting",
         headline: title,
         image: ogImage,
         datePublished: datePublished || new Date().toISOString(),
-        author: { "@type": "Organization", name: SITE_NAME },
-        publisher: { "@type": "Organization", name: SITE_NAME, logo: { "@type": "ImageObject", url: DEFAULT_IMAGE } },
+        author: buildPersonSchema(),
+        publisher: buildOrganizationSchema(),
         description: description
       };
     } else if (type === "webapp") {
@@ -162,17 +168,7 @@ const PageSEO = ({ title, description, path = "/", canonicalPath, image, noIndex
         offers: { "@type": "Offer", price: "0", priceCurrency: "USD" }
       };
     } else {
-      mainSchema = {
-        "@context": "https://schema.org",
-        "@type": "WebSite",
-        name: SITE_NAME,
-        url: SITE_URL,
-        potentialAction: {
-          "@type": "SearchAction",
-          target: `${SITE_URL}/search?q={search_term_string}`,
-          "query-input": "required name=search_term_string"
-        }
-      };
+      mainSchema = buildWebSiteSchema(description);
     }
     setJsonLd("page-main-schema", mainSchema);
 

@@ -58,6 +58,7 @@ import ToolHelpAccordion from "./components/ToolHelpAccordion";
 import DesktopOnlyToolGuard from "./components/DesktopOnlyToolGuard";
 import { TIER_1_BESPOKE } from "../../data/bespokeToolsData";
 import WorkspaceSeoSection from "../../Component/SEO/WorkspaceSeoSection";
+import RelatedToolsBlock from "../../Component/SEO/RelatedToolsBlock";
 import { SCOPED_SEO_CONTENT } from "../../data/scopedSeoContent";
 
 
@@ -439,6 +440,7 @@ const Tools = ({ directSlug = null }) => {
               {renderToolEngine(activeToolData)}
             </Suspense>
           </div>
+          <RelatedToolsBlock currentPath={location.pathname === "/unit-converter" ? "/unit-converter" : `/${activeToolData.slug}`} />
           {(SCOPED_SEO_CONTENT[location.pathname] || SCOPED_SEO_CONTENT[`/${activeToolData.slug}`]) && (
             <WorkspaceSeoSection
               content={{

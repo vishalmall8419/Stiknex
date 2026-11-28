@@ -6,6 +6,7 @@ import AppShell from "../../Component/Layout/AppShell";
 import { useAppContext } from "../../context/AppContext";
 import PageSEO from "../../Component/SEO/PageSEO";
 import WorkspaceSeoSection from "../../Component/SEO/WorkspaceSeoSection";
+import RelatedToolsBlock from "../../Component/SEO/RelatedToolsBlock";
 import { STICKY_NOTES_SEO_CONTENT } from "../../data/workspaceSeoContent";
 import { preloadRoute } from "../../utils/routePreloader";
 import Draggable from "react-draggable";
@@ -2056,6 +2057,7 @@ const Home = () => {
         </div>
       )}
       <NotebookSyncModal isOpen={syncModalOpen} onClose={closeSyncModal} darkMode={darkMode} />
+      <RelatedToolsBlock currentPath="/sticky-notes" />
       <WorkspaceSeoSection
         content={STICKY_NOTES_SEO_CONTENT}
         onScrollTop={() => window.scrollTo({ top: 0, behavior: "smooth" })}

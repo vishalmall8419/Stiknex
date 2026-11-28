@@ -1,5 +1,6 @@
 import { getSeoForPath, isKnownRoute, seoAliases, BASE_URL, SITE_URL } from './_utils/seoConfig.js';
 import { extractFaqFromContent } from './_utils/blogValidator.js';
+import { buildOrganizationSchema, buildPersonSchema, buildWebSiteSchema } from '../src/utils/entitySchema.js';
 
 const escAttr = (value) => String(value ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 import { ALL_TOOLS, TOOL_CATEGORIES, TOOL_HUBS } from '../src/data/toolsRegistry.js';
@@ -228,19 +229,10 @@ export default async function handler(req, res) {
                     "datePublished": blog.publishedAt || blog.createdAt || new Date().toISOString(),
                     "dateModified": blog.updatedAt || blog.publishedAt || new Date().toISOString(),
                     "author": {
-                        "@type": "Person",
-                        "name": blog.author || "Vishal Mall",
-                        "url": `${primaryDomain}/about`
+                        ...buildPersonSchema(),
+                        "name": blog.author || "Vishal Mall"
                     },
-                    "publisher": {
-                        "@type": "Organization",
-                        "name": "Stiknex",
-                        "url": primaryDomain,
-                        "logo": {
-                            "@type": "ImageObject",
-                            "url": `${primaryDomain}/Stiknex.png`
-                        }
-                    },
+                    "publisher": buildOrganizationSchema(),
                     "mainEntityOfPage": {
                         "@type": "WebPage",
                         "@id": blogUrl
@@ -464,18 +456,7 @@ export default async function handler(req, res) {
         ];
 
         if (cleanPath === '/') {
-            pageSchemas.push({
-                "@context": "https://schema.org",
-                "@type": "WebSite",
-                "name": "Stiknex",
-                "url": primaryDomain,
-                "description": description,
-                "potentialAction": {
-                    "@type": "SearchAction",
-                    "target": `${primaryDomain}/search?q={search_term_string}`,
-                    "query-input": "required name=search_term_string"
-                }
-            });
+            pageSchemas.push(buildWebSiteSchema(description));
         } else if (cleanPath === '/about') {
             pageSchemas.push({
                 "@context": "https://schema.org",
@@ -483,15 +464,7 @@ export default async function handler(req, res) {
                 "name": title,
                 "url": canonicalUrl,
                 "description": description,
-                "mainEntity": {
-                    "@type": "Organization",
-                    "name": "Stiknex",
-                    "url": primaryDomain,
-                    "founder": {
-                        "@type": "Person",
-                        "name": "Vishal Mall"
-                    }
-                }
+                "mainEntity": buildOrganizationSchema()
             });
         } else {
             pageSchemas.push({

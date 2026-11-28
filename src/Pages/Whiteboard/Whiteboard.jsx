@@ -3,6 +3,7 @@ import { useSearchParams, Link } from "react-router-dom";
 import AppShell from "../../Component/Layout/AppShell";
 import { useAppContext } from "../../context/AppContext";
 import PageSEO from "../../Component/SEO/PageSEO";
+import RelatedToolsBlock from "../../Component/SEO/RelatedToolsBlock";
 import {
   Plus,
   Search,
@@ -1323,6 +1324,7 @@ const WhiteboardDashboard = () => {
           </div>
         </div>
       </div>
+      <RelatedToolsBlock currentPath="/whiteboard" />
     </AppShell>
   );
 };

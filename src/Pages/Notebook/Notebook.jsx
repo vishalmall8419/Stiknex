@@ -15,6 +15,7 @@ import NotebookDrawingCanvas from "./NotebookDrawingCanvas";
 import PenControlsBar from "./PenControlsBar";
 import PageSEO from "../../Component/SEO/PageSEO";
 import WorkspaceSeoSection from "../../Component/SEO/WorkspaceSeoSection";
+import RelatedToolsBlock from "../../Component/SEO/RelatedToolsBlock";
 import { NOTEPAD_SEO_CONTENT } from "../../data/workspaceSeoContent";
 import Style from "./Notebook.module.css";
 import {
@@ -3050,10 +3051,13 @@ const Notebook = () => {
       />
     </div>
     {!isZenMode && (
-      <WorkspaceSeoSection
-        content={NOTEPAD_SEO_CONTENT}
-        onScrollTop={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-      />
+      <>
+        <RelatedToolsBlock currentPath="/online-notebook" />
+        <WorkspaceSeoSection
+          content={NOTEPAD_SEO_CONTENT}
+          onScrollTop={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+        />
+      </>
     )}
     </>
   );
