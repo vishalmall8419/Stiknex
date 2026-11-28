@@ -39,8 +39,12 @@ const WorkspaceSeoSection = ({ content }) => {
   const [openFaqIndex, setOpenFaqIndex] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
   const [isHidden, setIsHidden] = useState(() => readHiddenPref());
+  const [dragPos, setDragPos] = useState(null);
   const dialogRef = useRef(null);
   const triggerRef = useRef(null);
+  const wrapRef = useRef(null);
+  const dragStateRef = useRef({ active: false, moved: false, startX: 0, startY: 0, origX: 0, origY: 0 });
+  const justDraggedRef = useRef(false);
   const headingId = useId();
   const { pathname } = useLocation();
 
@@ -62,11 +66,68 @@ const WorkspaceSeoSection = ({ content }) => {
   if (!content || isAboutFabExcluded(pathname)) return null;
 
   const openDialog = () => {
+    if (justDraggedRef.current) return;
     const dialog = dialogRef.current;
     if (!dialog) return;
     if (!dialog.open) {
       dialog.showModal();
       setIsOpen(true);
+    }
+  };
+
+  const handlePointerDown = (e) => {
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    const wrap = wrapRef.current;
+    if (!wrap) return;
+    const rect = wrap.getBoundingClientRect();
+    dragStateRef.current = {
+      active: true,
+      moved: false,
+      pointerId: e.pointerId,
+      startX: e.clientX,
+      startY: e.clientY,
+      origX: rect.left,
+      origY: rect.top,
+    };
+  };
+
+  const handlePointerMove = (e) => {
+    const st = dragStateRef.current;
+    if (!st.active) return;
+    const dx = e.clientX - st.startX;
+    const dy = e.clientY - st.startY;
+    if (!st.moved && Math.hypot(dx, dy) > 6) {
+      st.moved = true;
+      try {
+        wrapRef.current?.setPointerCapture(st.pointerId);
+      } catch {
+        // ignore if synthetic event
+      }
+    }
+    if (st.moved && wrapRef.current) {
+      const rect = wrapRef.current.getBoundingClientRect();
+      const maxX = Math.max(8, window.innerWidth - rect.width - 8);
+      const maxY = Math.max(8, window.innerHeight - rect.height - 8);
+      const nextX = Math.min(maxX, Math.max(8, st.origX + dx));
+      const nextY = Math.min(maxY, Math.max(8, st.origY + dy));
+      setDragPos({ x: nextX, y: nextY });
+    }
+  };
+
+  const handlePointerUp = (e) => {
+    const st = dragStateRef.current;
+    if (!st.active) return;
+    st.active = false;
+    if (st.moved) {
+      justDraggedRef.current = true;
+      setTimeout(() => {
+        justDraggedRef.current = false;
+      }, 60);
+    }
+    try {
+      wrapRef.current?.releasePointerCapture(e.pointerId);
+    } catch {
+      // ignore
     }
   };
 
@@ -111,14 +172,23 @@ const WorkspaceSeoSection = ({ content }) => {
     <>
       {!isHidden && (
         <div
-          className="stiknex-about-fab-wrap fixed top-[40%] -translate-y-1/2 right-[max(0.75rem,env(safe-area-inset-right))] z-40 inline-flex items-center rounded-full border border-slate-200/90 bg-white/95 p-0.5 shadow-lg shadow-slate-900/10 backdrop-blur-md dark:border-slate-700/90 dark:bg-slate-900/95"
+          ref={wrapRef}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerCancel={handlePointerUp}
+          style={dragPos ? { left: `${dragPos.x}px`, top: `${dragPos.y}px`, right: "auto", transform: "none" } : undefined}
+          className={`stiknex-about-fab-wrap fixed ${
+            dragPos ? "" : "top-[40%] -translate-y-1/2 right-[max(0.75rem,env(safe-area-inset-right))]"
+          } z-40 inline-flex items-center rounded-full border border-slate-200/90 bg-white/95 p-0.5 shadow-lg shadow-slate-900/10 backdrop-blur-md touch-none select-none cursor-grab active:cursor-grabbing dark:border-slate-700/90 dark:bg-slate-900/95`}
         >
           <button
             ref={triggerRef}
             type="button"
             aria-label="About this tool"
+            title="About this tool (Drag to move)"
             onClick={openDialog}
-            className="inline-flex h-8 min-w-8 items-center justify-center rounded-full px-1.5 text-xs font-semibold text-slate-700 transition hover:text-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-slate-200 dark:hover:text-indigo-300 cursor-pointer"
+            className="inline-flex h-8 min-w-8 items-center justify-center rounded-full px-1.5 text-xs font-semibold text-slate-700 transition hover:text-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-slate-200 dark:hover:text-indigo-300 cursor-grab active:cursor-grabbing"
           >
             <Info className="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
             <span className="stiknex-about-fab-label">About this tool</span>
