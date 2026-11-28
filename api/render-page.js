@@ -4,6 +4,7 @@ import { extractFaqFromContent } from './_utils/blogValidator.js';
 const escAttr = (value) => String(value ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 import { ALL_TOOLS, TOOL_CATEGORIES, TOOL_HUBS } from '../src/data/toolsRegistry.js';
 import { getBespokeDataForSlug } from '../src/data/bespokeToolsData.js';
+import { SCOPED_SEO_CONTENT } from '../src/data/scopedSeoContent.js';
 import connectToDatabase from './_utils/db.js';
 import Blog from './_models/Blog.js';
 import fs from 'fs';
@@ -528,6 +529,33 @@ export default async function handler(req, res) {
 
         html = html.replace('</head>', `<script type="application/ld+json">${JSON.stringify(pageSchemas)}</script>\n</head>`);
 
+        const scopedContent = SCOPED_SEO_CONTENT[cleanPath] || null;
+        let scopedHtml = '';
+        if (scopedContent) {
+            const paras = scopedContent.answerFirst.split(/\n\n+/).map(p => `<p style="color: #334155; font-size: 15px; line-height: 1.7; margin-bottom: 12px;">${p}</p>`).join('');
+            let tableHtml = '';
+            if (scopedContent.conversionTable) {
+                tableHtml = `
+        <div style="margin: 24px 0; overflow-x: auto;">
+            <h3 style="font-size: 17px; font-weight: 700; color: #0f172a; margin-bottom: 10px;">${scopedContent.conversionTable.caption}</h3>
+            <table style="width: 100%; border-collapse: collapse; font-size: 14px; text-align: left;">
+                <thead>
+                    <tr>${scopedContent.conversionTable.columns.map(c => `<th style="padding: 8px 12px; border-bottom: 2px solid #e2e8f0; color: #0f172a;">${c}</th>`).join('')}</tr>
+                </thead>
+                <tbody>
+                    ${scopedContent.conversionTable.rows.map(r => `<tr>${r.map(cell => `<td style="padding: 8px 12px; border-bottom: 1px solid #e2e8f0; color: #334155;">${cell}</td>`).join('')}</tr>`).join('')}
+                </tbody>
+            </table>
+        </div>`;
+            }
+            scopedHtml = `
+        <section style="margin: 28px 0;">
+            <h2 style="font-size: 20px; font-weight: 700; color: #0f172a; margin-bottom: 12px;">${scopedContent.answerHeading}</h2>
+            ${paras}
+            ${tableHtml}
+        </section>`;
+        }
+
         // Fetch bespoke howTo, guide and features for AI search / GEO / AEO
         const toolSlug = cleanPath.replace(/^\//, '');
         const bespoke = getBespokeDataForSlug(toolSlug);
@@ -665,6 +693,7 @@ export default async function handler(req, res) {
       <main style="max-width: 960px; margin: 0 auto; padding: 32px 16px;">
         <h1 style="font-size: 30px; font-weight: 800; color: #0f172a; margin-bottom: 12px; line-height: 1.3;">${seo.h1 || title}</h1>
         <p style="color: #475569; font-size: 16px; line-height: 1.6; margin-bottom: 24px;">${description}</p>
+        ${scopedHtml}
         ${bespokeHtml}
         ${faqsHtml}
         ${relatedHtml}

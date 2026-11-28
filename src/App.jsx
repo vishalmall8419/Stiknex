@@ -44,18 +44,6 @@ const BuyMeACoffee = lazy(
   () => import("./Pages/BuyMeACoffee/BuyMeACoffee")
 );
 
-// Preload Blog chunk during browser idle time to eliminate loading delay
-if (typeof window !== "undefined") {
-  const preloadBlogChunk = () => {
-    import("./Pages/Blog/Blog").catch(() => {});
-  };
-  if ("requestIdleCallback" in window) {
-    window.requestIdleCallback(preloadBlogChunk, { timeout: 2000 });
-  } else {
-    setTimeout(preloadBlogChunk, 1500);
-  }
-}
-
 const Blog = lazy(
   () => import("./Pages/Blog/Blog")
 );
@@ -90,7 +78,7 @@ const Sitemap = lazy(() => import("./Pages/Sitemap/Sitemap"));
 import SignatureLoader from "./Component/SignatureLoader";
 import { initSyncEngine } from "./services/syncManager";
 import RouteRestorationTracker from "./Component/RouteRestorationTracker";
-import { ALL_TOOLS } from "./data/toolsRegistry";
+import { TOOL_SLUGS } from "./data/toolSlugs";
 
 // ============================================================
 // PAGE LOADER (Signature SVG Handwriting Loader)
@@ -147,15 +135,16 @@ const App = () => {
     location.pathname === '/data-converter' ||
     location.pathname === '/dataconverter';
 
+  const normalizedPathLower = location.pathname.toLowerCase();
+  const normalizedToolSlug = normalizedPathLower.startsWith('/tools/')
+    ? normalizedPathLower.slice(7)
+    : normalizedPathLower.slice(1);
+
   const isToolRoute =
     location.pathname === '/tools' ||
     location.pathname.startsWith('/tools/') ||
     isCalculatorRoute ||
-    ALL_TOOLS.some((t) => {
-      const p = location.pathname.toLowerCase();
-      const s = `/${t.slug.toLowerCase()}`;
-      return p === s || p === `/tools${s}`;
-    });
+    TOOL_SLUGS.has(normalizedToolSlug);
 
   // ==========================================================
   // RENDER
