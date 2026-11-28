@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, lazy, Suspense } from "react";
 import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -33,30 +33,32 @@ import NotFound from "../NotFound/NotFound";
 import { getSeoForPath, seoConfig } from "../../utils/seoConfig";
 import { ALL_TOOLS, TOOL_CATEGORIES, TOOL_HUBS, getHubForCategory } from "../../data/toolsRegistry";
 
-// 20 Specialized Category Engines
-import CalculatorsEngine from "./engines/CalculatorsEngine";
-import MeasurementEngine from "./engines/MeasurementEngine";
-import WritingEngine from "./engines/WritingEngine";
-import TextAnalysisEngine from "./engines/TextAnalysisEngine";
-import ImageEngine from "./engines/ImageEngine";
-import PdfEngine from "./engines/PdfEngine";
-import DeveloperEngine from "./engines/DeveloperEngine";
-import EncodingEngine from "./engines/EncodingEngine";
-import SecurityEngine from "./engines/SecurityEngine";
-import DesignEngine from "./engines/DesignEngine";
-import TimeEngine from "./engines/TimeEngine";
-import MathEngine from "./engines/MathEngine";
-import FinanceEngine from "./engines/FinanceEngine";
-import TypingEngine from "./engines/TypingEngine";
-import ProductivityEngine from "./engines/ProductivityEngine";
-import SeoEngine from "./engines/SeoEngine";
-import DataEngine from "./engines/DataEngine";
-import MediaEngine from "./engines/MediaEngine";
-import GeneratorsEngine from "./engines/GeneratorsEngine";
-import HelpersEngine from "./engines/HelpersEngine";
+// 20 Specialized Category Engines (lazy-loaded per active tool category)
+const CalculatorsEngine = lazy(() => import("./engines/CalculatorsEngine"));
+const MeasurementEngine = lazy(() => import("./engines/MeasurementEngine"));
+const WritingEngine = lazy(() => import("./engines/WritingEngine"));
+const TextAnalysisEngine = lazy(() => import("./engines/TextAnalysisEngine"));
+const ImageEngine = lazy(() => import("./engines/ImageEngine"));
+const PdfEngine = lazy(() => import("./engines/PdfEngine"));
+const DeveloperEngine = lazy(() => import("./engines/DeveloperEngine"));
+const EncodingEngine = lazy(() => import("./engines/EncodingEngine"));
+const SecurityEngine = lazy(() => import("./engines/SecurityEngine"));
+const DesignEngine = lazy(() => import("./engines/DesignEngine"));
+const TimeEngine = lazy(() => import("./engines/TimeEngine"));
+const MathEngine = lazy(() => import("./engines/MathEngine"));
+const FinanceEngine = lazy(() => import("./engines/FinanceEngine"));
+const TypingEngine = lazy(() => import("./engines/TypingEngine"));
+const ProductivityEngine = lazy(() => import("./engines/ProductivityEngine"));
+const SeoEngine = lazy(() => import("./engines/SeoEngine"));
+const DataEngine = lazy(() => import("./engines/DataEngine"));
+const MediaEngine = lazy(() => import("./engines/MediaEngine"));
+const GeneratorsEngine = lazy(() => import("./engines/GeneratorsEngine"));
+const HelpersEngine = lazy(() => import("./engines/HelpersEngine"));
 import ToolHelpAccordion from "./components/ToolHelpAccordion";
 import DesktopOnlyToolGuard from "./components/DesktopOnlyToolGuard";
 import { TIER_1_BESPOKE } from "../../data/bespokeToolsData";
+import WorkspaceSeoSection from "../../Component/SEO/WorkspaceSeoSection";
+import { SCOPED_SEO_CONTENT } from "../../data/scopedSeoContent";
 
 
 // Bespoke editorial data & formulas for Tier 1 tools (Research Phase 1 Standards)
@@ -431,9 +433,22 @@ const Tools = ({ directSlug = null }) => {
       />
 
       {isToolFullscreen ? (
-        <div className="w-full min-h-screen">
-          {renderToolEngine(activeToolData)}
-        </div>
+        <>
+          <div className="w-full min-h-screen">
+            <Suspense fallback={<div className="min-h-screen" />}>
+              {renderToolEngine(activeToolData)}
+            </Suspense>
+          </div>
+          {(SCOPED_SEO_CONTENT[location.pathname] || SCOPED_SEO_CONTENT[`/${activeToolData.slug}`]) && (
+            <WorkspaceSeoSection
+              content={{
+                heading: seoData.h1 || activeToolData.h1,
+                subheading: activeToolData.tagline,
+                ...(SCOPED_SEO_CONTENT[location.pathname] || SCOPED_SEO_CONTENT[`/${activeToolData.slug}`])
+              }}
+            />
+          )}
+        </>
       ) : (
         <div className="relative min-h-screen pb-32 overflow-x-clip font-sans">
         {/* Soft ambient background with Advapay floating orbs */}

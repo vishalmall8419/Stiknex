@@ -180,10 +180,37 @@ export default defineConfig(({ command }) => {
         },
         workbox: {
           globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2,ttf,json}'],
+          globIgnores: [
+            '**/assets/*excalidraw*',
+            '**/assets/*mermaid*',
+            '**/assets/*cytoscape*',
+            '**/assets/*katex*',
+            '**/assets/*monaco*',
+            '**/assets/*Engine*',
+            '**/assets/Tools-*',
+            '**/assets/Notebook-*',
+            '**/assets/Whiteboard-*',
+            '**/assets/prod-*',
+            '**/assets/chunk-EIO*'
+          ],
           maximumFileSizeToCacheInBytes: 5000000,
           navigateFallback: '/index.html',
           navigateFallbackDenylist: [/^\/api\//, /^\/s\//, /^\/[^/]+\.[^/]+$/],
           runtimeCaching: [
+            {
+              urlPattern: ({ sameOrigin, url }) => sameOrigin && url.pathname.startsWith('/assets/'),
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'app-chunks-cache',
+                expiration: {
+                  maxEntries: 120,
+                  maxAgeSeconds: 60 * 60 * 24 * 30
+                },
+                cacheableResponse: {
+                  statuses: [0, 200]
+                }
+              }
+            },
             {
               urlPattern: /^https:\/\/fonts\.(?:googleapis|gstatic)\.com\/.*/i,
               handler: 'CacheFirst',
@@ -246,6 +273,9 @@ export default defineConfig(({ command }) => {
             }
             if (clean.includes('/node_modules/lucide-react/')) {
               return 'vendor-icons';
+            }
+            if (clean.includes('/node_modules/@monaco-editor/') || clean.includes('/node_modules/monaco-editor/')) {
+              return 'vendor-monaco';
             }
           }
         }

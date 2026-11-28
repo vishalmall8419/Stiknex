@@ -1,4 +1,5 @@
 import { ALL_TOOLS } from "../../src/data/toolsRegistry.js";
+import { SCOPED_SEO_CONTENT } from "../../src/data/scopedSeoContent.js";
 
 export const SITE_URL = "https://stiknex.site";
 export const BASE_URL = SITE_URL;
@@ -1348,6 +1349,14 @@ ALL_TOOLS.forEach((t) => {
     }
   }
 });
+
+// Apply unique AEO/GEO FAQs & related tools for the 15 scoped routes only
+for (const [route, content] of Object.entries(SCOPED_SEO_CONTENT)) {
+  if (seoConfig[route]) {
+    seoConfig[route].faqs = content.faqs;
+    seoConfig[route].relatedTools = content.relatedTools.map(r => r.path);
+  }
+}
 
 export const seoAliases = {
   "/stopwatch": "/stopwatch-with-laps",

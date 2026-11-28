@@ -1189,7 +1189,7 @@ export default function LandingPage() {
             {/* Col 1: Brand */}
             <div className="space-y-4">
               <Link to="/" className="inline-flex items-center gap-2.5 group hover:opacity-95 transition-opacity" aria-label="Stiknex Homepage">
-                <img src="/logo.png" alt="Stiknex Logo" width="32" height="32" className="w-7 h-7 sm:w-8 sm:h-8 object-contain group-hover:scale-105 transition-transform drop-shadow-sm" />
+                <img src="/logo.png" alt="Stiknex Logo" width="32" height="32" loading="lazy" decoding="async" className="w-7 h-7 sm:w-8 sm:h-8 object-contain group-hover:scale-105 transition-transform drop-shadow-sm" />
                 <span className="text-lg sm:text-xl font-black tracking-tight text-[#0F3944] dark:text-white">Stiknex</span>
               </Link>
               <p className="text-xs text-slate-500 leading-relaxed">
