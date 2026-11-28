@@ -267,7 +267,7 @@ export default function AgeCalculator({ tool, seoData }) {
   }, [searchQuery]);
 
   return (
-    <div className="min-h-screen w-full bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col justify-between selection:bg-indigo-500 selection:text-white transition-colors duration-200">
+    <div className="min-h-screen w-full pb-20 md:pb-0 bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col justify-between selection:bg-indigo-500 selection:text-white transition-colors duration-200">
       {/* ══════════════════════════════════════════════════════════════════
           TOP NAVIGATION BAR (FULL-WIDTH EXPANSIVE)
       ══════════════════════════════════════════════════════════════════ */}

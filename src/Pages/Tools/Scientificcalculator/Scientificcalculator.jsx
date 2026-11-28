@@ -682,7 +682,7 @@ export default function ScientificCalculator({ tool, seoData }) {
   };
 
   return (
-    <div className="fixed inset-0 lg:relative lg:inset-auto w-full h-[100dvh] lg:min-h-screen flex flex-col justify-between overflow-hidden select-none font-sans bg-gradient-to-b from-[#EBF2F9] via-[#E2EDF7] to-[#D6E5F2] dark:from-[#0B1017] dark:via-[#080D14] dark:to-[#05090F] text-slate-800 dark:text-slate-100 transition-colors duration-300">
+    <div className="fixed inset-0 lg:relative lg:inset-auto w-full h-[100dvh] lg:min-h-screen pb-20 md:pb-0 flex flex-col justify-between overflow-hidden select-none font-sans bg-gradient-to-b from-[#EBF2F9] via-[#E2EDF7] to-[#D6E5F2] dark:from-[#0B1017] dark:via-[#080D14] dark:to-[#05090F] text-slate-800 dark:text-slate-100 transition-colors duration-300">
 
       {/* ═════════════════════════════════════════════════════════════════════
           DESKTOP VIEW (>= lg): DUAL STATION (Matching Reference Image)

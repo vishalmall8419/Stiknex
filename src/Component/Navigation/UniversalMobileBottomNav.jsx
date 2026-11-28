@@ -204,7 +204,7 @@ export default function UniversalMobileBottomNav() {
       {/* Floating Bottom Dock Container (Phone only: md:hidden) */}
       <div
         className="fixed left-1/2 -translate-x-1/2 z-50 flex flex-col items-center pointer-events-none md:hidden"
-        style={{ bottom: "max(16px, env(safe-area-inset-bottom, 16px))" }}
+        style={{ bottom: "max(8px, env(safe-area-inset-bottom, 8px))" }}
       >
         {/* Floating Quick Action Sheet Above Bottom Bar */}
         <AnimatePresence>

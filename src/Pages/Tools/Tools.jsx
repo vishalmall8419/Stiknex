@@ -435,7 +435,7 @@ const Tools = ({ directSlug = null }) => {
 
       {isToolFullscreen ? (
         <>
-          <div className="w-full min-h-screen">
+          <div className="w-full min-h-screen pb-24 md:pb-0">
             <Suspense fallback={<div className="min-h-screen" />}>
               {renderToolEngine(activeToolData)}
             </Suspense>
