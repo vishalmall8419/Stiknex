@@ -5,11 +5,11 @@
 export const SCOPED_SEO_CONTENT = {
   "/speed-converter": {
     answerHeading: "What is the Stiknex Speed Converter?",
-    answerFirst: `The Stiknex Speed Converter is a free, browser-based velocity calculator that converts between km/h, mph, meters per second (m/s), nautical knots, and feet per second (ft/s) with zero login or sign-up. Every calculation runs locally in your browser, so values update live as you type without page reloads or server uploads.
+    answerFirst: `Convert km/h, mph, meters per second (m/s), nautical knots, and feet per second (ft/s) in seconds with this free browser-based speed calculator—no login or sign-up required. Every calculation runs locally in JavaScript, updating results live as you type.
 
-To use it, enter any numeric speed, pick your starting unit, and choose a target unit—or read the full equivalent matrix below the main readout. You can also adjust decimal precision (from 2 decimals up to auto precision) and copy any converted figure with one click.
+Enter a numeric speed, pick your input unit, and choose a target unit—or scan the full equivalent matrix below the main readout. You can switch decimal precision from 2 decimals up to auto precision and copy any output with one click.
 
-This tool is useful for comparing road speed limits (such as 140 km/h to mph or 60 mph to km/h), converting wind or marine speeds in knots, and checking physics lab values in m/s or m/hr to km/hr. For example, 100 km/h = 62.14 mph, 140 km/h = 86.99 mph, and 10 m/s = 36 km/h (rounded to 2 decimal places).`,
+Use it to check road speed limits (such as 140 km/h to mph or 60 mph to km/h), marine and aviation wind speeds in knots, or physics values in m/s and m/hr to km/hr. For example, 100 km/h = 62.14 mph, 140 km/h = 86.99 mph, and 10 m/s = 36 km/h (rounded to 2 decimal places).`,
     conversionTable: {
       caption: "Common Speed Conversions (rounded to 2 decimal places)",
       columns: ["Input Speed", "Converted Value", "Notes"],
@@ -53,11 +53,11 @@ This tool is useful for comparing road speed limits (such as 140 km/h to mph or 
 
   "/temperature-converter": {
     answerHeading: "What is the Stiknex Temperature Converter?",
-    answerFirst: `The Stiknex Temperature Converter is a free, no-login online tool that converts temperatures simultaneously between Celsius (°C), Fahrenheit (°F), and Kelvin (K) directly in your browser. It runs client-side with zero data tracking, giving instant, accurate results as soon as you type a number.
+    answerFirst: `Switch between Celsius (°C), Fahrenheit (°F), and Kelvin (K) simultaneously using this free client-side temperature converter with no sign-up. Calculations run locally in your browser and update all three scales as soon as you type a number.
 
-Select your input scale, enter any positive or negative temperature, and read the converted values across all three scales at once. Built-in physical benchmark shortcuts—including absolute zero (-273.15 °C), water freezing (0 °C), room temperature (21 °C), human body temperature (37 °C), and boiling water (100 °C)—let you jump to common reference points in one click.
+Pick your starting scale, enter any positive or negative reading, or click a built-in benchmark—absolute zero (-273.15 °C), freezing water (0 °C), room temperature (21 °C), body temperature (37 °C), or boiling water (100 °C).
 
-Use it for cooking and oven temperatures (such as 180 °C = 356 °F or 200 °C = 392 °F), weather forecasts, or chemistry and physics coursework in Kelvin. For example, 0 °C = 32 °F (273.15 K), 37 °C = 98.6 °F (310.15 K), and -40 °C = -40 °F (233.15 K), rounded to 2 decimal places.`,
+Handy for oven temperatures (180 °C = 356 °F, 200 °C = 392 °F), weather forecasts, and chemistry or physics problems in Kelvin. Common equivalents rounded to 2 decimal places: 0 °C = 32 °F (273.15 K), 37 °C = 98.6 °F (310.15 K), and -40 °C = -40 °F (233.15 K).`,
     conversionTable: {
       caption: "Common Temperature Conversions (rounded to 2 decimal places)",
       columns: ["Celsius (°C)", "Fahrenheit (°F)", "Kelvin (K)"],
@@ -100,11 +100,11 @@ Use it for cooking and oven temperatures (such as 180 °C = 356 °F or 200 °C =
 
   "/unit-converter": {
     answerHeading: "What is the Stiknex Unit Converter?",
-    answerFirst: `The Stiknex Unit Converter is a free, browser-based universal measurement calculator that converts between Metric (SI) and US Imperial units with no sign-up or account required. All calculations execute locally in your browser memory, so inputs never leave your device and results appear instantaneously.
+    answerFirst: `Calculate Metric (SI) and US Imperial conversions across length, weight, volume, temperature, area, speed, pressure, and power in this free browser tool—no account required. All math runs locally in your browser, so values stay on your device.
 
-Enter any number, select your source unit and target unit, and view both the primary conversion and a full equivalent table of all units in that category. You can swap units in one click, adjust decimal precision from 2 decimals to auto, or copy any converted value straight to your clipboard. Recent conversions are saved locally in your browser history panel for quick reference.
+Type a number, pick your source and target units, and review both the primary output and the full category table. You can swap units in one click, choose 2 decimals to auto precision, copy results, and revisit recent conversions in the local history panel.
 
-It is built for everyday engineering, cooking, travel, schoolwork, and international shopping—whether you are converting kilometers to miles, kilograms to pounds, liters to US gallons, or bar to PSI. For example, 1 km = 0.62 mi, 1 kg = 2.2 lb, and 100 km/h = 62.14 mph (rounded to 2 decimal places).`,
+Built for engineering, cooking, travel, and schoolwork—from kilometers to miles and kilograms to pounds, to liters to US gallons or bar to PSI. For example, 1 km = 0.62 mi, 1 kg = 2.2 lb, and 100 km/h = 62.14 mph (rounded to 2 decimal places).`,
     conversionTable: {
       caption: "Common Metric and Imperial Unit Conversions (rounded to 2 decimal places)",
       columns: ["From Unit", "To Unit", "Category"],
@@ -132,7 +132,7 @@ It is built for everyday engineering, cooking, travel, schoolwork, and internati
       },
       {
         q: "Can I use the unit converter offline?",
-        a: "Yes. Once loaded, all conversion math runs locally in JavaScript without calling an external API or server. As long as the page is open or cached in your browser, you can convert units without an internet connection."
+        a: "Yes, once the page is loaded in your browser, all conversion math runs locally in JavaScript without calling an external API or server, so you do not need an active connection to compute values while the tab remains open."
       },
       {
         q: "How do I quickly reverse a unit conversion?",
@@ -148,11 +148,11 @@ It is built for everyday engineering, cooking, travel, schoolwork, and internati
 
   "/volume-converter": {
     answerHeading: "What is the Stiknex Volume Converter?",
-    answerFirst: `The Stiknex Volume Converter is a free, offline-ready online tool that converts liquid and cubic volume measurements—including milliliters (mL), liters (L), cubic meters (m³), teaspoons (tsp), tablespoons (tbsp), cups, and US gallons—directly in your browser with no login required.
+    answerFirst: `Convert liquid and cubic volume units—milliliters (mL), liters (L), cubic meters (m³), teaspoons (tsp), tablespoons (tbsp), cups, and US gallons—in this free browser-based volume calculator with no login. All math runs locally in JavaScript once the page loads.
 
-Type a volume amount, choose your starting unit, and pick your target unit to see the converted value immediately along with an all-units comparison list. Precision controls let you round to 2 decimal places for everyday recipes or keep higher precision for laboratory and industrial calculations, and you can copy any value in one click.
+Enter an amount, choose your starting and target units, and inspect the converted value alongside an all-units comparison list. Precision controls switch between 2 decimal places and higher precision, with one-click copy.
 
-It is practical for scaling kitchen recipes between metric milliliters and US cups or spoons, sizing aquariums and water tanks in liters versus gallons, or estimating shipping volumes in cubic meters. For example, 1 US gallon = 3.79 liters, 1 cup = 240 mL, and 1 cubic meter = 1,000 liters (rounded to 2 decimal places).`,
+This tool uses 1 cup = 240 mL (note: a US customary cup is 236.59 mL), 1 tbsp = 14.7868 mL (14.79 mL), 1 tsp = 4.92892 mL (4.93 mL), and 1 US gallon = 3.78541 L (3,785.41 mL, or 3.79 L rounded to 2 decimal places).`,
     conversionTable: {
       caption: "Common Volume Conversions (rounded to 2 decimal places)",
       columns: ["Input Volume", "Converted Value", "Common Use"],
@@ -171,11 +171,11 @@ It is practical for scaling kitchen recipes between metric milliliters and US cu
     faqs: [
       {
         q: "How many liters are in a US gallon?",
-        a: "One US liquid gallon equals 3.79 liters (3.78541 L before rounding to two decimals). Conversely, one liter equals 0.26 US gallons. Enter any gallon or liter amount above to convert both ways instantly."
+        a: "One US liquid gallon equals 3.78541 liters (3,785.41 mL, or 3.79 L rounded to two decimal places). Conversely, one liter equals 0.26 US gallons. Enter any gallon or liter amount above to convert both ways."
       },
       {
         q: "How many milliliters are in a cup, tablespoon, and teaspoon?",
-        a: "Using the standard metric-friendly definitions in this converter, 1 cup equals 240 mL, 1 tablespoon equals 14.79 mL, and 1 teaspoon equals 4.93 mL (rounded to two decimal places). These values update automatically for any fractional input."
+        a: "In this converter, 1 cup equals 240 mL (whereas a US customary cup is 236.59 mL), 1 tablespoon equals 14.7868 mL (14.79 mL), and 1 teaspoon equals 4.92892 mL (4.93 mL), rounded to two decimal places."
       },
       {
         q: "How do I convert cubic meters (m³) to liters?",
@@ -183,7 +183,7 @@ It is practical for scaling kitchen recipes between metric milliliters and US cu
       },
       {
         q: "Are US gallons different from UK Imperial gallons?",
-        a: "Yes. A US gallon is 3.79 liters, whereas a UK Imperial gallon is larger at about 4.55 liters. This tool specifically labels and calculates US gallons (galus) so recipe and fuel calculations remain consistent."
+        a: "Yes. A US gallon is 3.78541 liters (3.79 L rounded), whereas a UK Imperial gallon is about 4.55 liters. This tool specifically labels and calculates US gallons so recipe and fuel conversions stay consistent."
       }
     ],
     relatedTools: [
@@ -195,11 +195,11 @@ It is practical for scaling kitchen recipes between metric milliliters and US cu
 
   "/length-converter": {
     answerHeading: "What is the Stiknex Length Converter?",
-    answerFirst: `The Stiknex Length Converter is a free, browser-based distance and dimension calculator that converts between millimeters (mm), centimeters (cm), meters (m), kilometers (km), inches (in), feet (ft), yards (yd), and miles (mi) with no sign-up or installation. All calculations run locally in your browser memory for instant, private results.
+    answerFirst: `Measure and convert between millimeters (mm), centimeters (cm), meters (m), kilometers (km), inches (in), feet (ft), yards (yd), and miles (mi) in this free online length calculator with zero sign-up. Calculations run locally in your browser, keeping inputs private.
 
-Enter any length, choose your starting and target units, and view the converted result immediately alongside every other length unit in the equivalent matrix. You can adjust decimal precision from 2 decimals to auto, swap units in one click, or copy any converted figure straight to your clipboard.
+Type a length, pick your input and target units, and check the main readout plus every other length unit in the matrix. Swap units in one click, adjust precision from 2 decimals to auto, or copy any result.
 
-Whether you are converting personal height from feet to meters, screen or furniture dimensions from inches to centimeters, or running routes from kilometers to miles, the numbers stay consistent and easy to read. For example, 1 inch = 2.54 cm, 1 mile = 1.61 km, and 6 feet = 1.83 meters (rounded to 2 decimal places).`,
+Useful for height conversions from feet to meters, furniture or screen sizing from inches to centimeters, and running distances from kilometers to miles. For example, 1 inch = 2.54 cm, 1 mile = 1.61 km, and 6 feet = 1.83 meters (rounded to 2 decimal places).`,
     conversionTable: {
       caption: "Common Length Conversions (rounded to 2 decimal places)",
       columns: ["Input Length", "Converted Value", "Common Use"],
@@ -243,11 +243,11 @@ Whether you are converting personal height from feet to meters, screen or furnit
 
   "/word-counter": {
     answerHeading: "What is the Stiknex Word Counter?",
-    answerFirst: `The Stiknex Word Counter is a free, real-time online text analyzer that counts words, characters (with and without spaces), sentences, paragraphs, reading time, and speaking time directly in your browser with no login required. Your text stays strictly in browser memory and is never uploaded or logged on any external server.
+    answerFirst: `Count words, characters (with and without spaces), sentences, paragraphs, reading time, and speaking time live in your browser with this free word counter—no login or upload required. Everything stays in local browser memory as you type.
 
-Paste or type your draft into the editor to see all metrics update live on every keystroke without page reloads. The tool also extracts your top four recurring keywords with percentage density, includes quick case-transform buttons (UPPERCASE, lowercase, Title Case), and tracks character limits for Twitter/X (280), Instagram (2,200), and LinkedIn (3,000). You can copy or clear your text with a single click.
+Paste or write your draft to watch counts update on every keystroke. The counter also lists your top four keywords by percentage density, offers UPPERCASE, lowercase, and Title Case buttons, and tracks platform limits for Twitter/X (280), Instagram (2,200), and LinkedIn (3,000).
 
-Writers, students, bloggers, and editors use it to meet strict essay word targets, estimate speech or article duration (at 200 words per minute reading and 130 words per minute speaking), and verify keyword balance before publishing.`,
+Ideal for essays, articles, and speeches, using 200 words per minute for reading time and 130 words per minute for speaking time.`,
     faqs: [
       {
         q: "How does the word counter calculate reading and speaking time?",
@@ -275,11 +275,11 @@ Writers, students, bloggers, and editors use it to meet strict essay word target
 
   "/character-counter": {
     answerHeading: "What is the Stiknex Character Counter?",
-    answerFirst: `The Stiknex Character Counter is a free, instant browser tool that measures total characters with spaces, characters without spaces, words, sentences, and paragraphs with no account or sign-up. Everything runs locally in your browser memory so private drafts, emails, and unpublished copy never leave your device.
+    answerFirst: `Track exact character counts with and without spaces—plus words, sentences, and paragraphs—in this free browser-based character counter with no account required. All text processing stays in local browser memory on your device.
 
-Type or paste your text into the editor to see live character counts alongside built-in platform limit bars for Twitter/X (280 characters), Instagram captions (2,200 characters), and LinkedIn posts (3,000 characters). You can copy or clear your text in one click, inspect top keyword density, or convert text between uppercase, lowercase, and title case without leaving the page. Reading and speaking time estimates also update automatically as you edit.
+Paste or type copy to see live progress bars for Twitter/X (280 characters), Instagram captions (2,200 characters), and LinkedIn posts (3,000 characters). You can also inspect top keyword density, switch text between uppercase, lowercase, and title case, and copy or clear in one click.
 
-It is ideal for checking SEO title tags (under 60 characters), meta descriptions (under 160 characters), social media posts, SMS message lengths, ad headlines, and web form fields with strict character caps without any software install.`,
+Useful for tightening SEO title tags (under 60 characters), meta descriptions (under 160 characters), ad headlines, SMS messages, and form inputs with strict character caps.`,
     faqs: [
       {
         q: "What is the difference between characters with and without spaces?",
@@ -295,7 +295,7 @@ It is ideal for checking SEO title tags (under 60 characters), meta descriptions
       },
       {
         q: "Does the character counter work offline?",
-        a: "Yes. Because all counting logic runs purely in client-side JavaScript without external server requests, the character counter continues to work offline smoothly once the page is loaded in your browser."
+        a: "Yes, once loaded in your browser, all counting runs in client-side JavaScript without external server requests, so you can keep counting characters while the page remains open even if your connection drops."
       }
     ],
     relatedTools: [
@@ -307,11 +307,11 @@ It is ideal for checking SEO title tags (under 60 characters), meta descriptions
 
   "/case-converter": {
     answerHeading: "What is the Stiknex Case Converter?",
-    answerFirst: `The Stiknex Case Converter is a free online text formatting tool that transforms text between UPPERCASE, lowercase, Title Case, Sentence case, camelCase, PascalCase, snake_case, and kebab-case right in your browser with no login, installation, or server uploads. All formatting runs client-side so sensitive notes and code identifiers stay private.
+    answerFirst: `Convert text between UPPERCASE, lowercase, Title Case, Sentence case, camelCase, PascalCase, snake_case, and kebab-case in this free client-side case converter with no login or server uploads. Formatting happens locally in your browser so drafts and code identifiers stay private.
 
-Paste or type your text into the input panel, click any case mode to transform it instantly, and copy the formatted output in one click. You can also save local snapshots in your browser if you want to compare or revisit earlier text transformations during an editing session, and clear the workspace whenever you start fresh.
+Paste your text, click a target case mode, and copy the converted result in one click. You can also save local snapshots to your browser (\`localStorage\`) to revisit earlier versions or clear the editor to start over.
 
-Writers, students, and editors use it to fix accidental Caps Lock typing and format headlines in Title Case, while developers use it to convert variable names, CSS classes, URL slugs, and database keys between camelCase, snake_case, and kebab-case without writing manual scripts or regular expressions.`,
+Writers use it to fix Caps Lock mistakes and format headlines, while developers use it to convert variable names, CSS classes, URL slugs, and database keys without writing regex scripts.`,
     faqs: [
       {
         q: "What is the difference between camelCase and PascalCase?",
@@ -339,11 +339,11 @@ Writers, students, and editors use it to fix accidental Caps Lock typing and for
 
   "/json-formatter": {
     answerHeading: "What is the Stiknex JSON Formatter?",
-    answerFirst: `The Stiknex JSON Formatter is a free, browser-based JSON beautifier, validator, and minifier that formats raw JSON, detects syntax errors, and compresses payloads with no login or server upload. All parsing runs locally in your browser's JavaScript engine, keeping confidential API payloads, tokens, and configuration files completely private.
+    answerFirst: `Beautify, validate, and minify JSON locally in your browser with this free JSON formatter—no login or server upload required. Native JavaScript parsing keeps API payloads, tokens, and config files on your device.
 
-Paste any JSON string into the editor, then choose Format/Beautify to indent nested objects and arrays cleanly or Minify to strip whitespace for production use. If your JSON is invalid, the parser highlights the syntax error so you can fix missing quotes, trailing commas, or mismatched brackets quickly before copying the clean output with one click. You can also load sample data or clear the workspace anytime.
+The editor opens with an example JSON object you can edit or clear, or you can paste raw JSON or upload a .json/.txt file. Switch between 2-space indent, 4-space indent, or Minify; if syntax is invalid, an error panel displays the parser error message so you can spot missing quotes or trailing commas before copying or downloading the output.
 
-Developers, data analysts, and QA engineers use it daily to inspect REST API responses, clean up configuration files, validate webhook payloads, debug malformed data from logs, and minify JSON before embedding it into web applications.`,
+Built for inspecting REST API responses, validating webhook payloads, and compressing JSON configuration files.`,
     faqs: [
       {
         q: "Does the JSON formatter upload my data to a server?",
@@ -371,11 +371,11 @@ Developers, data analysts, and QA engineers use it daily to inspect REST API res
 
   "/qr-code-generator": {
     answerHeading: "What is the Stiknex QR Code Generator?",
-    answerFirst: `The Stiknex QR Code Generator is a free, client-side tool that creates custom QR codes for URLs, plain text, email addresses, or Wi-Fi strings directly in your browser with no account or sign-up. Generated codes are static pixel matrices encoded locally with no tracking redirects and never expire.
+    answerFirst: `Generate static QR codes for URLs, plain text, email addresses, or formatted Wi-Fi strings in your browser using this free QR code maker—no account or sign-up needed. Codes are rendered client-side with no redirect tracking and never expire.
 
-Enter your URL or text, pick custom foreground and background colors, and select an error correction level—Low (7%), Medium (15%), Quartile (25%), or High (30%). Higher error correction adds redundancy so codes remain scannable even when partially covered or printed small. When ready, download a 1000×1000 pixel PNG image or copy the crisp SVG vector markup in one click. All rendering happens in your browser without uploading your links.
+Paste your link or text into the input box, customize foreground and background colors, and choose an error correction level—Low (7%), Medium (15%), Quartile (25%), or High (30%). Export a 1000×1000 pixel PNG file or copy the SVG vector markup in one click.
 
-It is useful for sharing website links on flyers, printing Wi-Fi access codes for guests, adding portfolio links to business cards, labeling physical equipment, and embedding scannable vector graphics into modern design tools.`,
+Practical for flyers, business cards, equipment labels, and design tools when you need a clean, non-expiring QR image without uploading links to a server.`,
     faqs: [
       {
         q: "Do Stiknex QR codes expire or contain tracking?",
@@ -403,11 +403,11 @@ It is useful for sharing website links on flyers, printing Wi-Fi access codes fo
 
   "/password-generator": {
     answerHeading: "What is the Stiknex Password Generator?",
-    answerFirst: `The Stiknex Password Generator is a free, browser-based random password maker that uses the Web Crypto API (window.crypto.getRandomValues) to generate unpredictable passwords with no login or server transmission. Everything runs strictly in local device memory and is never stored, logged, or sent over the network.
+    answerFirst: `Create random passwords locally in your browser using window.crypto.getRandomValues with this free password generator—no login or server transmission. Generated strings live only in local device memory and are never stored or sent over the network.
 
-Adjust the password length slider and toggle lowercase letters, uppercase letters, numbers, and symbols (at least one character set always remains active). As you customize, the tool calculates bit entropy and displays a live strength rating along with an estimated crack-time benchmark so you can see how length and character variety affect resistance to brute-force guessing. Copy your new password to the clipboard or regenerate a fresh one with a single click.
+Drag the length slider and toggle lowercase letters, uppercase letters, numbers, and symbols (at least one set stays active). Live bit entropy, a strength rating, and an estimated crack-time readout update as you adjust options, with one-click copy and regenerate controls.
 
-Use it to create unique, high-entropy credentials for email, banking, cloud accounts, and API keys without relying on predictable words, personal dates, or reused password patterns across different websites, services, and online apps.`,
+Useful for generating unique credentials for email, banking, cloud accounts, and API keys instead of reusing predictable passwords.`,
     faqs: [
       {
         q: "How are passwords generated without a server?",
@@ -415,7 +415,7 @@ Use it to create unique, high-entropy credentials for email, banking, cloud acco
       },
       {
         q: "How long should a strong password be?",
-        a: "At least 16 characters mixing uppercase, lowercase, numbers, and symbols is a solid baseline for important accounts. Longer passwords increase bit entropy exponentially and are much harder to brute-force over time."
+        a: "At least 16 characters mixing uppercase, lowercase, numbers, and symbols is a solid baseline for important accounts. Entropy bits grow linearly with length, which makes the number of possible brute-force guesses grow exponentially."
       },
       {
         q: "What does the entropy score mean?",
@@ -435,11 +435,11 @@ Use it to create unique, high-entropy credentials for email, banking, cloud acco
 
   "/pomodoro-timer": {
     answerHeading: "What is the Stiknex Pomodoro Timer?",
-    answerFirst: `The Stiknex Pomodoro Timer is a free online focus timer built around 25-minute work intervals and 5-minute breaks, running directly in your browser with no account, download, or installation needed. All timer controls and session state stay local in your browser without tracking or login walls.
+    answerFirst: `Run focused work sprints in your browser with this free Pomodoro timer—no account, download, or login wall. Timer controls and session state remain local in your browser, defaulting to 25-minute focus intervals, 5-minute short breaks, and 15-minute long breaks.
 
-Start a 25-minute focus sprint, work on a single chosen task until the session finishes, and take a 5-minute short break before starting the next cycle. Running the timer in your browser keeps your workspace lightweight and distraction-free without needing a separate desktop app, browser extension, or phone alarm. You can pause, reset, or switch between focus and break intervals anytime as your schedule changes.
+Start a focus sprint, work until the chime, and step away for your break. You can pause, reset, or switch between focus, short break, and long break modes (or use keyboard shortcuts Space, R, and S) as your schedule shifts.
 
-Students, developers, writers, and remote workers use the Pomodoro rhythm to overcome procrastination on large assignments, track focused study blocks, and prevent mental fatigue during long coding, reading, exam prep, research, or technical writing sessions throughout the entire workday.`,
+Students, developers, and writers use the 25/5 rhythm to break up large assignments, pace study blocks, and stay fresh during coding, reading, or writing sessions.`,
     faqs: [
       {
         q: "What is the standard Pomodoro Technique schedule?",
@@ -467,11 +467,11 @@ Students, developers, writers, and remote workers use the Pomodoro rhythm to ove
 
   "/to-do-list": {
     answerHeading: "What is the Stiknex To-Do List?",
-    answerFirst: `The Stiknex To-Do List is a free, browser-based task checklist that lets you add tasks, check off completed items, track a live completion percentage bar, and export your list as Markdown with no login or sign-up required. Everything runs locally in your browser without server round-trips or account setup.
+    answerFirst: `Organize tasks in a clean browser checklist with this free to-do list—no login or sign-up required. Add items, check them off, watch a live completion percentage bar, and export your list as Markdown without server round-trips.
 
-Type a task and press Enter or click Add to append it to your checklist, click any item to toggle strikethrough completion, or remove finished items with the delete button. A progress bar at the top updates automatically to show how many tasks are done out of your total list, and you can copy the entire list in Markdown format (- [x] / - [ ]) in one click.
+Type a task and press Enter or click Add, click an item to toggle strikethrough completion, or remove entries with the delete button. The top progress bar updates automatically, and Copy as Markdown exports every item in - [x] / - [ ] format in one click.
 
-It is useful for daily work checklists, study assignments, sprint planning, grocery or packing lists, and breaking larger tasks into small, concrete actionable steps you can finish, check off, and export directly into your notes.`,
+Helpful for daily work checklists, study assignments, sprint tasks, and packing lists you want to check off and paste into your notes.`,
     faqs: [
       {
         q: "How do I export or save my to-do list?",
@@ -499,11 +499,11 @@ It is useful for daily work checklists, study assignments, sprint planning, groc
 
   "/sticky-notes": {
     answerHeading: "What is Stiknex Online Sticky Notes?",
-    answerFirst: `Stiknex Online Sticky Notes is a free digital sticky notes board that runs in your browser with no login, works offline, and lets you sync your sticky notes between phone and PC by scanning a QR code with client-side AES-256-GCM end-to-end encryption.
+    answerFirst: `Pin color-coded notes on an interactive browser board with Stiknex Online Sticky Notes—free, with no login, local browser persistence, and optional QR-code sync encrypted client-side with AES-256-GCM.
 
-Create color-coded notes on an interactive canvas, drag and arrange ideas freely, and edit checklists or quick reminders—all auto-saved locally in your browser without waiting for a server. When you want your board on another device, open Sync, scan the single-use QR code, and your encrypted sticky notes sync without creating an account or typing a password. You can also export or back up your notes locally anytime you want an extra copy.
+Drag notes across the canvas, edit checklists or reminders, and back up or restore your board as a JSON file. Because notes save locally in your browser, you can keep editing while the page is open even if your connection drops, and sync updates automatically when you reconnect. To link another device without an account or password, open Sync and scan the temporary 5-minute QR pairing code.
 
-It is ideal for visual brainstorming, daily desk reminders, study boards, project planning, and keeping quick thoughts synced between your laptop and phone without relying on cloud accounts, emails, passwords, or any third-party logins at all.`,
+Built for visual brainstorming, desk reminders, study boards, and sharing quick notes between phone and PC.`,
     faqs: [
       {
         q: "Can I sync notes without logging in?",
@@ -515,11 +515,11 @@ It is ideal for visual brainstorming, daily desk reminders, study boards, projec
       },
       {
         q: "Do online sticky notes work offline?",
-        a: "Yes. All notes, colors, and board positions are saved locally in your browser so you can view and edit sticky notes offline, and sync updates automatically when your device reconnects."
+        a: "All notes, colors, and board positions save locally in your browser so you can view and edit them while the page is open without an active connection, and enabled sync pushes updates automatically when the browser reconnects."
       },
       {
         q: "What happens during QR pairing between phone and PC?",
-        a: "The QR code transfers your sync credentials over a single-use ephemeral AES-GCM pairing session that expires automatically, linking your phone and PC without typing long keys or logging into an account."
+        a: "The QR code transfers your sync credentials over an ephemeral AES-GCM pairing session that expires automatically after 5 minutes, linking your phone and PC without typing long keys or logging into an account."
       }
     ],
     relatedTools: [
@@ -531,11 +531,11 @@ It is ideal for visual brainstorming, daily desk reminders, study boards, projec
 
   "/online-notebook": {
     answerHeading: "What is Stiknex Online Notebook & Notepad?",
-    answerFirst: `Stiknex Online Notebook is a free browser-based lined-paper notepad and code editor that requires no login, works offline, and syncs notebooks across devices by scanning a QR code with client-side AES-256-GCM end-to-end encryption.
+    answerFirst: `Write on a distraction-free lined-paper notepad or switch into a built-in code editor with Stiknex Online Notebook—free, with no login, local localStorage and IndexedDB saving, and optional QR-code sync encrypted client-side with AES-256-GCM.
 
-Start typing notes, lists, or formatted documents immediately—every keystroke saves locally in your browser's storage and IndexedDB without waiting for a server. You can create multiple notebooks, switch into the built-in code editor to format or run HTML and JavaScript snippets, and optionally pair your phone or second computer via a single-use QR code without creating an account, entering an email address, or remembering a password.
+Create multiple notebooks, format rich text, export notes as .txt files, or run HTML and JavaScript snippets in a preview tab (note: the Monaco code editor loads from a CDN and cloud sync requires an internet connection). To pair your phone or second computer without an email or password, scan the temporary 5-minute QR pairing code.
 
-It is built for distraction-free writing, meeting notes, offline travel journaling, study outlines, and quick code snippets that stay private on your device unless you explicitly choose to sync them across your paired devices. You can also export, copy, or organize your notes anytime without any login or account restrictions whatsoever.`,
+Useful for meeting notes, study outlines, daily writing, and quick code snippets kept privately in your browser until you choose to sync them.`,
     faqs: [
       {
         q: "Can I sync notebooks without logging in?",
@@ -547,11 +547,11 @@ It is built for distraction-free writing, meeting notes, offline travel journali
       },
       {
         q: "Does the online notebook work offline?",
-        a: "Yes. Notes are stored locally in browser storage and IndexedDB, allowing you to open, write, and organize notebooks offline and reconcile changes automatically when your device is back online again."
+        a: "Notes are stored locally in browser storage and IndexedDB so your text remains on your device and sync reconciles when the browser is back online; however, cloud sync and the CDN-loaded Monaco code editor require an internet connection."
       },
       {
         q: "Can I use it as both a plain notepad and a code editor?",
-        a: "Yes. Stiknex combines a lined-paper rich-text notepad with an in-browser code editor supporting syntax highlighting and HTML/JS execution, all saved locally in your browser with zero account sign-up needed here."
+        a: "Yes. Stiknex pairs a lined-paper rich-text notepad with an in-browser Monaco code editor supporting syntax highlighting and HTML/JS preview execution, with local saving and no account sign-up."
       }
     ],
     relatedTools: [
