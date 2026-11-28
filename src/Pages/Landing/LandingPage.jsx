@@ -812,7 +812,7 @@ export default function LandingPage() {
           {/* Category Quick Chips */}
           <div className="flex flex-wrap gap-2.5">
             {[
-              { label: "Calculators", to: "/basic-calculator" },
+              { label: "Calculators", to: "/scientific-calculator" },
               { label: "Age Calculator", to: "/age-calculator" },
               { label: "Date Calculator", to: "/date-calculator" },
               { label: "Percentage Calculator", to: "/percentage-calculator" },
@@ -981,7 +981,7 @@ export default function LandingPage() {
                   Native gesture navigation, touch-optimized canvas for{" "}
                   <Link to="/sticky-notes" className="text-[#134E5E] dark:text-teal-400 hover:underline font-semibold">sticky notes</Link>,
                   {" "}and instant offline access to your{" "}
-                  <Link to="/online-notepad" className="text-[#134E5E] dark:text-teal-400 hover:underline font-semibold">online notepad</Link>.
+                  <Link to="/online-notebook" className="text-[#134E5E] dark:text-teal-400 hover:underline font-semibold">online notepad</Link>.
                 </p>
               </div>
               <div>
@@ -1208,7 +1208,7 @@ export default function LandingPage() {
 
             {/* Col 3: Popular Utilities */}
             <div className="space-y-3 text-xs font-bold text-slate-500 uppercase tracking-wider">
-              <Link to="/basic-calculator" className="block hover:text-[#134E5E] dark:hover:text-teal-400">Calculators</Link>
+              <Link to="/scientific-calculator" className="block hover:text-[#134E5E] dark:hover:text-teal-400">Calculators</Link>
               <Link to="/qr-code-generator" className="block hover:text-[#134E5E] dark:hover:text-teal-400">QR Generator</Link>
               <Link to="/stiknex-typing" className="block hover:text-[#134E5E] dark:hover:text-teal-400">Typing Test</Link>
               <Link to="/blog" className="block hover:text-[#134E5E] dark:hover:text-teal-400">Blog &amp; Tutorials</Link>

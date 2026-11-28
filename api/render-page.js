@@ -1,4 +1,5 @@
 import { getSeoForPath, isKnownRoute, seoAliases, BASE_URL, SITE_URL } from './_utils/seoConfig.js';
+import { EXCLUDED_PATHS } from './_utils/sitemapRules.js';
 import { extractFaqFromContent } from './_utils/blogValidator.js';
 
 const escAttr = (value) => String(value ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -580,8 +581,9 @@ export default async function handler(req, res) {
 
         
         // Generate categorized tools directory across the 9 primary hubs for comprehensive static HTML internal linking
+        const excludedSet = new Set(EXCLUDED_PATHS);
         const categorizedToolsHtml = TOOL_HUBS.map(hub => {
-            const hubTools = ALL_TOOLS.filter(t => hub.subcategories.includes(t.category));
+            const hubTools = ALL_TOOLS.filter(t => hub.subcategories.includes(t.category) && !excludedSet.has(`/${t.slug}`));
             if (!hubTools.length) return '';
             return `
             <div style="margin-bottom: 24px;">

@@ -28,6 +28,9 @@ import {
   QrCode
 } from "lucide-react";
 import AppShell from "../../Component/Layout/AppShell";
+import { EXCLUDED_PATHS } from "../../../api/_utils/sitemapRules";
+
+const EXCLUDED_SET = new Set(EXCLUDED_PATHS);
 import PageSEO from "../../Component/SEO/PageSEO";
 import NotFound from "../NotFound/NotFound";
 import { getSeoForPath, seoConfig } from "../../utils/seoConfig";
@@ -549,7 +552,7 @@ const Tools = ({ directSlug = null }) => {
                 </p>
                 <div className="flex flex-wrap items-center gap-3 shrink-0">
                   <Link
-                    to="/online-notepad"
+                    to="/online-notebook"
                     className="font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 underline underline-offset-4"
                   >
                     Save your calculations in our Free Online Notepad
@@ -931,33 +934,50 @@ const Tools = ({ directSlug = null }) => {
 
               {/* Tools Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                {filteredTools.map((t) => (
-                  <Link
-                    key={t.slug}
-                    to={`/${t.slug}`}
-                    className="group flex flex-col text-left p-5 sm:p-6 rounded-2xl bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800 shadow-sm hover:border-indigo-500 dark:hover:border-indigo-500 hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-300 relative overflow-hidden"
-                  >
-                    <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-lg mb-4 group-hover:scale-110 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-sm">
-                      <i className={t.icon}></i>
-                    </div>
+                {filteredTools.map((t) => {
+                  const cardCls = "group flex flex-col text-left p-5 sm:p-6 rounded-2xl bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800 shadow-sm hover:border-indigo-500 dark:hover:border-indigo-500 hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-300 relative overflow-hidden cursor-pointer";
+                  const cardBody = (
+                    <>
+                      <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-lg mb-4 group-hover:scale-110 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-sm">
+                        <i className={t.icon}></i>
+                      </div>
 
-                    <div className="text-[10px] font-black uppercase tracking-wider text-indigo-500 mb-1">
-                      {t.categoryName}
-                    </div>
+                      <div className="text-[10px] font-black uppercase tracking-wider text-indigo-500 mb-1">
+                        {t.categoryName}
+                      </div>
 
-                    <h2 className="font-bold text-lg mb-1.5 text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-                      {t.title}
-                    </h2>
+                      <h2 className="font-bold text-lg mb-1.5 text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                        {t.title}
+                      </h2>
 
-                    <p className="text-slate-500 dark:text-slate-400 font-medium text-xs leading-relaxed mb-4 line-clamp-2">
-                      {t.tagline}
-                    </p>
+                      <p className="text-slate-500 dark:text-slate-400 font-medium text-xs leading-relaxed mb-4 line-clamp-2">
+                        {t.tagline}
+                      </p>
 
-                    <div className="mt-auto flex items-center gap-1 text-xs font-bold text-indigo-600 dark:text-indigo-400 group-hover:translate-x-1 transition-transform">
-                      Open Tool <ChevronRight size={14} />
-                    </div>
-                  </Link>
-                ))}
+                      <div className="mt-auto flex items-center gap-1 text-xs font-bold text-indigo-600 dark:text-indigo-400 group-hover:translate-x-1 transition-transform">
+                        Open Tool <ChevronRight size={14} />
+                      </div>
+                    </>
+                  );
+                  return EXCLUDED_SET.has(`/${t.slug}`) ? (
+                    <button
+                      key={t.slug}
+                      type="button"
+                      onClick={() => navigate(`/${t.slug}`)}
+                      className={cardCls}
+                    >
+                      {cardBody}
+                    </button>
+                  ) : (
+                    <Link
+                      key={t.slug}
+                      to={`/${t.slug}`}
+                      className={cardCls}
+                    >
+                      {cardBody}
+                    </Link>
+                  );
+                })}
               </div>
 
               {filteredTools.length === 0 && (
